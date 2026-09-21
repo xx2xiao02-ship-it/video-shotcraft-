@@ -648,8 +648,17 @@
 <!-- 素材预览弹窗 -->
 <div id="lib-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column">
   <button onclick="document.getElementById('lib-modal').style.display='none'" style="position:absolute;top:16px;right:24px;background:none;border:none;color:#fff;font-size:36px;cursor:pointer;z-index:10000;line-height:1">×</button>
-  <div id="lib-modal-content" style="max-width:90vw;max-height:82vh"></div>
-  <div id="lib-modal-info" style="color:#aaa;font-size:13px;margin-top:16px;text-align:center;max-width:800px;line-height:1.6"></div>
+  <div id="lib-modal-content" style="max-width:90vw;max-height:62vh"></div>
+  <div id="lib-modal-info" style="color:#aaa;font-size:13px;margin-top:14px;text-align:center;max-width:800px;line-height:1.6"></div>
+  <!-- P1：标签编辑（写 C5） -->
+  <div style="width:90vw;max-width:720px;margin-top:14px;background:#14171f;border:1px solid #2a2e38;border-radius:10px;padding:12px 14px">
+    <div style="font-size:12px;color:#8b93a3;margin-bottom:8px">🏷️ 标签编辑 <span style="color:#5b6472">（点击标签切换，回车添加，保存写回 C5 _index.json）</span></div>
+    <div id="lib-edit-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;max-height:90px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px">
+      <input id="lib-edit-input" type="text" placeholder="输入新标签，回车添加" style="flex:1;background:#0d0f13;border:1px solid #2a2e38;border-radius:8px;padding:7px 12px;color:#e6e9ef;font-size:13px;outline:none">
+      <button id="lib-edit-save" style="background:linear-gradient(135deg,#22c55e,#0ea5e9);color:#fff;border:none;border-radius:8px;padding:7px 20px;font-size:13px;font-weight:600;cursor:pointer">💾 保存标签</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1187,7 +1196,7 @@ $("#mat-folder").onchange = async () => {
 };
 
 // ===== 色彩风格模块 =====
-const THEMES = [
+let THEMES = [
   { id: "dark-gold",   name: "黑金高级", bg: "#0d0f14", ink: "#e8e6e1", mid: "#8a8680", accent: "#d4a853", accent2: "#b48020", card: "#1a1d24", border: "#2a2e38", overlay: "#000000", overlayAlpha: 60, fontFamily: "'Noto Serif SC', 'Songti SC', serif", titleSize: 36, radius: 12 },
   { id: "deep-tech",   name: "深蓝科技", bg: "#0a1420", ink: "#e0f0ff", mid: "#6a8a9a", accent: "#4ecdc4", accent2: "#2a9a9a", card: "#142838", border: "#1a3040", overlay: "#000814", overlayAlpha: 60, fontFamily: "'Noto Sans SC', sans-serif", titleSize: 36, radius: 8 },
   { id: "light-biz",   name: "浅色商务", bg: "#f7f5f0", ink: "#1a1a1a", mid: "#8a8a8a", accent: "#1a4a8a", accent2: "#0a2a5a", card: "#ffffff", border: "#e0dcd4", overlay: "#ffffff", overlayAlpha: 20, fontFamily: "'Noto Sans SC', 'PingFang SC', sans-serif", titleSize: 34, radius: 8 },
@@ -1416,8 +1425,8 @@ $("#slot-stroke-width").oninput = () => {
 };
 $("#slot-gradient-text").onchange = updatePreview;
 
-// 保存自定义主题
-$("#save-theme").onclick = () => {
+// 保存自定义主题（P1：双写 本地 + C4 theme-pack.json）
+$("#save-theme").onclick = async () => {
   const custom = {
     id: "custom-" + Date.now(),
     name: "我的主题",
@@ -1439,7 +1448,21 @@ $("#save-theme").onclick = () => {
   localStorage.setItem("sc-themes", JSON.stringify(saved));
   THEMES.push(custom);
   renderThemeGrid();
-  showToast("主题已保存 ✓");
+  // 写 C4（权威收敛节点）
+  try {
+    const j = await apiFetch("/api/theme/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: custom.name,
+        bg: custom.bg, text: custom.ink, sub: custom.mid,
+        accent: custom.accent, accent2: custom.accent2,
+        card: custom.card, border: custom.border,
+        overlay: hexToRgba(custom.overlay, custom.overlayAlpha / 100),
+      }),
+    });
+    showToast(j.ok ? "主题已保存（C4 + 本地）✓" : "C4 保存失败: " + (j.error || ""));
+  } catch (e) { showToast("C4 保存失败: " + e.message); }
 };
 
 // 重置
@@ -1448,6 +1471,45 @@ $("#reset-theme").onclick = () => applyTheme(currentTheme);
 // 初始化风格模块
 renderThemeGrid();
 updatePreview();
+
+// P1：从 C4（theme-pack.json）加载真实主题，合并本地自定义
+function rgbaToHex(rgba) {
+  const m = /rgba?\((\d+),(\d+),(\d+)/.exec(rgba || "");
+  if (!m) return null;
+  const h = (n) => parseInt(n).toString(16).padStart(2, "0");
+  return "#" + h(m[1]) + h(m[2]) + h(m[3]);
+}
+function rgbaAlpha(rgba) {
+  const m = /rgba?\((\d+),(\d+),(\d+)(?:,([\d.]+))?\)/.exec(rgba || "");
+  if (!m) return null;
+  const a = m[4] !== undefined ? parseFloat(m[4]) : 1;
+  return Math.round(a * 100);
+}
+(async function loadC4Themes() {
+  try {
+    const j = await apiFetch("/api/theme");
+    if (j && Array.isArray(j.presets) && j.presets.length) {
+      const fromC4 = j.presets.map((p, i) => ({
+        id: "c4-" + i,
+        name: p.name,
+        bg: p.bg, ink: p.text, mid: p.sub,
+        accent: p.accent, accent2: p.accent2,
+        card: p.card, border: p.border,
+        overlay: rgbaToHex(p.overlay) || "#000000",
+        overlayAlpha: rgbaAlpha(p.overlay) || 60,
+        fontFamily: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        titleSize: 36, radius: 12,
+      }));
+      const local = JSON.parse(localStorage.getItem("sc-themes") || "[]");
+      THEMES = [...fromC4, ...local];
+      currentTheme = THEMES[0];
+      renderThemeGrid();
+      applyTheme(currentTheme);
+      const sb = document.getElementById("sb-theme");
+      if (sb) sb.textContent = currentTheme.name;
+    }
+  } catch (e) { console.error("C4 theme load failed:", e); }
+})();
 
 // 初始化：先绑定静态按钮事件，再拉取任务状态
 bindButtons();
@@ -1473,8 +1535,12 @@ const libState = { page: 0, limit: 24, total: 0, selectedTags: new Set() };
 
 async function loadLibTags() {
   try {
-    const j = await apiFetch("/api/library/tags");
-    $("#lib-desc").textContent = `共 ${j.total} 个镜头 · 点击标签筛选`;
+    const [j, st] = await Promise.all([
+      apiFetch("/api/library/tags"),
+      apiFetch("/api/library/stat").catch(() => null),
+    ]);
+    const catN = st && st.categories ? st.categories.length : "-";
+    $("#lib-desc").textContent = `共 ${j.total} 个镜头 · ${catN} 个分类 · ${j.tags.length} 个标签 · 点击标签筛选`;
     const wrap = $("#lib-tags");
     wrap.innerHTML = "";
     // 契约 v1.1：tags 为字符串数组；兼容旧对象形态
@@ -1553,9 +1619,10 @@ async function loadLibList() {
         if (mockMode) {
           mc.innerHTML = `<div style="width:90vw;max-width:640px;aspect-ratio:16/9;background:#0d0f13;border:1px solid #2a2e38;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8a8680;font-size:14px">Mock 数据模式 · 无真实视频流</div>`;
         } else {
-          mc.innerHTML = `<video src="${videoUrl}" controls autoplay style="max-width:90vw;max-height:82vh;border-radius:8px"></video>`;
+          mc.innerHTML = `<video src="${videoUrl}" controls autoplay style="max-width:90vw;max-height:62vh;border-radius:8px"></video>`;
         }
         mi.innerHTML = `<b style="color:#e6e9ef">${item.path.split(/[\\/]/).pop()}</b><br>${item.duration_sec}s · ${item.width}×${item.height}<br>${item.tags.join(" · ")}`;
+        openLibEdit(item); // P1：标签编辑（写 C5）
         modal.style.display = 'flex';
       };
       grid.appendChild(card);
@@ -1570,6 +1637,55 @@ $("#lib-next").onclick = () => {
   const pages = Math.ceil(libState.total / libState.limit);
   if (libState.page < pages - 1) { libState.page++; loadLibList(); }
 };
+
+// ===== P1：素材标签编辑（写 C5 _index.json）=====
+let libEditTags = new Set();
+let libEditPath = null;
+
+function renderLibEdit() {
+  const wrap = document.getElementById('lib-edit-tags');
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  if (!libEditTags.size) {
+    wrap.innerHTML = '<span style="color:#5b6472;font-size:12px">暂无标签，输入下方添加</span>';
+    return;
+  }
+  [...libEditTags].forEach(t => {
+    const btn = document.createElement("button");
+    btn.textContent = t + " ✕";
+    btn.title = "点击移除标签";
+    btn.style.cssText = "padding:3px 10px;border-radius:14px;cursor:pointer;font-size:12px;font-family:inherit;background:#f59e0b33;color:#f59e0b;border:1px solid #f59e0b66";
+    btn.onclick = () => { libEditTags.delete(t); renderLibEdit(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function openLibEdit(item) {
+  libEditPath = item.path;
+  libEditTags = new Set(item.tags || []);
+  renderLibEdit();
+  const input = document.getElementById('lib-edit-input');
+  if (!input) return;
+  input.value = "";
+  input.onkeydown = (e) => {
+    if (e.key === "Enter" && input.value.trim()) {
+      libEditTags.add(input.value.trim());
+      input.value = "";
+      renderLibEdit();
+    }
+  };
+  document.getElementById('lib-edit-save').onclick = async () => {
+    try {
+      const j = await apiFetch("/api/library/tag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: libEditPath, tags: [...libEditTags] }),
+      });
+      showToast(j.ok ? `标签已保存（${libEditTags.size} 个）→ C5 ✓` : "保存失败: " + (j.error || ""));
+      if (j.ok) loadLibList(); // 刷新网格显示新标签
+    } catch (e) { showToast("保存失败: " + e.message); }
+  };
+}
 
 loadLibTags();
 loadLibList();
