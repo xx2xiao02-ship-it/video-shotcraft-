@@ -68,6 +68,7 @@ PE html>
   .panel .phead .pstatus.run { background: #14532d33; color: #4ade80; }
   .panel .phead .pstatus.done { background: #1e3a8a33; color: #93c5fd; }
   .panel .phead .pstatus.err { background: #7f1d1d33; color: #f87171; }
+  .panel .phead .pstatus.error { background: #7f1d1d33; color: #f87171; }
   .panel .phead .actions { margin-left: auto; display: flex; gap: 8px; }
   .panel .phead button {
     background: var(--chip); color: var(--ink); border: 1px solid var(--border2); border-radius: 8px;
@@ -770,6 +771,8 @@ const MOCK_ROUTES = [
   { m: (u, o) => u.pathname === "/api/theme" && !o.method, d: () => MOCK.theme },
   { m: (u, o) => o.method === "POST" && u.pathname === "/api/theme/save", d: () => MOCK.theme_save },
   { m: (u, o) => u.pathname === "/api/preview", d: () => MOCK.preview },
+  { m: (u, o) => o.method === "POST" && u.pathname === "/api/script/save", d: () => ({ ok: true, chars: 0, file: "director/_input.txt", mock: true }) },
+  { m: (u, o) => u.pathname === "/api/gallery" && !o.method, d: () => ({ ok: true, items: [], mock: true }) },
 ];
 
 let mockMode = false;
@@ -839,6 +842,8 @@ function renderPanels() {
         <div class="actions">
           <button data-run="${type}">启动</button>
           ${latest && (latest.status === "running" || latest.status === "stopping") ? `<button class="stop" data-stop="${latest.id}">停止</button>` : ""}
+          ${latest && latest.status === "error" ? `<button data-retry="${type}">重试</button>` : ""}
+          ${latest ? `<button data-clear="${type}">清空日志</button>` : ""}
         </div>
       </div>
       <div class="progress-wrap" data-toggle-log="${type}">
@@ -875,6 +880,12 @@ function bindButtons() {
   });
   document.querySelectorAll("[data-stop]").forEach((el) => {
     el.onclick = () => doAction("stop", { id: el.dataset.stop });
+  });
+  document.querySelectorAll("[data-retry]").forEach((el) => {
+    el.onclick = () => doAction(el.dataset.retry);
+  });
+  document.querySelectorAll("[data-clear]").forEach((el) => {
+    el.onclick = () => clearTaskLog(el.dataset.clear);
   });
   // 展开/收起日志
   document.querySelectorAll("[data-toggle-log]").forEach((el) => {
@@ -1071,8 +1082,25 @@ async function saveScript() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    showToast(j.ok ? `文案已保存（${j.chars} 字）→ C1 ✓` : "保存失败: " + (j.error || ""));
+    showToast(j.ok ? (j.mock ? "文案已保存 → C1 ✓（Mock 模式）" : `文案已保存（${j.chars} 字）→ C1 ✓`) : "保存失败: " + (j.error || ""));
   } catch (e) { showToast("保存失败: " + e.message); }
+}
+
+// P2 收尾：清空任务日志（server 内存 + 面板 DOM）
+async function clearTaskLog(type) {
+  const panel = document.getElementById(`panel-${type}`);
+  const t = (state.tasks || []).find((x) => x.type === type);
+  if (t) {
+    try { await fetch(`/api/task/clear`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: t.id }) }); } catch {}
+  }
+  const logEl = document.getElementById(`log-${type}`);
+  const pbar = document.getElementById(`pbar-${type}`);
+  const pinfo = document.getElementById(`pinfo-${type}`);
+  if (logEl) logEl.innerHTML = `<span class="empty">日志已清空</span>`;
+  if (pbar) pbar.style.width = "0%";
+  if (pinfo) pinfo.innerHTML = "等待开始";
+  showToast("日志已清空");
+  refresh();
 }
 
 async function doAction(action, extra = {}) {

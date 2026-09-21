@@ -118,6 +118,15 @@ const apis = {
     return sendJson(res, { since: t.logs.length, done: t.status !== "running", status: t.status, exitCode: t.exitCode, logs: t.logs.slice(since) });
   },
 
+  "POST /api/task/clear": async (req, res) => {
+    const body = await readBody(req);
+    const id = Number(body && body.id);
+    const t = tasks.get(id);
+    if (!t) return sendJson(res, { ok: false, error: "任务不存在" });
+    t.logs.length = 0;
+    return sendJson(res, { ok: true });
+  },
+
   "GET /api/storyboard": (req, res) => {
     const sbPath = path.join(ROOT, "director", "storyboard.json");
     if (!fs.existsSync(sbPath)) return sendJson(res, { exists: false });

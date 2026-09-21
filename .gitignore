@@ -33,3 +33,6 @@ temp-screenshot.png
 # 音频/视频产物与本地测试素材
 template/public/audio/voiceover.mp3
 template/public/*.mp4
+
+# 运行动态数据（素材使用计数，不入库）
+director/usage.json
