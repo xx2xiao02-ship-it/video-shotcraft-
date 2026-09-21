@@ -5,11 +5,11 @@
   <!-- 封面头 -->
   <div style="max-width:1180px;margin:0 auto;">
     <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 前端页面设计方案</div>
-    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.7 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.8 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
     <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
       <b style="color:#d4a853;">文档目的：</b>把当前"单页堆叠"的操作台（console-ui.html，1394 行 / 62KB，7 个业务环节共用一页），按业务主线重构为 <b>5 视图工作台</b>。
       每视图聚焦一个业务环节，同时治理前端与后端 API 契约不一致的问题（UI 仍在调用 /api/logs、/api/action、/api/state、/api/preview、/api/materials 等旧接口，server 已改为 /api/task、/api/storyboard 等新接口）。<br>
-      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。<br><b style="color:#d4a853;">v1.5 新增：</b>全站主题变量化——221 处组件硬编码色调收敛为 CSS 变量（:root 默认 + applyTheme 联动），C4 主题一键铺满全站（header/卡片/按钮/状态栏整体联动）。<br><b style="color:#d4a853;">v1.6 新增：</b>风格中心主题驱动 Remotion 成片——「当前生效主题」落 director/current-theme.json（跨会话保持），build-storyboard 生成分镜时读取并填充 style/theme 色调，成片画面使用所选主题（背景/文字/强调色/进度条）。<br><b style="color:#d4a853;">v1.7 新增：</b>素材匹配升级——情绪标签（文案情绪 → 素材情绪匹配 +15 分）+ 使用频率降权（usage.json 计数，每次 -3，高频素材自动轮换）。
+      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。<br><b style="color:#d4a853;">v1.5 新增：</b>全站主题变量化——221 处组件硬编码色调收敛为 CSS 变量（:root 默认 + applyTheme 联动），C4 主题一键铺满全站（header/卡片/按钮/状态栏整体联动）。<br><b style="color:#d4a853;">v1.6 新增：</b>风格中心主题驱动 Remotion 成片——「当前生效主题」落 director/current-theme.json（跨会话保持），build-storyboard 生成分镜时读取并填充 style/theme 色调，成片画面使用所选主题（背景/文字/强调色/进度条）。<br><b style="color:#d4a853;">v1.7 新增：</b>素材匹配升级——情绪标签（文案情绪 → 素材情绪匹配 +15 分）+ 使用频率降权（usage.json 计数，每次 -3，高频素材自动轮换）。<br><b style="color:#d4a853;">v1.8 新增：</b>P2 视图深度接入——编导台「保存文案」写 C1（_input.txt）、成片台出口真实化（Remotion Studio 启动+打开编辑器 / 成片画廊弹窗 / 单元测试 vitest），Workbench 如实标注未接入。
     </div>
   </div>
 
@@ -506,7 +506,10 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
       <b style="color:#d4a853;">验证（真实渲染）：</b>选「深蓝科技」主题 → A 模式真实生成 → storyboard.style.bg=#0a1420/accent=#4ecdc4 落盘 → props 同步 → Remotion 渲染成片；对照实验（accent 改品红 #ff00ff）渲染单帧，顶部进度条像素 = (255,0,255) 品红，确认模板消费主题色；成片自动跳转成片台正常。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P3 · 素材匹配升级：情绪标签 + 使用频率降权（已实施，本版提交）</div>
       <b style="color:#d4a853;">情绪标签：</b>文案情绪推断（MOOD_KEYWORDS：激情/科技/专业/温暖/焦虑 → 活力/科技感/沉稳/温暖/紧张，默认中性）+ 素材情绪推断（TAG_TO_MOOD：由现有标签映射情绪，打标时直接加情绪词即可命中）；findMaterial 打分：文案情绪非中性且素材情绪命中 +15 分。<br>
       <b style="color:#d4a853;">使用频率降权：</b>新增 director/usage.json（path→count），素材实际入画时才记一次；打分每次使用 -3，高频素材自动让位，素材库 3396 条均衡轮换。<br>
-      <b style="color:#d4a853;">验证：</b>① 同文案连续生成两次，第二次自动换用不同素材（usage 双条累计）✓；② 情绪推断单测 7/7 通过（文案 激情→活力 / 系统思考→沉稳 / 中性 保持；素材 运动→活力 / 商务→沉稳 / 风景→温暖）；③ usage 只记录实际入画素材（remotion 文字卡不计数）。
+      <b style="color:#d4a853;">验证：</b>① 同文案连续生成两次，第二次自动换用不同素材（usage 双条累计）✓；② 情绪推断单测 7/7 通过（文案 激情→活力 / 系统思考→沉稳 / 中性 保持；素材 运动→活力 / 商务→沉稳 / 风景→温暖）；③ usage 只记录实际入画素材（remotion 文字卡不计数）。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P2 · 视图深度接入（已实施，本版提交）</div>
+      <b style="color:#d4a853;">编导台：</b>新增「💾 保存文案（写 C1）」按钮 → POST /api/script/save 写入 director/_input.txt（收敛节点），toast 反馈字数；不保存也可直接跑 A 模式（用输入框）。<br>
+      <b style="color:#d4a853;">成片台：</b>① Remotion Studio 卡 → 启动服务（npm run dev，端口 3000）+ 自动打开编辑器（可停止任务释放端口）；② 运动预览 Gallery 卡 → 弹窗画廊（GET /api/gallery 列 template/out 真实成片 + /api/gallery/video Range 播放，替代原 404 的 /gallery/ 路径）；③ Motion Workbench → 如实提示「未接入项目」（服务缺位，不假装可用）；④ 单元测试卡 → vitest run 真实执行（原有 doAction）。<br>
+      <b style="color:#d4a853;">验证：</b>保存文案 11 字落盘 _input.txt ✓；gallery 弹窗列出 dynamic.mp4 可播放 ✓；studio 点击后新 tab 打开 Remotion Studio 编辑器（localhost:3000/AiflPromo）✓，stop 后端口释放 ✓。
     </div>
     <div style="margin-top:12px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:12.5px;color:#aab0bc;line-height:1.9;">
       <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;">接口落地状态表（UI 实际调用视角）</div>
@@ -527,7 +530,7 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
     </div>
   </div>
 <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
-    Video ShotCraft · 前端页面设计方案 v1.7 · 含数据契约 / Mock 示例 / 收敛节点 · P0~P3 已实施：5 视图 + Mock + 真实接口全通 + C4/C5 读写 + 主题驱动成片 + 素材情绪匹配与使用降权
+    Video ShotCraft · 前端页面设计方案 v1.8 · 含数据契约 / Mock 示例 / 收敛节点 · P0~P3 + P2 已实施：5 视图 + Mock + 真实接口全通 + C4/C5 读写 + 主题驱动成片 + 素材情绪/降权 + 视图出口真实化
   </div>
 
 </div>

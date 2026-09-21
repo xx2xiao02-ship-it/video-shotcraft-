@@ -355,6 +355,45 @@ const apis = {
     if (!fs.existsSync(outPath)) { res.writeHead(404); res.end(); return; }
     sendVideoRange(res, outPath, req.headers.range);
   },
+
+  // P2：编导台保存文案 → C1 收敛节点（director/_input.txt）
+  "POST /api/script/save": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const text = (body && body.text !== undefined ? String(body.text) : "").trim();
+      if (!text) return sendJson(res, { ok: false, error: "文案为空" });
+      const p1 = path.join(ROOT, "director", "_input.txt");
+      fs.writeFileSync(p1, text, "utf8");
+      return sendJson(res, { ok: true, chars: text.length, file: "director/_input.txt" });
+    } catch (e) { return sendJson(res, { ok: false, error: e.message }); }
+  },
+
+  // P2：成片画廊（template/out 视频列表）
+  "GET /api/gallery": (req, res) => {
+    const outDir = path.join(ROOT, "template", "out");
+    let items = [];
+    if (fs.existsSync(outDir)) {
+      items = fs.readdirSync(outDir)
+        .filter((f) => f.toLowerCase().endsWith(".mp4"))
+        .map((f) => {
+          const st = fs.statSync(path.join(outDir, f));
+          return { name: f, size: st.size, mtime: st.mtimeMs };
+        })
+        .sort((a, b) => b.mtime - a.mtime);
+    }
+    return sendJson(res, { ok: true, items });
+  },
+
+  // P2：成片画廊视频流（Range）
+  "GET /api/gallery/video": (req, res, url) => {
+    const file = url.searchParams.get("file") || "";
+    if (!file || file.includes("..") || file.includes("/") || file.includes("\\")) {
+      res.writeHead(400); res.end("bad file"); return;
+    }
+    const vp = path.join(ROOT, "template", "out", file);
+    if (!fs.existsSync(vp)) { res.writeHead(404); res.end(); return; }
+    sendVideoRange(res, vp, req.headers.range);
+  },
 };
 
 const server = http.createServer(async (req, res) => {

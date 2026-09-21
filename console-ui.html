@@ -348,6 +348,12 @@ PE html>
       </label>
       <label>&nbsp;</label>
     </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="brief-submit" id="b-save" style="background:var(--border2);margin-top:0;flex:0 0 auto">
+        <div style="font-size:13px;font-weight:600">💾 保存文案（写 C1）</div>
+      </button>
+      <div style="flex:1;font-size:11px;color:var(--mid2);align-self:center;line-height:1.5">保存到 director/_input.txt（收敛节点），供后续生成复用；不保存也不影响 A 模式（直接用输入框）。</div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
       <button class="brief-submit" id="b-mode-a" style="background:linear-gradient(135deg,#22c55e,var(--accent2));margin-top:0">
         <div style="font-size:14px;font-weight:600">A 模式</div>
@@ -859,7 +865,8 @@ function bindButtons() {
   document.querySelectorAll(".card[data-action]").forEach((el) => {
     el.onclick = () => {
       const action = el.dataset.action;
-      if (action === "gallery") { window.open("/gallery/", "_blank"); return; }
+      if (action === "gallery") { openGallery(); return; }
+      if (action === "studio") { launchStudio(); return; }
       doAction(action);
     };
   });
@@ -879,6 +886,9 @@ function bindButtons() {
       arrow.classList.toggle("open");
     };
   });
+  // P2：保存文案写 C1
+  const bSave = document.getElementById("b-save");
+  if (bSave) bSave.onclick = saveScript;
   // A 模式：一键生成口播视频 → 先出分镜校准
   $("#b-mode-a").onclick = async () => {
     const text = $("#b-fulltext").value.trim();
@@ -999,6 +1009,70 @@ function bindButtons() {
     } catch (e) { showToast("渲染失败: " + e.message); setGenProgress(0, "渲染失败"); }
     refresh();
   };
+}
+
+// P2：成片画廊（真实 out 视频列表 + 播放）
+async function openGallery() {
+  try {
+    const j = await apiFetch("/api/gallery");
+    const items = (j && j.items) || [];
+    const modal = document.getElementById("lib-modal");
+    const mc = document.getElementById("lib-modal-content");
+    const mi = document.getElementById("lib-modal-info");
+    const et = document.getElementById("lib-edit-tags");
+    const ei = document.getElementById("lib-edit-input");
+    const es = document.getElementById("lib-edit-save");
+    if (et) et.style.display = "none";
+    if (ei) ei.style.display = "none";
+    if (es) es.style.display = "none";
+    if (items.length === 0) {
+      mc.innerHTML = `<div style="color:#8b93a3;padding:40px;text-align:center">成片库为空——先跑一次 A 模式渲染，视频会出现在这里</div>`;
+    } else {
+      mc.innerHTML = items.map((it) => `
+        <div style="margin-bottom:14px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#000">
+          <video controls preload="metadata" style="width:100%;max-height:56vh;display:block" src="/api/gallery/video?file=${encodeURIComponent(it.name)}"></video>
+          <div style="padding:6px 10px;font-size:11px;color:var(--mid);display:flex;justify-content:space-between">
+            <span>${it.name}</span><span>${(it.size/1024/1024).toFixed(1)}MB</span>
+          </div>
+        </div>`).join("");
+    }
+    mi.innerHTML = `<b style="color:#e6e9ef">🎞️ 成片画廊</b> · ${items.length} 个成片（template/out）`;
+    modal.style.display = "flex";
+    const closeBtn = modal.querySelector("button");
+    if (closeBtn) closeBtn.style.display = "block";
+    modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+  } catch (e) { showToast("画廊加载失败: " + e.message); }
+}
+
+// P2：Remotion Studio（启动服务 + 打开编辑器地址）
+async function launchStudio() {
+  showToast("正在启动 Remotion Studio…");
+  try {
+    const j = await apiFetch("/api/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "studio" }),
+    });
+    if (j.ok) {
+      showToast("Remotion Studio 已启动 → http://localhost:3000");
+      window.open("http://localhost:3000/", "_blank");
+    } else if (j.error) showToast(j.error);
+  } catch (e) { showToast("Studio 启动失败: " + e.message); }
+  refresh();
+}
+
+// P2：保存文案 → C1（director/_input.txt）
+async function saveScript() {
+  const text = $("#b-fulltext").value;
+  if (!text.trim()) { showToast("文案为空，先粘贴内容"); return; }
+  try {
+    const j = await apiFetch("/api/script/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    showToast(j.ok ? `文案已保存（${j.chars} 字）→ C1 ✓` : "保存失败: " + (j.error || ""));
+  } catch (e) { showToast("保存失败: " + e.message); }
 }
 
 async function doAction(action, extra = {}) {
