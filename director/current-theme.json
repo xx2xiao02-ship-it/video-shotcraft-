@@ -1,0 +1,16 @@
+{
+  "id": "c4-1",
+  "name": "深蓝科技",
+  "bg": "#0a1420",
+  "ink": "#e0f0ff",
+  "mid": "#6a8a9a",
+  "accent": "#4ecdc4",
+  "accent2": "#2a9a9a",
+  "card": "#142838",
+  "border": "#1a3040",
+  "overlay": "#000a14",
+  "overlayAlpha": 60,
+  "fontFamily": "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+  "titleSize": 36,
+  "radius": 12
+}

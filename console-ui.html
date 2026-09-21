@@ -1247,7 +1247,10 @@ function applyTheme(t) {
   rs.setProperty("--accent", t.accent); rs.setProperty("--accent2", t.accent2); rs.setProperty("--gold", t.accent);
   rs.setProperty("--accent-deep", t.accent2);
   rs.setProperty("--accent-glow", hexToRgba(t.accent, 0.4)); rs.setProperty("--accent-soft", hexToRgba(t.accent, 0.2));
+  // P2：当前生效主题 → 成片风格权威（current-theme.json，供 build-storyboard 生成 Remotion 色调）
+  try { apiFetch("/api/theme/current", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(t) }); } catch (e) {}
   currentTheme = t;
+  const sbEl = document.getElementById("sb-theme"); if (sbEl) sbEl.textContent = t.name;
   setSlot("bg", t.bg);
   setSlot("ink", t.ink);
   setSlot("mid", t.mid);
@@ -1521,12 +1524,22 @@ function rgbaAlpha(rgba) {
       THEMES = [...fromC4, ...local];
       currentTheme = THEMES[0];
       renderThemeGrid();
-      applyTheme(currentTheme);
-      const sb = document.getElementById("sb-theme");
-      if (sb) sb.textContent = currentTheme.name;
     }
   } catch (e) { console.error("C4 theme load failed:", e); }
+
+  // P2：串行恢复上次生效主题（成片风格跨会话保持；无记录则默认第 1 套）
+  try {
+    const j2 = await apiFetch("/api/theme/current");
+    if (j2 && j2.theme) {
+      let t2 = THEMES.find(x => x.name === j2.theme.name);
+      if (!t2) { t2 = j2.theme; THEMES.push(t2); }
+      applyTheme(t2);
+    } else {
+      applyTheme(THEMES[0]);
+    }
+  } catch (e) {}
 })();
+
 
 // 初始化：先绑定静态按钮事件，再拉取任务状态
 bindButtons();

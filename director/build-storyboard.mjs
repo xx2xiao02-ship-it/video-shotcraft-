@@ -276,24 +276,35 @@ for (let i = 0; i < rawShots.length; i++) {
   }
   merged.push(s);
 }
-// ---------- 全局色调 ----------
+// ---------- 全局色调（读风格中心当前主题，无则回退黑金默认） ----------
+let CUR = null;
+const curPath = join(directorDir, 'current-theme.json');
+if (existsSync(curPath)) {
+  try { CUR = JSON.parse(readFileSync(curPath, 'utf8')); } catch (e) {}
+}
+const _bg = (CUR && CUR.bg) || '#0d0f14';
+const _ink = (CUR && CUR.ink) || '#e8e6e1';
+const _mid = (CUR && CUR.mid) || '#8a8680';
+const _accent = (CUR && CUR.accent) || '#d4a853';
+const _accent2 = (CUR && CUR.accent2) || '#4ecdc4';
+const _card = (CUR && CUR.card) || '#1a1d24';
 const storyboard = {
   title: '口播视频',
   style: {
-    bg: '#0d0f14',
-    text: '#e8e6e1',
-    accent: '#d4a853',
-    sub: '#8a8680',
+    bg: _bg,
+    text: _ink,
+    accent: _accent,
+    sub: _mid,
     captionStyle: 'pill',
   },
-  // 全局 theme（DynamicVideo 注入 CSS 变量，所有组件色调统一）
+  // 全局 theme（DynamicVideo 注入 CSS 变量，所有组件色调统一；来源：风格中心 C4 当前主题）
   theme: {
-    bg: '#0d0f14',
-    surface: '#1a1d24',
-    text: '#e8e6e1',
-    textDim: '#8a8680',
-    accent: '#d4a853',
-    accent2: '#4ecdc4',
+    bg: _bg,
+    surface: _card,
+    text: _ink,
+    textDim: _mid,
+    accent: _accent,
+    accent2: _accent2,
     danger: '#ff6b6b',
   },
   fps: FPS,

@@ -2,19 +2,19 @@
   "storyboard": {
     "title": "口播视频",
     "style": {
-      "bg": "#0d0f14",
-      "text": "#e8e6e1",
-      "accent": "#d4a853",
-      "sub": "#8a8680",
+      "bg": "#0a1420",
+      "text": "#e0f0ff",
+      "accent": "#4ecdc4",
+      "sub": "#6a8a9a",
       "captionStyle": "pill"
     },
     "theme": {
-      "bg": "#0d0f14",
-      "surface": "#1a1d24",
-      "text": "#e8e6e1",
-      "textDim": "#8a8680",
-      "accent": "#d4a853",
-      "accent2": "#4ecdc4",
+      "bg": "#0a1420",
+      "surface": "#142838",
+      "text": "#e0f0ff",
+      "textDim": "#6a8a9a",
+      "accent": "#4ecdc4",
+      "accent2": "#2a9a9a",
       "danger": "#ff6b6b"
     },
     "fps": 30,
@@ -23,9 +23,9 @@
       {
         "type": "hook",
         "l2": "anti-common",
-        "shotCard": "effects/slam-entrance-moves",
-        "slot": "text-hero",
-        "materialRole": "background",
+        "shotCard": "transition/tear-streak-transitions",
+        "slot": "transition-slot",
+        "materialRole": "none",
         "pit": {
           "mode": "A",
           "subject": "remotion",
@@ -34,9 +34,8 @@
           },
           "position": "element"
         },
-        "text": "现在开始，删掉收藏夹，动手做一件事。",
-        "durationInFrames": 143,
-        "material": "027-4k商务\\高端商务1 (1)-Scene-010.mp4"
+        "text": "深蓝科技主题验证，一条短文案。",
+        "durationInFrames": 124
       }
     ]
   }

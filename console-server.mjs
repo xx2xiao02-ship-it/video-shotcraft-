@@ -326,6 +326,23 @@ const apis = {
     return sendJson(res, { ok: true, saved: name });
   },
 
+    "GET /api/theme/current": (req, res) => {
+    const cp = path.join(ROOT, "director", "current-theme.json");
+    if (!fs.existsSync(cp)) return sendJson(res, { ok: true, theme: null });
+    try {
+      return sendJson(res, { ok: true, theme: JSON.parse(fs.readFileSync(cp, "utf8")) });
+    } catch (e) { return sendJson(res, { ok: true, theme: null }); }
+  },
+
+  "PUT /api/theme/current": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      if (!body || !body.name || !body.bg || !body.ink) return sendJson(res, { ok: false, error: "缺少主题数据" });
+      fs.writeFileSync(path.join(ROOT, "director", "current-theme.json"), JSON.stringify(body, null, 2), "utf8");
+      return sendJson(res, { ok: true, saved: body.name });
+    } catch (e) { return sendJson(res, { ok: false, error: e.message }); }
+  },
+
   "GET /api/preview": (req, res) => {
     const outPath = path.join(ROOT, "template", "out", "dynamic.mp4");
     if (!fs.existsSync(outPath)) return sendJson(res, { exists: false });
