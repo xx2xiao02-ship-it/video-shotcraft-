@@ -732,7 +732,7 @@ const MOCK = {
 const MOCK_ROUTES = [
   { m: (u, o) => u.pathname === "/api/state", d: () => MOCK.state },
   { m: (u, o) => o.method === "POST" && u.pathname === "/api/generate/plan", d: () => MOCK.plan },
-  { m: (u, o) => u.pathname.startsWith("/api/logs"), d: () => MOCK.task },
+  { m: (u, o) => u.pathname.startsWith("/api/task"), d: () => MOCK.task },
   { m: (u, o) => u.pathname === "/api/storyboard" && !o.method, d: () => MOCK.storyboard },
   { m: (u, o) => o.method === "POST" && u.pathname === "/api/storyboard/save", d: () => MOCK.storyboard_save },
   { m: (u, o) => o.method === "POST" && u.pathname === "/api/render/confirm", d: () => MOCK.render_confirm },
@@ -877,7 +877,7 @@ function bindButtons() {
       if (j.ok) {
         setGenProgress(25, "脚本生成中…");
         const poll = setInterval(async () => {
-          const sj = await apiFetch("/api/logs?id=" + j.id + "&since=0");
+          const sj = await apiFetch("/api/task?id=" + j.id + "&since=0");
           if (sj.done) {
             clearInterval(poll);
             if (sj.exitCode === 0) {
@@ -955,7 +955,7 @@ function bindButtons() {
         let since = 0;
         const poll = setInterval(async () => {
           try {
-            const lj = await apiFetch("/api/logs?id=" + j.id + "&since=" + since);
+            const lj = await apiFetch("/api/task?id=" + j.id + "&since=" + since);
             if (lj.logs && lj.logs.length) {
               since = lj.since;
               // 把最新日志显示在进度条下方
@@ -1049,7 +1049,7 @@ function updateStatusBadges() {
 async function fetchLogs(id) {
   const since = state.lastFetched[id] || 0;
   try {
-    const j = await apiFetch(`/api/logs?id=${id}&since=${since}`);
+    const j = await apiFetch(`/api/task?id=${id}&since=${since}`);
     state.lastFetched[id] = j.since;
     const t = state.tasks.find((x) => x.id === id);
     const type = t ? t.type : id.split("-")[0];
@@ -1123,7 +1123,7 @@ async function loadMaterials() {
     for (const it of j.items) {
       const div = document.createElement("div");
       div.style.cssText = "width:120px;border-radius:10px;overflow:hidden;background:#0d0f13;border:1px solid #2a2e38;cursor:pointer";
-      const src = "/materials/" + encodeURIComponent(it.name);
+      const src = "/api/library/video?path=" + encodeURIComponent(it.name);
       if (it.type === "image") {
         div.innerHTML = `
           <div style="height:80px;overflow:hidden">

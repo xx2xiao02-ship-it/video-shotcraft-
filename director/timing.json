@@ -1,120 +1,12 @@
 {
   "fps": 30,
-  "total_duration": 89.592,
+  "total_duration": 4.488,
   "segments": [
     {
-      "text": "你收藏了 1000 篇干货，为什么还是什么都不会？",
+      "text": "现在开始，删掉收藏夹，动手做一件事。",
       "start": 0.0,
-      "duration": 4.806,
-      "duration_frames": 144
-    },
-    {
-      "text": "90% 的人都卡在这一步：看到好内容，点收藏，然后就没有然后了。",
-      "start": 4.806,
-      "duration": 6.152,
-      "duration_frames": 184
-    },
-    {
-      "text": "每天刷手机两小时，关注了 50 个博主，收藏夹里存了 200 条笔记，三个月后回头一看，什么都想不起来。",
-      "start": 10.959,
-      "duration": 9.997,
-      "duration_frames": 299
-    },
-    {
-      "text": "你以为收藏就是学会了，把 \"已保存\" 当成了 \"已掌握\"。",
-      "start": 20.956,
-      "duration": 5.575,
-      "duration_frames": 167
-    },
-    {
-      "text": "这叫收藏幻觉—— 大脑以为你已经会了，其实你只是存了个文件。",
-      "start": 26.532,
-      "duration": 5.768,
-      "duration_frames": 173
-    },
-    {
-      "text": "不是你不够聪明，是你的学习方法从根上就错了。",
-      "start": 32.299,
-      "duration": 4.23,
-      "duration_frames": 126
-    },
-    {
-      "text": "举个例子：你买了一柜子书，每本都翻了两页，就觉得自己读过了。",
-      "start": 36.529,
-      "duration": 5.768,
-      "duration_frames": 173
-    },
-    {
-      "text": "但真要讲出来，一句话都说不出来。",
-      "start": 42.297,
-      "duration": 3.076,
-      "duration_frames": 92
-    },
-    {
-      "text": "就像收藏了 100 个教程，真要上手做，还是从零开始。",
-      "start": 45.373,
-      "duration": 5.191,
-      "duration_frames": 155
-    },
-    {
-      "text": "因为大脑分两种记忆：一种是 \"我看过\"，一种是 \"我做过\"。",
-      "start": 50.564,
-      "duration": 5.768,
-      "duration_frames": 173
-    },
-    {
-      "text": "前者只需要眼睛扫一下，后者需要你动手、出错、再改。",
-      "start": 56.331,
-      "duration": 4.806,
-      "duration_frames": 144
-    },
-    {
-      "text": "只有第二种才真正长在你身上。",
-      "start": 61.138,
-      "duration": 2.692,
-      "duration_frames": 80
-    },
-    {
-      "text": "所以正确的做法不是收藏更多，而是一次只学一个主题。",
-      "start": 63.829,
-      "duration": 4.806,
-      "duration_frames": 144
-    },
-    {
-      "text": "选一个你最想解决的问题，找 3 篇最好的内容，看完立刻动手做一遍。",
-      "start": 68.636,
-      "duration": 6.344,
-      "duration_frames": 190
-    },
-    {
-      "text": "做的过程中卡在哪里，就回去补哪里。",
-      "start": 74.98,
-      "duration": 3.268,
-      "duration_frames": 98
-    },
-    {
-      "text": "这才是真正的学习闭环。",
-      "start": 78.249,
-      "duration": 2.115,
-      "duration_frames": 63
-    },
-    {
-      "text": "记住一句话：深度比广度重要一百倍。",
-      "start": 80.364,
-      "duration": 3.268,
-      "duration_frames": 98
-    },
-    {
-      "text": "别再当收藏夹的奴隶了。",
-      "start": 83.632,
-      "duration": 2.115,
-      "duration_frames": 63
-    },
-    {
-      "text": "现在就挑一个你最想学的，今天就开始动手。",
-      "start": 85.747,
-      "duration": 3.845,
-      "duration_frames": 115
+      "duration": 4.488,
+      "duration_frames": 134
     }
   ]
 }
