@@ -5,11 +5,11 @@
   <!-- 封面头 -->
   <div style="max-width:1180px;margin:0 auto;">
     <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 前端页面设计方案</div>
-    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.4 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.5 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
     <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
       <b style="color:#d4a853;">文档目的：</b>把当前"单页堆叠"的操作台（console-ui.html，1394 行 / 62KB，7 个业务环节共用一页），按业务主线重构为 <b>5 视图工作台</b>。
       每视图聚焦一个业务环节，同时治理前端与后端 API 契约不一致的问题（UI 仍在调用 /api/logs、/api/action、/api/state、/api/preview、/api/materials 等旧接口，server 已改为 /api/task、/api/storyboard 等新接口）。<br>
-      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。
+      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。<br><b style="color:#d4a853;">v1.5 新增：</b>全站主题变量化——221 处组件硬编码色调收敛为 CSS 变量（:root 默认 + applyTheme 联动），C4 主题一键铺满全站（header/卡片/按钮/状态栏整体联动）。
     </div>
   </div>
 
@@ -497,7 +497,10 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
       <b style="color:#d4a853;">验证结果（真实数据全通）：</b>A 模式真实链路：文案 → edge-tts 合成 voiceover.mp3 → 分镜生成 6 镜头 27.4s → 素材匹配 4 镜头本地素材 → Remotion 渲染 823 帧 → 成片 5.7MB dynamic.mp4 → 成片台自动跳转 + 真实预览/视频流播放。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P1 · 素材库打标 + 风格中心 C4（已实施，本版提交）</div>
       <b style="color:#d4a853;">素材库（写 C5 _index.json）：</b>预览弹窗新增标签编辑区——回车添加标签、点击移除、保存调 POST /api/library/tag 写回素材索引；分类统计条（GET /api/library/stat）显示「共 3396 镜头 · 6 分类 · 41 标签」；实测真实素材打上「精选」标签落盘。<br>
       <b style="color:#d4a853;">风格中心（读写 C4 theme-pack.json）：</b>启动时 GET /api/theme 加载真实 8 套主题（替换前端硬编码常量，本地自定义主题合并追加）；保存主题双写——本地 localStorage 即时生效 + POST /api/theme/save 追加写回 C4；实测保存「我的主题」（强调色 #ff3366）后 C4 第 9 行落盘。<br>
-      <b style="color:#f0a84c;">设计要点：</b>收敛节点（C4 主题表 / C5 素材索引）始终是权威来源，前端仅读写不另存；Server 离线时 mock 层照常兜底。
+      <b style="color:#f0a84c;">设计要点：</b>收敛节点（C4 主题表 / C5 素材索引）始终是权威来源，前端仅读写不另存；Server 离线时 mock 层照常兜底。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P1.5 · 全站主题变量化（已实施，本版提交）</div>
+      <b style="color:#d4a853;">改造内容：</b>console-ui.html 约 177 处硬编码颜色（背景/面板/边框/主次文字/强调色系）收敛为 18 个 CSS 变量（--bg/--bg2/--panel/--panel2/--chip/--border/--border2/--ink/--mid/--mid2/--muted/--accent/--accent-deep/--gold/--accent-glow/--accent-soft/--accent2），:root 承载黑金默认值；applyTheme() 切换主题时同步 setProperty 更新全部变量（含 accent 半透明 glow/soft 自动换算）。<br>
+      <b style="color:#d4a853;">语义色保留：</b>成功绿（#22c55e）/ 错误红（#ef4444、#f87171）等功能色不随主题变，保证状态可读性；8 套主题预设数据（THEMES）不参与替换。<br>
+      <b style="color:#d4a853;">验证：</b>切换「活力橙」主题——documentElement 变量更新（bg #140e0a / accent #ff8c42 / glow rgba(255,140,66,.4)），header 边框等组件 computed 值联动变色，状态栏主题名同步；JS 零错误。
     </div>
     <div style="margin-top:12px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:12.5px;color:#aab0bc;line-height:1.9;">
       <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;">接口落地状态表（UI 实际调用视角）</div>
@@ -518,7 +521,7 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
     </div>
   </div>
 <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
-    Video ShotCraft · 前端页面设计方案 v1.4 · 含数据契约 / Mock 示例 / 收敛节点 · P0-1~P0-3 已实施，P1（素材库打标 C5 / 风格中心 C4）已落地
+    Video ShotCraft · 前端页面设计方案 v1.5 · 含数据契约 / Mock 示例 / 收敛节点 · P0~P1.5 全链路已实施：5 视图 + Mock + 真实接口全通 + C4/C5 读写 + 全站主题变量化
   </div>
 
 </div>
