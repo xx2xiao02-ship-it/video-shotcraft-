@@ -5,11 +5,11 @@
   <!-- 封面头 -->
   <div style="max-width:1180px;margin:0 auto;">
     <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 前端页面设计方案</div>
-    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.1 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.2 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
     <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
       <b style="color:#d4a853;">文档目的：</b>把当前"单页堆叠"的操作台（console-ui.html，1394 行 / 62KB，7 个业务环节共用一页），按业务主线重构为 <b>5 视图工作台</b>。
       每视图聚焦一个业务环节，同时治理前端与后端 API 契约不一致的问题（UI 仍在调用 /api/logs、/api/action、/api/state、/api/preview、/api/materials 等旧接口，server 已改为 /api/task、/api/storyboard 等新接口）。<br>
-      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。
+      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。
     </div>
   </div>
 
@@ -481,8 +481,38 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
     </div>
   </div>
 
-  <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
-    Video ShotCraft · 前端页面设计方案 v1.1 · 含数据契约 / Mock 示例 / 收敛节点 · 待评审后进入 P0 实施
+    <!-- 十、实施状态记录 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">十、实施状态记录（v1.2）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2;">
+      <div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P0-1 · 五视图工作台骨架（已实施，commit 5b97da4）</div>
+      7 个业务卡片原样拆入 5 视图（编导台/制作台/成片台/素材库/风格中心）+ 底部状态栏（服务/模式/主题/最近任务）+ sessionStorage 视图保持 + 主流程自动跳转（提交文案→制作台；渲染完成→成片台）。逻辑零改动。<br>
+      <div style="font-size:14px;font-weight:700;color:#4ade80;">✅ P0-2 · Mock 数据层（已实施，本版提交）</div>
+      console-ui.html 顶部内置 <b>MOCK 常量 + MOCK_ROUTES + apiFetch 封装</b>：真实接口优先，接口未实现（404）或断网自动回退内置 mock（契约 6.1 规则 1-2）；全部 14 处 fetch 调用已替换；状态栏如实显示"服务在线 · Mock 数据模式"；素材库标签适配契约数组；mock 模式缩略图用占位、视频流显示提示。<br>
+      <b style="color:#d4a853;">验证结果：</b>模拟断网下 A 模式主流程（文案→分镜校准 6 镜头→确认渲染→成片台预览）全程走通，零 JS 异常；真实接口（library/list、library/thumb、storyboard 等）在线时自动走真实数据，未实现接口自动回退 mock。<br>
+      <div style="font-size:14px;font-weight:700;color:#f0a84c;">⏳ P0-3 · 接口对齐（待办）</div>
+      server 补实现下列待办接口（按第六章契约），并完成 UI 旧接口名（/api/logs、/api/action、/api/state、/api/materials）向唯一 API 清单收敛；对齐后 mock 回退自然失效。
+    </div>
+    <div style="margin-top:12px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:12.5px;color:#aab0bc;line-height:1.9;">
+      <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;">接口落地状态表（UI 实际调用视角）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <div style="flex:1 1 340px;min-width:320px;background:#0d0f14;border:1px solid #22c55e44;border-radius:8px;padding:10px;box-sizing:border-box;">
+          <div style="font-weight:700;color:#4ade80;">✅ 已通（server 已实现 + 前端直连）</div>
+          <div style="margin-top:4px;color:#aab0bc;">POST /api/generate/plan · GET /api/storyboard · POST /api/storyboard/save · POST /api/render/confirm · GET /api/library/list · GET /api/library/thumb · GET /api/library/video</div>
+        </div>
+        <div style="flex:1 1 340px;min-width:320px;background:#0d0f14;border:1px solid #f59e0b44;border-radius:8px;padding:10px;box-sizing:border-box;">
+          <div style="font-weight:700;color:#f0a84c;">🟡 Mock 回退（前端已接 apiFetch，server 待实现）</div>
+          <div style="margin-top:4px;color:#aab0bc;">GET /api/logs（旧名） · POST /api/action（旧名） · GET /api/state（旧名） · GET /api/materials（旧名） · GET /api/preview · POST /api/materials/upload · GET /api/library/tags · POST /api/library/tag · GET /api/library/stat · GET /api/theme · POST /api/theme/save</div>
+        </div>
+        <div style="flex:1 1 340px;min-width:320px;background:#0d0f14;border:1px solid #5b6472;border-radius:8px;padding:10px;box-sizing:border-box;">
+          <div style="font-weight:700;color:#8b93a3;">⚪ 媒体流（无 mock 数据，mock 模式占位/提示）</div>
+          <div style="margin-top:4px;color:#aab0bc;">GET /api/stream（成片视频流） · GET /api/library/thumb（mock 模式用占位图） · GET /api/library/video（mock 模式弹窗提示无真实视频）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
+    Video ShotCraft · 前端页面设计方案 v1.2 · 含数据契约 / Mock 示例 / 收敛节点 · P0-1/P0-2 已实施，P0-3 接口对齐待办
   </div>
 
 </div>
