@@ -238,6 +238,37 @@
   }
   .style-actions .save-theme { background: linear-gradient(135deg, #22c55e, #0ea5e9); color: #fff; }
   .style-actions .reset-theme { background: #3b4252; color: #e6e9ef; }
+
+  /* ===== P0-1 五视图导航 ===== */
+  .view-nav {
+    display: flex; gap: 6px; padding: 14px 28px 0; max-width: 1180px; margin: 0 auto;
+    flex-wrap: wrap;
+  }
+  .view-tab {
+    padding: 10px 20px; border-radius: 10px 10px 0 0; font-size: 13.5px; font-weight: 600;
+    color: #8b93a3; background: transparent; border: 1px solid transparent; border-bottom: none;
+    cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px;
+    transition: all .15s ease;
+  }
+  .view-tab:hover { color: #e6e9ef; background: #14171f; }
+  .view-tab.active { color: #d4a853; background: #171a21; border-color: #242833; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .view-title {
+    font-size: 15px; font-weight: 700; color: #d4a853; margin: 20px 0 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .view-title::after {
+    content: ""; flex: 1; height: 1px; background: #242833;
+  }
+  .statusbar {
+    display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+    max-width: 1180px; margin: 0 auto; padding: 14px 28px 22px;
+    color: #8b93a3; font-size: 12.5px; border-top: 1px solid #23262e;
+  }
+  .statusbar .sb-item { display: flex; align-items: center; gap: 7px; }
+  .statusbar .sb-item b { color: #e6e9ef; font-weight: 600; }
+  .statusbar .dot { width: 8px; height: 8px; background: #5b6472; }
 </style>
 
 <!-- 字体引入 -->
@@ -267,40 +298,17 @@
   <div class="status-dot"><span class="dot"></span>服务运行中</div>
 </header>
 
-<main>
-  <div class="grid">
-    <div class="card" data-action="render">
-      <div class="icon">🎬</div>
-      <div class="name">渲染模板视频</div>
-      <div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div>
-      <div class="btn-text">点击开始渲染 →</div>
-    </div>
-    <div class="card" data-action="studio">
-      <div class="icon">🎛️</div>
-      <div class="name">Remotion Studio</div>
-      <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
-      <div class="btn-text">打开编辑器 →</div>
-    </div>
-    <div class="card" data-action="workbench">
-      <div class="icon">✂️</div>
-      <div class="name">Motion Workbench</div>
-      <div class="desc">CapCut 风格剪辑台<br>镜头 / 字幕 / 音效轨道</div>
-      <div class="btn-text">打开剪辑台 →</div>
-    </div>
-    <div class="card" data-action="gallery">
-      <div class="icon">🖼️</div>
-      <div class="name">运动预览 Gallery</div>
-      <div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div>
-      <div class="btn-text">打开画廊 →</div>
-    </div>
-    <div class="card" data-action="test">
-      <div class="icon">🧪</div>
-      <div class="name">单元测试</div>
-      <div class="desc">23 项工具函数测试<br>验证项目健康状态</div>
-      <div class="btn-text">运行测试 →</div>
-    </div>
-  </div>
+<nav class="view-nav" id="view-nav">
+  <button class="view-tab active" data-view="director">📝 编导台</button>
+  <button class="view-tab" data-view="produce">🎬 制作台</button>
+  <button class="view-tab" data-view="finish">📦 成片台</button>
+  <button class="view-tab" data-view="library">🎞️ 素材库</button>
+  <button class="view-tab" data-view="style">🎨 风格中心</button>
+</nav>
 
+<main>
+  <div class="view" data-view="director">
+  <div class="view-title">📝 编导台 · 文案输入与分镜规划（C1）</div>
   <div class="brief-card">
     <div class="brief-title">📝 编导文案</div>
     <div class="brief-desc">直接把完整口播文案贴到下面，主题、论点、金句我来提取，你不用拆。填好点"保存文案"，回到豆包告诉我"文案已提交"。</div>
@@ -346,7 +354,10 @@
       </button>
     </div>
   </div>
+  </div>
 
+  <div class="view" data-view="produce">
+  <div class="view-title">🎬 制作台 · 分镜校准与渲染（C2/C3/C6）</div>
   <!-- 整体生成进度条 -->
   <div class="brief-card" id="gen-progress-card" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -368,7 +379,10 @@
       <button class="brief-submit" id="sb-render" style="flex:1;background:linear-gradient(135deg,#22c55e,#0ea5e9)">✅ 确认无误，开始渲染</button>
     </div>
   </div>
+  </div>
 
+  <div class="view" data-view="style">
+  <div class="view-title">🎨 风格中心 · 主题预设与色彩参数（C4）</div>
   <!-- 色彩风格模块 -->
   <div class="style-card collapsed" id="style-card">
     <div class="style-card-header" id="style-card-header">
@@ -534,7 +548,10 @@
       </div>
     </div>
   </div>
+  </div>
 
+  <div class="view" data-view="library">
+  <div class="view-title">🎞️ 素材库 · 上传 / 分类筛选 / 预览（C5）</div>
   <!-- 素材库 -->
   <div class="brief-card">
     <div class="brief-title">📁 素材库</div>
@@ -560,11 +577,48 @@
       <button class="brief-submit" id="lib-next" style="margin-top:0;background:#3b4252;width:auto;padding:8px 20px">下一页 →</button>
     </div>
   </div>
+  </div>
+
+  <div class="view" data-view="finish">
+  <div class="view-title">📦 成片台 · 预览与交付出口（C7）</div>
 
   <div class="brief-card" id="preview-card" style="display:none">
     <div class="brief-title">🎬 成片预览</div>
     <div class="brief-desc" id="preview-info"></div>
     <video id="preview-video" controls style="width:100%;border-radius:10px;background:#000"></video>
+  </div>
+
+  <div class="grid">
+    <div class="card" data-action="render">
+      <div class="icon">🎬</div>
+      <div class="name">渲染模板视频</div>
+      <div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div>
+      <div class="btn-text">点击开始渲染 →</div>
+    </div>
+    <div class="card" data-action="studio">
+      <div class="icon">🎛️</div>
+      <div class="name">Remotion Studio</div>
+      <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
+      <div class="btn-text">打开编辑器 →</div>
+    </div>
+    <div class="card" data-action="workbench">
+      <div class="icon">✂️</div>
+      <div class="name">Motion Workbench</div>
+      <div class="desc">CapCut 风格剪辑台<br>镜头 / 字幕 / 音效轨道</div>
+      <div class="btn-text">打开剪辑台 →</div>
+    </div>
+    <div class="card" data-action="gallery">
+      <div class="icon">🖼️</div>
+      <div class="name">运动预览 Gallery</div>
+      <div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div>
+      <div class="btn-text">打开画廊 →</div>
+    </div>
+    <div class="card" data-action="test">
+      <div class="icon">🧪</div>
+      <div class="name">单元测试</div>
+      <div class="desc">23 项工具函数测试<br>验证项目健康状态</div>
+      <div class="btn-text">运行测试 →</div>
+    </div>
   </div>
 
   <!-- 高级工具（折叠） -->
@@ -576,6 +630,14 @@
     <div id="advanced-body" style="display:none;margin-top:16px">
       <div id="panels"></div>
     </div>
+  </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="sb-item"><span class="dot" id="sb-dot"></span><span id="sb-srv">服务检测中…</span></div>
+    <div class="sb-item">当前模式 <b>A · Remotion 主导</b></div>
+    <div class="sb-item">当前主题 <b id="sb-theme">黑金高级</b></div>
+    <div class="sb-item">最近任务 <b id="sb-task">-</b></div>
   </div>
 
   <div class="footer">Video ShotCraft · 本地操作台 · 服务地址 http://127.0.0.1:8765</div>
@@ -684,6 +746,7 @@ function bindButtons() {
     const text = $("#b-fulltext").value.trim();
     if (!text) { showToast("请先粘贴口播文案"); return; }
     $("#gen-progress-card").style.display = "";
+    switchView("produce");
     let genProg = 5; setGenProgress(genProg, "TTS 语音合成中…");
     try {
       const r = await fetch("/api/generate/plan", {
@@ -702,6 +765,7 @@ function bindButtons() {
             if (sj.exitCode === 0) {
               setGenProgress(45, "分镜完成，等待确认渲染…");
               await loadStoryboard();
+              switchView("produce");
             } else {
               setGenProgress(0, "生成失败");
               showToast("生成失败，看日志");
@@ -788,6 +852,7 @@ function bindButtons() {
               if (lj.exitCode === 0) {
                 setGenProgress(100, "✅ 渲染完成");
                 await loadPreview();
+                switchView("finish");
               } else {
                 setGenProgress(0, "❌ 渲染失败 (退出码 " + lj.exitCode + ")");
                 showToast("渲染失败");
@@ -1390,5 +1455,49 @@ $("#lib-next").onclick = () => {
 
 loadLibTags();
 loadLibList();
+
+// ===== P0-1 五视图导航与状态栏 =====
+const VIEW_ORDER = ["director", "produce", "finish", "library", "style"];
+function switchView(name) {
+  if (!VIEW_ORDER.includes(name)) name = "director";
+  document.querySelectorAll(".view").forEach((v) => {
+    v.classList.toggle("active", v.dataset.view === name);
+  });
+  document.querySelectorAll(".view-tab").forEach((t) => {
+    t.classList.toggle("active", t.dataset.view === name);
+  });
+  try {
+    sessionStorage.setItem("sc-view", name);
+    const sb = document.getElementById("sb-theme");
+    if (sb && typeof currentTheme !== "undefined" && currentTheme) sb.textContent = currentTheme.name;
+  } catch {}
+}
+document.querySelectorAll(".view-tab").forEach((t) => {
+  t.onclick = () => switchView(t.dataset.view);
+});
+
+// 状态栏：服务状态 / 最近任务
+(async function initStatusbar() {
+  const dot = document.getElementById("sb-dot");
+  const srv = document.getElementById("sb-srv");
+  const task = document.getElementById("sb-task");
+  try {
+    const r = await fetch("/api/state");
+    const j = await r.json();
+    if (dot) dot.style.background = "#22c55e";
+    if (srv) srv.textContent = "服务运行中";
+    const tasks = (j && j.tasks) || [];
+    if (task && tasks.length) task.textContent = tasks[0].type;
+  } catch {
+    if (dot) dot.style.background = "#f87171";
+    if (srv) srv.textContent = "服务离线（Mock 模式）";
+  }
+})();
+
+// 恢复上次所在视图
+try {
+  const saved = sessionStorage.getItem("sc-view");
+  if (saved) switchView(saved);
+} catch {}
 </script>
 </html>
