@@ -82,6 +82,48 @@ function extractSemanticTags(text) {
   return [...new Set(hits)];
 }
 
+// ---------- 情绪推断（P3：文案情绪 → 素材情绪匹配） ----------
+const MOOD_KEYWORDS = [
+  { re: /激情|励志|热血|奋斗|冲|突破|逆袭|坚持|成功|改变|行动/, mood: '活力' },
+  { re: /科技|AI|人工智能|智能|算法|模型|数据|数字化|创新/, mood: '科技感' },
+  { re: /专业|深度|干货|方法论|认知|系统|严谨|复盘|逻辑/, mood: '沉稳' },
+  { re: /生活|家庭|幸福|温暖|治愈|陪伴|健康|日常/, mood: '温暖' },
+  { re: /焦虑|恐惧|危险|警告|代价|失控|崩盘|陷阱/, mood: '紧张' },
+];
+function extractMood(text) {
+  for (const { re, mood } of MOOD_KEYWORDS) {
+    if (re.test(text || '')) return mood;
+  }
+  return '中性';
+}
+// 素材情绪（由已有标签推断；打标时直接加情绪词即可命中）
+const TAG_TO_MOOD = {
+  '活力': '活力', '动感': '活力', '运动': '活力', '户外': '活力',
+  '科技': '科技感', '未来感': '科技感', '数码': '科技感', '屏幕': '科技感', '数据可视化': '科技感', '创新': '科技感',
+  '商务': '沉稳', '办公空间': '沉稳', '高端品质': '沉稳', '金融': '沉稳', '城市建筑': '沉稳',
+  '温馨': '温暖', '家庭': '温暖', '生活': '温暖', '美食': '温暖', '自然': '温暖', '风景': '温暖',
+};
+function inferMaterialMood(tags) {
+  for (const t of tags || []) {
+    if (TAG_TO_MOOD[t]) return TAG_TO_MOOD[t];
+  }
+  return '中性';
+}
+
+// ---------- 使用频率（P3：高频素材降权，均衡轮换） ----------
+const usagePath = join(process.cwd(), 'director', 'usage.json');
+let usage = {};
+if (existsSync(usagePath)) {
+  try { usage = JSON.parse(readFileSync(usagePath, 'utf-8')); } catch (e) { usage = {}; }
+}
+function recordUsage(materialPath) {
+  if (!materialPath) return;
+  usage[materialPath] = (usage[materialPath] || 0) + 1;
+}
+function saveUsage() {
+  try { writeFileSync(usagePath, JSON.stringify(usage, null, 2), 'utf-8'); } catch (e) {}
+}
+
 // 提取 fallback 关键词（2-6 字，用于占位大字）
 function extractKeyword(text) {
   // 去掉常见虚词
@@ -104,7 +146,7 @@ console.log(`  素材库: ${materialIndex.length} 个镜头`);
  * @param semanticTags 语义标签（从文本提取）
  * @param targetDurationSec 目标时长（镜头时长）
  */
-function findMaterial(tags, semanticTags, targetDurationSec) {
+function findMaterial(tags, semanticTags, targetDurationSec, mood) {
   if (materialIndex.length === 0) return null;
   const allTags = [...(semanticTags || []), ...(tags || [])];
   if (allTags.length === 0) return null;
@@ -128,14 +170,17 @@ function findMaterial(tags, semanticTags, targetDurationSec) {
   }
   if (matched.length === 0) return null;
 
-  // 打分排序：标签命中数多优先，时长接近优先（≥目标时长且差距小）
+  // 打分排序：标签命中 + 时长接近 + 情绪匹配 + 使用降权
   const scored = matched.map(m => {
     const mTags = m.tags || [];
     const hitCount = allTags.filter(t => mTags.includes(t)).length;
     const durGap = Math.abs(m.duration_sec - targetDurationSec);
-    // 权重：命中数 70%，时长差距 30%（越接近越好，素材比目标长可裁剪，短了露馅）
     let score = hitCount * 10 - durGap;
     if (m.duration_sec >= targetDurationSec) score += 5; // 够长优先
+    // P3：情绪匹配 +15（文案情绪非中性且素材情绪命中）
+    if (mood && mood !== '中性' && inferMaterialMood(mTags) === mood) score += 15;
+    // P3：使用频率降权（每次用过 -3，用得越少越优先）
+    score -= (usage[m.path] || 0) * 3;
     return { m, score };
   });
   scored.sort((a, b) => b.score - a.score);
@@ -217,7 +262,7 @@ let rawShots = timing.segments.map((seg, i) => {
   let material = null;
   if (materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
     const tags = ROLE_TO_TAGS[materialRole] || L2_TO_TAGS[l2key] || [];
-    material = findMaterial(tags, semanticTags, durationInFrames / FPS);
+    material = findMaterial(tags, semanticTags, durationInFrames / FPS, extractMood(seg.text));
   }
 
   // 失败回退（v3）：没匹配到素材 → fallback 占位（渐变 + 关键词）
@@ -241,6 +286,7 @@ let rawShots = timing.segments.map((seg, i) => {
   // proof 类且坑位要求素材 → 给 content 补素材路径
   if ((pit.subject === 'local-material' || pit.content.type === 'video-local') && material) {
     pit.content.path = material.path;
+    recordUsage(material.path); // P3：只有实际入画才记使用
   }
 
   return {
@@ -313,6 +359,7 @@ const storyboard = {
 };
 
 writeFileSync(join(directorDir, 'storyboard.json'), JSON.stringify(storyboard, null, 2));
+saveUsage(); // P3：素材使用频率落盘
 const totalFrames = merged.reduce((s, c) => s + c.durationInFrames, 0);
 const withMaterial = merged.filter(s => s.material).length;
 const withFallback = merged.filter(s => s.fallback).length;
