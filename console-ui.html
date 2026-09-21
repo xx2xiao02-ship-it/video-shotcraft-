@@ -1178,7 +1178,8 @@ async function fetchLogs(id) {
     const pinfo = document.getElementById(`pinfo-${type}`);
     if (!logEl) return;
     if (logEl.querySelector(".empty")) logEl.innerHTML = "";
-    if (j.logs && j.logs.length) {
+    // 守卫：mock/降级数据 since 固定时不得重复追加（离线场景必现）
+    if (j.since > since && j.logs && j.logs.length) {
       const frag = document.createDocumentFragment();
       for (const line of j.logs) {
         const text = line.replace(/\n$/, "");
