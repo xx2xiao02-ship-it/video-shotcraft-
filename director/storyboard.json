@@ -1,0 +1,368 @@
+{
+  "title": "口播视频",
+  "style": {
+    "bg": "#0d0f14",
+    "text": "#e8e6e1",
+    "accent": "#d4a853",
+    "sub": "#8a8680",
+    "captionStyle": "pill"
+  },
+  "theme": {
+    "bg": "#0d0f14",
+    "surface": "#1a1d24",
+    "text": "#e8e6e1",
+    "textDim": "#8a8680",
+    "accent": "#d4a853",
+    "accent2": "#4ecdc4",
+    "danger": "#ff6b6b"
+  },
+  "fps": 30,
+  "audio": "audio/voiceover.mp3",
+  "shots": [
+    {
+      "type": "hook",
+      "l2": "impact",
+      "shotCard": "effects/impact-feedback",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "你收藏了 1000 篇干货，为什么还是什么都不会？",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-013.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "anti-common",
+      "shotCard": "transition/tear-streak-transitions",
+      "slot": "transition-slot",
+      "materialRole": "none",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "90% 的人都卡在这一步：看到好内容，点收藏，然后就没有然后了。",
+      "durationInFrames": 150
+    },
+    {
+      "type": "hook",
+      "l2": "scene",
+      "shotCard": "opening/text-as-mask",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "AI科技未来横屏230款\\AI科技未来33-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "每天刷手机两小时，关注了 50 个博主，收藏夹里存了 200 条笔记，三个月后回头一看，什么都想不起来。",
+      "durationInFrames": 150,
+      "material": "AI科技未来横屏230款\\AI科技未来33-Scene-001.mp4"
+    },
+    {
+      "type": "pain",
+      "l2": "status",
+      "shotCard": "ui-entrance/list-reveal",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "你以为收藏就是学会了，把 \"已保存\" 当成了 \"已掌握\"。",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-007.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "scene",
+      "shotCard": "camera/overhead-camera-moves",
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人44-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "这叫收藏幻觉—— 大脑以为你已经会了，其实你只是存了个文件。",
+      "durationInFrames": 150,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人44-Scene-001.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "number",
+      "shotCard": "typography/countdown-arc-scatter",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "不是你不够聪明，是你的学习方法从根上就错了。",
+      "durationInFrames": 135,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\14 高端国外科研研讨大会商务实拍视频素材-Scene-014.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "question",
+      "shotCard": "typography/typewriter-moves",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "举个例子：你买了一柜子书，每本都翻了两页，就觉得自己读过了。",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\18 高端商业商务人士展望未来实拍视频素材-Scene-018.mp4"
+    },
+    {
+      "type": "proof",
+      "l2": "method",
+      "shotCard": "ui-entrance/document-typewriter-reveal",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-055.mp4"
+        },
+        "position": "element"
+      },
+      "text": "但真要讲出来，一句话都说不出来。",
+      "durationInFrames": 101,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-055.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "impact",
+      "shotCard": "camera/crash-zoom-punch",
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "就像收藏了 100 个教程，真要上手做，还是从零开始。",
+      "durationInFrames": 150,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活35-Scene-003.mp4"
+    },
+    {
+      "type": "proof",
+      "l2": "data",
+      "shotCard": "data/ring-diagram-annotation-reveal",
+      "slot": "data-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-009.mp4"
+        },
+        "position": "background"
+      },
+      "text": "因为大脑分两种记忆：一种是 \"我看过\"，一种是 \"我做过\"。",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-009.mp4"
+    },
+    {
+      "type": "proof",
+      "l2": "data",
+      "shotCard": "data/timeline-travel",
+      "slot": "data-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭24-Scene-001.mp4"
+        },
+        "position": "background"
+      },
+      "text": "前者只需要眼睛扫一下，后者需要你动手、出错、再改。",
+      "durationInFrames": 150,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭24-Scene-001.mp4"
+    },
+    {
+      "type": "claim",
+      "l2": "concept",
+      "shotCard": "typography/gradient-word-sweep",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "只有第二种才真正长在你身上。",
+      "durationInFrames": 89
+    },
+    {
+      "type": "hook",
+      "l2": "question",
+      "shotCard": "typography/typewriter-moves",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "所以正确的做法不是收藏更多，而是一次只学一个主题。",
+      "durationInFrames": 150,
+      "material": "027-4k商务\\高端商务1 (3)-Scene-003.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "scene",
+      "shotCard": "opening/crane-rise-reveal",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\14 高端国外科研研讨大会商务实拍视频素材-Scene-007.mp4"
+        },
+        "position": "element"
+      },
+      "text": "选一个你最想解决的问题，找 3 篇最好的内容，看完立刻动手做一遍。",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\14 高端国外科研研讨大会商务实拍视频素材-Scene-007.mp4"
+    },
+    {
+      "type": "proof",
+      "l2": "data",
+      "shotCard": "data/timeline-travel",
+      "slot": "data-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "text",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-028.mp4"
+        },
+        "position": "background"
+      },
+      "text": "做的过程中卡在哪里，就回去补哪里。",
+      "durationInFrames": 107,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-028.mp4"
+    },
+    {
+      "type": "claim",
+      "l2": "judgment",
+      "shotCard": "ui-entrance/clipcard-looping",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "这才是真正的学习闭环。",
+      "durationInFrames": 72
+    },
+    {
+      "type": "hook",
+      "l2": "impact",
+      "shotCard": "camera/crash-zoom-punch",
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "记住一句话：深度比广度重要一百倍。",
+      "durationInFrames": 107,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\温馨家庭-Scene-001.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "impact",
+      "shotCard": "camera/crash-zoom-punch",
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "别再当收藏夹的奴隶了。",
+      "durationInFrames": 72,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人22-Scene-001.mp4"
+    },
+    {
+      "type": "cta",
+      "l2": "action",
+      "shotCard": "outro/ui-to-brand-morph",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "现在就挑一个你最想学的，今天就开始动手。",
+      "durationInFrames": 124
+    }
+  ]
+}

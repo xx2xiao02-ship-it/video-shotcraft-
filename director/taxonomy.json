@@ -1,0 +1,998 @@
+{
+  "version": "1.0",
+  "description": "视频分镜叙事分级体系",
+  "levels": {
+    "L1": {
+      "hook": {
+        "name": "钩子",
+        "task": "3秒留人，制造认知缺口"
+      },
+      "pain": {
+        "name": "痛点",
+        "task": "戳中问题，放大焦虑"
+      },
+      "claim": {
+        "name": "论点",
+        "task": "提出核心观点/定义"
+      },
+      "proof": {
+        "name": "论据",
+        "task": "解释、举例、数据证明"
+      },
+      "quote": {
+        "name": "金句",
+        "task": "强调记忆点"
+      },
+      "cta": {
+        "name": "行动",
+        "task": "收尾号召"
+      }
+    },
+    "L2": {
+      "anti-common": {
+        "name": "反常识钩子",
+        "parent": "hook",
+        "patterns": [
+          "大多数人",
+          "其实",
+          "没想到",
+          "越.*越",
+          "不是.*而是"
+        ]
+      },
+      "question": {
+        "name": "提问钩子",
+        "parent": "hook",
+        "patterns": [
+          "？",
+          "吗？",
+          "为什么",
+          "有没有发现",
+          "你知道吗"
+        ]
+      },
+      "number": {
+        "name": "数字钩子",
+        "parent": "hook",
+        "patterns": [
+          "%",
+          "倍",
+          "万",
+          "秒",
+          "天",
+          "个",
+          "100",
+          "90%"
+        ]
+      },
+      "scene": {
+        "name": "场景钩子",
+        "parent": "hook",
+        "patterns": [
+          "每天",
+          "当你",
+          "如果",
+          "假设"
+        ]
+      },
+      "impact": {
+        "name": "冲击钩子",
+        "parent": "hook",
+        "patterns": [
+          "错了",
+          "危险",
+          "停",
+          "别再",
+          "停止"
+        ]
+      },
+      "status": {
+        "name": "现状描述",
+        "parent": "pain",
+        "patterns": [
+          "现在",
+          "如今",
+          "现在的",
+          "越来越"
+        ]
+      },
+      "misconception": {
+        "name": "误区揭露",
+        "parent": "pain",
+        "patterns": [
+          "以为",
+          "把.*当成",
+          "误以为",
+          "错误"
+        ]
+      },
+      "anxiety": {
+        "name": "焦虑放大",
+        "parent": "pain",
+        "patterns": [
+          "焦虑",
+          "焦虑",
+          "浪费",
+          "没用",
+          "失败"
+        ]
+      },
+      "compare": {
+        "name": "对比反差",
+        "parent": "pain",
+        "patterns": [
+          "不是.*而是",
+          "看似.*其实",
+          "别人.*你"
+        ]
+      },
+      "definition": {
+        "name": "核心定义",
+        "parent": "claim",
+        "patterns": [
+          "这叫",
+          "这就是",
+          "定义",
+          "概念"
+        ]
+      },
+      "judgment": {
+        "name": "对比判断",
+        "parent": "claim",
+        "patterns": [
+          "不是.*而是",
+          "真正",
+          "本质上"
+        ]
+      },
+      "concept": {
+        "name": "概念命名",
+        "parent": "claim",
+        "patterns": [
+          "叫",
+          "命名",
+          "称为",
+          "所谓"
+        ]
+      },
+      "example": {
+        "name": "举例说明",
+        "parent": "proof",
+        "patterns": [
+          "比如",
+          "就像",
+          "举个例子",
+          "例如"
+        ]
+      },
+      "data": {
+        "name": "数据支撑",
+        "parent": "proof",
+        "patterns": [
+          "数据",
+          "研究",
+          "统计",
+          "调查",
+          "显示"
+        ]
+      },
+      "causal": {
+        "name": "因果推理",
+        "parent": "proof",
+        "patterns": [
+          "因为",
+          "所以",
+          "导致",
+          "因此",
+          "原因"
+        ]
+      },
+      "method": {
+        "name": "方法论",
+        "parent": "proof",
+        "patterns": [
+          "方法",
+          "步骤",
+          "怎么做",
+          "应该",
+          "正确的",
+          "技巧"
+        ]
+      },
+      "process": {
+        "name": "过程演示",
+        "parent": "proof",
+        "patterns": [
+          "第一步",
+          "然后",
+          "接着",
+          "最后"
+        ]
+      },
+      "insight": {
+        "name": "核心金句",
+        "parent": "quote",
+        "patterns": [
+          "记住",
+          "本质",
+          "关键",
+          "真正重要",
+          "从来不是"
+        ]
+      },
+      "emphasis": {
+        "name": "强调引用",
+        "parent": "quote",
+        "patterns": [
+          "最重要的",
+          "核心",
+          "本质",
+          "关键在于"
+        ]
+      },
+      "summary": {
+        "name": "总结句",
+        "parent": "cta",
+        "patterns": [
+          "总结",
+          "总之",
+          "所以",
+          "综上"
+        ]
+      },
+      "action": {
+        "name": "行动号召",
+        "parent": "cta",
+        "patterns": [
+          "开始",
+          "停止",
+          "行动",
+          "现在",
+          "去做",
+          "试试"
+        ]
+      }
+    },
+    "L3": {
+      "anti-common": [
+        "opening/fracture",
+        "typography/cel-flash-stomp",
+        "transition/tear-streak-transitions",
+        "effects/slam-entrance-moves"
+      ],
+      "question": [
+        "typography/flying-words",
+        "typography/type-assembly-moves",
+        "typography/scramble",
+        "typography/typewriter-moves"
+      ],
+      "number": [
+        "data/odometer-digit-roll",
+        "data/counter-confetti",
+        "data/gauge-readout-moves",
+        "typography/countdown-arc-scatter"
+      ],
+      "scene": [
+        "opening/crane-rise-reveal",
+        "opening/spotlight-hero-card",
+        "camera/overhead-camera-moves",
+        "opening/text-as-mask"
+      ],
+      "impact": [
+        "camera/crash-zoom-punch",
+        "camera/crash-zoom-punch/crash-impact",
+        "effects/impact-feedback"
+      ],
+      "status": [
+        "typography/blur-slide",
+        "typography/type-entrance-moves",
+        "ui-entrance/list-reveal",
+        "ui-entrance/list-stack-press"
+      ],
+      "misconception": [
+        "typography/glitch-cycle",
+        "transition/card-flip-reveal",
+        "effects/scanline-annotate-focus"
+      ],
+      "anxiety": [
+        "camera/depth-layer-moves",
+        "rhythm/rhythm-interrupt-moves",
+        "rhythm/speed-ramp-freeze"
+      ],
+      "compare": [
+        "data/before-after-slider-scrub",
+        "transition/cube-navigation",
+        "rhythm/panel-grid-moves"
+      ],
+      "definition": [
+        "typography/paper-title-card",
+        "typography/marker-underline-title",
+        "typography/outline-word-fill",
+        "typography/brace-expand"
+      ],
+      "judgment": [
+        "data/before-after-slider-scrub",
+        "transition/card-flip-reveal",
+        "ui-entrance/clipcard-looping"
+      ],
+      "concept": [
+        "typography/gradient-word-sweep",
+        "typography/lead-word-zoom-assemble",
+        "typography/word-relay-geometry"
+      ],
+      "example": [
+        "camera/graze-face-tour",
+        "camera/cursor-flyover",
+        "camera/basic-3d-scene",
+        "camera/steep-tilt-glide"
+      ],
+      "data": [
+        "data/hatch-depth",
+        "data/timeline-travel",
+        "data/ring-diagram-annotation-reveal",
+        "data/chart-live-moves"
+      ],
+      "causal": [
+        "data/cycle-glass-node-morph",
+        "effects/glow-flyline-moves",
+        "ui-entrance/bezier-source-converge-merge"
+      ],
+      "method": [
+        "ui-entrance/list-reveal",
+        "ui-entrance/product-card-progressive-assemble",
+        "ui-entrance/document-typewriter-reveal",
+        "ui-entrance/draw-svg-trace"
+      ],
+      "process": [
+        "interaction/type-and-filter",
+        "interaction/command-palette-summon",
+        "ui-entrance/carousel-3d"
+      ],
+      "insight": [
+        "typography/gradient-word-sweep",
+        "typography/lead-word-zoom-assemble",
+        "typography/type-rhythm-sync",
+        "camera/tension-camera-moves"
+      ],
+      "emphasis": [
+        "typography/marker-underline-title",
+        "ui-entrance/neon-frame-forerun",
+        "effects/dashboard-glow-highlight-pill"
+      ],
+      "summary": [
+        "outro/grain-dissolve",
+        "outro/edit-hook-moves",
+        "outro/ui-strip-away-outro"
+      ],
+      "action": [
+        "outro/logo-shrink-wordmark-lockup",
+        "outro/ui-to-brand-morph",
+        "outro/outro-group-photo-launch"
+      ]
+    }
+  },
+  "slots": {
+    "version": "1.0",
+    "description": "镜头坑位治理主线：每个 shotCard 声明坑位类型与素材角色",
+    "defaults": {
+      "slot": "text-hero",
+      "materialRole": "background"
+    },
+    "rules": [
+      {
+        "prefix": "typography/",
+        "slot": "text-hero",
+        "materialRole": "background",
+        "note": "文字视觉为主，素材做底"
+      },
+      {
+        "prefix": "data/",
+        "slot": "data-show",
+        "materialRole": "inline-element",
+        "note": "数据可视化，素材进图表"
+      },
+      {
+        "prefix": "camera/",
+        "slot": "case-show",
+        "materialRole": "hero",
+        "note": "运镜叙事，素材全屏主体"
+      },
+      {
+        "prefix": "ui-entrance/card-",
+        "slot": "case-show",
+        "materialRole": "split",
+        "note": "卡片类，素材分屏嵌入"
+      },
+      {
+        "prefix": "ui-entrance/",
+        "slot": "process-show",
+        "materialRole": "split",
+        "note": "界面展示，素材分屏"
+      },
+      {
+        "prefix": "interaction/",
+        "slot": "process-show",
+        "materialRole": "split",
+        "note": "交互演示，素材分屏"
+      },
+      {
+        "prefix": "transition/",
+        "slot": "transition-slot",
+        "materialRole": "none",
+        "note": "转场纯模板"
+      },
+      {
+        "prefix": "opening/",
+        "slot": "text-hero",
+        "materialRole": "background",
+        "note": "开场大字，素材做底"
+      },
+      {
+        "prefix": "outro/",
+        "slot": "text-hero",
+        "materialRole": "background",
+        "note": "收尾大字，素材做底"
+      },
+      {
+        "prefix": "rhythm/",
+        "slot": "case-show",
+        "materialRole": "hero",
+        "note": "节奏剪辑，素材全屏"
+      },
+      {
+        "prefix": "effects/",
+        "slot": "text-hero",
+        "materialRole": "background",
+        "note": "特效衬托文字"
+      }
+    ],
+    "overrides": {
+      "data/before-after-slider-scrub": {
+        "slot": "compare-slot",
+        "materialRole": "split"
+      },
+      "data/avatar-grid-radial-build-colorize": {
+        "slot": "data-show",
+        "materialRole": "inline-element"
+      },
+      "camera/cursor-flyover": {
+        "slot": "process-show",
+        "materialRole": "split"
+      },
+      "camera/graze-face-tour": {
+        "slot": "case-show",
+        "materialRole": "hero"
+      },
+      "rhythm/quad-split-parallel-scenes": {
+        "slot": "case-show",
+        "materialRole": "inline-element"
+      },
+      "rhythm/speed-ramp-freeze": {
+        "slot": "case-show",
+        "materialRole": "hero"
+      },
+      "effects/scanline-annotate-focus": {
+        "slot": "data-show",
+        "materialRole": "inline-element"
+      }
+    }
+  },
+  "pitByL2": {
+    "anti-common": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "question": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "number": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "scene": {
+      "A": {
+        "subject": "local-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "impact": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "status": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "misconception": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "anxiety": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "compare": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "definition": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "judgment": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "concept": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "example": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "data": {
+      "A": {
+        "subject": "local-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "local-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "causal": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "method": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "process": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "insight": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element",
+        "loop": true
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "emphasis": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element",
+        "loop": true
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "aigc-material",
+        "content": {
+          "type": "text"
+        },
+        "position": "background"
+      }
+    },
+    "summary": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    },
+    "action": {
+      "A": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "B": {
+        "subject": "person",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "C": {
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      }
+    }
+  },
+  "pitModelVersion": "2.0",
+  "pitModel": {
+    "L0_mode": [
+      "A",
+      "B",
+      "C"
+    ],
+    "L1_subject": [
+      "remotion",
+      "local-material",
+      "aigc-material",
+      "person"
+    ],
+    "L2_content": [
+      "text",
+      "image",
+      "video-local",
+      "video-aigc"
+    ],
+    "L3_position": [
+      "background",
+      "element"
+    ],
+    "rules": [
+      "A模式: remotion 主导，素材/人像做补充",
+      "B模式: person 主导，remotion/素材穿插",
+      "C模式: aigc-material 主导，remotion/person 做标注",
+      "proof 类镜头在 A/C 模式优先用 local-material 做背景",
+      "quote 类镜头在 A 模式优先选 loop 模板"
+    ]
+  }
+}
