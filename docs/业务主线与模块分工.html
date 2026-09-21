@@ -1,0 +1,192 @@
+<html style="margin:0;padding:0;">
+<title>Video ShotCraft 业务主线与模块分工</title>
+<div style="width:100%;box-sizing:border-box;background:#f7f5f0;color:#1f2329;font-family:'Microsoft YaHei','PingFang SC',sans-serif;padding:28px 20px;">
+
+  <!-- 标题 -->
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="font-size:24px;font-weight:700;color:#0d0f14;">Video ShotCraft · 业务主线与模块分工</div>
+    <div style="font-size:15px;color:#5a5e66;margin-top:6px;">定位：一条口播文案 → 一支成片 · 本地自动化视频生产线（文案进、成片出，Remotion 渲染，操作台 127.0.0.1:8765）</div>
+  </div>
+
+  <!-- 主线流程 -->
+  <div style="max-width:1180px;margin:24px auto 0;">
+    <div style="font-size:16px;font-weight:700;color:#0d0f14;border-left:4px solid #d4a853;padding-left:10px;">一、业务主线（主流程闭环）</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;">
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">① 文案输入</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">编导表单贴全文，不拆句</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：操作台 console-ui</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：_input.txt</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">② 定调</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">视频类型 · 时长 · 主题预设 · A/B/C 模式</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：操作台 console-ui</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：表单参数</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">③ TTS 配音</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">edge-tts 男声合成 + 按句分配时间轴</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：director/tts.py</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：voiceover.mp3 + timing.json</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 180px;min-width:180px;background:#fff9ec;border:1px solid #e8d9ae;border-top:3px solid #b8860b;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">④ 自动分镜 ★核心</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">叙事分级 L1 六类 → L2 26 类 → 镜头卡；坑位治理（slot+素材角色+A/B/C pit）；时长约束 1.5–5s</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：director/build-storyboard.mjs + taxonomy.json</div>
+        <div style="font-size:12px;color:#b8860b;font-weight:600;margin-top:4px;">产物：storyboard.json</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">⑤ 素材匹配</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">语义词典提取标签 → 3396 镜头索引检索 → 打分排序；未命中 fallback 渐变+关键词</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：materials/_index.json</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：素材路径/占位</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">⑥ Remotion 渲染</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">DynamicVideo 驱动，主题注入 CSS 变量，字幕样式统一</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：director/render.mjs + template/</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：promo.mp4</div>
+      </div>
+
+      <div style="align-self:center;font-size:18px;color:#c9c4b8;">→</div>
+
+      <div style="flex:1 1 150px;min-width:150px;background:#fff;border:1px solid #e3dfd6;border-top:3px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+        <div style="font-size:15px;font-weight:700;">⑦ 交付改片</div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">成片预览 → 动效工作台多轨改 → 剪映导出</div>
+        <div style="font-size:12px;color:#9a9ea6;margin-top:6px;">模块：workbench / jianying-export</div>
+        <div style="font-size:12px;color:#d4a853;font-weight:600;margin-top:4px;">产物：成片 + 可编辑工程</div>
+      </div>
+
+    </div>
+    <div style="font-size:13px;color:#8a8680;margin-top:10px;">★ = 业务核心价值：叙事分级 + 坑位治理 + 素材匹配都在这一步，A 模式已闭环（最近一次 19 镜头）。</div>
+  </div>
+
+  <!-- 三模式 -->
+  <div style="max-width:1180px;margin:24px auto 0;">
+    <div style="font-size:16px;font-weight:700;color:#0d0f14;border-left:4px solid #d4a853;padding-left:10px;">二、三条模式主线</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
+      <div style="flex:1 1 320px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:14px;box-sizing:border-box;border-left:4px solid #2f9e6e;">
+        <div style="font-size:15px;font-weight:700;">A 模式 · Remotion 主导 <span style="font-size:12px;color:#2f9e6e;font-weight:600;">✅ 已跑通</span></div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">模板+文字是主体，素材做人像/背景点缀。适配知识口播、干货讲解、数据型内容。当前主战场。</div>
+      </div>
+      <div style="flex:1 1 320px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:14px;box-sizing:border-box;border-left:4px solid #c9a227;">
+        <div style="font-size:15px;font-weight:700;">B 模式 · 人像口播主导 <span style="font-size:12px;color:#c9a227;font-weight:600;">🟡 未完成</span></div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">真人口播画面是主体，Remotion/素材穿插做标注与转场。需要人像源与 B 模式坑位配置。</div>
+      </div>
+      <div style="flex:1 1 320px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:14px;box-sizing:border-box;border-left:4px solid #c9a227;">
+        <div style="font-size:15px;font-weight:700;">C 模式 · AIGC 素材主导 <span style="font-size:12px;color:#c9a227;font-weight:600;">🟡 未完成</span></div>
+        <div style="font-size:13px;color:#5a5e66;margin-top:6px;">AIGC 生成素材是主体，Remotion/人像做文字标注。适配故事感、氛围感、影视化内容。依赖 AIGC 生成接口回填。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模块分工 -->
+  <div style="max-width:1180px;margin:24px auto 0;">
+    <div style="font-size:16px;font-weight:700;color:#0d0f14;border-left:4px solid #d4a853;padding-left:10px;">三、模块分工（五层架构）</div>
+
+    <div style="margin-top:14px;">
+      <div style="font-size:13px;font-weight:700;color:#b8860b;">层1 · 人机入口（操作台）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div style="flex:1 1 320px;min-width:300px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">console-server.mjs / console-ui.html</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">编导表单、进度/日志、素材库上传与浏览、主题预设、视频预览、任务 API。用户唯一触点。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：运行中 ✅</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div style="font-size:13px;font-weight:700;color:#b8860b;">层2 · 生产管线（大脑）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">director/ · 制作管线</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">tts.py（配音+时间轴）→ build-storyboard.mjs（叙事分级/坑位/素材/时长）→ render.mjs（渲染）；含 taxonomy.json、theme-pack.json、校准页、索引脚本。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：A 模式闭环 ✅</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div style="font-size:13px;font-weight:700;color:#b8860b;">层3 · 渲染引擎</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">template/ · Remotion 模板</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">DynamicVideo.tsx 主驱动，TemplateAdapter props 转译，aifl 组件库（字幕/数字滚动/闪切/2.5D 相机），4 种字幕样式，主题注入。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：A 模式可用 ✅</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">demos/ · 镜头卡库</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">10 类 221 个镜头卡 TSX 参考实现（camera/data/effects/interaction/opening/outro/rhythm/transition/typography/ui-entrance），供分镜选卡与工作台拖入。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：资产就绪 ✅</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div style="font-size:13px;font-weight:700;color:#b8860b;">层4 · 资产底座</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">materials/ · 素材库</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">3396 镜头索引（商务 1280 / 城市通讯 996 / 高楼 442 / 家庭 363 / AI 科技 288 / 4K 商务 27），缩略图、上传、预览。</div>
+          <div style="font-size:12px;color:#c9a227;font-weight:600;margin-top:4px;">状态：已上线，标签体系待治理 🟡</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">assets/ · 组件与音频</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">可复用 Remotion 组件、页面素材采集脚本、5 首 BGM + 16 类 149 个 SFX。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：就绪 ✅</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div style="font-size:13px;font-weight:700;color:#b8860b;">层5 · 交付出口</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">workbench/ · 动效工作台</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">剪映式多轨编辑：镜头/字幕/音效轨，属性面板逐项改，demo 动效拖上轨，Remotion 一键导出（像素级校验）。</div>
+          <div style="font-size:12px;color:#c9a227;font-weight:600;margin-top:4px;">状态：开发中 🟡</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">jianying-export/ · 剪映导出</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">成片拆成剪映工程草稿：镜头切段/字幕原生轨/独立音轨可编辑。</div>
+          <div style="font-size:12px;color:#c9a227;font-weight:600;margin-top:4px;">状态：Mac 验收，Windows 未验证 🟡</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#fff;border:1px solid #e3dfd6;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;">gallery/ · 样片画廊</div>
+          <div style="font-size:13px;color:#5a5e66;margin-top:4px;">在线展示 214 条动态样片，搜索/筛选/预览，对外展示与选卡入口。</div>
+          <div style="font-size:12px;color:#2f9e6e;font-weight:600;margin-top:4px;">状态：就绪 ✅</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 治理建议 -->
+  <div style="max-width:1180px;margin:24px auto 0;background:#fff9ec;border:1px solid #e8d9ae;border-radius:8px;padding:14px;box-sizing:border-box;">
+    <div style="font-size:16px;font-weight:700;color:#0d0f14;border-left:4px solid #b8860b;padding-left:10px;">四、治理切入点（按主线优先级）</div>
+    <div style="font-size:13px;color:#5a5e66;margin-top:10px;line-height:1.9;">
+      1. <b>主线质量治理</b>：字幕对齐修复（tts.py 已改）需重跑 A 模式验证；时长约束与合并逻辑再校准。<br>
+      2. <b>风格治理</b>：主题预设模块化（theme-presets.json + 批量应用 + 操作台选择下拉），统一 221 组件硬编码色调。<br>
+      3. <b>素材治理</b>：3396 镜头标签体系单一（仅分类+构图+商务/日间），缺情绪标签与使用频率降权，匹配精度受限。<br>
+      4. <b>模式扩展</b>：B 模式（人像口播）、C 模式（AIGC 素材）的坑位配置与素材源，是下一阶段主线。
+    </div>
+  </div>
+
+</div>
+</html>

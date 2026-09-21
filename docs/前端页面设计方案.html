@@ -1,0 +1,489 @@
+<html style="margin:0;padding:0;">
+<title>Video ShotCraft 前端页面设计方案</title>
+<div style="width:100%;box-sizing:border-box;background:#0d0f14;color:#e6e9ef;font-family:'Microsoft YaHei','PingFang SC',sans-serif;padding:32px 24px;">
+
+  <!-- 封面头 -->
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 前端页面设计方案</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.1 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
+    <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
+      <b style="color:#d4a853;">文档目的：</b>把当前"单页堆叠"的操作台（console-ui.html，1394 行 / 62KB，7 个业务环节共用一页），按业务主线重构为 <b>5 视图工作台</b>。
+      每视图聚焦一个业务环节，同时治理前端与后端 API 契约不一致的问题（UI 仍在调用 /api/logs、/api/action、/api/state、/api/preview、/api/materials 等旧接口，server 已改为 /api/task、/api/storyboard 等新接口）。<br>
+      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。
+    </div>
+  </div>
+
+  <!-- 一、设计目标 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">一、设计目标与原则</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;">
+      <div style="flex:1 1 240px;min-width:220px;background:#14171f;border:1px solid #232833;border-radius:8px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:14px;font-weight:700;color:#d4a853;">① 按主线分视图</div>
+        <div style="font-size:13px;color:#aab0bc;margin-top:6px;">编导→制作→成片三条主环节各自独立视图，素材库与风格中心单独成页，一屏一职责。</div>
+      </div>
+      <div style="flex:1 1 240px;min-width:220px;background:#14171f;border:1px solid #232833;border-radius:8px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:14px;font-weight:700;color:#d4a853;">② 接口契约治理</div>
+        <div style="font-size:13px;color:#aab0bc;margin-top:6px;">UI 与 server 的 API 对齐为唯一清单，消灭 404 与"调了没反应"的隐性故障。</div>
+      </div>
+      <div style="flex:1 1 240px;min-width:220px;background:#14171f;border:1px solid #232833;border-radius:8px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:14px;font-weight:700;color:#d4a853;">③ 渐进迁移</div>
+        <div style="font-size:13px;color:#aab0bc;margin-top:6px;">不推翻现有逻辑：视图拆分先搬功能，业务逻辑与素材/风格/渲染管线代码原样保留。</div>
+      </div>
+      <div style="flex:1 1 240px;min-width:220px;background:#14171f;border:1px solid #232833;border-radius:8px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:14px;font-weight:700;color:#d4a853;">④ 保持轻量</div>
+        <div style="font-size:13px;color:#aab0bc;margin-top:6px;">本地工具定位不变：单文件 HTML + 原生 JS，不引入框架依赖，刷新不丢状态。</div>
+      </div>
+      <div style="flex:1 1 240px;min-width:220px;background:#1d222e;border:1px solid #3a4a6b;border-radius:8px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:14px;font-weight:700;color:#7ba3e8;">⑤ 修改收敛（v1.1）</div>
+        <div style="font-size:13px;color:#aab0bc;margin-top:6px;">一切修改只落在关键数据收敛节点（权威文件）上，在收敛范围内调整；禁止绕过收敛节点的散改（如直改组件硬编码色、写死素材路径）。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二、总体信息架构 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">二、总体信息架构（5 视图工作台）</div>
+
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:18px;box-sizing:border-box;">
+      <div style="font-size:13px;color:#8b93a3;text-align:center;margin-bottom:14px;">—— 顶部主导航：5 视图 Tab + 状态栏 ——</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;">
+        <div style="background:#1d222e;border:1px solid #2a2e38;border-radius:6px;padding:8px 16px;font-size:14px;color:#e6e9ef;">📝 编导台</div>
+        <div style="background:#1d222e;border:1px solid #2a2e38;border-radius:6px;padding:8px 16px;font-size:14px;color:#e6e9ef;">🎬 制作台</div>
+        <div style="background:#1d222e;border:1px solid #2a2e38;border-radius:6px;padding:8px 16px;font-size:14px;color:#e6e9ef;">📦 成片台</div>
+        <div style="background:#1d222e;border:1px solid #2a2e38;border-radius:6px;padding:8px 16px;font-size:14px;color:#e6e9ef;">🎞️ 素材库</div>
+        <div style="background:#1d222e;border:1px solid #2a2e38;border-radius:6px;padding:8px 16px;font-size:14px;color:#e6e9ef;">🎨 风格中心</div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:stretch;">
+        <div style="flex:1 1 170px;min-width:160px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">编导台</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.7;">文案输入 · 视频类型 · A/B/C 模式 · 备注<br><span style="color:#8b93a3;">对应主线 ①②</span></div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:8px;">→ C1 _input.txt</div>
+        </div>
+        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
+        <div style="flex:1 1 170px;min-width:160px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">制作台</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.7;">进度条 · 分镜校准 · 单镜头覆盖 · 渲染<br><span style="color:#8b93a3;">对应主线 ③④⑤⑥</span></div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:8px;">→ C2/C3/C6 → C7 promo.mp4</div>
+        </div>
+        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
+        <div style="flex:1 1 170px;min-width:160px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">成片台</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.7;">成片预览 · 交付出口（工作台/剪映/画廊）<br><span style="color:#8b93a3;">对应主线 ⑦</span></div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:8px;">→ C7 成片 + 可编辑工程</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px;">
+        <div style="flex:1 1 260px;min-width:240px;background:#0d0f14;border:1px solid #3a4a6b;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#7ba3e8;">素材库（资产视图）</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.7;">分类/标签筛选 · 缩略图网格 · 预览弹窗 · 上传 · 标签编辑（治理核心）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:8px;">→ C5 _index.json</div>
+        </div>
+        <div style="flex:1 1 260px;min-width:240px;background:#0d0f14;border:1px solid #3a4a6b;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#7ba3e8;">风格中心（治理视图）</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.7;">主题预设 8 套 · 实时预览 · 色彩/字体参数 · 保存我的主题</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:8px;">→ C4 theme-pack.json</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:#8b93a3;text-align:center;margin-top:14px;">下方状态栏：服务状态 · 当前模式（A/B/C）· 当前主题 · 最近任务</div>
+    </div>
+  </div>
+
+  <!-- 三、视图详细设计 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">三、视图详细设计</div>
+
+    <div style="background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;margin-top:14px;">
+      <div style="font-size:15px;font-weight:700;color:#d4a853;">视图 1 · 编导台 <span style="font-size:12px;color:#8b93a3;font-weight:400;">（对应主线 ①② · 承接现有"编导文案"卡片 · 收敛节点 C1）</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">功能清单</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            1. 视频类型下拉：知识口播/产品宣传片/品牌故事/其他（现有 b-vtype）<br>
+            2. 视频时长：自动计算，只读（现有 b-duration）<br>
+            3. 文案全文编辑：大字文本域，贴全文不拆句（现有 b-fulltext）<br>
+            4. 其他备注：调性/配色/禁用词（现有 b-notes）<br>
+            5. A/B/C 模式选择：A 可用，B/C 置灰待开发（现有 b-mode-*）<br>
+            6. 保存文案 → 只做分镜规划（plan），不直接渲染
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">接口与数据</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            · POST /api/generate/plan —— 提交文案，产出 timing.json + storyboard.json<br>
+            · 状态：_input.txt 是否已提交；storyboard 是否已存在<br>
+            · 保存后自动跳转「制作台」并刷新分镜列表
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;margin-top:12px;">
+      <div style="font-size:15px;font-weight:700;color:#d4a853;">视图 2 · 制作台 <span style="font-size:12px;color:#8b93a3;font-weight:400;">（对应主线 ③④⑤⑥ · 承接"生成进度"+"分镜校准"卡片 · 收敛节点 C2/C3/C6）</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">功能清单</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            1. 顶部常驻进度条：TTS→分镜→渲染 分阶段显示（现有 gen-progress-card）<br>
+            2. 分镜校准列表：每镜头显示 类型/L2/镜头卡/时长/素材来源/文案（现有 storyboard-card + sb-list）<br>
+            3. 单镜头覆盖：手动替换镜头卡、素材、文案（<b style="color:#e6e9ef;">新增，修改回写 C3</b>）<br>
+            4. 确认渲染（现有 sb-render）→ 渲染日志可展开<br>
+            5. 渲染完成后自动切「成片台」
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">接口与数据</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            · GET /api/task?id= —— 轮询任务进度与日志（替代旧的 /api/logs）<br>
+            · GET /api/storyboard —— 读分镜<br>
+            · POST /api/storyboard/save —— 保存校准结果（写 C3）<br>
+            · POST /api/render/confirm —— 触发渲染（产 C7）<br>
+            · 独立增强版校准页 storyboard-review.html 保留入口（三列布局，同样写 C3）
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;margin-top:12px;">
+      <div style="font-size:15px;font-weight:700;color:#d4a853;">视图 3 · 成片台 <span style="font-size:12px;color:#8b93a3;font-weight:400;">（对应主线 ⑦ · 承接"渲染模板视频"快捷卡 + 预览 · 收敛节点 C7）</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">功能清单</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            1. 成片预览播放器（现有 preview + 视频流）<br>
+            2. 成片信息：时长/分辨率/大小/渲染时间<br>
+            3. 交付出口卡片：打开 Motion Workbench / 剪映导出 / 打开 Gallery（现有 data-action 卡片收敛至此）<br>
+            4. Remotion Studio 入口（现有 studio 卡）
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">接口与数据</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            · GET /api/preview —— 成片元信息<br>
+            · GET /api/stream —— 视频流播放<br>
+            · 外部：workbench/scripts/open.mjs、jianying-export、gallery 静态站
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;margin-top:12px;">
+      <div style="font-size:15px;font-weight:700;color:#d4a853;">视图 4 · 素材库 <span style="font-size:12px;color:#8b93a3;font-weight:400;">（资产视图 · 承接现有素材库区 + 治理扩展 · 收敛节点 C5）</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">功能清单</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            1. 左侧分类/标签筛选树（按 6 大类 + 标签）<br>
+            2. 中间缩略图网格：分页浏览 3396 镜头（现有 mat-list + 分页）<br>
+            3. 预览弹窗：点击缩略图视频播放 + 元信息（现有 lib-modal）<br>
+            4. 上传：多文件 + 整个文件夹（现有 mat-upload）<br>
+            5. 标签编辑/批量打标（<b style="color:#e6e9ef;">新增，治理核心</b>）：补情绪标签、使用频率降权 —— 全部写入 C5
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">接口与数据</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            · GET /api/library/tags —— 标签枚举<br>
+            · GET /api/library/list?tags=&offset=&limit= —— 分页列表<br>
+            · GET /api/library/thumb?path= —— 缩略图<br>
+            · GET /api/library/video?path= —— 视频流（Range 支持）<br>
+            · POST /api/materials/upload —— 上传（写 C5）<br>
+            · <b style="color:#e6e9ef;">新增：</b>POST /api/library/tag（打标，写 C5）、GET /api/library/stat（分类统计）
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;margin-top:12px;">
+      <div style="font-size:15px;font-weight:700;color:#d4a853;">视图 5 · 风格中心 <span style="font-size:12px;color:#8b93a3;font-weight:400;">（治理视图 · 承接现有"色彩风格"卡片 · 收敛节点 C4）</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">功能清单</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            1. 主题预设 8 套：黑金高级/深蓝科技/浅色商务/暗黑赛博/暖棕复古/极简黑白/活力橙/墨绿自然（现有 theme-grid）<br>
+            2. 实时预览画布（现有 style-preview）<br>
+            3. 色彩参数：背景/主文字/次文字/强调主色/强调渐变/卡片/边框/遮罩+透明度<br>
+            4. 字体与样式：字体族/标题字号/阴影/描边/渐变文字/圆角<br>
+            5. 保存为我的主题 / 重置（现有 save-theme / reset-theme）—— 全部写入 C4
+          </div>
+        </div>
+        <div style="flex:1 1 300px;min-width:260px;">
+          <div style="font-size:13px;font-weight:700;color:#aab0bc;">接口与数据</div>
+          <div style="font-size:13px;color:#8b93a3;margin-top:6px;line-height:1.9;">
+            · 数据文件：theme-pack.json（现有，C4）<br>
+            · <b style="color:#e6e9ef;">新增：</b>theme-presets.json（多套预设）+ theme-apply.mjs（批量应用到 demos 组件）<br>
+            · 新增 API：GET /api/theme、POST /api/theme/save<br>
+            · 选择主题 → 注入 storyboard.json theme（C3）→ 渲染统一色调
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 四、导航与状态串联 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">四、导航与状态串联</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="font-size:13px;color:#aab0bc;line-height:2.1;">
+        <b style="color:#d4a853;">主流程状态机：</b>编导台（保存）→ 制作台（自动刷新分镜）→ 渲染完成 → 成片台（自动显示预览）→ 交付（工作台/剪映）<br>
+        <b style="color:#d4a853;">状态持久化：</b>页面切换存 sessionStorage（当前视图/模式/主题/最近任务 id），服务端状态以收敛节点文件为权威源（C1-C7）<br>
+        <b style="color:#d4a853;">跨视图共享：</b>主题选择（风格中心，C4）影响 storyboard.json theme（C3）；素材打标（素材库，C5）影响分镜素材匹配结果——两处修改后回到制作台需提示"重新生成分镜"。
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、关键数据收敛节点 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">五、关键数据收敛节点（v1.1 新增）</div>
+
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="font-size:14px;font-weight:700;color:#aab0bc;">5.1 收敛节点地图 —— 数据管线的 7 个权威节点</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;">
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">C1 · 文案</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;line-height:1.8;">director/_input.txt<br>写：编导台保存<br>读：tts.py</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">C2 · 时间轴</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;line-height:1.8;">director/timing.json<br>写：tts.py<br>读：build-storyboard.mjs</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">C3 · 分镜 ★ 核心收敛</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;line-height:1.8;">director/storyboard.json<br>写：build-storyboard.mjs / 制作台校准 / 风格注入<br>读：render.mjs / 制作台 / 校准页</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #3a4a6b;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#7ba3e8;">C4 · 主题</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;line-height:1.8;">director/theme-pack.json<br>写：风格中心保存<br>读：build-storyboard.mjs（theme 注入 C3）</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #3a4a6b;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#7ba3e8;">C5 · 素材索引</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;line-height:1.8;">materials/_index.json<br>写：上传 / 素材库打标<br>读：build-storyboard.mjs（素材匹配）</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#8b93a3;">C6 · 配音产物</div>
+          <div style="font-size:12px;color:#5a616d;margin-top:4px;line-height:1.8;">template/public/audio/voiceover.mp3<br>写：tts.py<br>读：render.mjs（只读产物）</div>
+        </div>
+        <div style="flex:1 1 300px;min-width:280px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#8b93a3;">C7 · 成片</div>
+          <div style="font-size:12px;color:#5a616d;margin-top:4px;line-height:1.8;">template/out/promo.mp4<br>写：render.mjs<br>读：成片台预览（只读产物）</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;background:#1d222e;border:1px solid #3a4a6b;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="font-size:14px;font-weight:700;color:#7ba3e8;">5.2 收敛规则 —— 所有修改必须在收敛范围内调整</div>
+      <div style="font-size:13px;color:#aab0bc;margin-top:10px;line-height:2.1;">
+        <b style="color:#e6e9ef;">R1 文案修改：</b>只经 C1（编导台保存 → _input.txt），随后重跑管线（C2→C3→C6→C7）。禁止直接改 C3 中的 text 字段当"偷改文案"。<br>
+        <b style="color:#e6e9ef;">R2 风格修改：</b>只经 C4（风格中心 → theme-pack.json → 注入 C3.theme）。禁止绕过 C4 直改 221 个组件的硬编码色。<br>
+        <b style="color:#e6e9ef;">R3 素材修改：</b>只经 C5（素材库上传/打标 → _index.json）。禁止在 C3 中写死素材路径（校准替换除外，且同样回写 C3）。<br>
+        <b style="color:#e6e9ef;">R4 分镜修改：</b>只经 C3（制作台校准/单镜头覆盖 → storyboard.json）。渲染一律读 C3，不读散落的中间态。<br>
+        <b style="color:#e6e9ef;">R5 单向回流：</b>任何视图的修改最终必须落到 C1-C5 之一；sessionStorage / 内存态只承载临时 UI 态，不承载业务数据。<br>
+        <b style="color:#e6e9ef;">R6 收敛校验：</b>修改操作完成后，检查对应收敛节点文件（mtime + 内容）已更新；发现未落盘即视为失败。
+      </div>
+    </div>
+  </div>
+
+  <!-- 六、数据契约与 mock 示例 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">六、数据契约与 mock 示例（v1.1 新增）</div>
+
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="font-size:14px;font-weight:700;color:#aab0bc;">6.1 使用规则</div>
+      <div style="font-size:13px;color:#aab0bc;margin-top:8px;line-height:2.0;">
+        1. 前端每个 API 封装一层 fetcher；<b>fetch 失败或接口未实现时返回内置 mock payload</b>（放 console-ui.html 顶部 <span style="color:#7ba3e8;">const MOCK = {...}</span>）。<br>
+        2. mock 字段必须与真实文件结构一致（本章示例即模板，已按 storyboard.json / timing.json / _index.json / theme-pack.json 实际结构编写）。<br>
+        3. <b>P0 验收：断开 server（接口 404）时，5 视图用内置 mock 跑通全流程</b>，证明数据管线已打通；接通 server 后逐接口替换为真实数据。<br>
+        4. 新增接口（/api/library/tag、/api/library/stat、/api/theme、/api/theme/save）由 server 按本章契约实现，前端按同一契约开发。
+      </div>
+    </div>
+
+    <div style="margin-top:12px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="font-size:14px;font-weight:700;color:#aab0bc;">6.2 接口契约表（16 个接口）</div>
+      <div style="font-size:12px;color:#8b93a3;margin-top:8px;line-height:1.8;">
+        <b style="color:#d4a853;">已有：</b>POST /api/generate/plan · GET /api/task · GET /api/storyboard · POST /api/storyboard/save · POST /api/render/confirm · GET /api/library/tags · GET /api/library/list · GET /api/library/thumb · GET /api/library/video · POST /api/materials/upload · GET /api/preview · GET /api/stream<br>
+        <b style="color:#7ba3e8;">新增：</b>POST /api/library/tag · GET /api/library/stat · GET /api/theme · POST /api/theme/save
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;">
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">① POST /api/generate/plan —— 提交文案（写 C1）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">请求:
+{ "text": "你收藏了 1000 篇干货，为什么还是什么都不会？……（全文）",
+  "vtype": "knowledge", "notes": "调性偏沉稳，禁用词：大家", "mode": "A" }
+响应: { "ok": true, "id": 3 }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">② GET /api/task?id=3 —— 任务进度/日志</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "since": 12, "done": true, "status": "done", "exitCode": 0,
+  "logs": ["✓ 语音合成完成: ...voiceover.mp3",
+           "✓ 分镜生成: 19 镜头, 总 95.3s",
+           "✓ 素材匹配: 11 个镜头使用本地素材"] }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">③ GET /api/storyboard —— 读分镜（读 C3）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "exists": true, "storyboard": {
+    "title": "口播视频", "fps": 30, "audio": "audio/voiceover.mp3",
+    "theme": { "bg": "#0d0f14", "surface": "#1a1d24", "text": "#e8e6e1",
+               "textDim": "#8a8680", "accent": "#d4a853", "accent2": "#4ecdc4" },
+    "shots": [ { "type": "hook", "l2": "impact", "shotCard": "effects/impact-feedback",
+      "slot": "text-hero", "materialRole": "background",
+      "pit": { "mode": "A", "subject": "remotion", "content": { "type": "text" }, "position": "element" },
+      "text": "你收藏了 1000 篇干货，为什么还是什么都不会？",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈……Scene-013.mp4" } ] } }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">④ POST /api/storyboard/save —— 保存校准（写 C3）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">请求: { "storyboard": { ...同上结构，含修改后的 shots } }
+响应: { "ok": true }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">⑤ POST /api/render/confirm —— 触发渲染（产 C7）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">请求: {}
+响应: { "ok": true, "id": 4 }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">⑥ GET /api/library/tags —— 标签枚举（读 C5）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "tags": ["全景构图","写实实拍","商务","日间","空镜","精英人物",
+           "高端品质","科技","城市建筑","家庭","温馨","数据可视化"] }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">⑦ GET /api/library/list?tags=商务&amp;offset=0&amp;limit=60 —— 分页（读 C5）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "items": [ { "path": "027-4k商务\\高端商务1 (1)-Scene-001.mp4",
+               "category": "027-4k商务", "duration_sec": 1.4,
+               "width": 3840, "height": 2160,
+               "tags": ["全景构图","写实实拍","商务","日间"] } ],
+  "total": 1280, "offset": 0, "limit": 60 }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">⑧ ⑨ ⑩ 素材媒体与上传</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">GET /api/library/thumb?path=… → image/jpeg（缩略图）
+GET /api/library/video?path=… → video/mp4（206 Range 分片）
+POST /api/materials/upload（multipart 文件/文件夹）
+  响应: { "ok": true, "added": 2, "indexed": 3398 }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #3a4a6b;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#7ba3e8;">⑪ POST /api/library/tag —— 打标（新增，写 C5）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">请求:
+{ "paths": ["027-4k商务\\高端商务1 (1)-Scene-001.mp4", "…-Scene-002.mp4"],
+  "tags": ["焦虑", "商务"], "mode": "add" }   // add 追加 | replace 覆盖
+响应: { "ok": true, "updated": 2 }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #3a4a6b;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#7ba3e8;">⑫ GET /api/library/stat —— 分类统计（新增，读 C5）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "total": 3396, "categories": [
+  { "category": "商务合作共赢洽谈…", "count": 1280 },
+  { "category": "城市通讯电子商务…", "count": 996 },
+  { "category": "城市高楼大厦交通…", "count": 442 },
+  { "category": "孩子老年人家庭幸福…", "count": 363 },
+  { "category": "AI科技未来横屏230款", "count": 288 },
+  { "category": "027-4k商务", "count": 27 } ] }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #3a4a6b;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#7ba3e8;">⑬ GET /api/theme —— 读主题（新增，读 C4）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">响应:
+{ "current": "黑金高级",
+  "presets": [ { "name": "黑金高级", "bg": "#0d0f14", "text": "#e8e6e1",
+                 "sub": "#8a8680", "accent": "#d4a853", "accent2": "#b48020",
+                 "card": "#1a1d24", "border": "#2a2e38", "overlay": "rgba(0,0,0,0.6)" }, …8 套 ],
+  "custom": null }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #3a4a6b;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#7ba3e8;">⑭ POST /api/theme/save —— 保存主题（新增，写 C4）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">请求:
+{ "name": "我的主题", "theme": { "bg": "#0d0f14", "text": "#e8e6e1",
+  "sub": "#8a8680", "accent": "#d4a853", "accent2": "#b48020",
+  "card": "#1a1d24", "border": "#2a2e38", "overlay": "rgba(0,0,0,0.6)" } }
+响应: { "ok": true, "saved": "我的主题" }</pre>
+      </div>
+
+      <div style="flex:1 1 540px;min-width:480px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;box-sizing:border-box;">
+        <div style="font-size:13px;font-weight:700;color:#d4a853;">⑮ ⑯ 成片元信息与视频流（读 C7）</div>
+        <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:10px;font-size:12px;color:#9fd0a0;line-height:1.6;overflow-x:auto;margin-top:8px;white-space:pre-wrap;">GET /api/preview → { "exists": true, "duration": 95.3,
+  "width": 1920, "height": 1080, "sizeMB": 24.8, "renderedAt": "2026-09-21 20:13" }
+GET /api/stream → video/mp4 视频流（Range 支持）</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 七、与现有代码的迁移关系 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">七、与现有代码的迁移关系</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.0;">
+      <b style="color:#7ba3e8;">保留不动：</b>console-server.mjs 全部业务逻辑与现有 API、materials 索引与缩略图、风格参数面板逻辑、进度轮询逻辑、storyboard-review.html 独立校准页。<br>
+      <b style="color:#7ba3e8;">拆出迁移：</b>快捷入口卡 → 成片台交付区；编导表单 → 编导台；进度+校准 → 制作台；风格卡片 → 风格中心；素材库区 → 素材库视图。<br>
+      <b style="color:#7ba3e8;">接口对齐（P0）：</b>UI 中 /api/logs → /api/task、/api/action → server 实际命令、/api/state → server 状态接口、/api/preview、/api/stream、/api/materials → 收敛到唯一 API 清单，删除或实现缺失接口。<br>
+      <b style="color:#7ba3e8;">新增接口：</b>/api/library/tag、/api/library/stat、/api/theme、/api/theme/save（按第六章契约实现）。
+    </div>
+  </div>
+
+  <!-- 八、落地优先级 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">八、落地优先级</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <div style="flex:1 1 250px;min-width:230px;background:#1d222e;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;color:#ff6b6b;">P0 · 契约对齐 + Mock 骨架</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.8;">接口清单对齐；MOCK 常量内置；5 视图 Tab 导航 + 状态栏；断网可跑通全视图。</div>
+        </div>
+        <div style="flex:1 1 250px;min-width:230px;background:#1d222e;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;color:#f0a84c;">P1 · 素材库视图</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.8;">标签编辑/批量打标（写 C5）+ 分类统计；情绪标签与使用频率降权。</div>
+        </div>
+        <div style="flex:1 1 250px;min-width:230px;background:#1d222e;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;color:#f0a84c;">P1 · 风格中心</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.8;">theme-presets.json + 批量应用 + 选择下拉（写 C4）；统一 221 组件硬编码色调。</div>
+        </div>
+        <div style="flex:1 1 250px;min-width:230px;background:#1d222e;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;color:#7ba3e8;">P2 · 制作台增强</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.8;">单镜头覆盖（镜头卡/素材/文案，写 C3）、渲染日志展开、完成后自动跳转。</div>
+        </div>
+        <div style="flex:1 1 250px;min-width:230px;background:#1d222e;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:14px;font-weight:700;color:#7ba3e8;">P3 · 成片台集成</div>
+          <div style="font-size:12px;color:#aab0bc;margin-top:6px;line-height:1.8;">交付出口卡片整合；成片元信息展示；B/C 模式按钮接入。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 九、验收标准 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">九、验收标准</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.2;">
+      1. 5 个视图可独立打开、互相切换，刷新后不丢当前视图与模式状态。<br>
+      2. 主流程闭环：编导台保存 → 制作台自动出分镜 → 渲染 → 成片台出预览，全程无手动刷新。<br>
+      3. 接口契约：浏览器 Network 面板无 404、无未对齐 API（旧 /api/logs、/api/action 等清零）。<br>
+      4. 素材库打标后可立即影响下一次分镜匹配（重新生成分镜可见素材变化，收敛节点 C5 生效）。<br>
+      5. 风格中心切换主题后，重渲染成片色调整体一致（无组件硬编码色残留，收敛节点 C4 生效）。<br>
+      <b style="color:#7ba3e8;">6. Mock 验收（v1.1）：断开 server（接口 404）时，5 视图用内置 mock 数据完整渲染，无白屏、无脚本报错，主流程可走通。</b><br>
+      <b style="color:#7ba3e8;">7. 收敛校验（v1.1）：打标/主题/校准/文案任一修改操作落盘后，对应收敛节点文件（C5/C4/C3/C1）mtime 与内容已更新；代码审查中无绕过收敛节点的直接修改路径（如直改组件硬编码色、写死素材路径）。</b>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
+    Video ShotCraft · 前端页面设计方案 v1.1 · 含数据契约 / Mock 示例 / 收敛节点 · 待评审后进入 P0 实施
+  </div>
+
+</div>
+</html>
