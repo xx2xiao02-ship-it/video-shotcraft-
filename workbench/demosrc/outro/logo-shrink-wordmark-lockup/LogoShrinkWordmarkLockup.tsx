@@ -137,7 +137,7 @@ export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }
             top: 'calc(50% + 34px)',
             textAlign: 'center',
             color: ACCENT,
-            font: '600 13px/1 -apple-system,sans-serif',
+            font: '600 13px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             letterSpacing: 5,
             opacity: seg(t, 0.72, 0.84, E.outQuad),
           }}

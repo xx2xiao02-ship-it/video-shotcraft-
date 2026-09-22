@@ -123,7 +123,7 @@ export const PillChipSlotCycleHandled: React.FC = () => {
                   }}
                 >
                   <span style={{ fontSize: 18 }}>{e}</span>
-                  <span style={{ font: FONT, color: '#fff' }}>{w}</span>
+                  <span style={{ font: FONT, color: 'var(--text)' }}>{w}</span>
                 </div>
               ))}
             </div>

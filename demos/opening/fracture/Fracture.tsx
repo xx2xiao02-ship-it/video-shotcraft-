@@ -84,7 +84,7 @@ export const Fracture: React.FC = () => {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%,-50%)',
-            color: '#fff',
+            color: 'var(--text)',
             fontWeight: 800,
             fontSize: 26,
             letterSpacing: 8,

@@ -189,7 +189,7 @@ export const ChipLiftToUserPill: React.FC = () => {
                     key={i}
                     style={{
                       font: `600 11px/1 ${SANS}`,
-                      color: '#fff',
+                      color: 'var(--text)',
                       opacity: p,
                       whiteSpace: 'pre',
                       letterSpacing: '.2px',

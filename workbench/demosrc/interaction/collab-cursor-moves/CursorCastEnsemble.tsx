@@ -43,8 +43,8 @@ const CursorActor: React.FC<{ x: number; y: number; a: Actor; badge: number; sca
     </svg>
     <div style={{
       position: 'absolute', left: 24, top: 40, whiteSpace: 'nowrap',
-      background: a.color, color: '#fff', borderRadius: 7, padding: '4px 11px',
-      fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 14,
+      background: a.color, color: 'var(--text)', borderRadius: 7, padding: '4px 11px',
+      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 14,
       opacity: badge, transform: `translateY(${(1 - badge) * 10}px)`,
     }}>
       {a.name}
@@ -102,7 +102,7 @@ export const CursorCastEnsemble: React.FC = () => {
       }}>
         <div style={{ height: 14, width: 180, background: G.bar, borderRadius: 7, marginBottom: 24 }} />
         <div style={{
-          fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 44,
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 44,
           color: G.ink, letterSpacing: -0.5, minHeight: 56,
         }}>
           {TYPED.slice(0, typedCount)}

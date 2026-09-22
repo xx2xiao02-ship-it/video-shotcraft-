@@ -127,7 +127,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
         }}
       >
         {/* 真卡头：标题 + 副题 + 实时读数 */}
-        <div style={{ position: 'absolute', left: PAD, top: 38, fontFamily: 'Helvetica, Arial, sans-serif' }}>
+        <div style={{ position: 'absolute', left: PAD, top: 38, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: G.ink }}>Requests per second</div>
           <div style={{ fontSize: 20, fontWeight: 500, color: G.mid, marginTop: 8 }}>api-gateway · production · last 60 s</div>
         </div>
@@ -137,7 +137,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
             right: PAD,
             top: 36,
             textAlign: 'right',
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             transform: `scale(${readScale.toFixed(4)})`,
             transformOrigin: 'right top',
           }}
@@ -158,7 +158,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
               top: PLOT_Y + (PLOT_H / 4) * i - 11,
               width: AXIS_W - 8,
               textAlign: 'right',
-              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontSize: 20,
               fontWeight: 600,
               color: G.mid,
@@ -211,7 +211,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
                 left: (PLOT_W / 6) * i - 40,
                 width: 80,
                 textAlign: 'center',
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontSize: 19,
                 fontWeight: 600,
                 color: G.mid,

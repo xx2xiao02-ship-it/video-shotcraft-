@@ -123,7 +123,7 @@ const ObRow: React.FC<{ w: string; price: string; amt: string; red?: boolean }> 
       }}
     />
     <span style={{ position: 'relative', fontSize: 5, color: red ? '#e05a70' : '#3ecf96', paddingLeft: 2 }}>{price}</span>
-    <span style={{ position: 'relative', float: 'right', fontSize: 5, color: '#8f8f8d', paddingRight: 2 }}>{amt}</span>
+    <span style={{ position: 'relative', float: 'right', fontSize: 5, color: 'var(--text-dim)', paddingRight: 2 }}>{amt}</span>
   </div>
 );
 
@@ -166,7 +166,7 @@ export const DashboardGlowHighlightPill: React.FC = () => {
       <div
         style={{
           position: 'absolute', inset: 0, background: '#050403', overflow: 'hidden',
-          perspective: 800, fontFamily: '-apple-system,system-ui,sans-serif',
+          perspective: 800, fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* 暖色底光（原片黑场并非纯黑，顶部偏暖褐） */}
@@ -213,16 +213,16 @@ export const DashboardGlowHighlightPill: React.FC = () => {
             <div style={{ height: '9%', borderBottom: '1px solid #1a1d24', display: 'flex', alignItems: 'center', padding: '0 8px', gap: 10 }}>
               <span style={{ fontSize: 8, fontWeight: 800, color: '#1a1d24', letterSpacing: 1 }}>◆ ACME</span>
               <span style={{ ...FS(6), color: '#9aa0aa' }}>Trade</span>
-              <span style={{ ...FS(6), color: '#5a5a58' }}>Earn</span>
-              <span style={{ ...FS(6), color: '#5a5a58' }}>Vault</span>
-              <span style={{ marginLeft: 'auto', ...FS(6), color: '#5a5a58' }}>Support {' '} 0x8f...c2 {' '}</span>
+              <span style={{ ...FS(6), color: 'var(--text-dim)' }}>Earn</span>
+              <span style={{ ...FS(6), color: 'var(--text-dim)' }}>Vault</span>
+              <span style={{ marginLeft: 'auto', ...FS(6), color: 'var(--text-dim)' }}>Support {' '} 0x8f...c2 {' '}</span>
               <span style={{ ...FS(6), color: '#0b0c0e', background: '#d4a853', borderRadius: 3, padding: '1px 5px', fontWeight: 700 }}>Connect</span>
             </div>
             {/* 左：订单簿 */}
             <div style={{ position: 'absolute', left: 0, top: '9%', bottom: '16%', width: '24%', borderRight: '1px solid #1a1d24', padding: '4px 5px', boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', gap: 8, marginBottom: 3 }}>
-                <span style={{ ...FS(6), color: '#8a8680', borderBottom: '1px solid #d4a853', paddingBottom: 1 }}>Orderbook</span>
-                <span style={{ ...FS(6), color: '#5a5a58' }}>Trades</span>
+                <span style={{ ...FS(6), color: 'var(--text-dim)', borderBottom: '1px solid #d4a853', paddingBottom: 1 }}>Orderbook</span>
+                <span style={{ ...FS(6), color: 'var(--text-dim)' }}>Trades</span>
               </div>
               {OB_ROWS.map((r, i) => (
                 <ObRow key={`r${i}`} w={r.wRed} price={r.priceRed} amt={r.amtRed} red />
@@ -236,10 +236,10 @@ export const DashboardGlowHighlightPill: React.FC = () => {
             <div style={{ position: 'absolute', left: '24%', top: '9%', bottom: '16%', right: '22%', padding: '4px 6px', boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                 <span style={{ fontSize: 7, fontWeight: 700, color: '#1a1d24' }}>
-                  ● TOKEN-USD <span style={{ color: '#5a5a58', fontSize: 5 }}>PERP</span>
+                  ● TOKEN-USD <span style={{ color: 'var(--text-dim)', fontSize: 5 }}>PERP</span>
                 </span>
                 <span style={{ fontSize: 8, fontWeight: 800, color: '#3ecf96' }}>155.01</span>
-                <span style={{ ...FS(5), color: '#8f8f8d' }}>24h Vol $1,891,145.10 {' '} Funding 0.0042% {' '} OI $9.4M</span>
+                <span style={{ ...FS(5), color: 'var(--text-dim)' }}>24h Vol $1,891,145.10 {' '} Funding 0.0042% {' '} OI $9.4M</span>
               </div>
               <svg viewBox="0 0 290 130" style={{ width: '100%', height: '84%' }} preserveAspectRatio="none">
                 {CANDLES.map((c, i) => (
@@ -254,15 +254,15 @@ export const DashboardGlowHighlightPill: React.FC = () => {
             {/* 右：买卖面板 */}
             <div style={{ position: 'absolute', right: 0, top: '9%', bottom: '16%', width: '22%', borderLeft: '1px solid #1a1d24', padding: '4px 6px', boxSizing: 'border-box' }}>
               <div style={{ display: 'flex', gap: 3, marginBottom: 4 }}>
-                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: '#8a8680', background: '#1d2026', borderRadius: 3, padding: '2px 0' }}>Cross</span>
-                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: '#8f8f8d', background: '#14161a', borderRadius: 3, padding: '2px 0' }}>10x</span>
-                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: '#8f8f8d', background: '#14161a', borderRadius: 3, padding: '2px 0' }}>One-Way</span>
+                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: 'var(--text-dim)', background: '#1d2026', borderRadius: 3, padding: '2px 0' }}>Cross</span>
+                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: 'var(--text-dim)', background: '#14161a', borderRadius: 3, padding: '2px 0' }}>10x</span>
+                <span style={{ flex: 1, textAlign: 'center', fontSize: 5.5, color: 'var(--text-dim)', background: '#14161a', borderRadius: 3, padding: '2px 0' }}>One-Way</span>
               </div>
-              <div style={{ ...rowBetween, ...FS(5), color: '#8f8f8d', marginBottom: 2 }}>
+              <div style={{ ...rowBetween, ...FS(5), color: 'var(--text-dim)', marginBottom: 2 }}>
                 <span>Market</span><span>Limit</span><span>Pro</span>
               </div>
               <div style={{ height: 5, margin: '4px 0', background: 'linear-gradient(90deg,#d4a853,#d4a853 60%,#2a2d33 60%)', borderRadius: 2 }} />
-              <div style={{ ...FS(5), color: '#8f8f8d', marginBottom: 4 }}>▢ Reduce Only</div>
+              <div style={{ ...FS(5), color: 'var(--text-dim)', marginBottom: 4 }}>▢ Reduce Only</div>
               <div style={{ display: 'flex', gap: 4, marginBottom: 5 }}>
                 <div style={{ flex: 1, height: 14, borderRadius: 3, background: '#19a374', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 700, color: '#04120c' }}>Buy</div>
                 <div style={{ flex: 1, height: 14, borderRadius: 3, background: '#d6455a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 6, fontWeight: 700, color: '#1c0508' }}>Sell</div>
@@ -270,17 +270,17 @@ export const DashboardGlowHighlightPill: React.FC = () => {
               {(['Current Position|0.00 TOKEN', 'Liq. Price|--', 'Order Value|$0.00', 'Margin Required|$0.00', 'Fees|0.035% / 0.010%'] as const).map((s) => {
                 const p = s.split('|');
                 return (
-                  <div key={p[0]} style={{ ...rowBetween, ...FS(5), color: '#8f8f8d', marginBottom: 2.5 }}>
-                    <span>{p[0]}</span><span style={{ color: '#8a8680' }}>{p[1]}</span>
+                  <div key={p[0]} style={{ ...rowBetween, ...FS(5), color: 'var(--text-dim)', marginBottom: 2.5 }}>
+                    <span>{p[0]}</span><span style={{ color: 'var(--text-dim)' }}>{p[1]}</span>
                   </div>
                 );
               })}
-              <div style={{ borderTop: '1px solid #1a1d24', marginTop: 4, paddingTop: 3, fontSize: 5.5, color: '#8a8680' }}>Account</div>
+              <div style={{ borderTop: '1px solid #1a1d24', marginTop: 4, paddingTop: 3, fontSize: 5.5, color: 'var(--text-dim)' }}>Account</div>
               {(['Portfolio Margin|$20,182.49', 'Unrealized PNL|+$142.11', 'Available|$1,021.19'] as const).map((s) => {
                 const p = s.split('|');
                 return (
-                  <div key={p[0]} style={{ ...rowBetween, ...FS(5), color: '#8f8f8d', marginTop: 2.5 }}>
-                    <span>{p[0]}</span><span style={{ color: '#8a8680' }}>{p[1]}</span>
+                  <div key={p[0]} style={{ ...rowBetween, ...FS(5), color: 'var(--text-dim)', marginTop: 2.5 }}>
+                    <span>{p[0]}</span><span style={{ color: 'var(--text-dim)' }}>{p[1]}</span>
                   </div>
                 );
               })}
@@ -293,12 +293,12 @@ export const DashboardGlowHighlightPill: React.FC = () => {
                 ))}
               </div>
               {[0, 1].map((i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, ...FS(5), color: '#8f8f8d', marginBottom: 2 }}>
-                  <span style={{ color: '#8a8680' }}>{i === 0 ? 'TOKEN' : 'ALT'}-USD</span>
+                <div key={i} style={{ display: 'flex', gap: 12, ...FS(5), color: 'var(--text-dim)', marginBottom: 2 }}>
+                  <span style={{ color: 'var(--text-dim)' }}>{i === 0 ? 'TOKEN' : 'ALT'}-USD</span>
                   <span style={{ color: i === 0 ? '#3ecf96' : '#e05a70' }}>{i === 0 ? '+12.40' : '-3.61'}</span>
                   <span>152.30</span><span>$7,801.75</span><span>$1,775.00</span><span>74,212.07</span><span>$53,225.00</span>
                   <span style={{ color: '#d4a853' }}>Market | Limit</span>
-                  <span style={{ color: '#8f8f8d' }}>Reverse</span>
+                  <span style={{ color: 'var(--text-dim)' }}>Reverse</span>
                 </div>
               ))}
             </div>
@@ -338,19 +338,19 @@ export const DashboardGlowHighlightPill: React.FC = () => {
           }}
         >
           <div style={{ fontSize: 5.5, fontWeight: 700, color: '#f2ead2', marginBottom: 4 }}>Focus Mode</div>
-          <div style={{ fontSize: 3.4, lineHeight: 1.62, color: '#8b8f98', marginBottom: 3 }}>
+          <div style={{ fontSize: 3.4, lineHeight: 1.62, color: 'var(--text-dim)', marginBottom: 3 }}>
             All panels share one unified workspace layout. Changes in one panel are reflected in the others,{' '}
             <span style={{ color: '#cbb26a' }}>keeping context in one place</span>.
           </div>
-          <div style={{ fontSize: 3.4, color: '#8b8f98', marginBottom: 4 }}>Choose how panels are arranged:</div>
+          <div style={{ fontSize: 3.4, color: 'var(--text-dim)', marginBottom: 4 }}>Choose how panels are arranged:</div>
           <div style={{ border: '1px solid rgba(230,196,118,.42)', borderRadius: 3, background: 'rgba(230,196,118,.05)', padding: '4px 5px', marginBottom: 4 }}>
             <div style={{ fontSize: 4, fontWeight: 700, color: '#eee6cc' }}>● Standard</div>
-            <div style={{ fontSize: 3.3, lineHeight: 1.55, color: '#8b8f98', marginTop: 1.5 }}>
+            <div style={{ fontSize: 3.3, lineHeight: 1.55, color: 'var(--text-dim)', marginTop: 1.5 }}>
               Placeholder body copy for option one. The selected option directly determines the layout of each panel — simple and predictable.
             </div>
           </div>
           <div style={{ border: '1px solid #23252a', borderRadius: 3, padding: '4px 5px' }}>
-            <div style={{ fontSize: 4, fontWeight: 700, color: '#8a8680' }}>○ Pro</div>
+            <div style={{ fontSize: 4, fontWeight: 700, color: 'var(--text-dim)' }}>○ Pro</div>
             <div style={{ fontSize: 3.3, lineHeight: 1.55, color: '#71757e', marginTop: 1.5 }}>
               Placeholder body copy for option two, written a little longer so the block keeps its shape. Replace both with your own wording.
             </div>

@@ -64,7 +64,7 @@ export const Carousel3D: React.FC = () => {
                 background: `linear-gradient(160deg,hsl(${hue},60%,42%),hsl(${hue + 28},70%,20%))`,
                 border: `1px solid hsla(${hue},80%,75%,.5)`,
                 boxShadow: `0 12px 34px rgba(0,0,0,.5), inset 0 1px 0 hsla(${hue},80%,85%,.35)`,
-                fontFamily: '-apple-system,system-ui,sans-serif',
+                fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 color: '#f2f5fb',
               };
               const face = (

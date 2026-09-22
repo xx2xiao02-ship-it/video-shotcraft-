@@ -85,7 +85,7 @@ export const Basic3DScene: React.FC = () => {
                   border: `1px solid hsl(${p.hue},60%,34%)`,
                   boxShadow: `0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 hsla(${p.hue},70%,70%,.25)`,
                   transform: `translate3d(${p.x}px,${p.y}px,${p.z}px) rotateX(${p.rx}deg) rotateY(${p.ry}deg) rotateZ(${p.rz}deg) scale(${p.s / (last ? 2.2 : 1)})`,
-                  fontFamily: '-apple-system,system-ui,sans-serif',
+                  fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                   color: '#eef1f8',
                   opacity: 0.28 + focus * 0.72,
                   filter: `blur(${(1 - focus) * 3.5}px)`,

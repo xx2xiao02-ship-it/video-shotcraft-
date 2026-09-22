@@ -11,7 +11,7 @@ export const QUAD_SPLIT_PARALLEL_SCENES_DURATION = 63; // 2100ms @30fps
 
 const ACCENT = '#7c5cff';
 const ACCENT_SOFT = '#c9bcff';
-const F = 'system-ui,-apple-system,sans-serif';
+const F = 'system-ui,-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 // 四宫格底色走中性灰阶（深浅交替保证格线可读），需要主题色时换成项目色板
 const BGS = ['#c3c6cc', '#f2f1ef', '#e7e6e3', '#b8bcc3'];
 const TRAFFIC = ['#ff5f57', '#febc2e', '#28c840'];
@@ -90,7 +90,7 @@ const QuadTL: React.FC<{ t: number; frame: number }> = ({ t, frame }) => {
           color: '#333',
         }}
       >
-        <b style={{ color: '#8a8f98', marginRight: 6 }}>◆</b>
+        <b style={{ color: 'var(--text-dim)', marginRight: 6 }}>◆</b>
         <span>{TXT1.slice(0, n1)}</span>
         {/* 光标按帧闪烁：16 帧一个周期 */}
         <i style={{ width: 1, height: 12, background: '#333', marginLeft: 1, opacity: frame % 16 < 8 ? 1 : 0 }} />
@@ -134,7 +134,7 @@ const QuadTR: React.FC<{ t: number; frame: number }> = ({ t, frame }) => {
             <i key={c} style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
           ))}
         </div>
-        <div style={{ fontSize: 8, color: '#8a8f98', marginBottom: 5 }}>✦ Section label ›</div>
+        <div style={{ fontSize: 8, color: 'var(--text-dim)', marginBottom: 5 }}>✦ Section label ›</div>
         <div style={{ fontSize: 11, color: '#111' }}>
           <span>{TXT2.slice(0, n2)}</span>
           {/* 光标错拍闪烁：与 TL 相位差 5 帧、周期 14 帧 */}
@@ -235,7 +235,7 @@ const QuadBR: React.FC<{ t: number }> = ({ t }) => {
           marginBottom: -pop * 4,
         }}
       >
-        <span style={{ background: ACCENT, color: '#fff', borderRadius: 8, padding: '1px 5px' }}>00:00</span>
+        <span style={{ background: ACCENT, color: 'var(--text)', borderRadius: 8, padding: '1px 5px' }}>00:00</span>
         <span style={{ flex: 1, color: t < 0.44 ? '#666' : '#111' }}>
           {t < 0.44 ? 'Leave your comment...' : 'All good!'.slice(0, n4)}
         </span>

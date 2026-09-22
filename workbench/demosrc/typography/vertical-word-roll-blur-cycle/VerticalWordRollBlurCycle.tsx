@@ -44,7 +44,7 @@ export const VerticalWordRollBlurCycle: React.FC<{ words?: string[] }> = ({ word
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: '-apple-system,system-ui,sans-serif',
+          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div

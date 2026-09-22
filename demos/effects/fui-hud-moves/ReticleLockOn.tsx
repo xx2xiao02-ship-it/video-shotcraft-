@@ -119,7 +119,7 @@ export const ReticleLockOn: React.FC = () => {
                 transform: `scale(${labelT})`,
                 transformOrigin: '0 50%',
                 background: G.ink,
-                color: '#fff',
+                color: 'var(--text)',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 700,
                 fontSize: 26,

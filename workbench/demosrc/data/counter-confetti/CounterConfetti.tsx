@@ -95,7 +95,7 @@ export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }
           fontWeight: 700,
           fontSize: 10,
           lineHeight: 1,
-          fontFamily: '-apple-system,Helvetica,sans-serif', // 同上：Helvetica 兜底对齐原片
+          fontFamily: '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', // 同上：Helvetica 兜底对齐原片
 
           color: '#7d88a8',
           opacity: seg(t, 0.62, 0.78, E.outCubic),

@@ -86,8 +86,8 @@ export const ScanlineAssembleFlyin: React.FC = () => {
         />
         {/* 顶栏（url pill + 状态）——整组自上方落下 */}
         <div style={{ ...fly(PLAN[0]), left: 0, top: 0, width: 480, height: 30 }}>
-          <div style={{ position: 'absolute', left: 18, top: 11, padding: '3px 10px', border: '1px solid #2a2c33', borderRadius: 9, font: `500 7px ${MONO}`, color: '#8f8f8d', letterSpacing: 1 }}>app.example.com</div>
-          <div style={{ position: 'absolute', right: 18, top: 14, font: `500 7px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>200 OK · TLS</div>
+          <div style={{ position: 'absolute', left: 18, top: 11, padding: '3px 10px', border: '1px solid #2a2c33', borderRadius: 9, font: `500 7px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1 }}>app.example.com</div>
+          <div style={{ position: 'absolute', right: 18, top: 14, font: `500 7px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>200 OK · TLS</div>
           <div style={flash(FT.topbar)} />
         </div>
         {/* logo：点阵 mark + 衬线字标——自左飞入 */}
@@ -104,40 +104,40 @@ export const ScanlineAssembleFlyin: React.FC = () => {
         <div style={{ ...fly(PLAN[3]), left: 22, top: 64, width: 242, height: 84 }}>
           <div style={{ position: 'absolute', left: 0, top: 0, font: `400 29px ${SERIF}`, color: '#1a1d24', letterSpacing: 0.3 }}>The headline for</div>
           <div style={{ position: 'absolute', left: 0, top: 36, font: `italic 400 29px ${SERIF}`, color: '#1a1d24', letterSpacing: 0.3 }}>your product here</div>
-          <div style={{ position: 'absolute', left: 1, top: 79, font: `500 6.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>H1 · UI-SERIF / GEORGIA</div>
+          <div style={{ position: 'absolute', left: 1, top: 79, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>H1 · UI-SERIF / GEORGIA</div>
           <div style={flash(FT.h1)} />
         </div>
         {/* CTA 行——自下飞入 */}
         <div style={{ ...fly(PLAN[4]), left: 22, top: 166, width: 136, height: 26 }}>
           <div style={{ position: 'absolute', left: 0, top: 0, padding: '6px 13px', border: '1px solid #3a3a3a', borderRadius: 12, font: `600 7.5px ${MONO}`, color: '#1a1d24', letterSpacing: 1.5 }}>GET STARTED</div>
-          <div style={{ position: 'absolute', left: 100, top: 7, font: `500 7.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>DOCS</div>
+          <div style={{ position: 'absolute', left: 100, top: 7, font: `500 7.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>DOCS</div>
           <div style={flash(FT.cta)} />
         </div>
         {/* 右侧模块卡——自右飞入 */}
         {/* 原采集页为 content-box：162×150 外加 1px 边框（总 164×152），补 boxSizing 对齐几何 */}
         <div style={{ ...fly(PLAN[2]), left: 296, top: 52, width: 162, height: 150, boxSizing: 'content-box', background: '#121319', border: '1px solid #23252d', borderRadius: 5 }}>
-          <div style={{ position: 'absolute', left: 10, top: 9, font: `500 6.5px ${MONO}`, color: '#7c828e', letterSpacing: 1.5 }}>WORK</div>
-          <div style={{ position: 'absolute', right: 10, top: 9, font: `500 6.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>04 / 08</div>
+          <div style={{ position: 'absolute', left: 10, top: 9, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>WORK</div>
+          <div style={{ position: 'absolute', right: 10, top: 9, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>04 / 08</div>
           <div style={{ position: 'absolute', left: 0, top: 24, width: '100%', height: 1, background: '#1a1d24' }} />
           <div style={{ position: 'absolute', left: 0, top: 44, width: '100%', textAlign: 'center', font: `italic 400 36px ${SERIF}`, color: '#f4f5f8' }}>sample</div>
           <div style={{ position: 'absolute', left: 0, top: 104, width: '100%', height: 1, background: '#1a1d24' }} />
-          <div style={{ position: 'absolute', left: 10, top: 112, font: `500 6px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>KINETIC TYPE · 04</div>
+          <div style={{ position: 'absolute', left: 10, top: 112, font: `500 6px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>KINETIC TYPE · 04</div>
           {[0, 1, 2, 3].map((i) => (
             <div key={i} style={{ position: 'absolute', left: 10 + i * 30, top: 124, width: 24, height: 16, background: '#1a1c23', borderRadius: 2 }} />
           ))}
-          <div style={{ position: 'absolute', right: 8, top: 129, font: `500 6px ${MONO}`, color: '#5a5a58' }}>00:30</div>
+          <div style={{ position: 'absolute', right: 8, top: 129, font: `500 6px ${MONO}`, color: 'var(--text-dim)' }}>00:30</div>
           <div style={flash(FT.module)} />
         </div>
         {/* 页脚——自左下飞入 */}
         <div style={{ ...fly(PLAN[5]), left: 18, top: 243, width: 220, height: 14 }}>
-          <div style={{ position: 'absolute', left: 0, top: 3, font: `500 6.5px ${MONO}`, color: '#4c515c', letterSpacing: 1.5 }}>A PRODUCT OF ACME · ACME LABS, INC.</div>
+          <div style={{ position: 'absolute', left: 0, top: 3, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>A PRODUCT OF ACME · ACME LABS, INC.</div>
           <div style={flash(FT.footer)} />
         </div>
         {/* 社交 chip——自右下飞入 */}
         <div style={{ ...fly(PLAN[6]), left: 352, top: 239, width: 108, height: 16 }}>
           {/* 同为 content-box：11×11 外加 1px 边框（总 13×13） */}
-          <div style={{ position: 'absolute', left: 0, top: 2, width: 11, height: 11, boxSizing: 'content-box', border: '1px solid #3a3a3a', borderRadius: 2, font: `600 7px ${MONO}`, color: '#8a8680', textAlign: 'center', lineHeight: '11px' }}>x</div>
-          <div style={{ position: 'absolute', left: 17, top: 3, font: `600 7.5px ${MONO}`, color: '#8a8680', letterSpacing: 1.5 }}>@USERNAME</div>
+          <div style={{ position: 'absolute', left: 0, top: 2, width: 11, height: 11, boxSizing: 'content-box', border: '1px solid #3a3a3a', borderRadius: 2, font: `600 7px ${MONO}`, color: 'var(--text-dim)', textAlign: 'center', lineHeight: '11px' }}>x</div>
+          <div style={{ position: 'absolute', left: 17, top: 3, font: `600 7.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>@USERNAME</div>
           <div style={flash(FT.social)} />
         </div>
       </div>

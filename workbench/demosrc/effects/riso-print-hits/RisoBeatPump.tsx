@@ -28,7 +28,7 @@ const Plate: React.FC<{ color: string; dx: number; dy: number }> = ({ color, dx,
   >
     <div
       style={{
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontWeight: 800,
         fontSize: 160,
         color,

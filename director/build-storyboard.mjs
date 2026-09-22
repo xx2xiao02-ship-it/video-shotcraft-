@@ -339,7 +339,7 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
   const t = (text || '').trim();
   const textOk = (card) => {
     const low = card.toLowerCase();
-    if (RAW_CARD_PATTERN.test(low)) return t.length <= 26;   // 整句组件：短句直接呈现
+    if (RAW_CARD_PATTERN.test(low)) return t.length <= 14;   // 整句组件：≤14字短句直接呈现，超长不选raw模板
     return true;                                              // 切词组件：切词数组自适应
   };
   candidates = candidates.filter(textOk);
@@ -640,7 +640,6 @@ const storyboard = {
   },
   fps: FPS,
   audio: 'audio/voiceover.mp3',
-  ambient: 'audio/ambient-room.mp3', // 全片底噪铺底（风格生成）
   shots: assignAudio(merged),
 };
 

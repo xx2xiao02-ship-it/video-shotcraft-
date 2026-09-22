@@ -100,7 +100,7 @@ export const ConfettiCrossfire: React.FC = () => {
       }}>
         <div style={{ height: 14, width: 220, background: G.bar, borderRadius: 7 }} />
         <div style={{
-          fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 150,
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 150,
           color: AMBER, letterSpacing: -3, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums',
         }}>
           98.5%

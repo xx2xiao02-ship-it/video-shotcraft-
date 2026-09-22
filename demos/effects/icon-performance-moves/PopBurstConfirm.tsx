@@ -146,7 +146,7 @@ export const PopBurstConfirm: React.FC = () => {
             padding: '16px 0',
             borderRadius: 40,
             background: G.ink,
-            color: '#ffffff',
+            color: 'var(--text)',
             textAlign: 'center',
             fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,

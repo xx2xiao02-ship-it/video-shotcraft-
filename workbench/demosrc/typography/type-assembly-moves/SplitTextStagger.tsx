@@ -78,7 +78,7 @@ export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
               <span
                 style={{
                   display: 'inline-block',
-                  fontFamily: 'Helvetica, Arial, sans-serif',
+                  fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                   fontWeight: 800,
                   fontSize: FONT,
                   lineHeight: 1.05,

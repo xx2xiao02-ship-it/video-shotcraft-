@@ -9,7 +9,7 @@
 import React, { useId } from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const INK = '#2f2f36';
 
 const easeFall = Easing.bezier(0.5, 0.05, 0.6, 1); // 加速贴落、末端软着陆

@@ -118,10 +118,10 @@ export const DropBlackoutSlam: React.FC = () => {
         )}
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 340,
-            color: '#ffffff',
+            color: 'var(--text)',
             letterSpacing: -6,
             transform: `scale(${slamScale})`,
             lineHeight: 1,

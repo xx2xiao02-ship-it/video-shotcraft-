@@ -20,7 +20,7 @@ const DARK = [10, 10, 18]; // 暗场底色
 const WA = 'For many years'.split(' ');
 const WB = 'everything changed'.split(' ');
 
-const FONT = '600 26px -apple-system,system-ui,sans-serif';
+const FONT = '600 26px -apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 export const AuroraBloomBgFlip: React.FC = () => {
   const t = useT();

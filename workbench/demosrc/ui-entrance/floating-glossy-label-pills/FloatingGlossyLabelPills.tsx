@@ -16,7 +16,7 @@ export const FLOATING_GLOSSY_LABEL_PILLS_DURATION = 120; // 4000ms @30fps
 const ACCENT = '#7a8699'; // 中性蓝灰做默认演示色
 const ACCENT_LIGHT = '#a8b2c0', ACCENT_DEEP = '#4c5666';
 const A_RGB = '122,134,153', AL_RGB = '168,178,192', AD_RGB = '76,86,102';
-const F = '-apple-system,BlinkMacSystemFont,sans-serif';
+const F = '-apple-system,BlinkMacSystemFont,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 // 逐帧实测（480×270 裁切系）：
 //   居中面板 x 105-357（W≈252）、top=75，下缘正好压住画面底 → 真高 H≈195
@@ -302,7 +302,7 @@ export const FloatingGlossyLabelPills: React.FC = () => {
                   whiteSpace: 'nowrap',
                   // 原 cssText 中 font 简写在 line-height:1 之后，实际生效行高为 normal
                   font: `700 14px ${F}`,
-                  color: '#fff',
+                  color: 'var(--text)',
                   background: `linear-gradient(180deg,${ACCENT_LIGHT} 0%,${ACCENT} 45%,${ACCENT_DEEP} 100%)`,
                   boxShadow: `inset 0 2px 3px rgba(255,255,255,.65), inset 0 -4px 8px rgba(34,39,47,.5),
           0 12px 28px rgba(${AD_RGB},.35)`,

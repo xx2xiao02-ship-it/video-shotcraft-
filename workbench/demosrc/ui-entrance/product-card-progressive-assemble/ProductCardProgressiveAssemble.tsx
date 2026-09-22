@@ -51,7 +51,7 @@ export const ProductCardProgressiveAssemble: React.FC = () => {
           background: '#f6f5f2',
           borderRadius: 12,
           boxShadow: '0 18px 50px rgba(0,0,0,.5)',
-          fontFamily: '-apple-system,Helvetica,sans-serif',
+          fontFamily: '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           display: 'flex',
           padding: '4.5%',
           boxSizing: 'border-box',

@@ -36,10 +36,10 @@ const TitleCard: React.FC<{ text: string; local: number; underline?: boolean }> 
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 170,
-            color: '#ffffff',
+            color: 'var(--text)',
             letterSpacing: 2,
             lineHeight: 1,
           }}

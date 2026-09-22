@@ -57,7 +57,7 @@ const SubjectPanel: React.FC<{
         display: 'grid',
         placeItems: 'center',
         color: '#1a1d24',
-        fontFamily: 'Arial, sans-serif',
+        fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontSize: 10,
         fontWeight: 800,
         letterSpacing: 1,
@@ -85,7 +85,7 @@ export const PlatformHingeRise: React.FC = () => {
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',
-          fontFamily: 'Arial, sans-serif',
+          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div

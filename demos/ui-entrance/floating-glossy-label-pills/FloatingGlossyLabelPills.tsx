@@ -302,7 +302,7 @@ export const FloatingGlossyLabelPills: React.FC = () => {
                   whiteSpace: 'nowrap',
                   // 原 cssText 中 font 简写在 line-height:1 之后，实际生效行高为 normal
                   font: `700 14px ${F}`,
-                  color: '#fff',
+                  color: 'var(--text)',
                   background: `linear-gradient(180deg,${ACCENT_LIGHT} 0%,${ACCENT} 45%,${ACCENT_DEEP} 100%)`,
                   boxShadow: `inset 0 2px 3px rgba(255,255,255,.65), inset 0 -4px 8px rgba(34,39,47,.5),
           0 12px 28px rgba(${AD_RGB},.35)`,

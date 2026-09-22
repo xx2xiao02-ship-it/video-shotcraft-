@@ -179,7 +179,7 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               background: '#5b5b5e',
               display: 'grid',
               placeItems: 'center',
-              color: '#fff',
+              color: 'var(--text)',
               fontSize: 8,
               fontWeight: 800,
             }}

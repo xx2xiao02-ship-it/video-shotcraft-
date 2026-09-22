@@ -139,7 +139,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
     fontSize: 92,
     letterSpacing: -1,
     lineHeight: 1.28,
-    color: '#ffffff',
+    color: 'var(--text)',
     whiteSpace: 'nowrap',
   };
 
@@ -248,7 +248,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  color: '#fff',
+                  color: 'var(--text)',
                   clipPath: `inset(-25% ${Math.max(0, 100 - pPct)}% -25% ${Math.max(0, pPct - 10)}%)`,
                   filter: 'blur(3px)',
                   opacity: 0.9 * headFade,

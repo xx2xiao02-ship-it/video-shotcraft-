@@ -13,7 +13,7 @@ const WORDS = [
   { w: 'Admin', e: '⚙️' },
   { w: 'Reports', e: '📄' },
 ];
-const FONT = '700 22px -apple-system,system-ui,sans-serif';
+const FONT = '700 22px -apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 // 兜底词宽（原 effect.js 未挂载时的估算：字符数×13，再加胶囊内留白 74）；
 // 首帧 useLayoutEffect 用 offsetWidth 实测替换，与原渲染逐像素一致
 const FALLBACK_WIDTHS = WORDS.map((o) => o.w.length * 13 + 74);
@@ -74,7 +74,7 @@ export const PillChipSlotCycleHandled: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: '-apple-system,system-ui,sans-serif',
+          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* 隐藏量宽 span（与原 setup 的 meas 等价，不参与布局显示） */}
@@ -123,7 +123,7 @@ export const PillChipSlotCycleHandled: React.FC = () => {
                   }}
                 >
                   <span style={{ fontSize: 18 }}>{e}</span>
-                  <span style={{ font: FONT, color: '#fff' }}>{w}</span>
+                  <span style={{ font: FONT, color: 'var(--text)' }}>{w}</span>
                 </div>
               ))}
             </div>

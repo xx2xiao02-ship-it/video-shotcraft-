@@ -66,7 +66,7 @@ const Window: React.FC<{ cx: number; cy: number; seed: number; sendBtn?: boolean
     <div style={{ padding: 26, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Card w={WIN_W - 56} h={250} seed={seed} style={{ boxShadow: 'none' }} />
       {sendBtn && (
-        <div style={{ alignSelf: 'flex-end', transform: `scale(${1 + btnPulse * 0.22})`, padding: '16px 46px', borderRadius: 12, background: G.ink, color: '#fff', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 30, boxShadow: btnPulse > 0 ? `0 0 0 ${btnPulse * 22}px rgba(47,47,47,0.18)` : 'none' }}>
+        <div style={{ alignSelf: 'flex-end', transform: `scale(${1 + btnPulse * 0.22})`, padding: '16px 46px', borderRadius: 12, background: G.ink, color: 'var(--text)', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 30, boxShadow: btnPulse > 0 ? `0 0 0 ${btnPulse * 22}px rgba(47,47,47,0.18)` : 'none' }}>
           Send ➤
         </div>
       )}

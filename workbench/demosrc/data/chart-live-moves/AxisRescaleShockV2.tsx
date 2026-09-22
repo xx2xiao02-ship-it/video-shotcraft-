@@ -150,7 +150,7 @@ export const AxisRescaleShockV2: React.FC = () => {
         }}
       >
         {/* 真卡头 */}
-        <div style={{ position: 'absolute', left: PAD, top: 34, fontFamily: 'Helvetica, Arial, sans-serif' }}>
+        <div style={{ position: 'absolute', left: PAD, top: 34, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
           <div style={{ fontSize: 30, fontWeight: 700, color: G.ink }}>Monthly revenue</div>
           <div style={{ fontSize: 19, fontWeight: 500, color: G.mid, marginTop: 6 }}>FY2026 · all products · USD</div>
         </div>
@@ -241,8 +241,8 @@ export const AxisRescaleShockV2: React.FC = () => {
                 height: 54,
                 background: AMBER,
                 borderRadius: 10,
-                color: '#fff',
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                color: 'var(--text)',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 30,
                 display: 'flex',
@@ -266,7 +266,7 @@ export const AxisRescaleShockV2: React.FC = () => {
                 top: PLOT_H + 16,
                 width: 60,
                 textAlign: 'center',
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontSize: 18,
                 fontWeight: 600,
                 color: i === N - 1 ? AMBER : G.mid,

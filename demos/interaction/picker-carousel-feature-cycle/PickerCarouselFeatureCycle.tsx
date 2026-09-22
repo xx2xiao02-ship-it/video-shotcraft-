@@ -143,7 +143,7 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
             height: 22,
             borderRadius: 6,
             background: INK,
-            color: '#fff',
+            color: 'var(--text)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

@@ -92,7 +92,7 @@ export const DiagramCascadeBuild: React.FC = () => {
           padding: '0 36px',
           boxSizing: 'border-box',
           boxShadow: '0 6px 24px rgba(0,0,0,0.08)',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontSize: 30,
           fontWeight: 600,
           color: G.ink,

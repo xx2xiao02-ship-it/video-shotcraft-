@@ -85,7 +85,7 @@ export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => 
           <div key={i} style={{
             position: 'absolute', left: x, top: y, opacity: op,
             transform: `translate(-50%, -50%) rotate(${ang}deg)`,
-            fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
             fontSize: 64, color: G.ink,
           }}>
             {ch}

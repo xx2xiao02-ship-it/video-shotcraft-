@@ -22,7 +22,7 @@ const SETTLE_END = FALL_END + 15; // 15f 缓收 → f56，此后全静止
 const TextBlock: React.FC<{ color: string }> = ({ color }) => (
   <div
     style={{
-      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       fontSize: 260,
       fontWeight: 800,
       color,
@@ -92,7 +92,7 @@ export const HalationBloom: React.FC = () => {
           top: 110,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontSize: 30,
           fontWeight: 700,
           letterSpacing: '0.35em',

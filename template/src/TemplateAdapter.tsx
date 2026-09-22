@@ -229,25 +229,36 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
 
 // ---------- 文本转译工具 ----------
 // 把一句话按语义切分为"词数组"（中文按短句/逗号切，英文按空格切）
-export function splitToWords(text: string, max = 4): string[] {
+export function splitToWords(text: string, max = 3): string[] {
   const cleaned = text.trim();
   if (!cleaned) return [' '];
-  // 中文：按逗号/句号/感叹号/问号/分号切，保留片段
+  // 单段容量：中文每段 ≤6 字、英文每段 ≤3 词（大字模板单屏容量，超长自动分行/分屏）
+  const MAX_CHUNK = 6;
+  const chunkChinese = (s: string): string[] => {
+    const out: string[] = [];
+    for (let i = 0; i < s.length; i += MAX_CHUNK) out.push(s.slice(i, i + MAX_CHUNK));
+    return out;
+  };
   if (/[\u4e00-\u9fff]/.test(cleaned)) {
     const parts = cleaned
       .split(/[，。！？；、,.!?;]/)
       .map((s) => s.trim())
       .filter(Boolean);
-    // 如果切分后只有一段（没标点），按长度硬切
-    if (parts.length === 1 && cleaned.length > 6) {
-      const chunkSize = Math.ceil(cleaned.length / 2);
-      return [cleaned.slice(0, chunkSize), cleaned.slice(chunkSize)].filter(Boolean);
+    // 先按标点切段，长段再按 6 字硬切 → 保证每个词块大字区放得下
+    const out: string[] = [];
+    for (const p of parts) {
+      if (p.length > MAX_CHUNK) out.push(...chunkChinese(p));
+      else out.push(p);
     }
-    return parts.slice(0, max);
+    // 无标点时整体按 6 字切
+    if (parts.length === 0) out.push(...chunkChinese(cleaned));
+    return out.slice(0, max);
   }
-  // 英文：按空格切
+  // 英文：按空格切，每段 ≤3 词
   const words = cleaned.split(/\s+/).filter(Boolean);
-  return words.slice(0, max);
+  const chunks: string[] = [];
+  for (let i = 0; i < words.length; i += 3) chunks.push(words.slice(i, i + 3).join(' '));
+  return chunks.slice(0, max);
 }
 
 // 把一句话切为"两段"（主标题 + 副标题）

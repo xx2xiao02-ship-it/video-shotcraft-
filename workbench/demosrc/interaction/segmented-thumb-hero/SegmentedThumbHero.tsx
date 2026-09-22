@@ -6,7 +6,7 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing, spring, useVideoConfig } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 // 超大描边箭头光标
 const ArrowCursor: React.FC<{ x: number; y: number; press: number }> = ({ x, y, press }) => (

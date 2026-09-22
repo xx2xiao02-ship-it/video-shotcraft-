@@ -13,7 +13,7 @@ export const BLACKCARD_DUR = 120;
 
 const A_VIEW_Y = -180;
 const SERIF = 'ui-serif, Georgia, "Times New Roman", serif';
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 
 // 暗底字卡的正文用页面底色（浅色），强调色只给重点词
 const PAPER_LIGHT = 'oklch(92% 0.01 82)';

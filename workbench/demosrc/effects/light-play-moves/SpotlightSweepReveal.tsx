@@ -17,7 +17,7 @@ const SWEEP_END = 110; // 两个来回结束
 const REVEAL_END = 125; // 提亮完成，之后真静止
 
 const textStyle: React.CSSProperties = {
-  fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
+  fontFamily: 'Helvetica Neue, Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
   fontSize: 150,
   fontWeight: 800,
   lineHeight: 1.15,

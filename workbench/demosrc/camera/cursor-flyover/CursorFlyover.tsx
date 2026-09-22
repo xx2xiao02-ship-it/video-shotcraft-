@@ -116,8 +116,8 @@ export const CursorFlyover: React.FC = () => {
               <div
                 style={{
                   position: 'absolute', left: 56, top: '50%', transform: 'translateY(-50%)', height: 13, lineHeight: '13px',
-                  padding: '0 10px', borderRadius: 7, background: '#0f1119', color: '#5d6580',
-                  font: '500 8px/13px ui-monospace,monospace', letterSpacing: 0.4,
+                  padding: '0 10px', borderRadius: 7, background: '#0f1119', color: 'var(--text-dim)',
+                  font: '500 8px/13px ui-monospace,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace', letterSpacing: 0.4,
                 }}
               >
                 app.example.com/overview
@@ -130,7 +130,7 @@ export const CursorFlyover: React.FC = () => {
                   key={s}
                   style={{
                     position: 'absolute', left: '8%', top: `${8 + i * 15}%`, width: '84%', height: '11%', borderRadius: 5,
-                    font: '600 7px/1 -apple-system,sans-serif', color: i === 0 ? '#cfd6ea' : '#5a6280',
+                    font: '600 7px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', color: i === 0 ? '#cfd6ea' : '#5a6280',
                     display: 'flex', alignItems: 'center', paddingLeft: 6,
                     boxSizing: 'content-box', // 原采集页 content-box：paddingLeft 加在 84% 之外，激活项底色更宽
                     background: i === 0 ? '#222839' : 'transparent',
@@ -150,8 +150,8 @@ export const CursorFlyover: React.FC = () => {
                     background: '#202634', padding: '8px 0 0 8px', boxSizing: 'border-box',
                   }}
                 >
-                  <div style={{ font: '700 13px/1 -apple-system,sans-serif', color: '#e7ecfb' }}>{s}</div>
-                  <div style={{ marginTop: 4, font: '600 6px/1 -apple-system,sans-serif', letterSpacing: 1, color: '#5d6580' }}>
+                  <div style={{ font: '700 13px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', color: '#e7ecfb' }}>{s}</div>
+                  <div style={{ marginTop: 4, font: '600 6px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', letterSpacing: 1, color: 'var(--text-dim)' }}>
                     METRIC {i + 1}
                   </div>
                 </div>

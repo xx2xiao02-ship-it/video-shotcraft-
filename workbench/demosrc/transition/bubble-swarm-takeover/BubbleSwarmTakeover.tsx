@@ -175,7 +175,7 @@ export const BubbleSwarmTakeover: React.FC = () => {
             background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(235,220,255,0.9))',
             border: '2px solid rgba(255,255,255,0.9)',
             boxShadow: '0 8px 32px rgba(150,120,220,0.25)',
-            fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
             fontSize: 46, color: '#5b4a86', whiteSpace: 'nowrap',
           }}>{c.text}</div>
         );

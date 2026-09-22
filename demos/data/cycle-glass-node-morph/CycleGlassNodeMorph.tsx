@@ -104,7 +104,7 @@ const GlassNode: React.FC<{
         transform: `translate(-50%, ${lerp(k, 86, -32)}px) scale(${lerp(k, 0.82, 1)})`,
         display: 'grid',
         placeItems: 'center',
-        color: '#fff',
+        color: 'var(--text)',
         fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontSize: 8.5,
         fontWeight: 850,

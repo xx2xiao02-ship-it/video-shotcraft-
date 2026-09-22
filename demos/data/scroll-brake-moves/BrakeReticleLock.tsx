@@ -156,7 +156,7 @@ export const BrakeReticleLock: React.FC = () => {
             padding: '12px 26px',
             borderRadius: 27,
             background: G.ink,
-            color: '#ffffff',
+            color: 'var(--text)',
             fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 26,

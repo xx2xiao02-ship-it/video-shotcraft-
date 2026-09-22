@@ -15,7 +15,7 @@ export const LIST_STACK_PRESS_DURATION = 88; // 18–88f 落在 shot 内 offset 
 
 const cards = layout.papers.cards;
 const PAGE_H = layout.papers.pageH;
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 const AMBER = 'oklch(52% 0.115 65)';
 const FILES = ['paper1.png', 'paper2.png', 'paper3.png', 'paper4.png', 'paper5.png'];
 const DEFAULT_LABELS = ['Paper Radar', 'Of 31 Fetched Today'];

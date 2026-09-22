@@ -132,7 +132,7 @@ export const HitCounter: React.FC = () => {
       >
         <div
           style={{
-            background: G.ink, color: '#fff', borderRadius: 18,
+            background: G.ink, color: 'var(--text)', borderRadius: 18,
             padding: '10px 34px 16px',
             fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
             fontSize: counterSize, letterSpacing: -2, lineHeight: 1.1,

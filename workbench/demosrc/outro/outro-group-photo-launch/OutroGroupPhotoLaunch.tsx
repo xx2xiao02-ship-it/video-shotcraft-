@@ -14,7 +14,7 @@ import layout from '../../_textures/live-layout.json';
 export const OUTRO_GROUP_PHOTO_LAUNCH_DURATION = 145;
 
 const SERIF = 'ui-serif, Georgia, "Times New Roman", serif';
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 const LETTERS = 'AI Foundation Lab'.split('');
 const PAGE_H = layout.projects.pageH;
 const WBR_PAGE_H = layout.wbr.pageH;

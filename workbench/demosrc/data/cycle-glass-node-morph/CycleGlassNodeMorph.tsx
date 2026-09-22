@@ -104,8 +104,8 @@ const GlassNode: React.FC<{
         transform: `translate(-50%, ${lerp(k, 86, -32)}px) scale(${lerp(k, 0.82, 1)})`,
         display: 'grid',
         placeItems: 'center',
-        color: '#fff',
-        fontFamily: 'Arial, sans-serif',
+        color: 'var(--text)',
+        fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontSize: 8.5,
         fontWeight: 850,
         letterSpacing: 0.2,
@@ -178,7 +178,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
           background: `linear-gradient(135deg, #f5f5f2 0%, #f5f5f2 ${wipeStop}%, #c8c8c5 ${
             wipeStop + 0.2
           }%, #c8c8c5 100%)`,
-          fontFamily: 'Arial, sans-serif',
+          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div
@@ -259,7 +259,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             textAnchor="middle"
             dominantBaseline="middle"
             fill="#fff"
-            fontFamily="Arial, sans-serif"
+            fontFamily="Arial, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif"
             fontSize="18"
             fontWeight="850"
           >

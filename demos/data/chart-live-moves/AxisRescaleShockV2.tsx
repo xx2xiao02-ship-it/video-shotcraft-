@@ -241,7 +241,7 @@ export const AxisRescaleShockV2: React.FC = () => {
                 height: 54,
                 background: AMBER,
                 borderRadius: 10,
-                color: '#fff',
+                color: 'var(--text)',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 30,

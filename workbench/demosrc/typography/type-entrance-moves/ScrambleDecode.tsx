@@ -41,7 +41,7 @@ export const ScrambleDecode: React.FC<{ text?: string }> = ({ text }) => {
     >
       <div
         style={{
-          fontFamily: 'ui-monospace, Menlo, Monaco, monospace',
+          fontFamily: 'ui-monospace, Menlo, Monaco, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
           fontWeight: 800,
           fontSize: 120,
           letterSpacing: 2,

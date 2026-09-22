@@ -44,7 +44,7 @@ const Chip: React.FC<{ letter: string; tone: string }> = ({ letter, tone }) => (
   <div style={{
     width: 64, height: 64, borderRadius: 16, background: tone,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: FONT, fontWeight: 700, fontSize: 36, color: '#666',
+    fontFamily: FONT, fontWeight: 700, fontSize: 36, color: 'var(--text-dim)',
   }}>{letter}</div>
 );
 
@@ -222,7 +222,7 @@ const SceneTopNav: React.FC<{ t?: number }> = ({ t = 1 }) => (
             <div style={{ fontFamily: FONT, fontSize: 56, color: '#4a4a55', fontWeight: 600 }}>Home</div>
             <div style={{
               marginLeft: 'auto', width: 62, height: 62, borderRadius: 31, background: '#a5a5ab',
-              color: '#fff', fontFamily: FONT, fontSize: 38, fontWeight: 700,
+              color: 'var(--text)', fontFamily: FONT, fontSize: 38, fontWeight: 700,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>3</div>
           </div>
@@ -293,7 +293,7 @@ const SceneListRows: React.FC<{ t?: number }> = ({ t = 1 }) => (
     <FloatWrap h={liftOf(t, 0.44, 160)}>
       <div style={{
         marginLeft: 120, display: 'inline-block', padding: '20px 48px', background: '#e4e4e3',
-        borderRadius: 16, fontFamily: FONT, fontSize: 44, letterSpacing: 4, color: '#6f6f75', fontWeight: 600,
+        borderRadius: 16, fontFamily: FONT, fontSize: 44, letterSpacing: 4, color: 'var(--text-dim)', fontWeight: 600,
       }}>TODAY</div>
     </FloatWrap>
     <div style={{ height: 60 }} />

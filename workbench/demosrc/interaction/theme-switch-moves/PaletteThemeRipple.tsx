@@ -186,7 +186,7 @@ export const PaletteThemeRipple: React.FC = () => {
         >
           {/* 输入行：⌘K 标识 + 逐字灰块 */}
           <div style={{ height: 62, border: `2px solid ${G.line}`, borderRadius: 12, display: 'flex', alignItems: 'center', gap: 14, padding: '0 18px', boxSizing: 'border-box' }}>
-            <div style={{ padding: '6px 12px', borderRadius: 8, background: G.side, color: '#fff', fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 22 }}>⌘K</div>
+            <div style={{ padding: '6px 12px', borderRadius: 8, background: G.side, color: 'var(--text)', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 22 }}>⌘K</div>
             {TYPE_FRAMES.map((_, i) => (
               <div key={i} style={{ width: 30, height: 30, borderRadius: 6, background: G.ink, transform: `scale(${charScale(i)})` }} />
             ))}

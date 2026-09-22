@@ -125,7 +125,7 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
             style={{
               position: 'absolute',
               inset: 0,
-              color: '#fff',
+              color: 'var(--text)',
               opacity: pop,
               textShadow:
                 flash > 0.01 ? `0 0 ${flash * 16}px rgba(255,255,255,${flash * 0.45})` : 'none',

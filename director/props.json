@@ -43,42 +43,55 @@
         },
         "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
         "durationInFrames": 128,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-003.mp4",
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-008.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "hook",
-        "l2": "question",
-        "shotCard": null,
+        "l2": "impact",
+        "shotCard": "ui-entrance/clipcard-looping",
         "slot": "case-show",
-        "materialRole": "hero",
-        "pit": {
-          "mode": "A",
-          "subject": "local-material",
-          "content": {
-            "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-003.mp4"
-          },
-          "position": "background"
-        },
-        "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
-        "durationInFrames": 163,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-003.mp4"
-      },
-      {
-        "type": "proof",
-        "l2": "data",
-        "shotCard": "typography/glitch-cycle",
-        "slot": "text-hero",
-        "materialRole": "background",
+        "materialRole": "inline-element",
         "pit": {
           "mode": "A",
           "subject": "remotion",
           "content": {
-            "type": "text"
+            "type": "video-local",
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C38%20%E5%95%86%E5%8A%A1%E5%8A%9E%E5%85%AC%E6%B4%BD%E8%B0%88%E6%8F%A1%E6%89%8B%E9%9B%86%E5%90%88-Scene-012.mp4"
+          },
+          "position": "element"
+        },
+        "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
+        "durationInFrames": 163,
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C38%20%E5%95%86%E5%8A%A1%E5%8A%9E%E5%85%AC%E6%B4%BD%E8%B0%88%E6%8F%A1%E6%89%8B%E9%9B%86%E5%90%88-Scene-012.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "component"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
+        }
+      },
+      {
+        "type": "proof",
+        "l2": "data",
+        "shotCard": "ui-entrance/bezier-source-converge-merge",
+        "slot": "process-show",
+        "materialRole": "split",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "video-local",
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-043.mp4"
           },
           "position": "element"
         },
@@ -88,12 +101,16 @@
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "proof",
-        "l2": "misconception",
-        "shotCard": "typography/glitch-cycle",
+        "l2": "anti-common",
+        "shotCard": "typography/cel-flash-stomp",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -106,10 +123,14 @@
         },
         "text": "可真相是，那条视频你大概率再也不会打开第二次。",
         "durationInFrames": 134,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-049.mp4",
+        "material": "027-4k商务\\高端商务1 (3)-Scene-004.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
         }
       },
       {
@@ -123,36 +144,48 @@
           "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-014.mp4"
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-045.mp4"
           },
           "position": "element"
         },
         "text": "收藏夹里躺着的，不是知识，是你对自己 \"还会努力\" 的幻想。",
         "durationInFrames": 175,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-014.mp4",
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-045.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "hook",
-        "l2": "example",
-        "shotCard": null,
+        "l2": "scene",
+        "shotCard": "ui-entrance/clipcard-looping",
         "slot": "case-show",
-        "materialRole": "hero",
+        "materialRole": "inline-element",
         "pit": {
           "mode": "A",
-          "subject": "local-material",
+          "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-002.mp4"
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C56%20%E5%95%86%E5%8A%A1%E4%BA%BA%E5%A3%AB%E6%89%8B%E6%8C%81%E7%AC%94%E8%AE%B0%E6%9C%AC%E6%89%8B%E6%8F%90%E7%94%B5%E8%84%91%E6%89%93%E5%AD%97%E5%9B%9E%E5%BF%86%E8%AE%B0%E5%BD%95%E5%AE%A2%E6%9C%8D%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E5%AE%9E%E6%8B%8D-Scene-001.mp4"
           },
-          "position": "background"
+          "position": "element"
         },
         "text": "我见过太多这样的朋友：收藏了职场沟通、理财入门、时间管理，三年过去，收藏夹越来越满，生活却毫无变化。",
         "durationInFrames": 291,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-002.mp4"
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C56%20%E5%95%86%E5%8A%A1%E4%BA%BA%E5%A3%AB%E6%89%8B%E6%8C%81%E7%AC%94%E8%AE%B0%E6%9C%AC%E6%89%8B%E6%8F%90%E7%94%B5%E8%84%91%E6%89%93%E5%AD%97%E5%9B%9E%E5%BF%86%E8%AE%B0%E5%BD%95%E5%AE%A2%E6%9C%8D%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E5%AE%9E%E6%8B%8D-Scene-001.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "component"
+        },
+        "audio": {
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
+        }
       },
       {
         "type": "hook",
@@ -170,10 +203,14 @@
         },
         "text": "为什么？",
         "durationInFrames": 24,
-        "material": "027-4k商务\\高端商务1 (1)-Scene-022.mp4",
+        "material": "027-4k商务\\高端商务1 (1)-Scene-008.mp4",
         "params": {
           "textAs": "raw",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/pop.mp3",
+          "volume": 0.32
         }
       },
       {
@@ -187,21 +224,25 @@
           "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-041.mp4"
+            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-042.mp4"
           },
           "position": "element"
         },
         "text": "因为收藏只是信息的搬运，而能力来自行动的回馈。",
         "durationInFrames": 134,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-041.mp4",
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-042.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "hook",
-        "l2": "concept",
+        "l2": "definition",
         "shotCard": null,
         "slot": "case-show",
         "materialRole": "none",
@@ -222,6 +263,10 @@
             "#1a1d24",
             "#0d0f14"
           ]
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.14
         }
       },
       {
@@ -243,52 +288,43 @@
         "params": {
           "textAs": "words",
           "mediaType": "none"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "hook",
         "l2": "question",
-        "shotCard": null,
+        "shotCard": "ui-entrance/clipcard-looping",
         "slot": "case-show",
-        "materialRole": "hero",
-        "pit": {
-          "mode": "A",
-          "subject": "local-material",
-          "content": {
-            "type": "video-local",
-            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活22-Scene-003.mp4"
-          },
-          "position": "background"
-        },
-        "text": "那怎么办？",
-        "durationInFrames": 29,
-        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活22-Scene-003.mp4"
-      },
-      {
-        "type": "claim",
-        "l2": "process",
-        "shotCard": "ui-entrance/bezier-source-converge-merge",
-        "slot": "process-show",
-        "materialRole": "split",
+        "materialRole": "inline-element",
         "pit": {
           "mode": "A",
           "subject": "remotion",
           "content": {
-            "type": "video-local"
+            "type": "video-local",
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E6%B5%B7%E5%BA%95%E4%B8%96%E7%95%8C01-Scene-002.mp4"
           },
           "position": "element"
         },
-        "text": "方法只有一句话：知识必须穿过行动，才算真正属于你。",
-        "durationInFrames": 145,
+        "text": "那怎么办？",
+        "durationInFrames": 29,
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E6%B5%B7%E5%BA%95%E4%B8%96%E7%95%8C01-Scene-002.mp4",
         "params": {
           "textAs": "words",
-          "mediaType": "none"
+          "mediaType": "component"
+        },
+        "audio": {
+          "src": "audio/sparkle.mp3",
+          "volume": 0.32
         }
       },
       {
-        "type": "proof",
+        "type": "claim",
         "l2": "process",
-        "shotCard": "typography/type-entrance-moves/scramble-decode",
+        "shotCard": "typography/glitch-cycle",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -299,12 +335,15 @@
           },
           "position": "element"
         },
-        "text": "具体做三步。",
-        "durationInFrames": 35,
-        "material": "027-4k商务\\高端商务1 (1)-Scene-012.mp4",
+        "text": "方法只有一句话：知识必须穿过行动，才算真正属于你。",
+        "durationInFrames": 145,
         "params": {
-          "textAs": "raw",
-          "mediaType": "material"
+          "textAs": "words",
+          "mediaType": "none"
+        },
+        "audio": {
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
         }
       },
       {
@@ -318,16 +357,46 @@
           "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "AI科技未来横屏230款\\AI科技未来5-Scene-001.mp4"
+            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-035.mp4"
+          },
+          "position": "element"
+        },
+        "text": "具体做三步。",
+        "durationInFrames": 35,
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-035.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/click-camera.mp3",
+          "volume": 0.32
+        }
+      },
+      {
+        "type": "proof",
+        "l2": "process",
+        "shotCard": "typography/vertical-word-roll-blur-cycle",
+        "slot": "text-hero",
+        "materialRole": "background",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "text"
           },
           "position": "element"
         },
         "text": "第一步，看完一条内容，立刻用三句话写下 \"我学到了什么\"。",
         "durationInFrames": 169,
-        "material": "AI科技未来横屏230款\\AI科技未来5-Scene-001.mp4",
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\17 高端商务团队合作洽谈交流实拍背景视频-Scene-004.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
         }
       },
       {
@@ -341,13 +410,17 @@
           "subject": "local-material",
           "content": {
             "type": "video-local",
-            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭01-Scene-001.mp4"
+            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人32-Scene-003.mp4"
           },
           "position": "background"
         },
         "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
         "durationInFrames": 134,
-        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭01-Scene-001.mp4"
+        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人32-Scene-003.mp4",
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.14
+        }
       },
       {
         "type": "hook",
@@ -369,12 +442,16 @@
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "proof",
-        "l2": "insight",
-        "shotCard": "typography/lead-word-zoom-assemble",
+        "l2": "emphasis",
+        "shotCard": "typography/marker-underline-title",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -387,16 +464,20 @@
         },
         "text": "收藏是起点，不是终点。",
         "durationInFrames": 64,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\13 高端办公空间写字楼视频素材下载-Scene-004.mp4",
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-028.mp4",
         "params": {
-          "textAs": "raw",
+          "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "hook",
         "l2": "summary",
-        "shotCard": "typography/vertical-word-roll-blur-cycle",
+        "shotCard": "typography/type-rhythm-sync/karaoke-fill-sync",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -413,12 +494,16 @@
         "params": {
           "textAs": "words",
           "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
         }
       },
       {
         "type": "cta",
         "l2": "summary",
-        "shotCard": "typography/brand-ink-open",
+        "shotCard": "typography/blur-slide",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -434,6 +519,10 @@
         "params": {
           "textAs": "words",
           "mediaType": "none"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
         }
       }
     ]

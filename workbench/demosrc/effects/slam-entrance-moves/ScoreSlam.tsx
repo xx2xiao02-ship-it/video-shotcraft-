@@ -196,7 +196,7 @@ export const ScoreSlam: React.FC = () => {
           >
             <div
               style={{
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 110,
                 color: G.ink,
@@ -208,7 +208,7 @@ export const ScoreSlam: React.FC = () => {
             </div>
             <div
               style={{
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 600,
                 fontSize: 26,
                 color: G.mid,

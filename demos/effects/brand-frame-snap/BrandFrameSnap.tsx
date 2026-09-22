@@ -65,7 +65,7 @@ export const BrandFrameSnap: React.FC = () => {
             <div style={{ marginLeft: 18, height: 12, width: 260, background: G.line, borderRadius: 6 }} />
             {/* 模式徽标：随画框同帧换色换字 */}
             <div style={{
-              marginLeft: 'auto', background: frameColor, color: '#fff',
+              marginLeft: 'auto', background: frameColor, color: 'var(--text)',
               fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 15,
               letterSpacing: 1.5, padding: '6px 16px', borderRadius: 8,
               opacity: winO,
@@ -95,7 +95,7 @@ export const BrandFrameSnap: React.FC = () => {
         position: 'absolute', left: 70, top: 0, height: frameW + snapPulse,
         display: 'flex', alignItems: 'center',
         fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-        fontSize: 22, letterSpacing: 3, color: '#ffffff',
+        fontSize: 22, letterSpacing: 3, color: 'var(--text)',
         opacity: frameGrow,
       }}>
         {label}

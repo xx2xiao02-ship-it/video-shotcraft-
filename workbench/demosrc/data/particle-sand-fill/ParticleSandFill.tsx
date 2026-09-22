@@ -76,7 +76,7 @@ export const ParticleSandFill: React.FC = () => {
             {labelScale > 0 && (
               <div style={{
                 position: 'absolute', left: bar.cx - 70, top: PLOT_BOTTOM - bar.h - 62, width: 140,
-                textAlign: 'center', fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
+                textAlign: 'center', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
                 fontSize: 46, color: b === 1 ? AMBER : G.ink,
                 transform: `scale(${labelScale})`,
               }}>

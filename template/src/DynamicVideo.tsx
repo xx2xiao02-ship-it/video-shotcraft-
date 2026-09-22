@@ -542,7 +542,6 @@ export type Storyboard = {
   };
   fps: number;
   audio?: string;
-  ambient?: string;
   base?: string;
   theme?: Theme;
   shots: Shot[];
@@ -738,9 +737,6 @@ export const DynamicVideo: React.FC<{ storyboard: Storyboard }> = ({ storyboard 
     }}>
       {storyboard.audio && (
         <Audio src={staticFile(storyboard.audio)} volume={0.9} />
-      )}
-      {storyboard.ambient && (
-        <Audio src={staticFile(storyboard.ambient)} volume={0.12} loop />
       )}
       {storyboard.shots.map((shot, i) => {
         const from = currentFrom;

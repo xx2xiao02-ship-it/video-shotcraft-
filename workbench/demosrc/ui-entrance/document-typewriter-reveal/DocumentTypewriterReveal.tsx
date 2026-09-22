@@ -19,11 +19,11 @@ const leftRail = layout.wbr.leftRail;
 const rightRail = layout.wbr.rightRail;
 const PAGE_H = layout.wbr.pageH;
 
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 const PAPER = '#fdfcfa';
 const AMBER = 'oklch(52% 0.115 65)';
 const AMBER_WASH = 'oklch(95% 0.05 85)';
-const SANS = 'ui-sans-serif, system-ui, -apple-system, sans-serif';
+const SANS = 'ui-sans-serif, system-ui, -apple-system, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 const CAM_KEYS: CamKey2D[] = [
   { frame: 0, cx: 920, cy: 280, zoom: 1.25 },

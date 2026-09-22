@@ -60,7 +60,7 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: FS,
             color: G.ink,
@@ -95,7 +95,7 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
           left: 0,
           width: 1920,
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 500,
           fontSize: 34,
           color: G.mid,

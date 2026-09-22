@@ -88,7 +88,7 @@ export const TrailerBumper: React.FC = () => {
         style={{
           opacity,
           transform: `translateY(${rise}px)`,
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 800,
           fontSize: 168,
           color: G.ink,

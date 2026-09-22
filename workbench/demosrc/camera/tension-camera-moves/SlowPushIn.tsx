@@ -40,7 +40,7 @@ export const SlowPushIn: React.FC = () => {
         background: G.side,
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       {/* 被推近的内容层：整体 scale */}
@@ -60,7 +60,7 @@ export const SlowPushIn: React.FC = () => {
           style={{
             fontSize: 300,
             fontWeight: 800,
-            color: '#ffffff',
+            color: 'var(--text)',
             letterSpacing: -6,
             lineHeight: 1,
           }}
@@ -72,7 +72,7 @@ export const SlowPushIn: React.FC = () => {
             marginTop: 36,
             fontSize: 40,
             fontWeight: 500,
-            color: '#8a8680',
+            color: 'var(--text-dim)',
             letterSpacing: 6,
           }}
         >

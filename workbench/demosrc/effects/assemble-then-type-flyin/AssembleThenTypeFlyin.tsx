@@ -33,14 +33,14 @@ const BLOCKS: Block[] = [
   { x: 41, y: 35, font: `400 13px ${SERIF2}`, color: '#eceef2', ls: 0, start: 0.47, segs: [{ s: 'Acme ' }, { s: 'Studio', i: true }] },
   { x: 316, y: 96, font: `italic 400 36px ${SERIF2}`, color: '#f4f5f8', ls: 0, start: 0.5, segs: [{ s: 'sample', i: true }] },
   { x: 34, y: 172, font: `600 7.5px ${MONO2}`, color: '#1a1d24', ls: 1.5, start: 0.58, segs: [{ s: 'GET STARTED' }] },
-  { x: 122, y: 173, font: `500 7.5px ${MONO2}`, color: '#5a5a58', ls: 1.5, start: 0.62, segs: [{ s: 'DOCS' }] },
-  { x: 24, y: 14, font: `500 7px ${MONO2}`, color: '#8f8f8d', ls: 1, start: 0.64, segs: [{ s: 'app.example.com' }], dy: 0.5 },
-  { x: 306, y: 61, font: `500 6.5px ${MONO2}`, color: '#7c828e', ls: 1.5, start: 0.66, segs: [{ s: 'WORK' }] },
-  { x: 432, y: 61, font: `500 6.5px ${MONO2}`, color: '#5a5a58', ls: 1.5, start: 0.68, segs: [{ s: '04 / 08' }] },
-  { x: 306, y: 164, font: `500 6px ${MONO2}`, color: '#5a5a58', ls: 1.5, start: 0.7, segs: [{ s: 'KINETIC TYPE · 04' }] },
-  { x: 22, y: 143, font: `500 6.5px ${MONO2}`, color: '#5a5a58', ls: 1.5, start: 0.72, segs: [{ s: 'H1 · UI-SERIF / GEORGIA' }] },
-  { x: 18, y: 246, font: `500 6.5px ${MONO2}`, color: '#4c515c', ls: 1.5, start: 0.74, segs: [{ s: 'A PRODUCT OF ACME · ACME LABS, INC.' }] },
-  { x: 369, y: 242, font: `600 7.5px ${MONO2}`, color: '#8a8680', ls: 1.5, start: 0.76, segs: [{ s: '@USERNAME' }] },
+  { x: 122, y: 173, font: `500 7.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.62, segs: [{ s: 'DOCS' }] },
+  { x: 24, y: 14, font: `500 7px ${MONO2}`, color: 'var(--text-dim)', ls: 1, start: 0.64, segs: [{ s: 'app.example.com' }], dy: 0.5 },
+  { x: 306, y: 61, font: `500 6.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.66, segs: [{ s: 'WORK' }] },
+  { x: 432, y: 61, font: `500 6.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.68, segs: [{ s: '04 / 08' }] },
+  { x: 306, y: 164, font: `500 6px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.7, segs: [{ s: 'KINETIC TYPE · 04' }] },
+  { x: 22, y: 143, font: `500 6.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.72, segs: [{ s: 'H1 · UI-SERIF / GEORGIA' }] },
+  { x: 18, y: 246, font: `500 6.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.74, segs: [{ s: 'A PRODUCT OF ACME · ACME LABS, INC.' }] },
+  { x: 369, y: 242, font: `600 7.5px ${MONO2}`, color: 'var(--text-dim)', ls: 1.5, start: 0.76, segs: [{ s: '@USERNAME' }] },
 ];
 
 // 逐字随机飞入参数：k 为全局字符序号（跨块累加，与 effect.js 的 charSeed 一致）

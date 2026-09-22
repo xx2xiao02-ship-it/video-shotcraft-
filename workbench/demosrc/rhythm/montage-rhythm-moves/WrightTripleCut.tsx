@@ -115,8 +115,8 @@ export const WrightTripleCut: React.FC = () => {
             boxShadow: '0 8px 28px rgba(0,0,0,0.25)',
           }}>
             <div style={{
-              fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
-              fontSize: 420, color: '#ffffff', lineHeight: 1,
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
+              fontSize: 420, color: 'var(--text)', lineHeight: 1,
             }}>
               {digit}
             </div>
@@ -164,7 +164,7 @@ export const WrightTripleCut: React.FC = () => {
         opacity: glow,
       }}>
         <div style={{
-          fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
           fontSize: 260, color: G.ink, lineHeight: 1,
         }}>
           1

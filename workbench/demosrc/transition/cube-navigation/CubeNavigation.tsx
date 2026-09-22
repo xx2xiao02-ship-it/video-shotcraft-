@@ -133,7 +133,7 @@ export const CubeNavigation: React.FC = () => {
                     position: 'absolute',
                     left: 14,
                     top: 13,
-                    font: '700 9px/1 -apple-system,sans-serif',
+                    font: '700 9px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                     letterSpacing: 2.4,
                     color: `hsla(${f.hue},80%,82%,.95)`,
                   }}

@@ -86,7 +86,7 @@ export const InputMorphsIntoLogo: React.FC<{ word?: string }> = ({ word }) => {
   const WHITE = '#fdf6ee';
 
   return (
-    <AbsoluteFill style={{ background: BG, fontFamily: 'Helvetica, Arial, sans-serif', overflow: 'hidden' }}>
+    <AbsoluteFill style={{ background: BG, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
       <AbsoluteFill style={{ transform: `scale(${breathe})`, transformOrigin: `${CX}px ${CY - 40}px` }}>
         {/* 主体：输入框 → 主胶囊 */}
         <div

@@ -50,7 +50,7 @@ const Half: React.FC<{ ch: string; part: 'top' | 'bottom' }> = ({ ch, part }) =>
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontWeight: 800,
         fontSize: 100,
         color: FLAP_INK,

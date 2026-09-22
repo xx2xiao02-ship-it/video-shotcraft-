@@ -7,7 +7,7 @@
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const INK = '#3c3c42';
 const MID = '#8d8d94';
 const FAINT = '#d2d2d5';
@@ -113,7 +113,7 @@ const Ground: React.FC = () => (
         <div style={{ height: 36 }} />
         <div style={{
           display: 'inline-block', padding: '16px 40px', background: '#e4e4e3', borderRadius: 14,
-          fontFamily: FONT, fontSize: 36, letterSpacing: 4, color: '#6f6f75', fontWeight: 600,
+          fontFamily: FONT, fontSize: 36, letterSpacing: 4, color: 'var(--text-dim)', fontWeight: 600,
         }}>TODAY</div>
         <div style={{ height: 40 }} />
         {['New Bugs Per Week', 'Designer handbook', 'Mobile screens', 'Product roadmap'].map((t) => (

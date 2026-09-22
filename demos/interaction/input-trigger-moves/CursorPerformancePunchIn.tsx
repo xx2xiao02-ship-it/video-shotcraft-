@@ -130,7 +130,7 @@ export const CursorPerformancePunchIn: React.FC = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transform: `scale(${hoverScale * press})`,
           fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700,
-          fontSize: 27, color: '#ffffff', letterSpacing: 0.5,
+          fontSize: 27, color: 'var(--text)', letterSpacing: 0.5,
         }}>
           Deploy
         </div>

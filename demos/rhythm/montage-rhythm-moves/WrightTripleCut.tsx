@@ -116,7 +116,7 @@ export const WrightTripleCut: React.FC = () => {
           }}>
             <div style={{
               fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-              fontSize: 420, color: '#ffffff', lineHeight: 1,
+              fontSize: 420, color: 'var(--text)', lineHeight: 1,
             }}>
               {digit}
             </div>

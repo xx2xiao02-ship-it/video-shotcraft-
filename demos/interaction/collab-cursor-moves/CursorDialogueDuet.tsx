@@ -40,7 +40,7 @@ const Cursor: React.FC<{
     </svg>
     <div style={{
       position: 'absolute', left: 34, top: 56, whiteSpace: 'nowrap',
-      background: color, color: '#fff', borderRadius: 8, padding: '5px 13px',
+      background: color, color: 'var(--text)', borderRadius: 8, padding: '5px 13px',
       fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 16,
       opacity: badgeOpacity * (0.28 + 0.72 * badgeLit),
       filter: `saturate(${0.35 + 0.65 * badgeLit})`,

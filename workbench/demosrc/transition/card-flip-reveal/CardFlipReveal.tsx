@@ -108,7 +108,7 @@ const FlipCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
         >
           <span
             style={{
-              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontWeight: 800,
               fontSize: 96,
               color: G.ink,

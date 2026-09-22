@@ -65,7 +65,7 @@ export const CounterTickSparks: React.FC = () => {
       }}>
         <div style={{ height: 14, width: 220, background: G.bar, borderRadius: 7 }} />
         <div style={{
-          fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 168,
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 168,
           color: G.ink, letterSpacing: -3, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
           transform: `scale(${popScale})`,
         }}>

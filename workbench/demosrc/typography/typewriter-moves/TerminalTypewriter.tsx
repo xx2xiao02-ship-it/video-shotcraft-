@@ -40,7 +40,7 @@ const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean 
     </div>
     {/* 内容区 */}
     <div style={{
-      padding: PAD, fontFamily: 'Menlo, Consolas, monospace', fontSize: 40,
+      padding: PAD, fontFamily: 'Menlo, Consolas, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace', fontSize: 40,
       color: '#d8d8d6', lineHeight: 1.5,
     }}>
       {/* 一行历史输出做上下文 */}

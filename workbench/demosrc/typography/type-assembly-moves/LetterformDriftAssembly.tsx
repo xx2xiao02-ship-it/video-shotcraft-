@@ -86,7 +86,7 @@ export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) =
             <span
               key={i}
               style={{
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 140,
                 letterSpacing: 8,

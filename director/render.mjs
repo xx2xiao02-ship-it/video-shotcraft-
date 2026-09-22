@@ -34,16 +34,21 @@ try {
   // 重编码为浏览器兼容格式（有限范围 + faststart）
   const tmpFile = outFile + '.tmp.mp4';
   execSync(`"${FFMPEG}" -y -i "${outFile}" -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 20 -c:a aac -b:a 128k -movflags +faststart "${tmpFile}"`);
-  // Windows 文件锁（服务端视频流可能占用旧文件）：rename 失败重试最多 6 次
+  // Windows 文件锁（预览播放/服务端视频流可能占用旧文件）：先删目标再 rename，重试最多 30 次（每次 1s）
+  // 根因 2026-09-22：渲染完成→预览卡自动播放新片→占用句柄→rename 覆盖 EPERM 6 次失败→任务误报"出错"
   let renamed = false;
-  for (let i = 0; i < 6; i++) {
-    try { fs.renameSync(tmpFile, outFile); renamed = true; break; }
-    catch (e) {
-      if (i === 5) throw e;
+  for (let i = 0; i < 30; i++) {
+    try {
+      // Windows 下 rename 覆盖被占用文件会 EPERM；目标未被占用时先删再换最稳
+      try { fs.rmSync(outFile, { force: true }); } catch {}
+      fs.renameSync(tmpFile, outFile);
+      renamed = true; break;
+    } catch (e) {
+      if (i === 29) throw e;
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
     }
   }
-  if (!renamed) throw new Error('rename dynamic.mp4 failed after retries');
+  if (!renamed) throw new Error('rename dynamic.mp4 failed after 30 retries');
   console.log(`\n✓ 渲染完成：${outFile}`);
 } catch (e) {
   console.error('渲染失败:', e.message);

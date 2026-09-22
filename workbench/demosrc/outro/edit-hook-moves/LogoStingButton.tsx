@@ -33,8 +33,8 @@ const LogoLockup: React.FC<{ opacity: number; scale: number }> = ({ opacity, sca
         <div style={{ width: 44, height: 44, borderRadius: 12, background: '#000' }} />
       </div>
       <div style={{
-        fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800,
-        fontSize: 90, color: '#fff', letterSpacing: 2,
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
+        fontSize: 90, color: 'var(--text)', letterSpacing: 2,
       }}>
         ACME
       </div>

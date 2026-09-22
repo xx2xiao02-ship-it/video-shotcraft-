@@ -116,7 +116,7 @@ export const CursorFlyover: React.FC = () => {
               <div
                 style={{
                   position: 'absolute', left: 56, top: '50%', transform: 'translateY(-50%)', height: 13, lineHeight: '13px',
-                  padding: '0 10px', borderRadius: 7, background: '#0f1119', color: '#5d6580',
+                  padding: '0 10px', borderRadius: 7, background: '#0f1119', color: 'var(--text-dim)',
                   font: '500 8px/13px ui-monospace,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace', letterSpacing: 0.4,
                 }}
               >
@@ -151,7 +151,7 @@ export const CursorFlyover: React.FC = () => {
                   }}
                 >
                   <div style={{ font: '700 13px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', color: '#e7ecfb' }}>{s}</div>
-                  <div style={{ marginTop: 4, font: '600 6px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', letterSpacing: 1, color: '#5d6580' }}>
+                  <div style={{ marginTop: 4, font: '600 6px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', letterSpacing: 1, color: 'var(--text-dim)' }}>
                     METRIC {i + 1}
                   </div>
                 </div>

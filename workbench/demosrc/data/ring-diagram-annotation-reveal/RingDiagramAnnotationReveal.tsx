@@ -43,7 +43,7 @@ const TitleBlock: React.FC<{ frame: number; start: number; shade: string; index:
           display: 'grid',
           placeItems: 'center',
           color: '#1a1d24',
-          fontFamily: 'Arial, sans-serif',
+          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontSize: 8,
           fontWeight: 800,
         }}
@@ -82,7 +82,7 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
 
   return (
     <DesignStage bg="#1a1d24" raster="zoom">
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
         <div
           style={{
             position: 'absolute',
@@ -179,7 +179,7 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               background: '#5b5b5e',
               display: 'grid',
               placeItems: 'center',
-              color: '#fff',
+              color: 'var(--text)',
               fontSize: 8,
               fontWeight: 800,
             }}

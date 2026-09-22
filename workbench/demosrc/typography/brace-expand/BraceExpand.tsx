@@ -7,7 +7,7 @@ import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
 
 export const BRACE_EXPAND_DURATION = 114; // 3800ms @30fps
 
-const FONT = '-apple-system,system-ui,sans-serif';
+const FONT = '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const HALF = 148; // 括号最终半距
 
 // 默认揭示文案
@@ -23,7 +23,7 @@ const Brace: React.FC<{ ch: string; x: number; sc: number; on: number }> = ({ ch
       fontWeight: 800,
       fontSize: 44,
       fontFamily: FONT,
-      color: '#fff',
+      color: 'var(--text)',
       transform: `translate(-50%,-50%) translateX(${x}px) scale(${sc})`,
       opacity: on,
     }}
@@ -66,7 +66,7 @@ export const BraceExpand: React.FC<{ words?: string[] }> = ({ words }) => {
               fontWeight: 800,
               fontSize: 38,
               fontFamily: FONT,
-              color: '#fff',
+              color: 'var(--text)',
               whiteSpace: 'nowrap',
               letterSpacing: `${ls}px`,
               transform: `scale(${sc})`,

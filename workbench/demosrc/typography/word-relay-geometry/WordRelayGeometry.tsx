@@ -150,7 +150,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                     style={{
                       position: 'absolute',
                       inset: 0,
-                      color: '#fff',
+                      color: 'var(--text)',
                       opacity: white,
                       textShadow: `0 0 ${white * 18}px rgba(255,255,255,.3)`,
                     }}
@@ -180,7 +180,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    color: '#fff',
+                    color: 'var(--text)',
                     clipPath: `inset(-20% ${(1 - fillp) * 100}% -20% 0)`,
                   }}
                 >

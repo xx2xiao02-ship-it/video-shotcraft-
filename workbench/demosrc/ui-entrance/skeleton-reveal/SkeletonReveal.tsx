@@ -138,7 +138,7 @@ const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => 
         <div
           style={{
             width: 72, height: 72, borderRadius: 16, background: AVA[i],
-            color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 32, fontWeight: 800, opacity: dev,
             transform: `scale(${0.7 + 0.3 * dev})`,
           }}
@@ -148,7 +148,7 @@ const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => 
         <div style={{ flex: 1, paddingTop: 2 }}>
           <div style={{ fontSize: 26, fontWeight: 800, color: INK, opacity: dev }}>
             {NAMES[i]}
-            <span style={{ fontWeight: 400, fontSize: 19, color: '#8a8680', marginLeft: 12 }}>9:0{i + 1} AM</span>
+            <span style={{ fontWeight: 400, fontSize: 19, color: 'var(--text-dim)', marginLeft: 12 }}>9:0{i + 1} AM</span>
           </div>
           <div style={{ fontSize: 27, color: '#3a3a3a', marginTop: 8 }}>
             {words.map((w, wi) => {
@@ -222,7 +222,7 @@ export const SkeletonReveal: React.FC = () => {
   };
 
   return (
-    <AbsoluteFill style={{ background: PAPER, fontFamily: 'Helvetica, Arial, sans-serif', overflow: 'hidden' }}>
+    <AbsoluteFill style={{ background: PAPER, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
       {/* 第三/二拍：骨架 UI 窗口 */}
       {f >= SWAP && (
         <AbsoluteFill

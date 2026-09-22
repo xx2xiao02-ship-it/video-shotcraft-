@@ -63,8 +63,8 @@ export const ScanlineAnnotateFocus: React.FC = () => {
         {/* 顶栏（url pill + 状态）——对照原样片实测整体高 0.5px（亚像素基线取整差），
             分数 top 会被取整吞掉，改用 translateY 补偿（transform 不参与像素取整） */}
         <div style={{ position: 'absolute', left: 0, top: 0, width: 480, height: 30, transform: 'translateY(0.5px)' }}>
-          <div style={{ position: 'absolute', left: 18, top: 11, padding: '3px 10px', border: '1px solid #2a2c33', borderRadius: 9, font: `500 7px ${MONO}`, color: '#8f8f8d', letterSpacing: 1 }}>app.example.com</div>
-          <div style={{ position: 'absolute', right: 18, top: 14, font: `500 7px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>200 OK · TLS</div>
+          <div style={{ position: 'absolute', left: 18, top: 11, padding: '3px 10px', border: '1px solid #2a2c33', borderRadius: 9, font: `500 7px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1 }}>app.example.com</div>
+          <div style={{ position: 'absolute', right: 18, top: 14, font: `500 7px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>200 OK · TLS</div>
         </div>
         {/* logo：点阵 mark + 衬线字标 */}
         <div style={{ position: 'absolute', left: 24, top: 35, width: 100, height: 18 }}>
@@ -80,34 +80,34 @@ export const ScanlineAnnotateFocus: React.FC = () => {
           {/* 两行 29px 衬线对照原样片实测低 0.5px（行盒取整差），translateY 补偿（分数 top 会被取整吞掉） */}
           <div style={{ position: 'absolute', left: 0, top: 0, font: `400 29px ${SERIF}`, color: '#1a1d24', letterSpacing: 0.3, transform: 'translateY(-0.5px)' }}>The headline for</div>
           <div style={{ position: 'absolute', left: 0, top: 36, font: `italic 400 29px ${SERIF}`, color: '#1a1d24', letterSpacing: 0.3, transform: 'translateY(-0.5px)' }}>your product here</div>
-          <div style={{ position: 'absolute', left: 1, top: 79, font: `500 6.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>H1 · UI-SERIF / GEORGIA</div>
+          <div style={{ position: 'absolute', left: 1, top: 79, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>H1 · UI-SERIF / GEORGIA</div>
         </div>
         {/* CTA 行 */}
         <div style={{ position: 'absolute', left: 22, top: 166, width: 136, height: 26 }}>
           <div style={{ position: 'absolute', left: 0, top: 0, padding: '6px 13px', border: '1px solid #3a3a3a', borderRadius: 12, font: `600 7.5px ${MONO}`, color: '#1a1d24', letterSpacing: 1.5 }}>GET STARTED</div>
-          <div style={{ position: 'absolute', left: 100, top: 7, font: `500 7.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>DOCS</div>
+          <div style={{ position: 'absolute', left: 100, top: 7, font: `500 7.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>DOCS</div>
         </div>
         {/* 右侧模块卡（boxSizing content-box：原采集页边框外扩，内容盒保持 162×150） */}
         <div style={{ position: 'absolute', left: 296, top: 52, width: 162, height: 150, boxSizing: 'content-box', background: '#121319', border: '1px solid #23252d', borderRadius: 5 }}>
-          <div style={{ position: 'absolute', left: 10, top: 9, font: `500 6.5px ${MONO}`, color: '#7c828e', letterSpacing: 1.5 }}>WORK</div>
-          <div style={{ position: 'absolute', right: 10, top: 9, font: `500 6.5px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>04 / 08</div>
+          <div style={{ position: 'absolute', left: 10, top: 9, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>WORK</div>
+          <div style={{ position: 'absolute', right: 10, top: 9, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>04 / 08</div>
           <div style={{ position: 'absolute', left: 0, top: 24, width: '100%', height: 1, background: '#1a1d24' }} />
           <div style={{ position: 'absolute', left: 0, top: 44, width: '100%', textAlign: 'center', font: `italic 400 36px ${SERIF}`, color: '#f4f5f8' }}>sample</div>
           <div style={{ position: 'absolute', left: 0, top: 104, width: '100%', height: 1, background: '#1a1d24' }} />
-          <div style={{ position: 'absolute', left: 10, top: 112, font: `500 6px ${MONO}`, color: '#5a5a58', letterSpacing: 1.5 }}>KINETIC TYPE · 04</div>
+          <div style={{ position: 'absolute', left: 10, top: 112, font: `500 6px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>KINETIC TYPE · 04</div>
           {[0, 1, 2, 3].map((i) => (
             <div key={i} style={{ position: 'absolute', left: 10 + i * 30, top: 124, width: 24, height: 16, background: '#1a1c23', borderRadius: 2 }} />
           ))}
-          <div style={{ position: 'absolute', right: 8, top: 129, font: `500 6px ${MONO}`, color: '#5a5a58' }}>00:30</div>
+          <div style={{ position: 'absolute', right: 8, top: 129, font: `500 6px ${MONO}`, color: 'var(--text-dim)' }}>00:30</div>
         </div>
         {/* 页脚 + 社交 chip */}
         <div style={{ position: 'absolute', left: 18, top: 243, width: 220, height: 14 }}>
-          <div style={{ position: 'absolute', left: 0, top: 3, font: `500 6.5px ${MONO}`, color: '#4c515c', letterSpacing: 1.5 }}>A PRODUCT OF ACME · ACME LABS, INC.</div>
+          <div style={{ position: 'absolute', left: 0, top: 3, font: `500 6.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>A PRODUCT OF ACME · ACME LABS, INC.</div>
         </div>
         <div style={{ position: 'absolute', left: 352, top: 239, width: 108, height: 16 }}>
           {/* boxSizing content-box：原采集页 11×11 内容 + 1px 外扩边框 */}
-          <div style={{ position: 'absolute', left: 0, top: 2, width: 11, height: 11, boxSizing: 'content-box', border: '1px solid #3a3a3a', borderRadius: 2, font: `600 7px ${MONO}`, color: '#8a8680', textAlign: 'center', lineHeight: '11px' }}>x</div>
-          <div style={{ position: 'absolute', left: 17, top: 3, font: `600 7.5px ${MONO}`, color: '#8a8680', letterSpacing: 1.5 }}>@USERNAME</div>
+          <div style={{ position: 'absolute', left: 0, top: 2, width: 11, height: 11, boxSizing: 'content-box', border: '1px solid #3a3a3a', borderRadius: 2, font: `600 7px ${MONO}`, color: 'var(--text-dim)', textAlign: 'center', lineHeight: '11px' }}>x</div>
+          <div style={{ position: 'absolute', left: 17, top: 3, font: `600 7.5px ${MONO}`, color: 'var(--text-dim)', letterSpacing: 1.5 }}>@USERNAME</div>
         </div>
       </div>
 

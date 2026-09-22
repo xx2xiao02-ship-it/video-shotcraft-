@@ -177,7 +177,7 @@ export const AttentionBounce: React.FC = () => {
                 padding: '10px 24px',
                 borderRadius: 24,
                 background: AMBER,
-                color: '#fff',
+                color: 'var(--text)',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 26,

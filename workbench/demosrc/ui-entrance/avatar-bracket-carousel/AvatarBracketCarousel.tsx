@@ -50,7 +50,7 @@ export const AvatarBracketCarousel: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 22,
-          fontFamily: '-apple-system,system-ui,sans-serif',
+          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div style={{ color: '#eef1f8', fontWeight: 800, fontSize: 34, letterSpacing: -0.5 }}>Your</div>
