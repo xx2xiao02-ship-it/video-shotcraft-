@@ -30,7 +30,7 @@
       {
         "type": "hook",
         "l2": "question",
-        "shotCard": "typography/vertical-word-roll-blur-cycle",
+        "shotCard": "typography/word-relay-geometry",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -43,7 +43,7 @@
         },
         "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
         "durationInFrames": 128,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-028.mp4",
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-008.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -56,46 +56,24 @@
       {
         "type": "hook",
         "l2": "impact",
-        "shotCard": null,
+        "shotCard": "ui-entrance/clipcard-looping",
         "slot": "case-show",
-        "materialRole": "hero",
-        "pit": {
-          "mode": "A",
-          "subject": "local-material",
-          "content": {
-            "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-019.mp4"
-          },
-          "position": "background"
-        },
-        "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
-        "durationInFrames": 163,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-019.mp4",
-        "audio": {
-          "src": "audio/transition-soft.mp3",
-          "volume": 0.14
-        }
-      },
-      {
-        "type": "proof",
-        "l2": "data",
-        "shotCard": "typography/word-relay-geometry",
-        "slot": "text-hero",
-        "materialRole": "background",
+        "materialRole": "inline-element",
         "pit": {
           "mode": "A",
           "subject": "remotion",
           "content": {
-            "type": "text"
+            "type": "video-local",
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C38%20%E5%95%86%E5%8A%A1%E5%8A%9E%E5%85%AC%E6%B4%BD%E8%B0%88%E6%8F%A1%E6%89%8B%E9%9B%86%E5%90%88-Scene-010.mp4"
           },
           "position": "element"
         },
-        "text": "刷到一条好视频，你点收藏，心里想着 \"等有空再学\"。",
-        "durationInFrames": 151,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\23-Scene-038.mp4",
+        "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
+        "durationInFrames": 163,
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C38%20%E5%95%86%E5%8A%A1%E5%8A%9E%E5%85%AC%E6%B4%BD%E8%B0%88%E6%8F%A1%E6%89%8B%E9%9B%86%E5%90%88-Scene-010.mp4",
         "params": {
           "textAs": "words",
-          "mediaType": "material"
+          "mediaType": "component"
         },
         "audio": {
           "src": "audio/transition-snap.mp3",
@@ -104,8 +82,8 @@
       },
       {
         "type": "proof",
-        "l2": "misconception",
-        "shotCard": "ui-entrance/bezier-source-converge-merge",
+        "l2": "data",
+        "shotCard": "ui-entrance/list-reveal",
         "slot": "process-show",
         "materialRole": "split",
         "pit": {
@@ -113,13 +91,13 @@
           "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-029.mp4"
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-110.mp4"
           },
           "position": "element"
         },
-        "text": "可真相是，那条视频你大概率再也不会打开第二次。",
-        "durationInFrames": 134,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-029.mp4",
+        "text": "刷到一条好视频，你点收藏，心里想着 \"等有空再学\"。",
+        "durationInFrames": 151,
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-110.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -131,22 +109,21 @@
       },
       {
         "type": "proof",
-        "l2": "data",
-        "shotCard": "ui-entrance/clipcard-looping",
-        "slot": "process-show",
-        "materialRole": "split",
+        "l2": "anti-common",
+        "shotCard": "typography/vertical-word-roll-blur-cycle",
+        "slot": "text-hero",
+        "materialRole": "background",
         "pit": {
           "mode": "A",
           "subject": "remotion",
           "content": {
-            "type": "video-local",
-            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\06-Scene-001.mp4"
+            "type": "text"
           },
           "position": "element"
         },
-        "text": "收藏夹里躺着的，不是知识，是你对自己 \"还会努力\" 的幻想。",
-        "durationInFrames": 175,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\06-Scene-001.mp4",
+        "text": "可真相是，那条视频你大概率再也不会打开第二次。",
+        "durationInFrames": 134,
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-044.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -157,26 +134,57 @@
         }
       },
       {
-        "type": "hook",
-        "l2": "scene",
-        "shotCard": null,
-        "slot": "case-show",
-        "materialRole": "hero",
+        "type": "proof",
+        "l2": "causal",
+        "shotCard": "ui-entrance/clipcard-looping",
+        "slot": "process-show",
+        "materialRole": "split",
         "pit": {
           "mode": "A",
-          "subject": "local-material",
+          "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\51 商务人士合作共赢办公大楼握手视频素材下载-Scene-002.mp4"
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-063.mp4"
           },
-          "position": "background"
+          "position": "element"
+        },
+        "text": "收藏夹里躺着的，不是知识，是你对自己 \"还会努力\" 的幻想。",
+        "durationInFrames": 175,
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-063.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
+        }
+      },
+      {
+        "type": "hook",
+        "l2": "scene",
+        "shotCard": "ui-entrance/clipcard-looping",
+        "slot": "case-show",
+        "materialRole": "inline-element",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "video-local",
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C57%20%E5%AE%9E%E6%8B%8D%E5%95%86%E5%8A%A1%E5%9B%A2%E9%98%9F%E5%90%88%E4%BD%9C%E5%85%AC%E5%8F%B8%E5%9B%A2%E9%98%9F%E4%BB%8B%E7%BB%8D%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%E4%B8%8B%E8%BD%BD-Scene-005.mp4"
+          },
+          "position": "element"
         },
         "text": "我见过太多这样的朋友：收藏了职场沟通、理财入门、时间管理，三年过去，收藏夹越来越满，生活却毫无变化。",
         "durationInFrames": 291,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\51 商务人士合作共赢办公大楼握手视频素材下载-Scene-002.mp4",
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%85%AC%E5%8F%B8%E5%BC%80%E4%BC%9A%E4%BC%81%E4%B8%9A%E5%9B%A2%E9%98%9F%E6%88%90%E5%8A%9F%E4%BA%BA%E5%A3%AB%E7%AD%BE%E5%AD%97%E6%8F%A1%E6%89%8B%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%95%86%E5%8A%A1%E5%90%88%E4%BD%9C%E5%85%B1%E8%B5%A2%E6%B4%BD%E8%B0%88%E5%9B%A2%E9%98%9F%E5%85%AC%E5%8F%B8%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C57%20%E5%AE%9E%E6%8B%8D%E5%95%86%E5%8A%A1%E5%9B%A2%E9%98%9F%E5%90%88%E4%BD%9C%E5%85%AC%E5%8F%B8%E5%9B%A2%E9%98%9F%E4%BB%8B%E7%BB%8D%E5%AE%A3%E4%BC%A0%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%E4%B8%8B%E8%BD%BD-Scene-005.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "component"
+        },
         "audio": {
-          "src": "audio/transition-soft.mp3",
-          "volume": 0.14
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
         }
       },
       {
@@ -195,7 +203,7 @@
         },
         "text": "为什么？",
         "durationInFrames": 24,
-        "material": "027-4k商务\\高端商务1 (1)-Scene-013.mp4",
+        "material": "027-4k商务\\高端商务1 (1)-Scene-014.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -216,19 +224,19 @@
           "subject": "remotion",
           "content": {
             "type": "video-local",
-            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\02-Scene-041.mp4"
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\科技更新-Scene-006.mp4"
           },
           "position": "element"
         },
         "text": "因为收藏只是信息的搬运，而能力来自行动的回馈。",
         "durationInFrames": 134,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\02-Scene-041.mp4",
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\科技更新-Scene-006.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
         },
         "audio": {
-          "src": "audio/transition-snap.mp3",
+          "src": "audio/transition-soft.mp3",
           "volume": 0.16
         }
       },
@@ -260,8 +268,8 @@
       },
       {
         "type": "claim",
-        "l2": "number",
-        "shotCard": "ui-entrance/list-reveal",
+        "l2": "data",
+        "shotCard": "ui-entrance/list-stack-press",
         "slot": "process-show",
         "materialRole": "split",
         "pit": {
@@ -279,7 +287,7 @@
           "mediaType": "none"
         },
         "audio": {
-          "src": "audio/swoosh-quick.mp3",
+          "src": "audio/transition-snap.mp3",
           "volume": 0.16
         }
       },
@@ -294,13 +302,13 @@
           "subject": "local-material",
           "content": {
             "type": "video-local",
-            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\温馨家庭-Scene-005.mp4"
+            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\温馨家庭-Scene-002.mp4"
           },
           "position": "background"
         },
         "text": "那怎么办？",
         "durationInFrames": 29,
-        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\温馨家庭-Scene-005.mp4",
+        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\温馨家庭-Scene-002.mp4",
         "audio": {
           "src": "audio/sparkle.mp3",
           "volume": 0.32
@@ -327,30 +335,29 @@
           "mediaType": "none"
         },
         "audio": {
-          "src": "audio/transition-soft.mp3",
+          "src": "audio/swoosh-quick.mp3",
           "volume": 0.16
         }
       },
       {
         "type": "proof",
-        "l2": "method",
-        "shotCard": "ui-entrance/list-reveal",
-        "slot": "process-show",
-        "materialRole": "split",
+        "l2": "process",
+        "shotCard": "typography/type-entrance-moves/scramble-decode",
+        "slot": "text-hero",
+        "materialRole": "background",
         "pit": {
           "mode": "A",
           "subject": "remotion",
           "content": {
-            "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-043.mp4"
+            "type": "text"
           },
           "position": "element"
         },
         "text": "具体做三步。",
         "durationInFrames": 35,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-043.mp4",
+        "material": "027-4k商务\\高端商务1 (1)-Scene-001.mp4",
         "params": {
-          "textAs": "words",
+          "textAs": "raw",
           "mediaType": "material"
         },
         "audio": {
@@ -360,56 +367,6 @@
       },
       {
         "type": "proof",
-        "l2": "process",
-        "shotCard": "ui-entrance/list-stack-press",
-        "slot": "process-show",
-        "materialRole": "split",
-        "pit": {
-          "mode": "A",
-          "subject": "remotion",
-          "content": {
-            "type": "video-local",
-            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\23-Scene-038.mp4"
-          },
-          "position": "element"
-        },
-        "text": "第一步，看完一条内容，立刻用三句话写下 \"我学到了什么\"。",
-        "durationInFrames": 169,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\23-Scene-038.mp4",
-        "params": {
-          "textAs": "words",
-          "mediaType": "material"
-        },
-        "audio": {
-          "src": "audio/transition-snap.mp3",
-          "volume": 0.16
-        }
-      },
-      {
-        "type": "hook",
-        "l2": "process",
-        "shotCard": null,
-        "slot": "case-show",
-        "materialRole": "hero",
-        "pit": {
-          "mode": "A",
-          "subject": "local-material",
-          "content": {
-            "type": "video-local",
-            "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活12-Scene-006.mp4"
-          },
-          "position": "background"
-        },
-        "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
-        "durationInFrames": 134,
-        "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活12-Scene-006.mp4",
-        "audio": {
-          "src": "audio/transition-soft.mp3",
-          "volume": 0.14
-        }
-      },
-      {
-        "type": "hook",
         "l2": "process",
         "shotCard": "typography/word-relay-filmstrip",
         "slot": "text-hero",
@@ -422,36 +379,9 @@
           },
           "position": "element"
         },
-        "text": "第三步，周末把这一周的三条笔记翻出来，教给一个人 —— 讲得出来，才算真的会了。",
-        "durationInFrames": 233,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\09-Scene-003.mp4",
-        "params": {
-          "textAs": "words",
-          "mediaType": "material"
-        },
-        "audio": {
-          "src": "audio/swoosh-quick.mp3",
-          "volume": 0.16
-        }
-      },
-      {
-        "type": "proof",
-        "l2": "insight",
-        "shotCard": "ui-entrance/neon-frame-forerun",
-        "slot": "process-show",
-        "materialRole": "split",
-        "pit": {
-          "mode": "A",
-          "subject": "remotion",
-          "content": {
-            "type": "video-local",
-            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-001.mp4"
-          },
-          "position": "element"
-        },
-        "text": "收藏是起点，不是终点。",
-        "durationInFrames": 64,
-        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-001.mp4",
+        "text": "第一步，看完一条内容，立刻用三句话写下 \"我学到了什么\"。",
+        "durationInFrames": 169,
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-003.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -463,8 +393,89 @@
       },
       {
         "type": "hook",
-        "l2": "summary",
-        "shotCard": "typography/vertical-word-roll-blur-cycle",
+        "l2": "process",
+        "shotCard": "ui-entrance/clipcard-looping",
+        "slot": "case-show",
+        "materialRole": "inline-element",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "video-local",
+            "path": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%B9%B8%E7%A6%8F%E7%94%9F%E6%B4%BB08-Scene-001.mp4"
+          },
+          "position": "element"
+        },
+        "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
+        "durationInFrames": 134,
+        "media": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%B9%B8%E7%A6%8F%E7%94%9F%E6%B4%BB08-Scene-001.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "component"
+        },
+        "audio": {
+          "src": "audio/transition-snap.mp3",
+          "volume": 0.16
+        }
+      },
+      {
+        "type": "hook",
+        "l2": "method",
+        "shotCard": "ui-entrance/list-reveal",
+        "slot": "process-show",
+        "materialRole": "split",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "video-local",
+            "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-115.mp4"
+          },
+          "position": "element"
+        },
+        "text": "第三步，周末把这一周的三条笔记翻出来，教给一个人 —— 讲得出来，才算真的会了。",
+        "durationInFrames": 233,
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-115.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/swoosh-quick.mp3",
+          "volume": 0.16
+        }
+      },
+      {
+        "type": "proof",
+        "l2": "emphasis",
+        "shotCard": "ui-entrance/neon-frame-forerun",
+        "slot": "process-show",
+        "materialRole": "split",
+        "pit": {
+          "mode": "A",
+          "subject": "remotion",
+          "content": {
+            "type": "video-local",
+            "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-008.mp4"
+          },
+          "position": "element"
+        },
+        "text": "收藏是起点，不是终点。",
+        "durationInFrames": 64,
+        "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-008.mp4",
+        "params": {
+          "textAs": "words",
+          "mediaType": "material"
+        },
+        "audio": {
+          "src": "audio/transition-soft.mp3",
+          "volume": 0.16
+        }
+      },
+      {
+        "type": "hook",
+        "l2": "action",
+        "shotCard": "typography/word-relay-geometry",
         "slot": "text-hero",
         "materialRole": "background",
         "pit": {
@@ -477,7 +488,7 @@
         },
         "text": "从今天开始，删掉一条吃灰的收藏，把省下来的时间，用来做一件真正的小事。",
         "durationInFrames": 204,
-        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-110.mp4",
+        "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\服务器4K-Scene-002.mp4",
         "params": {
           "textAs": "words",
           "mediaType": "material"
@@ -489,7 +500,7 @@
       },
       {
         "type": "cta",
-        "l2": "summary",
+        "l2": "action",
         "shotCard": "typography/vertical-word-roll-blur-cycle",
         "slot": "text-hero",
         "materialRole": "background",

@@ -1,7 +1,7 @@
 {
   "_meta": {
     "生成时间": "2026-09-22",
-    "说明": "模板参数注册表——TemplateAdapter/build-storyboard/console-ui 单一数据源。文字=shot.text 注入形态；色彩=C4 主题变量；图片视频=素材/media/装饰；数据=数值类。；tone=色调风格标签(dark深色/light浅色/colorful彩色，模板选择风格一致性维度)；style=视觉语言标签(typographic大字字效/hud终端屏/neon光效/line线条几何/card卡片面板/film胶片，模板视觉表现一致性维度)；capacity=文案容量(short≤10字/medium≤22字/long≤45字，整体文案→坑位文案→模板容量收敛校验)",
+    "说明": "模板参数注册表——TemplateAdapter/build-storyboard/console-ui 单一数据源。文字=shot.text 注入形态；色彩=C4 主题变量；图片视频=素材/media/装饰；数据=数值类。；tone=色调风格标签(dark深色/light浅色/colorful彩色，模板选择风格一致性维度)；style=视觉语言标签(typographic大字字效/hud终端屏/neon光效/line线条几何/card卡片面板/film胶片，模板视觉表现一致性维度)；capacity=文案容量(short≤10字/medium≤22字/long≤45字，整体文案→坑位文案→模板容量收敛校验)；tone 经根背景人工核验修正（bezier/countdown/marker/brand-ink/vertical-roll/filmstrip 实测浅底→light）",
     "范围": "TemplateAdapter 契约注册组件（全量 36，enabled 34）"
   },
   "templates": [
@@ -361,7 +361,7 @@
       },
       "tone": "dark",
       "style": "hud",
-      "capacity": "medium"
+      "capacity": "long"
     },
     {
       "shotCard": "typography/typewriter-moves/typewriter-error-retype",
@@ -386,7 +386,7 @@
       },
       "tone": "dark",
       "style": "hud",
-      "capacity": "medium"
+      "capacity": "long"
     },
     {
       "shotCard": "typography/countdown-arc-scatter",
@@ -409,7 +409,7 @@
       "propsType": {
         "words": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "typographic",
       "capacity": "short"
     },
@@ -475,7 +475,7 @@
       "propsType": {
         "words": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "typographic",
       "capacity": "short"
     },
@@ -578,7 +578,7 @@
       },
       "tone": "dark",
       "style": "typographic",
-      "capacity": "medium"
+      "capacity": "long"
     },
     {
       "shotCard": "typography/glitch-cycle",
@@ -655,7 +655,7 @@
       "propsType": {
         "words": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "typographic",
       "capacity": "short"
     },
@@ -680,7 +680,7 @@
       "propsType": {
         "words": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "typographic",
       "capacity": "long"
     },
@@ -706,7 +706,7 @@
         "seed": "number",
         "words": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "film",
       "capacity": "long"
     },
@@ -790,7 +790,7 @@
       "propsType": {
         "capWords": "string[]"
       },
-      "tone": "dark",
+      "tone": "light",
       "style": "line",
       "capacity": "medium"
     },
@@ -821,7 +821,7 @@
       },
       "tone": "dark",
       "style": "neon",
-      "capacity": "medium"
+      "capacity": "long"
     },
     {
       "shotCard": "ui-entrance/morph-from-primitive",

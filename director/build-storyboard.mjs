@@ -194,7 +194,7 @@ function findMaterial(tags, semanticTags, targetDurationSec, mood) {
   const allTags = [...(semanticTags || []), ...(tags || [])];
   if (allTags.length === 0) return null;
 
-  const minDur = targetDurationSec * 0.7; // 素材至少能撑住 70% 时长
+  const minDur = targetDurationSec * 0.85; // 素材至少撑住 85% 时长（防渲染 seek 超界）
   let matched = materialIndex.filter(m => {
     if (m.duration_sec < minDur) return false;
     const mTags = m.tags || [];
@@ -220,6 +220,7 @@ function findMaterial(tags, semanticTags, targetDurationSec, mood) {
     const durGap = Math.abs(m.duration_sec - targetDurationSec);
     let score = hitCount * 10 - durGap;
     if (m.duration_sec >= targetDurationSec) score += 5; // 够长优先
+    else score -= 20; // 不够长重罚（短素材 seek 超界是渲染失败主因）
     // P3：情绪匹配 +15（文案情绪非中性且素材情绪命中）
     if (mood && mood !== '中性' && inferMaterialMood(mTags) === mood) score += 15;
     // P3：使用频率降权（每次用过 -3，用得越少越优先）
