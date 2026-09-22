@@ -642,6 +642,13 @@ const ShotView: React.FC<{
   const preset = captionStylePresets[captionStyle];
   // P1：公共文字参数覆盖预设默认（未设则回落预设值）——数据链 current-theme.json → storyboard.style
   const capFont = style.fontFamily || "'Noto Sans SC','Microsoft YaHei',sans-serif";
+  function extractKeywordSafe(text) {
+  const t = (text || '').trim();
+  if (!t) return 'AI';
+  if (t.length <= 6) return t;
+  const mm = t.match(/^([一-龥A-Za-z0-9]{2,6})/);
+  return mm ? mm[1] : t.slice(0, 6);
+}
   const capSize = style.captionSize || preset.text.fontSize || 36;
   const capWeight = style.captionWeight || preset.text.fontWeight || 600;
   const capColor = style.captionColor || preset.text.color || '#fff';
@@ -660,6 +667,23 @@ const ShotView: React.FC<{
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: shot.materialOpacity ?? style.materialOpacity ?? 0.6 }}
           muted
         />
+      )}
+
+      {/* AIGC 镜头层（降级链③：无素材无模板 → AI 生成镜头，渲染期显示待生成占位） */}
+      {!shot.material && shot.aigc && (
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--bg, #0a1420)' }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{
+              fontSize: style.fallbackSize || 96, fontWeight: 900, letterSpacing: 4,
+              color: 'rgba(255,255,255,' + (style.fallbackAlpha ?? 0.14) + ')',
+              fontFamily: capFont,
+            }}>{extractKeywordSafe(shot.text)}</div>
+          </div>
+          <div style={{
+            position: 'absolute', left: 0, right: 0, bottom: 84, textAlign: 'center',
+            fontSize: 13, color: 'rgba(139,147,163,0.7)', letterSpacing: 2,
+          }}>AI 生成镜头 · 待生成（AIGC）</div>
+        </div>
       )}
 
       {/* 失败回退层（无素材时：渐变底 + 关键词占位大字） */}

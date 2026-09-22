@@ -158,6 +158,15 @@ function saveUsage() {
   try { writeFileSync(usagePath, JSON.stringify(usage, null, 2), 'utf-8'); } catch (e) {}
 }
 
+// 生成 AIGC 视频提示词（降级链③：无素材镜头唤起 AI 生成，竖屏/深色/主题一致）
+function genAigcPrompt(text, type, mood) {
+  const roleMap = { hook: '钩子开场', pain: '痛点场景', proof: '案例证明', claim: '核心观点', process: '过程演示', cta: '行动号召', quote: '金句' };
+  const role = roleMap[type] || '氛围画面';
+  const moodMap = { calm: '舒缓', energetic: '明快', dramatic: '戏剧感', warm: '温暖' };
+  const m = moodMap[mood] || '自然';
+  return `竖屏短视频镜头（9:16），深色低饱和电影级画面，${role}：${text}。画面${m}、克制，无文字、无对白，主体居中，微光边缘，4K`;
+}
+
 // 提取 fallback 关键词（2-6 字，用于占位大字）
 function extractKeyword(text) {
   // 去掉常见虚词
@@ -504,7 +513,7 @@ let rawShots = timing.segments.map((seg, i) => {
   const subject = preassignSubject(type, seg.text, globalMode, probeMaterial !== null, subjCount);
   subjCount[subject] = (subjCount[subject] || 0) + 1;
 
-  let shotCard = null, slot = null, materialRole = 'none', material = null, fallback = null, media = null;
+  let shotCard = null, slot = null, materialRole = 'none', material = null, fallback = null, media = null, aigc = null;
 
   if (subject === 'material') {
     // ② 素材主体：默认纯素材全屏（hero 坑位）；P3 增强——部分素材镜头配视频卡片模板承载素材进组件画面
@@ -520,19 +529,19 @@ let rawShots = timing.segments.map((seg, i) => {
     } else {
       shotCard = null;
     }
-    if (!material && !media) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+    if (!material && !media) aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
   } else if (subject === 'aigc') {
-    // ③ AIGC 主体：登记生成标记（渲染暂用 Fallback 渐变兜底，后续接 AIGC 通道）
+    // ③ AIGC 主体：登记生成标记（status:pending → 渲染待生成占位 → 生成后回填 status:done+path）
     slot = 'case-show';
     shotCard = null;
-    fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+    aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
   } else if (subject === 'person') {
     // ③b 口播主体（B 模式）：人像素材全屏（无则 fallback），模板只做标注位
     slot = 'case-show';
     materialRole = 'hero';
     shotCard = null;
     material = findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood);
-    if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+    if (!material) aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
   } else {
     // ④ remotion 模板主体：双向赋权选卡（语义池 → 节奏/情绪/能量/模式/降权）
     shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text, prevCardTone, prevCardStyle);
@@ -541,7 +550,15 @@ let rawShots = timing.segments.map((seg, i) => {
       prevCardTone = CARD_TONE[shotCard] || 'dark';
       prevCardStyle = CARD_STYLE[shotCard] || 'typographic';
     } else {
-      prevCardTone = null; prevCardStyle = null; // 纯字幕镜头不参与衔接约束
+      // 降级链②：模板无匹配 → 找纯素材当画面；素材也无 → 降级链③ AIGC 生成（不再纯字幕/渐变）
+      prevCardTone = null; prevCardStyle = null;
+      const fbMat = findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood);
+      if (fbMat) {
+        material = fbMat; materialRole = 'hero'; slot = 'case-show';
+      } else {
+        aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
+        slot = 'case-show';
+      }
     }
     const rs = resolveSlot(shotCard);
     slot = rs.slot;
@@ -551,7 +568,7 @@ let rawShots = timing.segments.map((seg, i) => {
       material = findMaterial(tags, semanticTags, durationInFrames / FPS, mood);
     }
     if (!material && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
-      fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+      fallback = { keyword: extractKeyword(seg.text), gradient: ['#11151d', '#0a1420'] }; // 主题深色兜底（模板仍为主体）
     }
   }
 
@@ -591,10 +608,11 @@ let rawShots = timing.segments.map((seg, i) => {
     ...(material ? { material: material.path } : {}),
     ...(media ? { media } : {}),
     ...(fallback ? { fallback } : {}),
+    ...(aigc ? { aigc } : {}),
     ...(shotCard ? {
       params: {
         textAs: RAW_TEXT_CARDS.has(String(shotCard).split('/').pop()) ? 'raw' : 'words',
-        mediaType: media ? 'component' : (material ? 'material' : (fallback ? 'fallback' : 'none')),
+        mediaType: media ? 'component' : (material ? 'material' : (aigc ? 'aigc' : (fallback ? 'fallback' : 'none'))),
       },
     } : {}),
   };
