@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四层编导架构升级研究 · Video ShotCraft</title>
+<style>
+  :root{--bg:#0d0f14;--card:#151922;--line:#232a38;--tx:#e8e6e1;--mid:#9aa4b2;--mid2:#6b7686;
+    --a1:#22c55e;--a2:#d4a853;--a3:#3b82f6;--red:#ef4444;--orange:#f59e0b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font-family:"Microsoft YaHei","PingFang SC",sans-serif;line-height:1.75;padding:32px 20px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:26px;font-weight:700;margin-bottom:6px}
+  .sub{color:var(--mid);font-size:13px;margin-bottom:28px}
+  h2{font-size:19px;font-weight:700;margin:34px 0 14px;padding-left:12px;border-left:4px solid var(--a2)}
+  h3{font-size:15px;font-weight:700;margin:20px 0 8px;color:var(--a3)}
+  p{margin:8px 0;color:#cfd5dd}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th{background:#1b212c;color:var(--a2);text-align:left;padding:8px 10px;border:1px solid var(--line);font-weight:600}
+  td{padding:8px 10px;border:1px solid var(--line);vertical-align:top;color:#cfd5dd}
+  tr:nth-child(even) td{background:#12161f}
+  code{background:#1b212c;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12.5px;color:#7dd3fc}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;margin-right:6px}
+  .t-red{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.4)}
+  .t-green{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.4)}
+  .t-blue{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.4)}
+  .t-gold{background:rgba(212,168,83,.12);color:#f0c674;border:1px solid rgba(212,168,83,.4)}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:14px 0}
+  .flow .step{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;position:relative}
+  .flow .step b{display:block;font-size:14px;color:var(--a2);margin-bottom:4px}
+  .flow .step span{font-size:12px;color:var(--mid)}
+  .flow .arrow{align-self:center;color:var(--mid2);font-size:16px}
+  .bad{color:var(--red);font-weight:600}
+  .good{color:var(--a1);font-weight:600}
+  .warn{color:var(--orange);font-weight:600}
+  ul,ol{margin:8px 0 8px 22px}
+  li{margin:4px 0;color:#cfd5dd}
+  .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--mid2);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>四层编导架构升级研究</h1>
+<div class="sub">Video ShotCraft · 编导子系统深度诊断与升级方案 · v1.0 · 2026-09-21</div>
+
+<div class="card">
+<b>一句话结论</b>：现有"四层坑位模型（L0 模式 / L1 主体 / L2 内嵌元素 / L3 位置）"与 taxonomy"三级叙事分级（L1 叙事 / L2 子类 / L3 效果池）"<b class="bad">两套体系并存但互不联动</b>——
+叙事分级在选卡，坑位模型只贴标签，且 67 张效果卡全部缺少语义元数据驱动。升级方向：把两套体系合流为一条
+<b>5 层统一决策链（L0 模式 → L1 叙事 → L2 语义子类 → L3 镜头卡 → L4 坑位）</b>，并接入 gallery 已有的 157 张卡片语义库，让"镜头运用"从随机/贴标签变成"语义 + 能量 + 模式"可推演决策。
+</div>
+
+<h2>一、现状盘点：约定 vs 落地</h2>
+<table>
+<tr><th>体系</th><th>来源</th><th>层级</th><th>落地状态</th></tr>
+<tr>
+  <td><b>四层坑位模型</b></td>
+  <td><code>director/script-generation-design.md §5</code></td>
+  <td>L0 全局模式(A/B/C) · L1 镜头主体(remotion/local-material/aigc-material/person) · L2 内嵌元素(text/image/video-local/video-aigc) · L3 内嵌位置(background/element)</td>
+  <td class="good">✓ 输出含 <code>pit</code>（mode/subject/content/position）</td>
+</tr>
+<tr>
+  <td><b>叙事分级</b></td>
+  <td><code>director/taxonomy.json</code></td>
+  <td>L1 叙事类型(6：hook/pain/claim/proof/quote/cta) · L2 语义子类(21) · L3 效果池(67 卡)</td>
+  <td class="good">✓ 选卡主线</td>
+</tr>
+<tr>
+  <td><b>坑位治理</b></td>
+  <td><code>taxonomy.json → slots</code></td>
+  <td>11 条前缀规则 + 7 覆盖 → slot(6 类) + materialRole(5 类)</td>
+  <td class="good">✓ resolveSlot 生效</td>
+</tr>
+<tr>
+  <td><b>坑位配置表</b></td>
+  <td><code>taxonomy.json → pitByL2</code></td>
+  <td>每 l2 × 模式 → subject/content/position</td>
+  <td class="warn">△ 已生成 pit，但与 slot 不一致（见 G1）</td>
+</tr>
+<tr>
+  <td><b>镜头卡语义库</b></td>
+  <td><code>gallery/api/library.json</code></td>
+  <td>157 卡 × (summary/use/duration/energy/intention/category/tags)</td>
+  <td class="bad">✗ 未接入选卡（67 卡中 65 卡可命中）</td>
+</tr>
+</table>
+
+<h2>二、深度诊断：5 个结构性缺口</h2>
+
+<div class="card">
+<h3>G1 · 双模型割裂 —— pit 与 slot 自相矛盾</h3>
+<p><code>pit</code> 由独立表 <code>pitByL2[l2][mode]</code> 生成，<code>slot/materialRole</code> 由 <code>resolveSlot(shotCard)</code> 前缀规则生成——两条独立路径，无一致性校验。实测矛盾：</p>
+<table>
+<tr><th>镜头</th><th>l2</th><th>pitByL2[A]（pit 输出）</th><th>resolveSlot（slot 输出）</th><th>矛盾</th></tr>
+<tr><td>data/图表</td><td>data</td><td>subject=local-material · position=background（素材做底）</td><td>slot=data-show · materialRole=inline-element（素材进图表）</td><td class="bad">pit 说素材做底，slot 说素材进图表</td></tr>
+<tr><td>typography/文字</td><td>definition</td><td>subject=remotion · position=element</td><td>slot=text-hero · materialRole=background</td><td class="warn">position 与 materialRole 打架（element vs background）</td></tr>
+</table>
+<p>结果：<b>坑位模型（L0-L3）没有真正驱动输出，只是贴标签</b>——这正是"镜头运用混乱"的深层结构原因之一。</p>
+</div>
+
+<div class="card">
+<h3>G2 · L3 效果卡无元数据接入 —— 语义库闲置</h3>
+<p>选卡只按卡名关键词打分（节奏 + 情绪 + 降权）。而 <code>library.json</code> 每张卡已有现成的
+<b>energy（能量：高/中/低）</b>、<b>intention（意图：这段卡想拍成什么）</b>、<b>duration（时长体质）</b>、
+<b>summary/use（适用场景）</b>——67 张 L3 卡中 65 张可精确命中（97%），完全可做"叙事能量匹配"：
+hook 要瞬时高能、quote 要收束低能、data 要信息持续，全部有据可依。</p>
+</div>
+
+<div class="card">
+<h3>G3 · 模式（A/B/C）只贴标签不参与决策</h3>
+<p>L0 模式仅写入 <code>pit.mode</code>，选卡与素材匹配完全不区分模式。A 模式（模板主导）下 camera 叙事卡
+与 typography 文字卡同权竞争；B 模式（人像主导）没有把素材主体卡加权；C 模式（AIGC 主导）没有氛围卡偏好。</p>
+</div>
+
+<div class="card">
+<h3>G4 · 坑位组合无合法性校验</h3>
+<p>任意卡 × 任意模式 × 任意叙事都能输出，没有约束矩阵。转场卡（transition-slot）在中间叙事位出现、
+rhythm 节奏卡在 cta 收尾位出现、B 模式的 person 主体从未落地——结构性错位无人拦截。</p>
+</div>
+
+<div class="card">
+<h3>G5 · 无反馈闭环</h3>
+<p>渲染后用户观感（"这卡不合适"）无法回写驱动选卡。现有 <code>usage.json</code> 只记使用次数，
+没有用户负反馈通道。</p>
+</div>
+
+<h2>三、升级方案：5 层统一决策链</h2>
+<p>把"叙事分级"与"坑位模型"合流为一条可推演决策链，彻底解决"同名不同义"与"两套体系打架"：</p>
+
+<div class="flow">
+  <div class="step"><b>L0 模式</b><span>A/B/C 全局选择 + 全局情绪基调</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b>L1 叙事</b><span>hook/pain/claim/proof/quote/cta（已有）</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b>L2 语义子类</b><span>21 类 · 语义规则命中（已治理）</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b>L3 镜头卡</b><span>67 卡 · 元数据打分（升级）</span></div>
+  <div class="arrow">→</div>
+  <div class="step"><b>L4 坑位</b><span>slot + materialRole + pit 一致性（升级）</span></div>
+</div>
+
+<h3>U1 · L4 坑位一致性引擎</h3>
+<p><code>pit</code> 不再查独立表，改由 <code>resolveSlot</code> 结果<b>反推</b>（单一权威来源），保证 pit 与 slot/materialRole 永远一致：</p>
+<table>
+<tr><th>slot</th><th>反推 pit</th><th>素材角色</th></tr>
+<tr><td>text-hero</td><td>{subject:remotion, content:{type:text}, position:element}</td><td>background（素材做底）</td></tr>
+<tr><td>data-show</td><td>{subject:local-material, content:{type:video-local}, position:element}</td><td>inline-element（素材进图表）</td></tr>
+<tr><td>case-show</td><td>{subject:local-material, content:{type:video-local}, position:background}</td><td>hero（全屏主体）</td></tr>
+<tr><td>process-show</td><td>{subject:remotion, content:{type:video-local}, position:element}</td><td>split（分屏嵌入）</td></tr>
+<tr><td>transition-slot</td><td>{subject:remotion, content:{type:text}, position:element}</td><td>none（纯转场不配素材）</td></tr>
+<tr><td>compare-slot</td><td>{subject:local-material, content:{type:video-local}, position:split}</td><td>split（左右对比）</td></tr>
+</table>
+<p><code>pitByL2</code> 降级为兜底表（resolveSlot 未命中时使用）。</p>
+
+<h3>U2 · L3 镜头卡元数据评分</h3>
+<p>启动时加载 <code>gallery/api/library.json</code> → 建 name→card 索引（65/67 命中，2 个 variant 用父卡兜底）→ 选卡打分新增两项：</p>
+<ul>
+<li><b>energy × 叙事匹配（+10）</b>：hook/pain 偏好"高/瞬时冲击"卡；proof/claim 偏好"中高/信息持续"卡；quote/cta 偏好"低/收束"卡</li>
+<li><b>duration 体质校验</b>：stretch 通用；fixed 需在推荐时长 ±15% 内（超出直接淘汰）；loop 仅金句/收尾（quote/cta）可用</li>
+</ul>
+<p>与现有节奏（fast/loop）、情绪风格、使用降权合并打分——排序取最优（可同分随机轮换）。</p>
+
+<h3>U3 · 模式差异化加权（L0 真正参与决策）</h3>
+<table>
+<tr><th>模式</th><th>卡类别偏好（+15）</th><th>降权（-10）</th></tr>
+<tr><td><b>A</b> Remotion 主导</td><td>typography / data / ui-entrance / interaction / opening / outro</td><td>纯素材叙事卡（camera 叙事位降为 +5）</td></tr>
+<tr><td><b>B</b> 人像口播主导</td><td>camera / opening / effects（背景感强、可作人像后景）</td><td>纯文字卡</td></tr>
+<tr><td><b>C</b> AIGC 素材主导</td><td>effects / rhythm / transition（氛围卡）</td><td>密集文字卡</td></tr>
+</table>
+
+<h3>U4 · 组合合法性矩阵</h3>
+<table>
+<tr><th>约束</th><th>规则</th><th>违例处理</th></tr>
+<tr><td>转场卡</td><td>transition-slot 仅组间转场位（首尾除外），materialRole=none 不配素材</td><td>换同池次优卡</td></tr>
+<tr><td>节奏卡</td><td>rhythm 类卡 A 模式仅 proof/pain 可用</td><td>换同池次优卡</td></tr>
+<tr><td>人像主体</td><td>pit.subject=person 仅 B 模式；B 模式文字卡降级为标注卡</td><td>模式不符 → 重选</td></tr>
+<tr><td>收尾</td><td>cta 位只用 outro/ 卡（L3 池已约束）</td><td>已天然满足</td></tr>
+</table>
+
+<h3>U5 · 反馈闭环（P3.5 可选）</h3>
+<p>分镜校准卡增加「👎 此卡不合适」按钮 → <code>POST /api/card/downvote</code> → 写 <code>director/usage.json</code>
+的 <code>userDownvote[card]</code> 字段 → 下次选卡 -30 强降权。复用现有 usage 机制，schema 不变。</p>
+
+<h2>四、落地计划（增量 · 不破坏 C1-C7 收敛节点）</h2>
+<table>
+<tr><th>阶段</th><th>内容</th><th>改动面</th><th>验收</th></tr>
+<tr>
+  <td><span class="tag t-blue">阶段 1</span></td>
+  <td>U1 pit 一致性引擎 + U2 元数据评分</td>
+  <td>仅 <code>build-storyboard.mjs</code>（加载 library.json + 反推 pit + 打分扩展）</td>
+  <td>真实文案重跑：pit 与 slot 全一致；19 镜头能量匹配叙事；schema 不变</td>
+</tr>
+<tr>
+  <td><span class="tag t-blue">阶段 2</span></td>
+  <td>U3 模式加权 + U4 合法性矩阵</td>
+  <td>同上 + taxonomy.json 增加合法性规则段</td>
+  <td>A/B/C 三模式各跑一遍：模式差异化生效、无违例组合</td>
+</tr>
+<tr>
+  <td><span class="tag t-blue">阶段 3</span></td>
+  <td>U5 反馈闭环</td>
+  <td>console-ui.html + console-server.mjs</td>
+  <td>点「不合适」→ 重跑该镜头换卡</td>
+</tr>
+</table>
+
+<h2>五、风险与边界</h2>
+<ul>
+<li>library.json 卡名与 L3 池命中 65/67（97%），2 个 variant（crash-impact、clipcard-looping）用父卡元数据兜底，无缺卡风险</li>
+<li>fixed 体质卡较少（约 70/214），选卡主要在 stretch 池内，不会缺卡</li>
+<li>所有改动在 build-storyboard.mjs 决策层内，<code>storyboard.json</code> 输出 schema 不变——C2 收敛节点稳定</li>
+<li>library.json 由上游维护，本地只读引用；版本漂移时降级为"无元数据 = 中性分"</li>
+<li>本轮已完成的前置治理（L2 语义选择 + 卡重复硬剔除 + 情绪风格）将保留，与 U1-U4 合并生效</li>
+</ul>
+
+<div class="foot">
+Video ShotCraft · 四层编导架构升级研究 v1.0 · 2026-09-21 · 基于 script-generation-design.md §5 + taxonomy.json + build-storyboard.mjs 现状诊断
+</div>
+</div>
+</body>
+</html>
