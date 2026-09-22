@@ -312,12 +312,11 @@ PE html>
   <button class="view-tab active" data-view="director">📝 编导台</button>
   <button class="view-tab" data-view="produce">🎬 制作台</button>
   <button class="view-tab" data-view="library">🎞️ 素材库</button>
-  <button class="view-tab" data-view="style">🎨 风格中心</button>
 </nav>
 
 <main>
   <div class="view" data-view="director">
-  <div class="view-title">📝 编导台 · 文案输入与分镜规划（C1）</div>
+  <div class="view-title">📝 编导台 · 文案 / 风格 / 分镜规划（C1/C4）</div>
   <div class="brief-card">
     <div class="brief-title">📝 编导文案</div>
     <div class="brief-desc">直接把完整口播文案贴到下面，主题、论点、金句我来提取，你不用拆。填好点"保存文案"，回到豆包告诉我"文案已提交"。</div>
@@ -369,86 +368,9 @@ PE html>
       </button>
     </div>
   </div>
-  </div>
 
-  <div class="view" data-view="produce">
-  <div class="view-title">🎬 制作台 · 分镜校准 / 渲染 / 成片出口（C2/C3/C6/C7）</div>
-  <!-- 整体生成进度条 -->
-  <div class="brief-card" id="gen-progress-card" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600">🎬 视频生成进度</div>
-      <div id="gen-pct" style="font-size:14px;font-weight:600;color:#22c55e">0%</div>
-    </div>
-    <div style="height:8px;background:var(--chip);border-radius:4px;overflow:hidden">
-      <div id="gen-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#22c55e,var(--accent2));border-radius:4px;transition:width .3s"></div>
-    </div>
-    <div id="gen-status" style="font-size:12px;color:var(--mid);margin-top:8px">等待开始…</div>
-  </div>
-
-  <!-- 分镜校准面板 -->
-  <div class="brief-card" id="storyboard-card" style="display:none">
-    <div class="brief-title">📋 分镜校准（生成前检查）</div>
-    <div class="brief-desc">每句话自动分配了镜头类型，确认后再渲染</div>
-    <div id="sb-list" style="margin-top:14px;max-height:500px;overflow-y:auto"></div>
-    <div style="display:flex;gap:12px;margin-top:16px">
-      <button class="brief-submit" id="sb-render" style="flex:1;background:linear-gradient(135deg,#22c55e,var(--accent2))">✅ 确认无误，开始渲染</button>
-    </div>
-  </div>
-
-  <!-- 成片区（并入制作台：预览 + 出口） -->
-  <div class="brief-card" id="preview-card" style="display:none">
-    <div class="brief-title">🎬 成片预览</div>
-    <div class="brief-desc" id="preview-info"></div>
-    <video id="preview-video" controls style="width:100%;border-radius:10px;background:#000"></video>
-  </div>
-
-  <div class="grid">
-    <div class="card" data-action="render">
-      <div class="icon">🎬</div>
-      <div class="name">渲染模板视频</div>
-      <div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div>
-      <div class="btn-text">点击开始渲染 →</div>
-    </div>
-    <div class="card" data-action="studio">
-      <div class="icon">🎛️</div>
-      <div class="name">Remotion Studio</div>
-      <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
-      <div class="btn-text">打开编辑器 →</div>
-    </div>
-    <div class="card" data-action="workbench">
-      <div class="icon">✂️</div>
-      <div class="name">Motion Workbench</div>
-      <div class="desc">CapCut 风格剪辑台<br>镜头 / 字幕 / 音效轨道</div>
-      <div class="btn-text">打开剪辑台 →</div>
-    </div>
-    <div class="card" data-action="gallery">
-      <div class="icon">🖼️</div>
-      <div class="name">运动预览 Gallery</div>
-      <div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div>
-      <div class="btn-text">打开画廊 →</div>
-    </div>
-    <div class="card" data-action="test">
-      <div class="icon">🧪</div>
-      <div class="name">单元测试</div>
-      <div class="desc">23 项工具函数测试<br>验证项目健康状态</div>
-      <div class="btn-text">运行测试 →</div>
-    </div>
-  </div>
-
-  <!-- 高级工具（折叠） -->
-  <div class="brief-card">
-    <div class="brief-title" id="advanced-toggle" style="cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none">
-      <span id="advanced-arrow" style="transition:transform .2s;font-size:12px">▶</span> 🛠️ 高级工具
-      <span style="font-size:11px;color:var(--mid2);font-weight:400">（Remotion Studio / 剪辑台 / 单元测试 / 旧流程面板）</span>
-    </div>
-    <div id="advanced-body" style="display:none;margin-top:16px">
-      <div id="panels"></div>
-    </div>
-  </div>
-  </div>
-
-  <div class="view" data-view="style">
-  <div class="view-title">🎨 风格中心 · 主题预设与色彩参数（C4）</div>
+  <!-- 风格中心（并入编导台：主题是编导输入，生成分镜时注入 C3） -->
+  
   <!-- 色彩风格模块 -->
   <div class="style-card collapsed" id="style-card">
     <div class="style-card-header" id="style-card-header">
@@ -615,6 +537,84 @@ PE html>
     </div>
   </div>
   </div>
+
+  <div class="view" data-view="produce">
+  <div class="view-title">🎬 制作台 · 分镜校准 / 渲染 / 成片出口（C2/C3/C6/C7）</div>
+  <!-- 整体生成进度条 -->
+  <div class="brief-card" id="gen-progress-card" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:600">🎬 视频生成进度</div>
+      <div id="gen-pct" style="font-size:14px;font-weight:600;color:#22c55e">0%</div>
+    </div>
+    <div style="height:8px;background:var(--chip);border-radius:4px;overflow:hidden">
+      <div id="gen-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#22c55e,var(--accent2));border-radius:4px;transition:width .3s"></div>
+    </div>
+    <div id="gen-status" style="font-size:12px;color:var(--mid);margin-top:8px">等待开始…</div>
+  </div>
+
+  <!-- 分镜校准面板 -->
+  <div class="brief-card" id="storyboard-card" style="display:none">
+    <div class="brief-title">📋 分镜校准（生成前检查）</div>
+    <div class="brief-desc">每句话自动分配了镜头类型，确认后再渲染</div>
+    <div id="sb-list" style="margin-top:14px;max-height:500px;overflow-y:auto"></div>
+    <div style="display:flex;gap:12px;margin-top:16px">
+      <button class="brief-submit" id="sb-render" style="flex:1;background:linear-gradient(135deg,#22c55e,var(--accent2))">✅ 确认无误，开始渲染</button>
+    </div>
+  </div>
+
+  <!-- 成片区（并入制作台：预览 + 出口） -->
+  <div class="brief-card" id="preview-card" style="display:none">
+    <div class="brief-title">🎬 成片预览</div>
+    <div class="brief-desc" id="preview-info"></div>
+    <video id="preview-video" controls style="width:100%;border-radius:10px;background:#000"></video>
+  </div>
+
+  <div class="grid">
+    <div class="card" data-action="render">
+      <div class="icon">🎬</div>
+      <div class="name">渲染模板视频</div>
+      <div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div>
+      <div class="btn-text">点击开始渲染 →</div>
+    </div>
+    <div class="card" data-action="studio">
+      <div class="icon">🎛️</div>
+      <div class="name">Remotion Studio</div>
+      <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
+      <div class="btn-text">打开编辑器 →</div>
+    </div>
+    <div class="card" data-action="workbench">
+      <div class="icon">✂️</div>
+      <div class="name">Motion Workbench</div>
+      <div class="desc">CapCut 风格剪辑台<br>镜头 / 字幕 / 音效轨道</div>
+      <div class="btn-text">打开剪辑台 →</div>
+    </div>
+    <div class="card" data-action="gallery">
+      <div class="icon">🖼️</div>
+      <div class="name">运动预览 Gallery</div>
+      <div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div>
+      <div class="btn-text">打开画廊 →</div>
+    </div>
+    <div class="card" data-action="test">
+      <div class="icon">🧪</div>
+      <div class="name">单元测试</div>
+      <div class="desc">23 项工具函数测试<br>验证项目健康状态</div>
+      <div class="btn-text">运行测试 →</div>
+    </div>
+  </div>
+
+  <!-- 高级工具（折叠） -->
+  <div class="brief-card">
+    <div class="brief-title" id="advanced-toggle" style="cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none">
+      <span id="advanced-arrow" style="transition:transform .2s;font-size:12px">▶</span> 🛠️ 高级工具
+      <span style="font-size:11px;color:var(--mid2);font-weight:400">（Remotion Studio / 剪辑台 / 单元测试 / 旧流程面板）</span>
+    </div>
+    <div id="advanced-body" style="display:none;margin-top:16px">
+      <div id="panels"></div>
+    </div>
+  </div>
+  </div>
+
+  
 
   <div class="view" data-view="library">
   <div class="view-title">🎞️ 素材库 · 上传 / 分类筛选 / 预览（C5）</div>
@@ -1831,7 +1831,7 @@ loadLibTags();
 loadLibList();
 
 // ===== P0-1 五视图导航与状态栏 =====
-const VIEW_ORDER = ["director", "produce", "library", "style"];
+const VIEW_ORDER = ["director", "produce", "library"];
 function switchView(name) {
   if (!VIEW_ORDER.includes(name)) name = "director";
   document.querySelectorAll(".view").forEach((v) => {
