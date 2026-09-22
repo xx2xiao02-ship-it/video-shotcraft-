@@ -582,12 +582,6 @@ PE html>
       <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
       <div class="btn-text">打开编辑器 →</div>
     </div>
-    <div class="card" data-action="workbench">
-      <div class="icon">✂️</div>
-      <div class="name">Motion Workbench</div>
-      <div class="desc">CapCut 风格剪辑台<br>镜头 / 字幕 / 音效轨道</div>
-      <div class="btn-text">打开剪辑台 →</div>
-    </div>
     <div class="card" data-action="gallery">
       <div class="icon">🖼️</div>
       <div class="name">运动预览 Gallery</div>
@@ -796,13 +790,12 @@ async function apiFetch(url, options = {}) {
   }
 }
 
-const PANEL_ORDER = ["plan", "generate", "render", "studio", "workbench", "test"];
+const PANEL_ORDER = ["plan", "generate", "render", "studio", "test"];
 const PANEL_META = {
   plan:       { title: "📋 脚本生成", hint: "TTS → 自动分类镜头" },
   generate:  { title: "🎙️ 口播生成", hint: "TTS → 分镜 → 渲染 全自动" },
   render:    { title: "🎬 渲染模板视频", hint: "输出到 template\\out\\promo.mp4" },
   studio:    { title: "🎛️ Remotion Studio", hint: "长驻服务，停止后请关闭对应浏览器标签页" },
-  workbench: { title: "✂️ Motion Workbench", hint: "长驻服务，访问 http://localhost:5198" },
   test:      { title: "🧪 单元测试", hint: "npm test" },
 };
 const state = { tasks: [], logs: {}, lastFetched: {} };
@@ -990,41 +983,59 @@ function bindButtons() {
 
   // 确认渲染
   $("#sb-render").onclick = async () => {
-    setGenProgress(50, "Remotion 渲染中…");
-    try {
-      const j = await apiFetch("/api/render/confirm", { method: "POST" });
-      if (j.ok && j.id) {
-        showToast("渲染已启动 ✓");
-        // 轮询渲染日志
-        let since = 0;
-        const poll = setInterval(async () => {
-          try {
-            const lj = await apiFetch("/api/task?id=" + j.id + "&since=" + since);
-            if (lj.logs && lj.logs.length) {
-              since = lj.since;
-              // 把最新日志显示在进度条下方
-              const lastLog = lj.logs[lj.logs.length - 1].trim();
-              if (lastLog) setGenProgress(50 + Math.min(45, (lj.since / 50) * 10), lastLog);
-            }
-            if (lj.done) {
-              clearInterval(poll);
-              if (lj.exitCode === 0) {
-                setGenProgress(100, "✅ 渲染完成");
-                await loadPreview();
-                switchView("produce");
-                const pc = document.getElementById("preview-card");
-                if (pc) pc.scrollIntoView({ behavior: "smooth", block: "center" });
-              } else {
-                setGenProgress(0, "❌ 渲染失败 (退出码 " + lj.exitCode + ")");
-                showToast("渲染失败");
-              }
-            }
-          } catch (e) {}
-        }, 2000);
-      } else {
-        setGenProgress(0, "渲染启动失败");
+    // 渲染重试机制：偶发失败自动重试，最多 3 次（共 4 次尝试），每次间隔 3 秒
+    const MAX_ATTEMPTS = 4;
+    let attempt = 0;
+    setGenProgress(20, "启动渲染任务…");
+    const tryRender = async () => {
+      attempt++;
+      try {
+        const j = await apiFetch("/api/render/confirm", { method: "POST" });
+        if (j.ok && j.id) {
+          showToast("渲染已启动 ✓（尝试 " + attempt + "/" + MAX_ATTEMPTS + "）");
+          let since = 0;
+          const res = await new Promise((resolve) => {
+            const poll = setInterval(async () => {
+              try {
+                const lj = await apiFetch("/api/task?id=" + j.id + "&since=" + since);
+                if (lj.logs && lj.logs.length) {
+                  since = lj.since;
+                  const lastLog = lj.logs[lj.logs.length - 1].trim();
+                  if (lastLog) setGenProgress(50 + Math.min(45, (lj.since / 50) * 10), lastLog);
+                }
+                if (lj.done) {
+                  clearInterval(poll);
+                  if (lj.exitCode === 0) {
+                    setGenProgress(100, "✅ 渲染完成");
+                    loadPreview();
+                    const pc = document.getElementById("preview-card");
+                    if (pc) pc.scrollIntoView({ behavior: "smooth", block: "center" });
+                    resolve(true);
+                  } else {
+                    setGenProgress(0, "❌ 渲染失败 (退出码 " + lj.exitCode + ")");
+                    resolve(false);
+                  }
+                }
+              } catch (e) {}
+            }, 2000);
+          });
+          if (res) return true;
+        } else {
+          setGenProgress(0, "渲染启动失败");
+        }
+      } catch (e) {
+        setGenProgress(0, "渲染失败: " + e.message);
       }
-    } catch (e) { showToast("渲染失败: " + e.message); setGenProgress(0, "渲染失败"); }
+      if (attempt < MAX_ATTEMPTS) {
+        const n = attempt;
+        setGenProgress(15, "渲染失败，3 秒后自动重试（第 " + n + "/3 次）…");
+        await new Promise(r => setTimeout(r, 3000));
+        return tryRender();
+      }
+      return false;
+    };
+    const ok = await tryRender();
+    if (!ok) showToast("渲染失败（已自动重试 3 次）");
     refresh();
   };
 }
