@@ -799,6 +799,8 @@ const PANEL_META = {
   test:      { title: "🧪 单元测试", hint: "npm test" },
 };
 const state = { tasks: [], logs: {}, lastFetched: {} };
+// 本次会话内最新一次渲染/生成启动时刻（Infinity = 尚未启动过）——历史任务不得触发成片预览
+let sessionRenderStart = Infinity;
 
 const $ = (s) => document.querySelector(s);
 const toast = $("#toast");
@@ -986,6 +988,12 @@ function bindButtons() {
     // 渲染重试机制：偶发失败自动重试，最多 3 次（共 4 次尝试），每次间隔 3 秒
     const MAX_ATTEMPTS = 4;
     let attempt = 0;
+    // 本次会话新生成开始：隐藏旧成片预览，成功后再显示
+    sessionRenderStart = Date.now();
+    const pvCard = document.getElementById("preview-card");
+    if (pvCard) pvCard.style.display = "none";
+    const pvVid = document.getElementById("preview-video");
+    if (pvVid) pvVid.removeAttribute("src");
     setGenProgress(20, "启动渲染任务…");
     const tryRender = async () => {
       attempt++;
@@ -1128,7 +1136,10 @@ async function doAction(action, extra = {}) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, ...extra }),
     });
-    if (j.ok) showToast(action === "stop" ? "已发送停止指令" : "已启动 ✓");
+    if (j.ok) {
+      if (action === "generate" || action === "render") sessionRenderStart = Date.now();
+      showToast(action === "stop" ? "已发送停止指令" : "已启动 ✓");
+    }
     else if (j.error) showToast(j.error);
   } catch (e) {
     showToast("请求失败: " + e.message);
@@ -1222,7 +1233,7 @@ async function fetchLogs(id) {
       if (pinfo) pinfo.textContent = "✅ 完成";
       refresh();
       // 如果是 generate 任务完成，加载预览
-      if ((type === "generate" || type === "render") && j.exitCode === 0) loadPreview();
+      if ((type === "generate" || type === "render") && j.exitCode === 0 && t && t.startedAt >= sessionRenderStart) loadPreview();
       if (type === "plan" && j.exitCode === 0) {
         showToast("✅ 脚本生成完成，校准页已弹出");
         loadStoryboard();
