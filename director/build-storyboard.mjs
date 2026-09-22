@@ -218,7 +218,7 @@ function findMaterial(tags, semanticTags, targetDurationSec, mood) {
     const mTags = m.tags || [];
     const hitCount = allTags.filter(t => mTags.includes(t)).length;
     const durGap = Math.abs(m.duration_sec - targetDurationSec);
-    let score = hitCount * 10 - durGap;
+    let score = hitCount * 10 - durGap * 3; // 时长接近优先×3（模板内嵌素材与镜头时长匹配）
     if (m.duration_sec >= targetDurationSec) score += 5; // 够长优先
     else score -= 20; // 不够长重罚（短素材 seek 超界是渲染失败主因）
     // P3：情绪匹配 +15（文案情绪非中性且素材情绪命中）
@@ -359,7 +359,7 @@ const MODE_STYLE_WEIGHT = {
 };
 
 // 选效果卡：节奏 + 情绪 + 能量叙事 + 模式加权 + 使用降权（同分随机）
-function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text, prevTone, prevStyle) {
+function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text, prevTone, prevStyle, isHook) {
   // 双向匹配①：坑位→模板——候选池只保留"已注册可注入文案"的模板（叶子级）
   let candidates = (L3[l2key] || []).filter(c => REGISTERED_SHOTCARDS.has(c));
   // 回退：该 l2 无注册模板 → 从全部注册模板里按模式类别加权兜底
@@ -370,7 +370,7 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
     const low = card.toLowerCase();
     const cap = CARD_CAP[card] || 'medium';
     if (t.length > CAP_LIMIT[cap]) return false;              // 容量收敛：文案超模板容量不选
-    if (RAW_CARD_PATTERN.test(low)) return t.length <= 10;    // 整句组件：仅 short 容量（≤10字）
+    if (RAW_CARD_PATTERN.test(low)) return t.length <= (isHook ? 22 : 10);  // 整句组件：hook 开篇放宽至22字整句呈现，其余≤10
     return true;
   };
   candidates = candidates.filter(textOk);
@@ -407,6 +407,8 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
     for (const [k, w] of Object.entries(modePref)) {
       if (low.startsWith(k)) { score += w; break; }
     }
+    // U3.5：hook 开篇整句优先——raw 整句类模板 +15（金句完整呈现，不切词拆画面）
+    if (isHook && RAW_CARD_PATTERN.test(low)) score += 15;
     // U4：色调风格一致性——与主题色调一致 +15；浅色/彩色与深色主题冲突 -10
     const cardTone = CARD_TONE[card] || 'dark';
     score += cardTone === THEME_TARGET_TONE ? 15 : -10;
@@ -545,7 +547,7 @@ let rawShots = timing.segments.map((seg, i) => {
     if (!material) aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
   } else {
     // ④ remotion 模板主体：双向赋权选卡（语义池 → 节奏/情绪/能量/模式/降权）
-    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text, prevCardTone, prevCardStyle);
+    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text, prevCardTone, prevCardStyle, type === 'hook');
     if (shotCard) {
       cardUsage[shotCard] = (cardUsage[shotCard] || 0) + 1;
       prevCardTone = CARD_TONE[shotCard] || 'dark';
