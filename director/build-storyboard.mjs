@@ -369,6 +369,14 @@ function preassignSubject(type, text, mode, hasGoodMaterial, subjCount) {
   return want;
 }
 
+// 模板契约 textAs（与 template/src/TemplateAdapter.tsx 的 textAs:'raw' 清单保持一致）
+// 'raw'=整句字符串注入组件；其余默认 'words'=切词数组注入（大字展示类）
+const RAW_TEXT_CARDS = new Set([
+  'scramble', 'scramble-decode', 'split-text-stagger', 'lead-word-zoom-assemble',
+  'font-weight-pump', 'terminal-typewriter', 'typewriter-error-retype',
+  'letter-drop-physics', 'letterform-drift-assembly', 'tracking-expand-reveal',
+]);
+
 // ---------- 镜头类型 ----------
 function pickShotType(text, index, total) {
   if (index === 0) return 'hook';
@@ -485,6 +493,12 @@ let rawShots = timing.segments.map((seg, i) => {
     ...(material ? { material: material.path } : {}),
     ...(media ? { media } : {}),
     ...(fallback ? { fallback } : {}),
+    ...(shotCard ? {
+      params: {
+        textAs: RAW_TEXT_CARDS.has(String(shotCard).split('/').pop()) ? 'raw' : 'words',
+        mediaType: media ? 'component' : (material ? 'material' : (fallback ? 'fallback' : 'none')),
+      },
+    } : {}),
   };
 });
 

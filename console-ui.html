@@ -976,6 +976,19 @@ function bindButtons() {
           <div style="flex:1;font-size:13px;line-height:1.5;color:var(--ink)">${shot.text}</div>
           <div style="min-width:120px;font-size:11px;color:var(--mid);padding-top:4px;text-align:right">${dur}s</div>
         `;
+        // 模板参数摘要（文字参数 + 图片/视频参数）——数据来自 shot.params（build-storyboard 一次写入）
+        if (shot.shotCard || shot.material || shot.media || shot.fallback) {
+          const p = shot.params || {};
+          const textAs = p.textAs === 'raw' ? '整句注入' : (p.textAs === 'words' ? '切词注入' : '—');
+          const mediaType =
+            p.mediaType === 'component' ? '🎞️ 组件画面(素材进模板)' :
+            p.mediaType === 'material' ? '🎞️ 背景素材' :
+            p.mediaType === 'fallback' ? '占位渐变' : '无媒体';
+          const meta = document.createElement("div");
+          meta.style.cssText = "font-size:11px;color:var(--mid2);margin-top:3px;letter-spacing:.2px";
+          meta.innerHTML = `模板 <b style="color:var(--accent)">${String(shot.shotCard || (shot.pit?.subject === 'local-material' ? '素材主体' : shot.pit?.subject || '—')).split('/').pop()}</b> · 文字 <b style="color:var(--ink2)">${textAs}</b> · 媒体 ${mediaType}`;
+          row.querySelector("div[style*='flex:1']").appendChild(meta);
+        }
         list.appendChild(row);
       });
       showToast("分镜校准完成 ✓ 确认后渲染");
