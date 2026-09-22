@@ -27,8 +27,8 @@ const curve = (u: number) => {
 
 const CYCLES = 2; // 整数圈 → t=0/t=1 画面一致
 
-export const FlyingWords: React.FC<{ text?: string }> = ({ text }) => {
-  const WORDS = text ? [text] : DEFAULT_WORDS;
+export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const N = WORDS.length;
 
   const ITEMS = WORDS.map((w, i) => {

@@ -27,7 +27,7 @@ const NUM_FONT: React.CSSProperties = {
 };
 
 // 逐词模糊淡入的时间窗：min → to → install
-const WORDS: { text: string; mr: number; win: [number, number] }[] = [
+const DEFAULT_WORDS: { text: string; mr: number; win: [number, number] }[] = [
   { text: 'min', mr: 11, win: [0.54, 0.68] },
   { text: 'to', mr: 11, win: [0.62, 0.78] },
   { text: 'install', mr: 0, win: [0.7, 0.9] },
@@ -35,8 +35,21 @@ const WORDS: { text: string; mr: number; win: [number, number] }[] = [
 
 const mix = (k: number, a: number, b: number) => Math.round(lerp(k, a, b));
 
-export const CountdownArcScatter: React.FC = () => {
+export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) => {
   const t = useT();
+  // 由注入 words 重建逐词元数据：保留 mr（词间距）与 win（模糊淡入时间窗）的错峰节奏
+  const resolvedWords: { text: string; mr: number; win: [number, number] }[] =
+    words && words.length > 0
+      ? words.map((text, i, arr) => {
+          const n = arr.length;
+          const start = 0.54 + (i / Math.max(1, n - 1)) * 0.16;
+          return {
+            text,
+            mr: i === n - 1 ? 0 : 11,
+            win: [start, Math.min(0.9, start + 0.16)] as [number, number],
+          };
+        })
+      : DEFAULT_WORDS;
   // 整盘扫过：+96° → 0°，outCubic 减速急停
   const rot = lerp(seg(t, 0, 0.52, E.outCubic), 96, 0);
   const hand = seg(t, 0.52, 0.7, E.inOutCubic); // "5" 落位平移
@@ -123,9 +136,9 @@ export const CountdownArcScatter: React.FC = () => {
               ...NUM_FONT,
             }}
           >
-            {WORDS.map(({ text, mr, win }, k) => {
+            {resolvedWords.map(({ text, mr, win }, k) => {
               const p = seg(t, win[0], win[1], E.outCubic);
-              const isLast = k === WORDS.length - 1;
+              const isLast = k === resolvedWords.length - 1;
               return (
                 <span
                   key={k}

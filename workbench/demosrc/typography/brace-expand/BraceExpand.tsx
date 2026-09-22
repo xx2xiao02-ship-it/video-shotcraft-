@@ -10,6 +10,9 @@ export const BRACE_EXPAND_DURATION = 114; // 3800ms @30fps
 const FONT = '-apple-system,system-ui,sans-serif';
 const HALF = 148; // 括号最终半距
 
+// 默认揭示文案
+const DEFAULT_WORDS = ['Your title'];
+
 // 单只花括号：x 为当前水平偏移（左负右正），sc 为同步放大比例
 const Brace: React.FC<{ ch: string; x: number; sc: number; on: number }> = ({ ch, x, sc, on }) => (
   <div
@@ -29,7 +32,9 @@ const Brace: React.FC<{ ch: string; x: number; sc: number; on: number }> = ({ ch
   </div>
 );
 
-export const BraceExpand: React.FC = () => {
+export const BraceExpand: React.FC<{ words?: string[] }> = ({ words }) => {
+  const W = words && words.length > 0 ? words : DEFAULT_WORDS;
+  const title = W[0] ?? DEFAULT_WORDS[0];
   const t = useT();
   const on = t >= 0.07 ? 1 : 0; // 先单独出现（小字号，约 2 帧后再动）
   const ex = seg(t, 0.13, 0.34, E.outBack); // 弹开：过冲约 8% 再回弹
@@ -67,7 +72,7 @@ export const BraceExpand: React.FC = () => {
               transform: `scale(${sc})`,
             }}
           >
-            Your title
+            {title}
           </div>
         </div>
         <Brace ch="{" x={-x} sc={sc} on={on} />

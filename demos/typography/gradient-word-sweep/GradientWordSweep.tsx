@@ -21,6 +21,9 @@ const FILL_START = 12;
 const FILL_END = 30; // 18 帧 ≈ 0.6s，快扫
 const LIGHT_START = FILL_END + 3;
 
+// 默认三段文案：主渐变词 / 第二词 / 第三行整句
+const DEFAULT_WORDS = ['Supercharged', 'performance', 'with rock-solid reliability'];
+
 // ---------- 种子化噪声与闪电 ----------
 const rand = mulberry32(20260718);
 const FLICKER: number[] = Array.from({ length: 160 }, () => rand());
@@ -67,7 +70,11 @@ const FLASHES: Flash[] = Array.from({ length: 36 }, () => ({
   bolt: Math.floor(rand() * BOLTS.length),
 }));
 
-export const GradientWordSweep: React.FC = () => {
+export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => {
+  const W = words && words.length > 0 ? words : DEFAULT_WORDS;
+  const head = W[0] ?? DEFAULT_WORDS[0];
+  const line2 = W[1] ?? DEFAULT_WORDS[1];
+  const line3 = W[2] ?? DEFAULT_WORDS[2];
   const frame = useCurrentFrame();
 
   const enter = interpolate(frame, [0, 12], [0, 1], {
@@ -171,7 +178,7 @@ export const GradientWordSweep: React.FC = () => {
       >
         <div style={lineStyle}>
           <span style={{ position: 'relative', display: 'inline-block' }}>
-            <span>Supercharged</span>
+            <span>{head}</span>
             {/* AE 式辉光：大半径柔光层（最糊） */}
             <span
               aria-hidden
@@ -183,7 +190,7 @@ export const GradientWordSweep: React.FC = () => {
                 transform: 'scale(1.05)',
               }}
             >
-              Supercharged
+              {head}
             </span>
             {/* 中晕层 */}
             <span
@@ -195,7 +202,7 @@ export const GradientWordSweep: React.FC = () => {
                 opacity: 0.62 * glowLvl,
               }}
             >
-              Supercharged
+              {head}
             </span>
             {/* 近核柔光 */}
             <span
@@ -207,7 +214,7 @@ export const GradientWordSweep: React.FC = () => {
                 opacity: 0.72 * Math.min(1, glowLvl + 0.1),
               }}
             >
-              Supercharged
+              {head}
             </span>
             {/* 清晰渐变本体 */}
             <span
@@ -217,7 +224,7 @@ export const GradientWordSweep: React.FC = () => {
                 clipPath: `inset(-25% ${100 - pPct}% -25% 0)`,
               }}
             >
-              Supercharged
+              {head}
             </span>
             {/* 波前尾迹增亮：刚点亮字符辉光最强，向后衰减到稳态 */}
             {trailFade > 0.01 && (
@@ -231,7 +238,7 @@ export const GradientWordSweep: React.FC = () => {
                   opacity: 0.95 * trailFade,
                 }}
               >
-                Supercharged
+                {head}
               </span>
             )}
             {/* 填充头字符过曝亮核（字符形状，非独立光点；仅填充期间） */}
@@ -248,7 +255,7 @@ export const GradientWordSweep: React.FC = () => {
                   textShadow: '0 0 22px rgba(255,255,255,0.9), 0 0 55px rgba(216,150,255,0.8)',
                 }}
               >
-                Supercharged
+                {head}
               </span>
             )}
             {/* 勾连闪电：填充完成后，字符之间/词上方随机闪烁跳位 */}
@@ -298,9 +305,9 @@ export const GradientWordSweep: React.FC = () => {
               })}
             </svg>
           </span>{' '}
-          <span>performance</span>
+          <span>{line2}</span>
         </div>
-        <div style={lineStyle}>with rock-solid reliability</div>
+        <div style={lineStyle}>{line3}</div>
       </div>
     </AbsoluteFill>
   );

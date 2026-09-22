@@ -49,8 +49,8 @@ const Arcs: React.FC<{ a0: number; a1: number; col: string; w: number; blur: num
   </g>
 );
 
-export const LogoShrinkWordmarkLockup: React.FC<{ text?: string }> = ({ text }) => {
-  const WORDMARK = text ? (Array.isArray(DEFAULT_WORDMARK) ? [text] : text) : DEFAULT_WORDMARK;
+export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }> = ({ wordmark }) => {
+  const WORDMARK = Array.isArray(wordmark) ? wordmark.join(' ') : (wordmark || DEFAULT_WORDMARK);
   const t = useT();
   // 收束：scale 5.4→1（easeInOut），末尾轻微 1.05 过冲刹车
   const k = seg(t, 0.02, 0.28, E.inOutCubic);

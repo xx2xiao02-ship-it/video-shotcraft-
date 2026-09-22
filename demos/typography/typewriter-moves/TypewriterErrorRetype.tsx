@@ -9,37 +9,38 @@ import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
 
-const TEXT1 = 'just a dashboard'; // 16 chars
-const KEEP = 5; // "just " 保留
-const DEL = TEXT1.length - KEEP; // 11 chars 待删
-const TEXT2 = 'your command center'; // 19 chars
+const DEFAULT_TEXT1 = 'just a dashboard'; // 16 chars
+const DEFAULT_KEEP = 5; // "just " 保留
+const DEFAULT_TEXT2 = 'your command center'; // 19 chars
 
 const T1 = 2; // 第一遍打字起点，2f/字符
-const PAUSE_START = T1 + (TEXT1.length - 1) * 2; // f32 打完
-const DS = PAUSE_START + 16; // f48 开删，1.5f/字符
 const RS = 68; // 重打起点，1.5f/字符（删完 f64.5 后小顿 3.5f）
-const TYPE2_END = RS + (TEXT2.length - 1) * 1.5; // f95 打完
 const CURSOR_OFF = 115; // 两个 10f 闪烁周期后熄灭（最后一次视觉变化 f110）
 
 const CHAR_W = 58; // fontSize 96 的等宽感字符宽
 
-// 光标可见性：打字/删除时常亮；停顿段 8f 周期闪两下；打完后 10f 周期闪两下；之后永灭
-const cursorOn = (f: number): boolean => {
-  if (f >= CURSOR_OFF) return false;
-  if (f >= TYPE2_END) {
-    // f95 起：on[95,100) off[100,105) on[105,110) off[110,115)
-    return Math.floor((f - TYPE2_END) / 5) % 2 === 0;
-  }
-  if (f >= DS) return true; // 删除 + 重打：常亮（果断）
-  if (f >= PAUSE_START) {
-    // 犹豫段 f32–48：on[32,36) off[36,40) on[40,44) off[44,48)
-    return Math.floor((f - PAUSE_START) / 4) % 2 === 0;
-  }
-  return true; // 第一遍打字：常亮
-};
-
-export const TypewriterErrorRetype: React.FC = () => {
+export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => {
+  const TEXT1 = text || DEFAULT_TEXT1;
+  const KEEP = Math.min(DEFAULT_KEEP, TEXT1.length);
+  const DEL = TEXT1.length - KEEP;
+  const TEXT2 = DEFAULT_TEXT2;
+  const PAUSE_START = T1 + (TEXT1.length - 1) * 2;
+  const DS = PAUSE_START + 16;
+  const TYPE2_END = RS + (TEXT2.length - 1) * 1.5;
   const f = useCurrentFrame();
+
+  // 光标可见性：打字/删除时常亮；停顿段 8f 周期闪两下；打完后 10f 周期闪两下；之后永灭
+  const cursorOn = (frame: number): boolean => {
+    if (frame >= CURSOR_OFF) return false;
+    if (frame >= TYPE2_END) {
+      return Math.floor((frame - TYPE2_END) / 5) % 2 === 0;
+    }
+    if (frame >= DS) return true; // 删除 + 重打：常亮（果断）
+    if (frame >= PAUSE_START) {
+      return Math.floor((frame - PAUSE_START) / 4) % 2 === 0;
+    }
+    return true; // 第一遍打字：常亮
+  };
 
   // 第一遍已打出字符数
   const n1 = f < T1 ? 0 : Math.min(TEXT1.length, Math.floor((f - T1) / 2) + 1);

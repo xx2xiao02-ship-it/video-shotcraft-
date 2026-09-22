@@ -15,6 +15,18 @@ import { join } from 'path';
 
 const directorDir = join(process.cwd(), 'director');
 const timing = JSON.parse(readFileSync(join(directorDir, 'timing.json'), 'utf-8'));
+
+// ---------- 模板参数注册表（与 template/src/TemplateAdapter.tsx 契约保持单一数据源） ----------
+// 候选池只允许"已注册、可注入文案"的模板——未注册装饰类组件（fracture/hatch-depth 等）
+// 一律不进入文案镜头候选，杜绝"选了模板但参数填不进→显示演示内容"。
+const templateRegistry = existsSync(join(directorDir, 'template-registry.json'))
+  ? JSON.parse(readFileSync(join(directorDir, 'template-registry.json'), 'utf-8'))
+  : { templates: [] };
+const REGISTERED_SHOTCARDS = new Set(
+  (templateRegistry.templates || []).filter(t => t.enabled !== false).map(t => t.shotCard)
+);
+// raw 整句组件（吃短句，过长会溢出版面）——与契约 textAs:'raw' 对应
+const RAW_CARD_PATTERN = /scramble|typewriter|text-on-path|font-weight-pump|lead-word|split-text|letter-drop|letterform|tracking-expand/;
 const taxonomy = JSON.parse(readFileSync(join(directorDir, 'taxonomy.json'), 'utf-8'));
 const L2 = taxonomy.levels.L2;
 const L3 = taxonomy.levels.L3;
@@ -300,9 +312,21 @@ const MODE_STYLE_WEIGHT = {
 };
 
 // 选效果卡：节奏 + 情绪 + 能量叙事 + 模式加权 + 使用降权（同分随机）
-function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode) {
-  let candidates = L3[l2key] || ['typography/blur-slide'];
+function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text) {
+  // 双向匹配①：坑位→模板——候选池只保留"已注册可注入文案"的模板（叶子级）
+  let candidates = (L3[l2key] || []).filter(c => REGISTERED_SHOTCARDS.has(c));
+  // 回退：该 l2 无注册模板 → 从全部注册模板里按模式类别加权兜底
+  if (candidates.length === 0) candidates = [...REGISTERED_SHOTCARDS];
   if (candidates.length === 1) return candidates[0];
+  // 双向匹配②：模板→坑位——文字形态校验（raw 整句组件吃短句；words 切词组件可吃任意长句）
+  const t = (text || '').trim();
+  const textOk = (card) => {
+    const low = card.toLowerCase();
+    if (RAW_CARD_PATTERN.test(low)) return t.length <= 26;   // 整句组件：短句直接呈现
+    return true;                                              // 切词组件：切词数组自适应
+  };
+  candidates = candidates.filter(textOk);
+  if (candidates.length === 0) candidates = (L3[l2key] || []).filter(c => REGISTERED_SHOTCARDS.has(c));
   // 重复硬剔除：同篇已用卡排除（池>1 时），彻底防同屏重复
   const used = Object.keys(cardUsage);
   const fresh = candidates.filter(c => !used.includes(c));
@@ -443,7 +467,7 @@ let rawShots = timing.segments.map((seg, i) => {
     if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
   } else {
     // ④ remotion 模板主体：双向赋权选卡（语义池 → 节奏/情绪/能量/模式/降权）
-    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode);
+    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text);
     cardUsage[shotCard] = (cardUsage[shotCard] || 0) + 1;
     const rs = resolveSlot(shotCard);
     slot = rs.slot;

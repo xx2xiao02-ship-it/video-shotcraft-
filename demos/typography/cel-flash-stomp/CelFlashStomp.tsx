@@ -21,15 +21,27 @@ type Word = {
 };
 
 const LAND = 6; // 入场弹落时长：start+6 落定，同帧起闪
-const WORDS: Word[] = [
+const DEFAULT_WORDS: Word[] = [
   { text: 'SHIP', start: 0, end: 30, rot: 2.5, flashLen: 6, flashDark: '#cfcfca' },
   { text: 'FASTER', start: 30, end: 60, rot: -2.5, flashLen: 6, flashDark: '#cfcfca' },
   { text: 'TODAY', start: 60, end: 9999, rot: 0, flashLen: 8, flashDark: '#c4c4c0' },
 ];
+const SLOT_DURATION = 30; // 每词占帧（与原 3 词节奏一致）
 
-export const CelFlashStomp: React.FC = () => {
+export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
+  const resolvedWords: Word[] =
+    words && words.length > 0
+      ? words.slice(0, 4).map((w, i, arr) => ({
+          text: w,
+          start: i * SLOT_DURATION,
+          end: i === arr.length - 1 ? 9999 : (i + 1) * SLOT_DURATION,
+          rot: i % 2 === 0 ? 2.5 : -2.5,
+          flashLen: i === arr.length - 1 ? 8 : 6,
+          flashDark: i === arr.length - 1 ? '#c4c4c0' : '#cfcfca',
+        }))
+      : DEFAULT_WORDS;
   const frame = useCurrentFrame();
-  const word = WORDS.find((w) => frame >= w.start && frame < w.end)!;
+  const word = resolvedWords.find((w) => frame >= w.start && frame < w.end)!;
   const t = frame - word.start;
 
   // 弹落：scale 1.18 → 0.98(2% 过冲) → 1，6f 内完成，poly(5) 出缓

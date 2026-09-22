@@ -11,6 +11,7 @@ import { G } from '../../_fixtures/Fixtures';
 const BEATS = [30, 50, 70, 90, 110];
 const ACCENTS = new Set([2, 4]); // 第 3、5 拍重音
 const DECAY = 10; // 衰减帧数
+const DEFAULT_TEXT = 'PUMP IT UP';
 
 // 命中后 10f 幂衰减包络：t=0 → 1，t>=10 → 精确 0（保证结尾真静止）
 const envAt = (frame: number, beat: number) => {
@@ -19,8 +20,9 @@ const envAt = (frame: number, beat: number) => {
   return Math.pow(1 - t / DECAY, 0.8);
 };
 
-export const FontWeightPump: React.FC = () => {
+export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
   const frame = useCurrentFrame();
+  const TEXT = text || DEFAULT_TEXT;
 
   // 只可能有一个活跃拍（拍距 20f > 衰减 10f），取最大包络及其拍序号
   let env = 0;
@@ -74,7 +76,7 @@ export const FontWeightPump: React.FC = () => {
             transformOrigin: 'center center',
           }}
         >
-          PUMP IT UP
+          {TEXT}
         </div>
       </div>
 

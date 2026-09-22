@@ -1,0 +1,892 @@
+{
+  "_meta": {
+    "生成时间": "2026-09-22",
+    "说明": "模板参数注册表——TemplateAdapter/build-storyboard/console-ui 单一数据源。文字=shot.text 注入形态；色彩=C4 主题变量；图片视频=素材/media/装饰；数据=数值类。",
+    "范围": "TemplateAdapter 契约注册组件（全量 36，enabled 34）"
+  },
+  "templates": [
+    {
+      "shotCard": "ui-entrance/clipcard-looping",
+      "key": "ui-entrance/clipcard-looping",
+      "file": null,
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [],
+        "色彩": [],
+        "图片视频": [
+          {
+            "props": null,
+            "装饰staticFile": null,
+            "媒体承载": "组件媒体"
+          }
+        ],
+        "数据": []
+      },
+      "propsType": {}
+    },
+    {
+      "shotCard": "typography/cel-flash-stomp",
+      "key": "typography/cel-flash-stomp",
+      "file": "E:/video-shotcraft/demos/typography/cel-flash-stomp/CelFlashStomp.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/flying-words",
+      "key": "typography/flying-words",
+      "file": "E:/video-shotcraft/demos/typography/flying-words/FlyingWords.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/blur-slide",
+      "key": "typography/blur-slide",
+      "file": "E:/video-shotcraft/demos/typography/blur-slide/BlurSlide.tsx",
+      "enabled": true,
+      "textAs": "headline",
+      "params": {
+        "文字": [
+          {
+            "prop": "headline",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]",
+        "tLine": "number",
+        "gap": "number",
+        "dy": "number",
+        "style": "React.CSSProperties",
+        "text": "string",
+        "headline": "string[]",
+        "subhead": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/type-entrance-moves/letter-drop-physics",
+      "key": "typography/type-entrance-moves/letter-drop-physics",
+      "file": "E:/video-shotcraft/demos/typography/type-entrance-moves/LetterDropPhysics.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "word",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "word": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-entrance-moves/scramble-decode",
+      "key": "typography/type-entrance-moves/scramble-decode",
+      "file": "E:/video-shotcraft/demos/typography/type-entrance-moves/ScrambleDecode.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-assembly-moves/split-text-stagger",
+      "key": "typography/type-assembly-moves/split-text-stagger",
+      "file": "E:/video-shotcraft/demos/typography/type-assembly-moves/SplitTextStagger.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-assembly-moves/text-on-path",
+      "key": "typography/type-assembly-moves/text-on-path",
+      "file": "E:/video-shotcraft/demos/typography/type-assembly-moves/TextOnPath.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string | string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string | string[]"
+      }
+    },
+    {
+      "shotCard": "typography/type-assembly-moves/letterform-drift-assembly",
+      "key": "typography/type-assembly-moves/letterform-drift-assembly",
+      "file": "E:/video-shotcraft/demos/typography/type-assembly-moves/LetterformDriftAssembly.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "word",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "word": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-assembly-moves/tracking-expand-reveal",
+      "key": "typography/type-assembly-moves/tracking-expand-reveal",
+      "file": "E:/video-shotcraft/demos/typography/type-assembly-moves/TrackingExpandReveal.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "word",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "word": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-rhythm-sync/font-weight-pump",
+      "key": "typography/type-rhythm-sync/font-weight-pump",
+      "file": "E:/video-shotcraft/demos/typography/type-rhythm-sync/FontWeightPump.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string"
+      }
+    },
+    {
+      "shotCard": "typography/type-rhythm-sync/karaoke-fill-sync",
+      "key": "typography/type-rhythm-sync/karaoke-fill-sync",
+      "file": "E:/video-shotcraft/demos/typography/type-rhythm-sync/KaraokeFillSync.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "word": "Word",
+        "frame": "number",
+        "text": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/scramble",
+      "key": "typography/scramble",
+      "file": "E:/video-shotcraft/demos/typography/scramble/Scramble.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string"
+      }
+    },
+    {
+      "shotCard": "typography/typewriter-moves/terminal-typewriter",
+      "key": "typography/typewriter-moves/terminal-typewriter",
+      "file": "E:/video-shotcraft/demos/typography/typewriter-moves/TerminalTypewriter.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string",
+        "chars": "number",
+        "cursorOn": "boolean"
+      }
+    },
+    {
+      "shotCard": "typography/typewriter-moves/typewriter-error-retype",
+      "key": "typography/typewriter-moves/typewriter-error-retype",
+      "file": "E:/video-shotcraft/demos/typography/typewriter-moves/TypewriterErrorRetype.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string"
+      }
+    },
+    {
+      "shotCard": "typography/countdown-arc-scatter",
+      "key": "typography/countdown-arc-scatter",
+      "file": "E:/video-shotcraft/demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/paper-title-card",
+      "key": "typography/paper-title-card",
+      "file": "E:/video-shotcraft/demos/typography/paper-title-card/PaperTitleCard.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [
+          {
+            "prop": "color",
+            "type": "string",
+            "来源": "C4 主题变量"
+          }
+        ],
+        "图片视频": [],
+        "数据": [
+          {
+            "prop": "value",
+            "type": "string"
+          }
+        ]
+      },
+      "propsType": {
+        "ch": "string",
+        "delay": "number",
+        "lineH": "number",
+        "color": "string",
+        "value": "string",
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/marker-underline-title",
+      "key": "typography/marker-underline-title",
+      "file": "E:/video-shotcraft/demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/outline-word-fill",
+      "key": "typography/outline-word-fill",
+      "file": "E:/video-shotcraft/demos/typography/outline-word-fill/OutlineWordFill.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/gradient-word-sweep",
+      "key": "typography/gradient-word-sweep",
+      "file": "E:/video-shotcraft/demos/typography/gradient-word-sweep/GradientWordSweep.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/lead-word-zoom-assemble",
+      "key": "typography/lead-word-zoom-assemble",
+      "file": "E:/video-shotcraft/demos/typography/lead-word-zoom-assemble/LeadWordZoomAssemble.tsx",
+      "enabled": true,
+      "textAs": "raw",
+      "params": {
+        "文字": [
+          {
+            "prop": "text",
+            "type": "string",
+            "注入": "整句"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "text": "string",
+        "highlight": "string"
+      }
+    },
+    {
+      "shotCard": "typography/word-relay-geometry",
+      "key": "typography/word-relay-geometry",
+      "file": "E:/video-shotcraft/demos/typography/word-relay-geometry/WordRelayGeometry.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/glitch-cycle",
+      "key": "typography/glitch-cycle",
+      "file": "E:/video-shotcraft/demos/typography/glitch-cycle/GlitchCycle.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/brace-expand",
+      "key": "typography/brace-expand",
+      "file": "E:/video-shotcraft/demos/typography/brace-expand/BraceExpand.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "ch": "string",
+        "x": "number",
+        "sc": "number",
+        "on": "number",
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/brand-ink-open",
+      "key": "typography/brand-ink-open",
+      "file": "E:/video-shotcraft/demos/typography/brand-ink-open/BrandInkOpen.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/vertical-word-roll-blur-cycle",
+      "key": "typography/vertical-word-roll-blur-cycle",
+      "file": "E:/video-shotcraft/demos/typography/vertical-word-roll-blur-cycle/VerticalWordRollBlurCycle.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "typography/word-relay-filmstrip",
+      "key": "typography/word-relay-filmstrip",
+      "file": "E:/video-shotcraft/demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "seed": "number",
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "ui-entrance/list-reveal",
+      "key": "ui-entrance/list-reveal",
+      "file": "E:/video-shotcraft/demos/ui-entrance/list-reveal/ListReveal.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "labels",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "labels": "string[]"
+      }
+    },
+    {
+      "shotCard": "ui-entrance/list-stack-press",
+      "key": "ui-entrance/list-stack-press",
+      "file": "E:/video-shotcraft/demos/ui-entrance/list-stack-press/ListStackPress.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "labels",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [
+          {
+            "prop": "color",
+            "type": "string",
+            "来源": "C4 主题变量"
+          }
+        ],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "pos": "number",
+        "lineH": "number",
+        "color": "string",
+        "labels": "string[]"
+      }
+    },
+    {
+      "shotCard": "ui-entrance/bezier-source-converge-merge",
+      "key": "ui-entrance/bezier-source-converge-merge",
+      "file": "E:/video-shotcraft/demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "capWords",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "capWords": "string[]"
+      }
+    },
+    {
+      "shotCard": "ui-entrance/neon-frame-forerun",
+      "key": "ui-entrance/neon-frame-forerun",
+      "file": "E:/video-shotcraft/demos/ui-entrance/neon-frame-forerun/NeonFrameForerun.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "h": "number",
+        "children": "React.ReactNode",
+        "w": "number",
+        "t": "number",
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "ui-entrance/morph-from-primitive",
+      "key": "ui-entrance/morph-from-primitive",
+      "file": "E:/video-shotcraft/demos/ui-entrance/morph-from-primitive/MorphFromPrimitive.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "words",
+            "type": "string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "words": "string[]"
+      }
+    },
+    {
+      "shotCard": "outro/logo-shrink-wordmark-lockup",
+      "key": "outro/logo-shrink-wordmark-lockup",
+      "file": "E:/video-shotcraft/demos/outro/logo-shrink-wordmark-lockup/LogoShrinkWordmarkLockup.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "wordmark",
+            "type": "string | string[]",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "col": "string",
+        "w": "number",
+        "blur": "number",
+        "opacity": "number",
+        "stroke": "string",
+        "wordmark": "string | string[]"
+      }
+    },
+    {
+      "shotCard": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+      "key": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+      "file": "E:/video-shotcraft/demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "word",
+            "type": "string",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "size": "number",
+        "bloom": "number",
+        "word": "string"
+      }
+    },
+    {
+      "shotCard": "outro/ui-to-brand-morph/input-morphs-into-logo",
+      "key": "outro/ui-to-brand-morph/input-morphs-into-logo",
+      "file": "E:/video-shotcraft/demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx",
+      "enabled": true,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "word",
+            "type": "string",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "word": "string"
+      }
+    },
+    {
+      "shotCard": "data/odometer-digit-roll",
+      "key": "data/odometer-digit-roll",
+      "file": "E:/video-shotcraft/demos/data/odometer-digit-roll/OdometerDigitRoll.tsx",
+      "enabled": false,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "value",
+            "type": "string",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [
+          {
+            "prop": "color",
+            "type": "string",
+            "来源": "C4 主题变量"
+          }
+        ],
+        "图片视频": [],
+        "数据": []
+      },
+      "propsType": {
+        "pos": "number",
+        "color": "string",
+        "opacity": "number",
+        "dy": "number",
+        "frame": "number",
+        "i": "number",
+        "ch": "string",
+        "w": "number"
+      }
+    },
+    {
+      "shotCard": "data/counter-confetti",
+      "key": "data/counter-confetti",
+      "file": "E:/video-shotcraft/demos/data/counter-confetti/CounterConfetti.tsx",
+      "enabled": false,
+      "textAs": "words",
+      "params": {
+        "文字": [
+          {
+            "prop": "value",
+            "type": "number | string",
+            "注入": "切词数组"
+          }
+        ],
+        "色彩": [],
+        "图片视频": [],
+        "数据": [
+          {
+            "prop": "value",
+            "type": "number | string"
+          }
+        ]
+      },
+      "propsType": {
+        "value": "number | string"
+      }
+    }
+  ]
+}

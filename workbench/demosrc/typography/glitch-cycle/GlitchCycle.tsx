@@ -8,12 +8,11 @@ import { DesignStage, lerp, rand, useT } from '../../_fixtures/Motion';
 
 export const GLITCH_CYCLE_DURATION = 168; // 5600ms @30fps
 
-const PHRASES = ['INITIALIZING', 'LOADING ASSETS', 'COMPILING SHADERS', 'READY TO SHIP'];
+const DEFAULT_PHRASES = ['INITIALIZING', 'LOADING ASSETS', 'COMPILING SHADERS', 'READY TO SHIP'];
 const POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&<>/\\';
 // glitch 概率关键帧 [1,0,0,0.1,0,0,1]（最后一条结尾收为 0，保证 t=1 画面干净）
 const KF = [1, 0, 0, 0.1, 0, 0, 1];
 const KF_LAST = [1, 0, 0, 0.1, 0, 0, 0];
-const MAXCH = Math.max(...PHRASES.map((p) => p.length));
 
 // 关键帧折线采样：p∈[0,1] 映射到 kf 段内线性插值
 const glitchAt = (kf: number[], p: number) => {
@@ -23,7 +22,9 @@ const glitchAt = (kf: number[], p: number) => {
   return lerp(x - i, kf[i], kf[i + 1]);
 };
 
-export const GlitchCycle: React.FC = () => {
+export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
+  const PHRASES = words && words.length > 0 ? words : DEFAULT_PHRASES;
+  const MAXCH = Math.max(...PHRASES.map((p) => p.length));
   const t = useT();
   const N = PHRASES.length;
   const slot = Math.min(N - 1, Math.floor(t * N));

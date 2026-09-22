@@ -34,8 +34,8 @@ const CHAR_W = 46; // 64px fontWeight 800 的近似字宽
 
 
 
-export const TextOnPath: React.FC<{ text?: string }> = ({ text }) => {
-  const TEXT = text || DEFAULT_TEXT;
+export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => {
+  const TEXT = Array.isArray(text) ? text.join(' ') : (text || DEFAULT_TEXT);
   const N = TEXT.length;
   const CHAR_W = 46;
   const FINAL_Y = 300;

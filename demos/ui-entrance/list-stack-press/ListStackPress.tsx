@@ -6,6 +6,7 @@
 // 6px、8f 弹回（stackPress 脉冲——"有重量"的关键一笔）；落地后高亮条滞后 2–4f
 // 长出；收尾一道 glaze 扫光掠过整摞；屏幕空间 DigitRoll 计数器落一张滚一格。
 // 正视机位（堆叠/列表镜头必须正视，Q6），相机跟随堆叠向下。
+import React from 'react';
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, Easing } from 'remotion';
 import { PageCam2D, CamKey2D } from '../../_fixtures/PageCam2D';
 import layout from '../../_textures/live-layout.json';
@@ -17,6 +18,7 @@ const PAGE_H = layout.papers.pageH;
 const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 const AMBER = 'oklch(52% 0.115 65)';
 const FILES = ['paper1.png', 'paper2.png', 'paper3.png', 'paper4.png', 'paper5.png'];
+const DEFAULT_LABELS = ['Paper Radar', 'Of 31 Fetched Today'];
 
 const CUES = [6, 18, 30, 42, 54]; // 首卡前留 6f 给计数器预备拍（anticipation）
 const DUR = 22;
@@ -55,7 +57,8 @@ const DigitRoll: React.FC<{ pos: number; lineH: number; color: string }> = ({ po
   </span>
 );
 
-export const ListStackPress: React.FC = () => {
+export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
+  const LABELS = labels && labels.length > 0 ? labels : DEFAULT_LABELS;
   const frame = useCurrentFrame();
   // 计数器连续位置：每张卡落地（cue+DUR）时向前滚一格，8f 滚定。
   // 最后一张 f76 落地、f84 滚定，早于 f88 镜头结束。
@@ -177,13 +180,13 @@ export const ListStackPress: React.FC = () => {
         }}
       >
         <div style={{ fontFamily: MONO, fontSize: 24, letterSpacing: '0.16em', color: 'oklch(50% 0.006 82)', textTransform: 'uppercase' }}>
-          Paper Radar
+          {LABELS[0] ?? DEFAULT_LABELS[0]}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
           <DigitRoll pos={rollPos} lineH={96 * 1.15} color={AMBER} />
         </div>
         <div style={{ fontFamily: MONO, fontSize: 20, letterSpacing: '0.12em', color: 'oklch(50% 0.006 82)', marginTop: 4, textTransform: 'uppercase' }}>
-          Of 31 Fetched Today
+          {LABELS[1] ?? DEFAULT_LABELS[1]}
         </div>
       </div>
     </AbsoluteFill>

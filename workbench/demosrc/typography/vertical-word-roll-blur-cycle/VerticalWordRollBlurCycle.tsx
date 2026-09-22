@@ -24,8 +24,8 @@ const mixHex = (a: string, b: string, k: number) => {
   return `rgb(${c[0]},${c[1]},${c[2]})`;
 };
 
-export const VerticalWordRollBlurCycle: React.FC<{ text?: string }> = ({ text }) => {
-  const WORDS = text ? (Array.isArray(DEFAULT_WORDS) ? [text] : text) : DEFAULT_WORDS;
+export const VerticalWordRollBlurCycle: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const t = useT();
 
   // 滚轮进度 p：每步 0.7·outQuint + 0.3·outBack（前快后极慢 + 轻微过冲回落）

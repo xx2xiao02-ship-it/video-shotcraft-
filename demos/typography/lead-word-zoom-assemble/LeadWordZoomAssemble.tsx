@@ -191,7 +191,7 @@ const TextReveal: React.FC<{ text: string; highlight: string }> = ({ text, highl
 
 export const LeadWordZoomAssemble: React.FC<{ text?: string }> = ({ text }) => {
   const TEXT = text || DEFAULT_TEXT;
-  const HIGHLIGHT_WORD = text || DEFAULT_HIGHLIGHT_WORD;
+  const HIGHLIGHT_WORD = text ? text.split(/\s+/)[0] : DEFAULT_HIGHLIGHT_WORD;
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
 

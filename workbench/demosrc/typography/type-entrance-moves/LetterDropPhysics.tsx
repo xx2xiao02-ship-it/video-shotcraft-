@@ -15,11 +15,9 @@ const h = (n: number) => {
   return s - Math.floor(s);
 };
 
-const WORD = 'GRAVITY';
+const DEFAULT_WORD = 'GRAVITY';
 const SLOT_W = 150; // 每字符槽宽
 const FONT = 140;
-const WORD_W = WORD.length * SLOT_W; // 1050
-const LEFT = (1920 - WORD_W) / 2; // 435
 const REST_TOP = 452; // 字符落定后的 top
 const FLOOR_Y = REST_TOP + 152; // 地板线（视觉基线）
 
@@ -48,7 +46,10 @@ const dropY = (t: number): number => {
   return 0;
 };
 
-export const LetterDropPhysics: React.FC = () => {
+export const LetterDropPhysics: React.FC<{ word?: string }> = ({ word }) => {
+  const WORD = word || DEFAULT_WORD;
+  const WORD_W = WORD.length * SLOT_W;
+  const LEFT = (1920 - WORD_W) / 2;
   const frame = useCurrentFrame();
   // 帧 110 起的齐整回正进度
   const snap = easeOutCubic(clamp01((frame - SNAP) / SNAP_DUR));

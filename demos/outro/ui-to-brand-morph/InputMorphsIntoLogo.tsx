@@ -15,6 +15,7 @@ import {
 const BG = '#3d1f47'; // 深梅紫
 const CX = 960;
 const CY = 560;
+const DEFAULT_WORD = 'Ready, set, go!';
 
 // 落定后的抽象单瓣布局（横向胶囊在中，上方泪滴圆、右侧胶囊、下方小圆）
 // 单瓣 = 主胶囊(输入框变) + 大圆 + 竖胶囊 + 小圆 集结成花瓣角
@@ -25,9 +26,10 @@ const FINAL = {
   smallDot: { x: CX + 150, y: CY - 226, d: 76 },                // 竖胶囊顶上的小圆
 };
 
-export const InputMorphsIntoLogo: React.FC = () => {
+export const InputMorphsIntoLogo: React.FC<{ word?: string }> = ({ word }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const WORD = word || DEFAULT_WORD;
 
   // —— 时间轴 ——
   const CLICK = 22;      // 光标按下发送
@@ -114,7 +116,7 @@ export const InputMorphsIntoLogo: React.FC = () => {
               transform: `translate(${flyT * 700}px, ${-flyT * 380}px) rotate(${-flyT * 10}deg)`,
             }}
           >
-            Ready, set, go!
+            {WORD}
             {/* 光标闪烁 */}
             <span style={{ opacity: Math.floor(f / 8) % 2 === 0 && f < FLY ? 1 : 0 }}>|</span>
           </div>

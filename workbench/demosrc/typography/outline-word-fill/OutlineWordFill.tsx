@@ -16,7 +16,12 @@ const DUST = Array.from({ length: 14 }, (_, i) => ({
   top: `${rand(i + 29) * 100}%`,
 }));
 
-export const OutlineWordFill: React.FC = () => {
+// 默认单字文案（双层描边/实心同词）
+const DEFAULT_WORDS = ['Faster'];
+
+export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
+  const W = words && words.length > 0 ? words : DEFAULT_WORDS;
+  const label = W[0] ?? DEFAULT_WORDS[0];
   const t = useT();
   // 空心字从 ~3.2x 急缓收缩落位（原片 4.83→5.15s）
   const born = seg(t, 0.05, 0.14, E.outCubic);
@@ -114,7 +119,7 @@ export const OutlineWordFill: React.FC = () => {
               opacity: 1 - pop,
             }}
           >
-            Faster
+            {label}
           </div>
           <div
             style={{
@@ -126,7 +131,7 @@ export const OutlineWordFill: React.FC = () => {
                 flash > 0.01 ? `0 0 ${flash * 16}px rgba(255,255,255,${flash * 0.45})` : 'none',
             }}
           >
-            Faster
+            {label}
           </div>
         </div>
       </div>

@@ -17,12 +17,13 @@ const h = (n: number) => {
   return s - Math.floor(s);
 };
 
-const WORD = 'ASSEMBLE';
+const DEFAULT_WORD = 'ASSEMBLE';
 const TRAVEL = 45; // 每字漂入行程帧数
 const STAG = 3; // 错峰间隔
 
-export const LetterformDriftAssembly: React.FC = () => {
+export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) => {
   const frame = useCurrentFrame();
+  const WORD = word || DEFAULT_WORD;
   const chars = WORD.split('');
   const lastLock = (chars.length - 1) * STAG + TRAVEL; // 69
 

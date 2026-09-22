@@ -5,6 +5,8 @@ import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
 
+const DEFAULT_WORDS = ['Card Title', 'Body line one here', 'Body line two here'];
+
 const CX = 960;
 const CY = 540;
 const R = 130;
@@ -126,7 +128,8 @@ const morphPath = (t: number): string => {
 // ---- 时间轴（30fps，总 140f）----
 // 0–10 静置圆 | 10–30 呼吸一拍 scale 1→1.06→1 | 30–54 变形 24f
 // | 56–68 内容条淡入 12f | 68–140 真静止 72f
-export const MorphFromPrimitive: React.FC = () => {
+export const MorphFromPrimitive: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const frame = useCurrentFrame();
 
   const breath = interpolate(frame, [10, 20, 30], [1, 1.12, 1], {
@@ -177,9 +180,10 @@ export const MorphFromPrimitive: React.FC = () => {
           opacity: contentOpacity,
         }}
       >
-        <div style={{ height: 26, width: '58%', background: G.bar, borderRadius: 13 }} />
-        <div style={{ height: 16, width: '86%', background: G.line, borderRadius: 8 }} />
-        <div style={{ height: 16, width: '72%', background: G.line, borderRadius: 8 }} />
+        <div style={{ height: 26, width: '58%', color: G.ink, fontWeight: 700, fontSize: 26, lineHeight: 1 }}>{WORDS[0]}</div>
+        {WORDS.slice(1).map((w, i) => (
+          <div key={i} style={{ height: 16, width: '72%', color: G.line, fontSize: 16, lineHeight: 1 }}>{w}</div>
+        ))}
         <div style={{ marginTop: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
           <div style={{ width: 40, height: 40, borderRadius: 20, background: G.mid }} />
           <div style={{ height: 16, width: 120, background: G.line, borderRadius: 8 }} />

@@ -42,7 +42,7 @@
       },
       "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
       "durationInFrames": 146,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\14 高端国外科研研讨大会商务实拍视频素材-Scene-031.mp4",
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\17 高端商务团队合作洽谈交流实拍背景视频-Scene-004.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -50,25 +50,65 @@
     },
     {
       "type": "hook",
-      "l2": "scene",
-      "shotCard": "ui-entrance/clipcard-looping",
+      "l2": "question",
+      "shotCard": null,
       "slot": "case-show",
-      "materialRole": "inline-element",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人36-Scene-005.mp4"
+        },
+        "position": "background"
+      },
+      "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
+      "durationInFrames": 150,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人36-Scene-005.mp4"
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "typography/glitch-cycle",
+      "slot": "text-hero",
+      "materialRole": "background",
       "pit": {
         "mode": "A",
         "subject": "remotion",
         "content": {
-          "type": "video-local",
-          "path": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E8%80%81%E5%B9%B4%E4%BA%BA37-Scene-022.mp4"
+          "type": "text"
         },
         "position": "element"
       },
-      "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
+      "text": "刷到一条好视频，你点收藏，心里想着等有空再学。",
       "durationInFrames": 150,
-      "media": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E8%80%81%E5%B9%B4%E4%BA%BA37-Scene-022.mp4",
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\17 高端商务团队合作洽谈交流实拍背景视频-Scene-004.mp4",
       "params": {
         "textAs": "words",
-        "mediaType": "component"
+        "mediaType": "material"
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "anti-common",
+      "shotCard": "typography/cel-flash-stomp",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "可真相是，那条视频你大概率再也不会打开第二次。",
+      "durationInFrames": 150,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\17 高端商务团队合作洽谈交流实拍背景视频-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
       }
     },
     {
@@ -82,58 +122,13 @@
         "subject": "remotion",
         "content": {
           "type": "video-local",
-          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-014.mp4"
-        },
-        "position": "element"
-      },
-      "text": "刷到一条好视频，你点收藏，心里想着等有空再学。",
-      "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-014.mp4",
-      "params": {
-        "textAs": "words",
-        "mediaType": "material"
-      }
-    },
-    {
-      "type": "proof",
-      "l2": "anti-common",
-      "shotCard": "opening/fracture",
-      "slot": "text-hero",
-      "materialRole": "background",
-      "pit": {
-        "mode": "A",
-        "subject": "remotion",
-        "content": {
-          "type": "text"
-        },
-        "position": "element"
-      },
-      "text": "可真相是，那条视频你大概率再也不会打开第二次。",
-      "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\14 高端国外科研研讨大会商务实拍视频素材-Scene-031.mp4",
-      "params": {
-        "textAs": "words",
-        "mediaType": "material"
-      }
-    },
-    {
-      "type": "proof",
-      "l2": "data",
-      "shotCard": "data/hatch-depth",
-      "slot": "data-show",
-      "materialRole": "inline-element",
-      "pit": {
-        "mode": "A",
-        "subject": "remotion",
-        "content": {
-          "type": "video-local",
-          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\39 商务办公人流人物姿态特写形象宣传广告片高清视频实拍_1-Scene-004.mp4"
+          "path": "AI科技未来横屏230款\\AI科技未来78-Scene-001.mp4"
         },
         "position": "element"
       },
       "text": "收藏夹里躺着的，不是知识，是你对自己还会努力的幻想。",
       "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\39 商务办公人流人物姿态特写形象宣传广告片高清视频实拍_1-Scene-004.mp4",
+      "material": "AI科技未来横屏230款\\AI科技未来78-Scene-001.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -141,7 +136,7 @@
     },
     {
       "type": "hook",
-      "l2": "example",
+      "l2": "scene",
       "shotCard": null,
       "slot": "case-show",
       "materialRole": "hero",
@@ -150,18 +145,18 @@
         "subject": "local-material",
         "content": {
           "type": "video-local",
-          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人37-Scene-022.mp4"
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭19-Scene-001.mp4"
         },
         "position": "background"
       },
       "text": "我见过太多这样的朋友：收藏了职场沟通、理财入门、时间管理，三年过去，收藏夹越来越满，生活却毫无变化。",
       "durationInFrames": 150,
-      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人37-Scene-022.mp4"
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭19-Scene-001.mp4"
     },
     {
       "type": "hook",
       "l2": "question",
-      "shotCard": "typography/type-assembly-moves",
+      "shotCard": "typography/scramble",
       "slot": "text-hero",
       "materialRole": "background",
       "pit": {
@@ -174,30 +169,29 @@
       },
       "text": "为什么？",
       "durationInFrames": 45,
-      "material": "027-4k商务\\高端商务1 (1)-Scene-006.mp4",
+      "material": "027-4k商务\\高端商务1 (1)-Scene-012.mp4",
       "params": {
-        "textAs": "words",
+        "textAs": "raw",
         "mediaType": "material"
       }
     },
     {
       "type": "proof",
       "l2": "data",
-      "shotCard": "data/timeline-travel",
-      "slot": "data-show",
-      "materialRole": "inline-element",
+      "shotCard": "typography/vertical-word-roll-blur-cycle",
+      "slot": "text-hero",
+      "materialRole": "background",
       "pit": {
         "mode": "A",
         "subject": "remotion",
         "content": {
-          "type": "video-local",
-          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活12-Scene-006.mp4"
+          "type": "text"
         },
         "position": "element"
       },
       "text": "因为收藏只是信息的搬运，而能力来自行动的回馈。",
       "durationInFrames": 150,
-      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活12-Scene-006.mp4",
+      "material": "027-4k商务\\高端商务1 (3)-Scene-001.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -230,8 +224,8 @@
     },
     {
       "type": "claim",
-      "l2": "process",
-      "shotCard": "ui-entrance/carousel-3d",
+      "l2": "method",
+      "shotCard": "ui-entrance/list-reveal",
       "slot": "process-show",
       "materialRole": "split",
       "pit": {
@@ -251,7 +245,7 @@
     },
     {
       "type": "proof",
-      "l2": "process",
+      "l2": "method",
       "shotCard": null,
       "slot": "case-show",
       "materialRole": "hero",
@@ -260,32 +254,31 @@
         "subject": "local-material",
         "content": {
           "type": "video-local",
-          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活36-Scene-001.mp4"
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭09-Scene-003.mp4"
         },
         "position": "background"
       },
       "text": "具体做三步。",
       "durationInFrames": 46,
-      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活36-Scene-001.mp4"
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭09-Scene-003.mp4"
     },
     {
       "type": "proof",
-      "l2": "method",
-      "shotCard": "ui-entrance/product-card-progressive-assemble",
-      "slot": "process-show",
-      "materialRole": "split",
+      "l2": "process",
+      "shotCard": "typography/brace-expand",
+      "slot": "text-hero",
+      "materialRole": "background",
       "pit": {
         "mode": "A",
         "subject": "remotion",
         "content": {
-          "type": "video-local",
-          "path": "AI科技未来横屏230款\\AI科技未来231-Scene-001.mp4"
+          "type": "text"
         },
         "position": "element"
       },
       "text": "第一步，看完一条内容，立刻用三句话写下我学到了什么。",
       "durationInFrames": 150,
-      "material": "AI科技未来横屏230款\\AI科技未来231-Scene-001.mp4",
+      "material": "027-4k商务\\高端商务1 (3)-Scene-003.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -302,13 +295,13 @@
         "subject": "remotion",
         "content": {
           "type": "video-local",
-          "path": "AI科技未来横屏230款\\AI科技未来135-Scene-001.mp4"
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\04-Scene-024.mp4"
         },
         "position": "element"
       },
       "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
       "durationInFrames": 150,
-      "material": "AI科技未来横屏230款\\AI科技未来135-Scene-001.mp4",
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\04-Scene-024.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -316,15 +309,15 @@
     },
     {
       "type": "cta",
-      "l2": "method",
-      "shotCard": "ui-entrance/document-typewriter-reveal",
-      "slot": "process-show",
-      "materialRole": "split",
+      "l2": "process",
+      "shotCard": "typography/blur-slide",
+      "slot": "text-hero",
+      "materialRole": "background",
       "pit": {
         "mode": "A",
         "subject": "remotion",
         "content": {
-          "type": "video-local"
+          "type": "text"
         },
         "position": "element"
       },

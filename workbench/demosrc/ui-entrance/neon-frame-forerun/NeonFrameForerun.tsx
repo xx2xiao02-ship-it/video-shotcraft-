@@ -42,6 +42,7 @@ const mulberry32 = (a: number) => () => {
 const ink = '#3c3c3a';
 const mid = '#9a9a98';
 const line = '#e3e3e1';
+const DEFAULT_WORDS = ['DASHBOARD', 'Projects', 'Analytics', 'Messages', 'Settings'];
 
 const PW = 1330;
 const PH = 900;
@@ -63,7 +64,7 @@ const Chip: React.FC<{ w: number }> = ({ w }) => (
 
 /* t = 贴落进程(0..1)。各组件按页面展示顺序（侧栏自上而下、主区自上而下）
  * 错峰从空中贴落，悬空时投同形软影（对标截图③虚影→④⑤贴合） */
-const GrayHome: React.FC<{ t?: number }> = ({ t = 1 }) => {
+const GrayHome: React.FC<{ t?: number; words?: string[] }> = ({ t = 1, words = DEFAULT_WORDS }) => {
   const L = (land: number, H = 72) => liftOf(t, land, H * 1.7);
   return (
   <div style={{ width: PW, height: PH, background: '#f5f5f4', borderRadius: 6, display: 'flex', overflow: 'hidden', boxSizing: 'border-box' }}>
@@ -96,7 +97,7 @@ const GrayHome: React.FC<{ t?: number }> = ({ t = 1 }) => {
     </div>
     <div style={{ flex: 1, padding: '30px 40px', boxSizing: 'border-box' }}>
       <FloatWrap h={L(0.26, 90)}>
-        <div style={{ height: 24, width: 130, background: '#565654', borderRadius: 10, marginBottom: 22 }} />
+        <div style={{ height: 24, width: 130, background: '#565654', borderRadius: 10, marginBottom: 22, display: 'flex', alignItems: 'center', padding: '0 12px', boxSizing: 'border-box', color: '#f5f5f4', font: "600 14px/1 -apple-system,sans-serif", whiteSpace: 'nowrap', overflow: 'hidden' }}>{words[0]}</div>
       </FloatWrap>
       <FloatWrap h={L(0.34, 80)}>
         <div style={{ height: 46, border: `2px solid ${line}`, borderRadius: 12, marginBottom: 26, display: 'flex', alignItems: 'center', padding: '0 16px', background: '#f5f5f4' }}>
@@ -146,7 +147,8 @@ const BG_FRAMES: BgFrame[] = Array.from({ length: 18 }).map(() => ({
   skew: -14 + rng() * 10,
 }));
 
-export const NeonFrameForerun: React.FC = () => {
+export const NeonFrameForerun: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const frame = useCurrentFrame();
   // 滤镜/渐变 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -218,7 +220,7 @@ export const NeonFrameForerun: React.FC = () => {
         }}>
           {/* 面板：原地由暗转亮（无位移缩放） */}
           <div style={{ opacity: trace > 0.55 ? 1 : 0, filter: `brightness(${Math.max(0.05, lit)})` }}>
-            <GrayHome t={drop} />
+            <GrayHome t={drop} words={WORDS} />
             {/* 未点亮时的冷色压暗罩 */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 6,

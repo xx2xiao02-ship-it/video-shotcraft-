@@ -5,6 +5,7 @@
 // blur→0（入场三件套定式），字底强调色 glint 短划闪过；kicker mono 打字机
 // 逐字符 + 强调色块光标周期闪；46–76f 整整 1s 静止 hold；退场 7f 上浮+缩+淡。
 // 品牌名/副标/强调色可换成目标品牌。
+import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 
 export const BRAND_INK_OPEN_DURATION = 104;
@@ -15,10 +16,12 @@ const INK = 'oklch(18% 0.006 82)';
 const AMBER = 'oklch(52% 0.115 65)';
 const INK2 = 'oklch(50% 0.006 82)';
 
-const WORDMARK = 'AI Foundation Lab';
-const KICKER = 'TEAM RESEARCH CONSOLE';
+const DEFAULT_WORDMARK = 'AI Foundation Lab';
+const DEFAULT_KICKER = 'TEAM RESEARCH CONSOLE';
 
-export const BrandInkOpen: React.FC = () => {
+export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDMARK = words && words.length > 0 ? words[0] : DEFAULT_WORDMARK;
+  const KICKER = words && words.length > 1 ? words[1] : DEFAULT_KICKER;
   const frame = useCurrentFrame();
 
   // --- crosshair draw-on (SVG pathLength = 100): vertical 0→9f, horizontal

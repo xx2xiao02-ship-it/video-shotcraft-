@@ -10,7 +10,7 @@ import { G } from '../../_fixtures/Fixtures';
 
 type Word = { text: string; start: number; end: number };
 
-const LINES: Word[][] = [
+const DEFAULT_LINES: Word[][] = [
   [
     { text: 'SHIP', start: 20, end: 38 },
     { text: 'FASTER', start: 42, end: 75 },
@@ -60,8 +60,32 @@ const KaraokeWord: React.FC<{ word: Word; frame: number }> = ({ word, frame }) =
   );
 };
 
-export const KaraokeFillSync: React.FC = () => {
+export const KaraokeFillSync: React.FC<{ text?: string[] }> = ({ text }) => {
   const frame = useCurrentFrame();
+  // 由注入词数组重建带时序的双行结构：每词 ~28f 读时 + 4f 间隔，均分两行
+  const LINES: Word[][] =
+    text && text.length > 0
+      ? (() => {
+          const words = text.slice(0, 8);
+          const perLine = Math.ceil(words.length / 2);
+          const DUR = 28;
+          const GAP = 4;
+          let cursor = 20;
+          const result: Word[][] = [];
+          for (let li = 0; li < 2; li++) {
+            const line: Word[] = [];
+            const count = li === 0 ? perLine : Math.max(0, words.length - perLine);
+            for (let i = 0; i < count; i++) {
+              const idx = li * perLine + i;
+              line.push({ text: words[idx], start: cursor, end: cursor + DUR });
+              cursor += DUR + GAP;
+            }
+            if (line.length > 0) result.push(line);
+            cursor += GAP * 2; // 行间多停顿
+          }
+          return result.length > 0 ? result : DEFAULT_LINES;
+        })()
+      : DEFAULT_LINES;
   return (
     <div
       style={{

@@ -7,17 +7,7 @@ import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, FakeDashboard } from '../../_fixtures/Fixtures';
 
-const CMD = 'acme deploy --prod';
-
-// 时间轴（30fps，共 145f）
-const T = {
-  typeStart: 10,                       // 开始敲字
-  typeEnd: 10 + CMD.length * 2,        // 46：18 字符 × 2f
-  enter: 58,                           // 敲完停 12f 后回车
-  pushEnd: 64,                         // 6f 急推结束，硬切帧
-  settleEnd: 68,                       // dashboard 1.06→1 回稳 4f
-  total: 145,                          // f68 起真静止 77f
-};
+const DEFAULT_CMD = 'acme deploy --prod';
 
 // 终端窗几何
 const TW = 1100;
@@ -30,7 +20,7 @@ const PAD = 34;
 const FOCUS_X = 960;
 const FOCUS_Y = TT + TITLEBAR + PAD + 92; // ≈ 408
 
-const TerminalWindow: React.FC<{ chars: number; cursorOn: boolean }> = ({ chars, cursorOn }) => (
+const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean }> = ({ text, chars, cursorOn }) => (
   <div style={{
     width: TW, height: TH, background: '#1e1e1c', borderRadius: 14,
     boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
@@ -57,7 +47,7 @@ const TerminalWindow: React.FC<{ chars: number; cursorOn: boolean }> = ({ chars,
       <div style={{ color: '#7a7a78', fontSize: 32, marginBottom: 18 }}>~/acme-app (main)</div>
       <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'pre' }}>
         <span style={{ color: '#9f9f9d' }}>{'$ '}</span>
-        <span>{CMD.substring(0, chars)}</span>
+        <span>{text.substring(0, chars)}</span>
         <span style={{
           display: 'inline-block', width: 24, height: 48, marginLeft: 4,
           background: '#d8d8d6', opacity: cursorOn ? 1 : 0,
@@ -67,7 +57,17 @@ const TerminalWindow: React.FC<{ chars: number; cursorOn: boolean }> = ({ chars,
   </div>
 );
 
-export const TerminalTypewriter: React.FC = () => {
+export const TerminalTypewriter: React.FC<{ text?: string }> = ({ text }) => {
+  const CMD = text || DEFAULT_CMD;
+  // 时间轴（30fps，共 145f）；typeEnd 随 CMD 长度派生
+  const T = {
+    typeStart: 10,                       // 开始敲字
+    typeEnd: 10 + CMD.length * 2,        // 2f/字符
+    enter: 58,                           // 敲完停 12f 后回车
+    pushEnd: 64,                         // 6f 急推结束，硬切帧
+    settleEnd: 68,                       // dashboard 1.06→1 回稳 4f
+    total: 145,                          // f68 起真静止
+  };
   const frame = useCurrentFrame();
 
   // 帧确定打字：2f/字符
@@ -105,7 +105,7 @@ export const TerminalTypewriter: React.FC = () => {
           ...(pushBlur > 0 ? { filter: `blur(${pushBlur}px)` } : {}),
         }}>
           <div style={{ position: 'absolute', left: TL, top: TT }}>
-            <TerminalWindow chars={chars} cursorOn={cursorOn} />
+            <TerminalWindow text={CMD} chars={chars} cursorOn={cursorOn} />
           </div>
         </div>
       ) : (

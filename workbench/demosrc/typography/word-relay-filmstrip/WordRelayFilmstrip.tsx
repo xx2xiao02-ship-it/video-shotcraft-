@@ -209,8 +209,8 @@ const SWITCHES = [14, 62, 108];
 const SW_DUR = 16;
 const SERIF = '"Didot", "Bodoni 72", "Playfair Display", Georgia, serif';
 
-export const WordRelayFilmstrip: React.FC<{ text?: string }> = ({ text }) => {
-  const WORDS = text ? (Array.isArray(DEFAULT_WORDS) ? [text] : text) : DEFAULT_WORDS;
+export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) => {
+  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const frame = useCurrentFrame();
 
   // —— 滚动步进：平时静止，仅在切词窗口内滚一格（ease-in-out）——

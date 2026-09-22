@@ -7,6 +7,7 @@ import {
   interpolate,
   Sequence,
   Audio,
+  OffthreadVideo,
   staticFile,
 } from 'remotion';
 
@@ -650,10 +651,10 @@ const ShotView: React.FC<{
     <AbsoluteFill>
       {/* 素材视频层（如果有匹配素材，放在模板下面做底） */}
       {shot.material && (
-        <video
+        <OffthreadVideo
           src={"http://127.0.0.1:8765/api/library/video?path=" + encodeURIComponent(shot.material)}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: shot.materialOpacity ?? style.materialOpacity ?? 0.6 }}
-          muted loop autoPlay
+          muted
         />
       )}
 
@@ -676,7 +677,9 @@ const ShotView: React.FC<{
         </div>
       )}
 
-      {/* 模板组件层（全屏视觉）—— TemplateAdapter 转译注入文案 */}
+      {/* 模板组件层（全屏视觉）—— TemplateAdapter 转译注入文案
+          素材主体镜头（shotCard 为空且 material 存在）：素材即视觉主体，跳过模板层避免遮挡 */}
+      {!(shot.shotCard == null && shot.material) && (
       <TranslatedShot shotCard={shot.shotCard} shotData={{
         text: shot.text,
         subText: shot.subText,
@@ -685,6 +688,7 @@ const ShotView: React.FC<{
         durationInFrames: shot.durationInFrames,
         media: shot.media,
       }} FallbackComponent={ShotComponent} />
+      )}
 
 
       {/* 字幕层（独立浮层，永远在底部） */}

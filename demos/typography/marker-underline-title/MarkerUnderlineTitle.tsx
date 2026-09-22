@@ -33,7 +33,14 @@ const buildStroke = (len: number, seed: number) => {
   return `M${top.join('L')}L${bot.reverse().join('L')}Z`;
 };
 
-export const MarkerUnderlineTitle: React.FC = () => {
+// 默认三段式：引导语 / 马克笔高亮斜体词 / 副标题
+const DEFAULT_WORDS = ['Meet the', 'new', 'Notion AI'];
+
+export const MarkerUnderlineTitle: React.FC<{ words?: string[] }> = ({ words }) => {
+  const W = words && words.length > 0 ? words : DEFAULT_WORDS;
+  const lead = W[0] ?? DEFAULT_WORDS[0];
+  const hot = W[1] ?? DEFAULT_WORDS[1];
+  const sub = W[2] ?? DEFAULT_WORDS[2];
   const frame = useCurrentFrame();
   // clipPath ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const revealId = `reveal-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -63,9 +70,9 @@ export const MarkerUnderlineTitle: React.FC = () => {
         textAlign: 'center', lineHeight: 1.12, letterSpacing: '-0.02em',
       }}>
         <div>
-          Meet the{' '}
+          {lead}{' '}
           <span style={{ fontStyle: 'italic', position: 'relative', display: 'inline-block' }}>
-            new
+            {hot}
             {/* 马克笔下划线：clip 从左到右揭示，保留笔形本身的粗细变化 */}
             <svg
               width={LEN} height={44} viewBox={`0 0 ${LEN} 44`}
@@ -82,7 +89,7 @@ export const MarkerUnderlineTitle: React.FC = () => {
             </svg>
           </span>
         </div>
-        <div>Notion AI</div>
+        <div>{sub}</div>
       </div>
     </AbsoluteFill>
   );

@@ -7,10 +7,11 @@ import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
 
 export const LIST_REVEAL_DURATION = 108; // 3600ms @30fps
 
-const LABELS = ['Dashboard', 'Projects', 'Analytics', 'Messages', 'Settings', 'Sign out'];
+const DEFAULT_LABELS = ['Dashboard', 'Projects', 'Analytics', 'Messages', 'Settings', 'Sign out'];
 const HUES = [225, 250, 275, 300, 210, 340];
 
-export const ListReveal: React.FC = () => {
+export const ListReveal: React.FC<{ labels?: string[] }> = ({ labels }) => {
+  const LABELS = labels && labels.length > 0 ? labels : DEFAULT_LABELS;
   const t = useT();
   return (
     <DesignStage bg="#0a0b10">

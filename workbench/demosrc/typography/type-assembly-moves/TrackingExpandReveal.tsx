@@ -10,13 +10,14 @@ import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
 
-const WORD = 'BREATHE';
+const DEFAULT_WORD = 'BREATHE';
 const FS = 150; // 主词字号
 // 每个字缝的起始-终点差：(-0.42em) - (0.14em) = -0.56em = -84px @150px
 const GAP_DELTA = -0.56 * FS;
 
-export const TrackingExpandReveal: React.FC = () => {
+export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
   const frame = useCurrentFrame();
+  const WORD = word || DEFAULT_WORD;
   // 展开进度 0→1（0–50f，out poly(5)）
   const p = interpolate(frame, [0, 50], [0, 1], {
     extrapolateLeft: 'clamp',

@@ -19,7 +19,7 @@ const PARTS = Array.from({ length: 20 }, (_, i) => ({
 
 // 每个词一段 slot：几何配置 + 时段（in 0.07 + hold + out 0.05）
 type Geom = { x: number; r: number; dash?: boolean; d?: number };
-const SLOTS: { label: string; geom: Geom[]; t0: number; t1: number }[] = [
+const DEFAULT_SLOTS: { label: string; geom: Geom[]; t0: number; t1: number }[] = [
   { label: 'Faster', geom: [{ x: 0, r: CIRC_R + 22, dash: true }], t0: 0.0, t1: 0.36 },
   {
     label: 'Better',
@@ -34,7 +34,12 @@ const SLOTS: { label: string; geom: Geom[]; t0: number; t1: number }[] = [
   { label: 'Stronger', geom: [], t0: 0.64, t1: 1.0 },
 ];
 
-export const WordRelayGeometry: React.FC = () => {
+export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => {
+  // 由注入 words 替换各 slot 的 label，几何配置与时段(t0/t1)原样保留
+  const SLOTS =
+    words && words.length > 0
+      ? DEFAULT_SLOTS.map((s, i) => ({ ...s, label: words[i] ?? s.label }))
+      : DEFAULT_SLOTS;
   const t = useT();
   return (
     <DesignStage bg="#07080c">

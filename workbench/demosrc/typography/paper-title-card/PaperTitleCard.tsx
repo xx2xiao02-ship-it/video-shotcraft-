@@ -13,7 +13,7 @@ const SERIF = 'ui-serif, Georgia, "Times New Roman", serif';
 const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 
 // 每句恰好一个 accent：功能名/收益词（C2）
-const WORDS: { text: string; accent?: boolean }[] = [
+const DEFAULT_WORDS: { text: string; accent?: boolean }[] = [
   { text: 'All' },
   { text: 'your' },
   { text: 'team’s' },
@@ -74,7 +74,15 @@ const DigitRoll: React.FC<{ value: string; delay: number; color: string }> = ({ 
   );
 };
 
-export const PaperTitleCard: React.FC = () => {
+export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
+  // 由注入 words 重建：保留逐词压印时序（JSX 内按 i*4 推导），accent 落在居中词
+  const resolvedWords: { text: string; accent?: boolean }[] =
+    words && words.length > 0
+      ? words.map((text, i) => ({
+          text,
+          accent: i === Math.floor(words.length / 2) ? true : undefined,
+        }))
+      : DEFAULT_WORDS;
   const frame = useCurrentFrame();
   const duration = PAPER_TITLE_CARD_DURATION;
   const fadeOut = interpolate(frame, [duration - 8, duration], [1, 0], {
@@ -117,7 +125,7 @@ export const PaperTitleCard: React.FC = () => {
             columnGap: '0.26em',
           }}
         >
-          {WORDS.map((w, i) => {
+          {resolvedWords.map((w, i) => {
             const delay = 4 + i * 4;
             const t = interpolate(frame, [delay, delay + 9], [0, 1], {
               extrapolateLeft: 'clamp',

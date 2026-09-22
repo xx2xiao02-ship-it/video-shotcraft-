@@ -87,16 +87,17 @@ const mkPathGeom = (y0: number) => {
 const GEOMS = SRCS.map((s) => mkPathGeom(s.y));
 
 // 结尾字幕（逐词加深语法，只用到 show + inn 两态）
-const CAP_WORDS = 'Four sources unified'.split(' ');
-const CAP_ST = 0.78 / CAP_WORDS.length;
-const CAP_WIN = CAP_ST * 1.5;
+const DEFAULT_CAP_WORDS = 'Four sources unified'.split(' ');
 
 // 白底圆形徽标（内含四角星，中性占位标记），size=34
 const BADGE_SIZE = 34;
 const BADGE_SVG = Number((BADGE_SIZE * 0.52).toFixed(1));
 
-export const BezierSourceConvergeMerge: React.FC = () => {
+export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ capWords }) => {
   const t = useT();
+  const CAP_WORDS = capWords && capWords.length > 0 ? capWords : DEFAULT_CAP_WORDS;
+  const CAP_ST = 0.78 / CAP_WORDS.length;
+  const CAP_WIN = CAP_ST * 1.5;
   const conv = seg(t, 0.34, 0.74, E.inOutCubic);            // 汇聚主进度
   const erase = seg(t, 0.78, 0.9, E.outQuad);               // 从起点擦除
   const pkCycle = (seg(t, 0.1, 0.74, E.linear) * 2) % 1;    // 数据包循环（t=1 时整数周期）

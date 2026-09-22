@@ -50,8 +50,8 @@ const FlowerMark: React.FC<{ size: number; bloom: number }> = ({ size, bloom }) 
 
 const DEFAULT_WORD = 'perplexity';
 
-export const IconFlipBloomLogo: React.FC<{ text?: string }> = ({ text }) => {
-  const WORD = text ? (Array.isArray(DEFAULT_WORD) ? [text] : text) : DEFAULT_WORD;
+export const IconFlipBloomLogo: React.FC<{ word?: string }> = ({ word }) => {
+  const WORD = word || DEFAULT_WORD;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
