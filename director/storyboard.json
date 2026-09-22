@@ -41,8 +41,8 @@
         "position": "element"
       },
       "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
-      "durationInFrames": 146,
-      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-020.mp4",
+      "durationInFrames": 128,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\74 高端写字楼办公空间视频素材下载-Scene-003.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -59,32 +59,31 @@
         "subject": "local-material",
         "content": {
           "type": "video-local",
-          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\38 商务办公洽谈握手集合-Scene-012.mp4"
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-003.mp4"
         },
         "position": "background"
       },
       "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
-      "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\38 商务办公洽谈握手集合-Scene-012.mp4"
+      "durationInFrames": 163,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-003.mp4"
     },
     {
       "type": "proof",
-      "l2": "method",
-      "shotCard": "ui-entrance/list-reveal",
-      "slot": "process-show",
-      "materialRole": "split",
+      "l2": "data",
+      "shotCard": "typography/glitch-cycle",
+      "slot": "text-hero",
+      "materialRole": "background",
       "pit": {
         "mode": "A",
         "subject": "remotion",
         "content": {
-          "type": "video-local",
-          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\38 商务办公洽谈握手集合-Scene-009.mp4"
+          "type": "text"
         },
         "position": "element"
       },
-      "text": "刷到一条好视频，你点收藏，心里想着等有空再学。",
-      "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\38 商务办公洽谈握手集合-Scene-009.mp4",
+      "text": "刷到一条好视频，你点收藏，心里想着 \"等有空再学\"。",
+      "durationInFrames": 151,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-043.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -105,8 +104,8 @@
         "position": "element"
       },
       "text": "可真相是，那条视频你大概率再也不会打开第二次。",
-      "durationInFrames": 150,
-      "material": "027-4k商务\\高端商务1 (3)-Scene-003.mp4",
+      "durationInFrames": 134,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-049.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -114,8 +113,8 @@
     },
     {
       "type": "proof",
-      "l2": "causal",
-      "shotCard": "ui-entrance/bezier-source-converge-merge",
+      "l2": "method",
+      "shotCard": "ui-entrance/list-reveal",
       "slot": "process-show",
       "materialRole": "split",
       "pit": {
@@ -123,13 +122,13 @@
         "subject": "remotion",
         "content": {
           "type": "video-local",
-          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\科技-Scene-013.mp4"
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-014.mp4"
         },
         "position": "element"
       },
-      "text": "收藏夹里躺着的，不是知识，是你对自己还会努力的幻想。",
-      "durationInFrames": 150,
-      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\科技-Scene-013.mp4",
+      "text": "收藏夹里躺着的，不是知识，是你对自己 \"还会努力\" 的幻想。",
+      "durationInFrames": 175,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-014.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -146,13 +145,13 @@
         "subject": "local-material",
         "content": {
           "type": "video-local",
-          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-001.mp4"
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-002.mp4"
         },
         "position": "background"
       },
       "text": "我见过太多这样的朋友：收藏了职场沟通、理财入门、时间管理，三年过去，收藏夹越来越满，生活却毫无变化。",
-      "durationInFrames": 150,
-      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\32 客户谈判握手房地产银行办公开会视频素材下载-Scene-001.mp4"
+      "durationInFrames": 291,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\06 商务办公实拍视频素材-Scene-002.mp4"
     },
     {
       "type": "hook",
@@ -169,8 +168,8 @@
         "position": "element"
       },
       "text": "为什么？",
-      "durationInFrames": 45,
-      "material": "027-4k商务\\高端商务1 (1)-Scene-006.mp4",
+      "durationInFrames": 24,
+      "material": "027-4k商务\\高端商务1 (1)-Scene-022.mp4",
       "params": {
         "textAs": "raw",
         "mediaType": "material"
@@ -178,8 +177,8 @@
     },
     {
       "type": "proof",
-      "l2": "causal",
-      "shotCard": "ui-entrance/bezier-source-converge-merge",
+      "l2": "data",
+      "shotCard": "ui-entrance/clipcard-looping",
       "slot": "process-show",
       "materialRole": "split",
       "pit": {
@@ -187,13 +186,13 @@
         "subject": "remotion",
         "content": {
           "type": "video-local",
-          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-124.mp4"
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-041.mp4"
         },
         "position": "element"
       },
       "text": "因为收藏只是信息的搬运，而能力来自行动的回馈。",
-      "durationInFrames": 150,
-      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-124.mp4",
+      "durationInFrames": 134,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\05 大气互联网商务科技商业精英成功人士会议视频素材下载-Scene-041.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -201,7 +200,7 @@
     },
     {
       "type": "hook",
-      "l2": "question",
+      "l2": "concept",
       "shotCard": null,
       "slot": "case-show",
       "materialRole": "none",
@@ -214,10 +213,10 @@
         "position": "background",
         "aigc": true
       },
-      "text": "那怎么办？",
-      "durationInFrames": 45,
+      "text": "心理学里有个概念叫 \"认知卸载\"—— 我们太依赖收藏、截图、转发来 \"记住\" 知识，大脑以为存了就等于会了，于是真正用功的记忆通道全部关闭。",
+      "durationInFrames": 408,
       "fallback": {
-        "keyword": "那怎么办",
+        "keyword": "发来记住知识",
         "gradient": [
           "#1a1d24",
           "#0d0f14"
@@ -226,7 +225,176 @@
     },
     {
       "type": "claim",
+      "l2": "number",
+      "shotCard": "typography/countdown-arc-scatter",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "研究者发现，只是把资料放进收藏夹，就能显著降低你真正学习它的概率，这是大脑在偷懒，不是你在偷懒。",
+      "durationInFrames": 280,
+      "params": {
+        "textAs": "words",
+        "mediaType": "none"
+      }
+    },
+    {
+      "type": "hook",
+      "l2": "question",
+      "shotCard": null,
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活22-Scene-003.mp4"
+        },
+        "position": "background"
+      },
+      "text": "那怎么办？",
+      "durationInFrames": 29,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活22-Scene-003.mp4"
+    },
+    {
+      "type": "claim",
       "l2": "process",
+      "shotCard": "ui-entrance/bezier-source-converge-merge",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local"
+        },
+        "position": "element"
+      },
+      "text": "方法只有一句话：知识必须穿过行动，才算真正属于你。",
+      "durationInFrames": 145,
+      "params": {
+        "textAs": "words",
+        "mediaType": "none"
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "process",
+      "shotCard": "typography/type-entrance-moves/scramble-decode",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "具体做三步。",
+      "durationInFrames": 35,
+      "material": "027-4k商务\\高端商务1 (1)-Scene-012.mp4",
+      "params": {
+        "textAs": "raw",
+        "mediaType": "material"
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "method",
+      "shotCard": "ui-entrance/list-reveal",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "AI科技未来横屏230款\\AI科技未来5-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "第一步，看完一条内容，立刻用三句话写下 \"我学到了什么\"。",
+      "durationInFrames": 169,
+      "material": "AI科技未来横屏230款\\AI科技未来5-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      }
+    },
+    {
+      "type": "hook",
+      "l2": "process",
+      "shotCard": null,
+      "slot": "case-show",
+      "materialRole": "hero",
+      "pit": {
+        "mode": "A",
+        "subject": "local-material",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭01-Scene-001.mp4"
+        },
+        "position": "background"
+      },
+      "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
+      "durationInFrames": 134,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福家庭01-Scene-001.mp4"
+    },
+    {
+      "type": "hook",
+      "l2": "process",
+      "shotCard": "typography/word-relay-geometry",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "第三步，周末把这一周的三条笔记翻出来，教给一个人 —— 讲得出来，才算真的会了。",
+      "durationInFrames": 233,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\09-Scene-003.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "insight",
+      "shotCard": "typography/lead-word-zoom-assemble",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "收藏是起点，不是终点。",
+      "durationInFrames": 64,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\13 高端办公空间写字楼视频素材下载-Scene-004.mp4",
+      "params": {
+        "textAs": "raw",
+        "mediaType": "material"
+      }
+    },
+    {
+      "type": "hook",
+      "l2": "summary",
       "shotCard": "typography/vertical-word-roll-blur-cycle",
       "slot": "text-hero",
       "materialRole": "background",
@@ -238,76 +406,9 @@
         },
         "position": "element"
       },
-      "text": "方法只有一句话：知识必须穿过行动，才算真正属于你。",
-      "durationInFrames": 150,
-      "params": {
-        "textAs": "words",
-        "mediaType": "none"
-      }
-    },
-    {
-      "type": "proof",
-      "l2": "method",
-      "shotCard": "ui-entrance/clipcard-looping",
-      "slot": "case-show",
-      "materialRole": "inline-element",
-      "pit": {
-        "mode": "A",
-        "subject": "remotion",
-        "content": {
-          "type": "video-local",
-          "path": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%B9%B8%E7%A6%8F%E7%94%9F%E6%B4%BB01-Scene-002.mp4"
-        },
-        "position": "element"
-      },
-      "text": "具体做三步。",
-      "durationInFrames": 46,
-      "media": "http://127.0.0.1:8765/api/library/video?path=%E5%AD%A9%E5%AD%90%E8%80%81%E5%B9%B4%E4%BA%BA%E5%AE%B6%E5%BA%AD%E5%B9%B8%E7%A6%8F%E5%BF%AB%E4%B9%90%E7%94%9F%E6%B4%BB%E7%AC%91%E8%84%B8%E5%81%A5%E5%BA%B7%E7%BE%8E%E5%A5%BD%E6%88%BF%E5%9C%B0%E4%BA%A7%E9%AB%98%E6%B8%85%E8%A7%86%E9%A2%91%E7%B4%A0%E6%9D%90%5C%E5%B9%B8%E7%A6%8F%E7%94%9F%E6%B4%BB01-Scene-002.mp4",
-      "params": {
-        "textAs": "words",
-        "mediaType": "component"
-      }
-    },
-    {
-      "type": "proof",
-      "l2": "process",
-      "shotCard": "typography/brace-expand",
-      "slot": "text-hero",
-      "materialRole": "background",
-      "pit": {
-        "mode": "A",
-        "subject": "remotion",
-        "content": {
-          "type": "text"
-        },
-        "position": "element"
-      },
-      "text": "第一步，看完一条内容，立刻用三句话写下我学到了什么。",
-      "durationInFrames": 150,
-      "material": "027-4k商务\\高端商务1 (3)-Scene-004.mp4",
-      "params": {
-        "textAs": "words",
-        "mediaType": "material"
-      }
-    },
-    {
-      "type": "hook",
-      "l2": "method",
-      "shotCard": "ui-entrance/list-reveal",
-      "slot": "process-show",
-      "materialRole": "split",
-      "pit": {
-        "mode": "A",
-        "subject": "remotion",
-        "content": {
-          "type": "video-local",
-          "path": "城市高楼大厦交通车流高清视频素材\\197款城市高楼大厦\\城市59-Scene-001.mp4"
-        },
-        "position": "element"
-      },
-      "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
-      "durationInFrames": 150,
-      "material": "城市高楼大厦交通车流高清视频素材\\197款城市高楼大厦\\城市59-Scene-001.mp4",
+      "text": "从今天开始，删掉一条吃灰的收藏，把省下来的时间，用来做一件真正的小事。",
+      "durationInFrames": 204,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\06-Scene-001.mp4",
       "params": {
         "textAs": "words",
         "mediaType": "material"
@@ -315,8 +416,8 @@
     },
     {
       "type": "cta",
-      "l2": "process",
-      "shotCard": "typography/blur-slide",
+      "l2": "summary",
+      "shotCard": "typography/brand-ink-open",
       "slot": "text-hero",
       "materialRole": "background",
       "pit": {
@@ -327,8 +428,8 @@
         },
         "position": "element"
       },
-      "text": "第三步，周末把这一周的三条笔记翻出来，教给一个人。",
-      "durationInFrames": 150,
+      "text": "知识本身没有力量，用它的人才算。",
+      "durationInFrames": 93,
       "params": {
         "textAs": "words",
         "mediaType": "none"

@@ -223,6 +223,12 @@ try {
   const libJson = JSON.parse(readFileSync(join(process.cwd(), 'gallery', 'api', 'library.json'), 'utf-8'));
   for (const cc of libJson.cards || []) CARD_META[cc.name] = cc;
 } catch (e) {}
+// 兜底元数据：gallery 未收录的注册模板（时长/节奏硬约束，key 为叶子名）
+const META_OVERRIDE = {
+  'clipcard-looping': { duration: '约 4s（循环，可长可短）' },
+  'letter-drop-physics': { duration: '约 2.5s（75f@30fps）' },
+};
+function cardMeta(leaf) { return CARD_META[leaf] || META_OVERRIDE[leaf] || null; }
 
 // ---------- 镜头运用治理 v4：语义→镜头语言 ----------
 // 1) l2key 按文案语义选择（不再是随机）；2) 效果卡按时长节奏 + 情绪 + 使用降权打分；
@@ -288,22 +294,31 @@ const ENERGY_MATCH = {
   proof: ['中高', '中', '持续'], quote: ['低', '收束'], cta: ['中', '低', '收束'],
 };
 function energyScore(card, type) {
-  const meta = CARD_META[card.split('/').pop()];
+  const meta = cardMeta(card.split('/').pop());
   if (!meta?.energy) return 0;
   return ENERGY_MATCH[type]?.some(k => meta.energy.includes(k)) ? 8 : 0;
 }
 
-// 时长体质校验（U2）：stretch 任意；loop 长镜头/金句；fixed 需在推荐时长 ±35% 内
+// 时长解析：优先"约 Xs"总时长 → 其次"总 X f@30fps" → 再兜底第一个数字（秒优先）
+function parseRecDuration(text) {
+  if (!text) return null;
+  let m = text.match(/约\s*([\d.]+)\s*s/i) || text.match(/([\d.]+)\s*s\b/i);
+  if (m) return { sec: +m[1] };
+  m = text.match(/([\d.]+)\s*f\s*@\s*30fps/i) || text.match(/总\s*([\d.]+)\s*f/i) || text.match(/([\d.]+)\s*f\b/i);
+  if (m) return { sec: +m[1] / 30 };
+  return null;
+}
+// 时长体质校验（U2）：stretch 任意；loop 长镜头/金句；fixed 需在推荐时长 ±40% 内（附 gap 供 fallback 排序）
 function physiqueOk(card, durationInFrames, type) {
-  const meta = CARD_META[card.split('/').pop()];
-  if (!meta?.duration) return true;
-  if (/归一化|stretch|任意|任何时长/i.test(meta.duration)) return true;
-  if (/loop|无限|循环/i.test(meta.duration)) return durationInFrames >= 90 || type === 'quote';
-  const m = meta.duration.match(/(\d+(?:\.\d+)?)\s*(s|f)/i);
-  if (!m) return true;
+  const meta = cardMeta(card.split('/').pop());
+  if (!meta?.duration) return { ok: true, gap: 0 };
+  if (/归一化|stretch|任意|任何时长/i.test(meta.duration)) return { ok: true, gap: 0 };
+  if (/loop|无限|循环/i.test(meta.duration)) return { ok: durationInFrames >= 90 || type === 'quote', gap: Math.max(0, 90 - durationInFrames) / 30 };
+  const rec = parseRecDuration(meta.duration);
+  if (!rec) return { ok: true, gap: 0 };
   const targetSec = durationInFrames / 30;
-  const recSec = m[2] === 'f' ? +m[1] / 30 : +m[1];
-  return Math.abs(targetSec - recSec) / recSec <= 0.35;
+  const gap = Math.abs(targetSec - rec.sec);
+  return { ok: gap / rec.sec <= 0.4, gap };
 }
 
 // 模式差异化加权（U3）：A 模板主导 / B 素材人像 / C 氛围
@@ -352,10 +367,15 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
     }
     // 使用降权：同篇内已用过 -20/次（防同屏重复）
     score -= (cardUsage[card] || 0) * 20;
-    return { card, score, ok: physiqueOk(card, durationInFrames, type) };
+    const phy = physiqueOk(card, durationInFrames, type);
+    return { card, score, ok: phy.ok, gap: phy.gap };
   });
   const valid = scored.filter(s => s.ok);
-  if (valid.length === 0) return scored[0].card; // 体质全不满足 → 取最高分
+  if (valid.length === 0) {
+    // 体质全不满足 → 按时长差距最小选（坑位时长优先于风格，避免 1.5s 坑位配 3.2s 模板）
+    scored.sort((a, b) => a.gap - b.gap);
+    return scored[0].card;
+  }
   valid.sort((a, b) => b.score - a.score);
   // top 内随机（避免确定性单卡），top1 明显领先（≥5 分）则直取
   const top = valid.slice(0, Math.min(3, valid.length));
@@ -426,8 +446,10 @@ let rawShots = timing.segments.map((seg, i) => {
   const mood = extractMood(seg.text);
   const l2key = pickL2Key(type, seg.text, l2Usage);
   l2Usage[l2key] = (l2Usage[l2key] || 0) + 1;
-  const rawDuration = seg.duration_frames + 9;
-  let durationInFrames = Math.max(MIN_FRAMES, Math.min(MAX_FRAMES, rawDuration));
+  // 语音时间轴：每句真实帧数（tts.py 按语音总时长×字数占比摊派）。不 clamp 上限——
+  // 2026-09-22 修复：原 clamp 到 [45,150] 帧会把 99.96s 语音轴压成 79.2s，导致字幕与语音错位 20s
+  const rawDuration = seg.duration_frames;
+  let durationInFrames = Math.max(Math.round(0.8 * FPS), rawDuration); // 仅 0.8s 保底，上限放开跟随语音
   const semanticTags = extractSemanticTags(seg.text);
 
   // ① 主体决策层：素材预检索（决定能否当主体）+ 预排 subject
