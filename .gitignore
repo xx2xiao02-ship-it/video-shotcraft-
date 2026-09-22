@@ -36,3 +36,7 @@ template/public/*.mp4
 
 # 运行动态数据（素材使用计数，不入库）
 director/usage.json
+
+# 本地验证帧（不入库）
+_chk_*.png
+_render_log.txt
