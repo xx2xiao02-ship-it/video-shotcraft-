@@ -76,7 +76,7 @@ export const StrokeSegmentBuild: React.FC = () => {
           top: 110,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 800,
           fontSize: 44,
           color: G.mid,

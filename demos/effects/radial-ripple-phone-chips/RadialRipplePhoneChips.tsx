@@ -10,7 +10,7 @@ export const RADIAL_RIPPLE_PHONE_CHIPS_DURATION = 168; // 5600ms @30fps
 
 // 模板强调色：实际使用时按项目品牌色替换这一个变量
 const ACCENT_RGB = '122,134,153'; // = #7a8699，中性蓝灰做默认演示色
-const SANS = '-apple-system,BlinkMacSystemFont,sans-serif';
+const SANS = '-apple-system,BlinkMacSystemFont,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 // 同心圆（深灰→浅灰，从大到小叠放），phase 错相
 const RCOL = ['#d7dbe1', '#e0e4e9', '#e8ebef', '#eef0f3'];

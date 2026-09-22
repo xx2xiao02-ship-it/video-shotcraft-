@@ -5,7 +5,7 @@
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const ROW_H = 150;
 const WORDS = ['modern', 'playful', 'expressive', 'seamless', 'intuitive'];
 

@@ -48,7 +48,7 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
         background: G.bg,
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       {/* 定宽居中容器，transform 缩放不改排版 */}

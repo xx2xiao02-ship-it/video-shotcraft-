@@ -144,7 +144,7 @@ export const OdometerDigitRoll: React.FC = () => {
           width: 1920,
           display: 'flex',
           justifyContent: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           transform: `scale(${pulseScale})`,
           transformOrigin: '960px 105px',
         }}

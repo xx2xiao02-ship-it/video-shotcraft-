@@ -6,7 +6,7 @@ import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing, spring, useVideoConfig } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const INK = '#20808d'; // 花形 mark 用一点 teal，其余灰阶
 
 const SmileLaptop: React.FC<{ size: number }> = ({ size }) => (

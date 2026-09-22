@@ -78,7 +78,7 @@ export const LineUnfoldPanel: React.FC = () => {
           top: 120,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 800,
           fontSize: 52,
           color: G.mid,

@@ -18,7 +18,7 @@ const BASELINE = 741;
 const ZOOM_MAX = 28;
 
 const titleFont: React.CSSProperties = {
-  fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif',
+  fontFamily: 'Helvetica Neue, Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
   fontWeight: 900,
   fontSize: FS,
 };

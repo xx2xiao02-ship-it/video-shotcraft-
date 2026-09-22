@@ -77,7 +77,7 @@ export const FakeDashboard: React.FC<{ variant?: 'A' | 'B' }> = ({ variant = 'A'
 );
 
 export const TitleBlock: React.FC<{ text: string; size?: number }> = ({ text, size = 88 }) => (
-  <div style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: size, color: G.ink, letterSpacing: -1 }}>
+  <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: size, color: G.ink, letterSpacing: -1 }}>
     {text}
   </div>
 );

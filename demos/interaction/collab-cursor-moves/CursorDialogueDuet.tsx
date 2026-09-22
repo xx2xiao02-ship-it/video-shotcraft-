@@ -41,7 +41,7 @@ const Cursor: React.FC<{
     <div style={{
       position: 'absolute', left: 34, top: 56, whiteSpace: 'nowrap',
       background: color, color: '#fff', borderRadius: 8, padding: '5px 13px',
-      fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 16,
+      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 16,
       opacity: badgeOpacity * (0.28 + 0.72 * badgeLit),
       filter: `saturate(${0.35 + 0.65 * badgeLit})`,
       boxShadow: badgeLit > 0.6 ? `0 0 ${22 * badgeLit}px ${color}` : 'none',

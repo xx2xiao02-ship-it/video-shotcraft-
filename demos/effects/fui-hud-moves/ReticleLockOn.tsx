@@ -120,7 +120,7 @@ export const ReticleLockOn: React.FC = () => {
                 transformOrigin: '0 50%',
                 background: G.ink,
                 color: '#fff',
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 700,
                 fontSize: 26,
                 padding: '10px 18px',

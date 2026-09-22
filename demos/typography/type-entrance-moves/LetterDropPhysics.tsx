@@ -85,7 +85,7 @@ export const LetterDropPhysics: React.FC<{ word?: string }> = ({ word }) => {
               justifyContent: 'center',
               transform: `translateY(${y + jitter}px) rotate(${rot}deg) scale(${scale})`,
               transformOrigin: '50% 100%',
-              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontWeight: 800,
               fontSize: FONT,
               lineHeight: 1,

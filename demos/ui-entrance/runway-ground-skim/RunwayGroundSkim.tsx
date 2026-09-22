@@ -7,7 +7,7 @@
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 
-const FONT = 'Helvetica, Arial, sans-serif';
+const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const INK = '#3c3c42';
 const MID = '#8d8d94';
 const FAINT = '#d2d2d5';

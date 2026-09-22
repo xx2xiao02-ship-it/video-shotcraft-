@@ -150,7 +150,7 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
             fontWeight: 700,
             fontSize: 10,
             lineHeight: 1,
-            fontFamily: '-apple-system,sans-serif',
+            fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             letterSpacing: 0.5,
             opacity: seg(t, 0.02, 0.09),
           }}

@@ -222,7 +222,7 @@ export const SkeletonReveal: React.FC = () => {
   };
 
   return (
-    <AbsoluteFill style={{ background: PAPER, fontFamily: 'Helvetica, Arial, sans-serif', overflow: 'hidden' }}>
+    <AbsoluteFill style={{ background: PAPER, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
       {/* 第三/二拍：骨架 UI 窗口 */}
       {f >= SWAP && (
         <AbsoluteFill

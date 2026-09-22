@@ -64,7 +64,7 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
           inset: 0,
           background: '#fff',
           overflow: 'hidden',
-          fontFamily: '-apple-system,system-ui,sans-serif',
+          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* pivot：所有元素都以它为原点定位 */}

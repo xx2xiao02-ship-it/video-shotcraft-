@@ -86,7 +86,7 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 210,
             color: G.ink,

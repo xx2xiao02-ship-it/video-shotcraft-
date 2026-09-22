@@ -102,7 +102,7 @@ export const PullBackIsolation: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontWeight: 800,
               fontSize: 128,
               letterSpacing: -3,

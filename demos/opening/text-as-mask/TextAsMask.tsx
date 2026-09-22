@@ -7,7 +7,7 @@ import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { FakeDashboard, G } from '../../_fixtures/Fixtures';
 
-const MASK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><text x="960" y="666" font-family="Helvetica, Arial, sans-serif" font-size="360" font-weight="900" letter-spacing="-8" text-anchor="middle" fill="white">SCALE</text></svg>`;
+const MASK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080"><text x="960" y="666" font-family="Helvetica, Arial, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="360" font-weight="900" letter-spacing="-8" text-anchor="middle" fill="white">SCALE</text></svg>`;
 const MASK_URL = `url("data:image/svg+xml,${encodeURIComponent(MASK_SVG)}")`;
 // mask 放大原点：取字母 L 的竖笔位置（约 61.5% 处），保证放大时原点落在实心笔画内
 const ORIGIN = '61.5% 50%';
@@ -79,7 +79,7 @@ export const TextAsMask: React.FC = () => {
           bottom: 90,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 700,
           fontSize: 30,
           letterSpacing: 10,

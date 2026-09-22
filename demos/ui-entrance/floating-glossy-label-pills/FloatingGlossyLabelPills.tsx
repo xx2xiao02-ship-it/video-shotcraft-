@@ -16,7 +16,7 @@ export const FLOATING_GLOSSY_LABEL_PILLS_DURATION = 120; // 4000ms @30fps
 const ACCENT = '#7a8699'; // 中性蓝灰做默认演示色
 const ACCENT_LIGHT = '#a8b2c0', ACCENT_DEEP = '#4c5666';
 const A_RGB = '122,134,153', AL_RGB = '168,178,192', AD_RGB = '76,86,102';
-const F = '-apple-system,BlinkMacSystemFont,sans-serif';
+const F = '-apple-system,BlinkMacSystemFont,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 // 逐帧实测（480×270 裁切系）：
 //   居中面板 x 105-357（W≈252）、top=75，下缘正好压住画面底 → 真高 H≈195

@@ -60,7 +60,7 @@ export const GradientTransition: React.FC = () => {
           borderRadius: 999,
           background: 'rgba(8,9,14,.55)',
           color: '#fff',
-          fontFamily: '-apple-system,system-ui,sans-serif',
+          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontSize: 13,
           letterSpacing: 4,
           fontWeight: 700,

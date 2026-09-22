@@ -163,7 +163,7 @@ export const SakugaTimingShift: React.FC = () => {
           top: 160,
           transform: `translate(${bx}px, ${by}px) rotate(${brot}deg) scale(${pop})`,
           transformOrigin: '0% 50%',
-          fontFamily: 'Courier New, monospace',
+          fontFamily: 'Courier New, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
           fontWeight: 700,
           fontSize: 84,
           color: G.ink,

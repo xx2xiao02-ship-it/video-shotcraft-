@@ -80,7 +80,7 @@ export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?:
             fontWeight: 800,
             fontSize: 34,
             lineHeight: 1.15,
-            fontFamily: '-apple-system,sans-serif',
+            fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             color: '#eef1fa',
             letterSpacing: '-0.5px',
           }}
@@ -94,7 +94,7 @@ export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?:
             fontWeight: 400,
             fontSize: 14,
             lineHeight: 1.4,
-            fontFamily: '-apple-system,sans-serif',
+            fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             color: '#7d86a3',
           }}
         />

@@ -30,7 +30,7 @@ const PageA: React.FC = () => (
       background: G.card, borderRadius: 12, display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center', gap: 8,
     }}>
-      <div style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 96, color: G.ink, letterSpacing: -2, lineHeight: 1 }}>
+      <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 96, color: G.ink, letterSpacing: -2, lineHeight: 1 }}>
         1,284
       </div>
       <div style={{ height: 10, width: 150, background: G.mid, borderRadius: 5 }} />

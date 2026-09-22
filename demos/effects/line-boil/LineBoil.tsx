@@ -26,7 +26,7 @@ const CornerTag: React.FC<{ text: string; opacity: number }> = ({ text, opacity 
       borderRadius: 999,
       color: G.ink,
       background: G.bg,
-      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       fontWeight: 700,
       fontSize: 30,
       letterSpacing: 2,
@@ -99,7 +99,7 @@ export const LineBoil: React.FC = () => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 170,
             color: G.ink,

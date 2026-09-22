@@ -66,7 +66,7 @@ export const AutolayoutGapDial: React.FC = () => {
       />
 
       {/* 标题字块（讲清这是"参数驱动布局"） */}
-      <div style={{ position: 'absolute', top: 250, width: '100%', textAlign: 'center', fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 44, color: G.mid, letterSpacing: 2 }}>
+      <div style={{ position: 'absolute', top: 250, width: '100%', textAlign: 'center', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 44, color: G.mid, letterSpacing: 2 }}>
         GAP
         <span style={{ display: 'inline-block', minWidth: 130, marginLeft: 24, padding: '4px 22px', borderRadius: 12, background: G.ink, color: '#1a1d24', fontVariantNumeric: 'tabular-nums', transform: `scale(${tickPulse})` }}>
           {gapShown}
@@ -158,7 +158,7 @@ export const AutolayoutGapDial: React.FC = () => {
                 borderRadius: 10,
                 background: G.ink,
                 color: '#1a1d24',
-                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 700,
                 fontSize: 24,
                 fontVariantNumeric: 'tabular-nums',

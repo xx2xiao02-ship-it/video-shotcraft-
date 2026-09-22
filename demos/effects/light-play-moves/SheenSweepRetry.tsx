@@ -29,7 +29,7 @@ export const SheenSweepRetry: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       <div

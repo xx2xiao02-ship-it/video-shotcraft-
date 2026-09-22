@@ -648,7 +648,7 @@ const ShotView: React.FC<{
   const ShotComponent = exactComponent || dirComponent || FallbackComponent;
 
   return (
-    <AbsoluteFill>
+    <AbsoluteFill style={{ fontFamily: capFont }}>
       {/* 素材视频层（如果有匹配素材，放在模板下面做底） */}
       {shot.material && (
         <OffthreadVideo

@@ -60,7 +60,7 @@ export const TapeScrollFixedPointer: React.FC = () => {
       ticks.push(
         <div key={`n${u}`} style={{
           position: 'absolute', top: y - 22, right: 110,
-          fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700,
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700,
           fontSize: 38, color: G.mid, textAlign: 'right', width: 90,
         }}>
           {u}
@@ -111,7 +111,7 @@ export const TapeScrollFixedPointer: React.FC = () => {
         padding: '0 36px', boxSizing: 'border-box',
       }}>
         <div style={{ height: 12, width: 150, background: G.line, borderRadius: 6, marginBottom: 12 }} />
-        <div style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 96, color: AMBER, letterSpacing: -2, lineHeight: 1 }}>
+        <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 96, color: AMBER, letterSpacing: -2, lineHeight: 1 }}>
           {Math.round(v)}
         </div>
       </div>

@@ -68,7 +68,7 @@ export const ListReveal: React.FC<{ labels?: string[] }> = ({ labels }) => {
                 />
                 <div
                   style={{
-                    fontFamily: '-apple-system,sans-serif',
+                    fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                     fontWeight: 500,
                     fontSize: 13,
                     lineHeight: 1,

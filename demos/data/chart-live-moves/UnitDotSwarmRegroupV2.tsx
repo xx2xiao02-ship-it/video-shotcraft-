@@ -117,7 +117,7 @@ const fade = (frame: number, inA: number, inB: number, outA?: number, outB?: num
   return Math.min(fi, fo);
 };
 
-const LABEL_FONT = 'Helvetica, Arial, sans-serif';
+const LABEL_FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
 export const UnitDotSwarmRegroupV2: React.FC = () => {
   const frame = useCurrentFrame();

@@ -79,7 +79,7 @@ export const SpectrumMorphUi: React.FC = () => {
           width: '100%',
           textAlign: 'center',
           opacity: titleOp,
-          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 800,
           fontSize: 120,
           color: G.ink,

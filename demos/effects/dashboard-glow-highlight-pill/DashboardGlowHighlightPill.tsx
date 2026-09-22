@@ -166,7 +166,7 @@ export const DashboardGlowHighlightPill: React.FC = () => {
       <div
         style={{
           position: 'absolute', inset: 0, background: '#050403', overflow: 'hidden',
-          perspective: 800, fontFamily: '-apple-system,system-ui,sans-serif',
+          perspective: 800, fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* 暖色底光（原片黑场并非纯黑，顶部偏暖褐） */}

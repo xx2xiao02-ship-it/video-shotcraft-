@@ -167,7 +167,7 @@ export const UiStripAwayOutro: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 700,
             fontSize: 20 * btnScale,
             color: '#161615',
@@ -184,7 +184,7 @@ export const UiStripAwayOutro: React.FC = () => {
             style={{
               opacity: logoP,
               transform: `scale(${0.86 + 0.14 * logoP})`,
-              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontWeight: 800,
               fontSize: 110,
               letterSpacing: 6,

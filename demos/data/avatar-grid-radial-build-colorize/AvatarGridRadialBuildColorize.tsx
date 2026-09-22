@@ -110,7 +110,7 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
                   fontWeight: 700,
                   fontSize: cl.kind === 1 ? 13 : 11,
                   lineHeight: 1,
-                  fontFamily: '-apple-system,Helvetica,sans-serif', // Remotion 无头浏览器缺 -apple-system，补 Helvetica 对齐原片 SF 字形
+                  fontFamily: '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', // Remotion 无头浏览器缺 -apple-system，补 Helvetica 对齐原片 SF 字形
                   color: cl.kind === 1 ? '#6a6f7c' : '#3A3A3E',
                   opacity: o,
                   boxShadow: '0 1px 2px rgba(0,0,0,.04)',
@@ -191,7 +191,7 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
                 fontWeight: 600,
                 fontSize: 11,
                 lineHeight: 1,
-                fontFamily: '-apple-system,Helvetica,sans-serif', // Remotion 无头浏览器缺 -apple-system，补 Helvetica 对齐原片 SF 字形
+                fontFamily: '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', // Remotion 无头浏览器缺 -apple-system，补 Helvetica 对齐原片 SF 字形
                 color: MID,
               }}
             >

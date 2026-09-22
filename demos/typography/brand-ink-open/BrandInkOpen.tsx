@@ -11,7 +11,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 export const BRAND_INK_OPEN_DURATION = 104;
 
 const SERIF = 'ui-serif, Georgia, "Times New Roman", serif';
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 const INK = 'oklch(18% 0.006 82)';
 const AMBER = 'oklch(52% 0.115 65)';
 const INK2 = 'oklch(50% 0.006 82)';

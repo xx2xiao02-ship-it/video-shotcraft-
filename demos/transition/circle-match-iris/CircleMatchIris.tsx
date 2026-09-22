@@ -97,7 +97,7 @@ export const CircleMatchIris: React.FC = () => {
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             opacity: numOpacity,
           }}>
-            <div style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 96, color: '#1a1d24', letterSpacing: -2 }}>
+            <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 96, color: '#1a1d24', letterSpacing: -2 }}>
               {num}%
             </div>
             <div style={{ marginTop: 6, height: 12, width: 130, background: '#6a6a68', borderRadius: 6 }} />

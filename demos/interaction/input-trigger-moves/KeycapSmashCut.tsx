@@ -39,7 +39,7 @@ const Keycap: React.FC<{ size: number; thick: number; bright: number; label?: st
   }}>
     <div style={{
       fontSize: size * 0.3, fontWeight: 700, color: G.ink,
-      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
     }}>
       {label}
     </div>

@@ -121,7 +121,7 @@ export const TypeAndFilter: React.FC = () => {
           style={{
             position: 'absolute', left: 448, top: SEARCH.y, height: SEARCH.h,
             display: 'flex', alignItems: 'center',
-            fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
+            fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontSize: 15, letterSpacing: 0.2, color: 'oklch(25% 0.006 82)', pointerEvents: 'none',
           }}
         >

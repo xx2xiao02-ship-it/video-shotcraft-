@@ -7,7 +7,7 @@ import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
 
 export const BRACE_EXPAND_DURATION = 114; // 3800ms @30fps
 
-const FONT = '-apple-system,system-ui,sans-serif';
+const FONT = '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const HALF = 148; // 括号最终半距
 
 // 默认揭示文案

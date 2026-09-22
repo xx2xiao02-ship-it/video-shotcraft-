@@ -112,10 +112,10 @@ const Gauge: React.FC<{ start: number; target: number }> = ({ start, target }) =
         position: 'absolute', left: 0, right: 0, top: 396, textAlign: 'center',
         opacity: popOp, transform: `scale(${popScale.toFixed(4)})`,
       }}>
-        <span style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 800, fontSize: 62, color: G.ink }}>
+        <span style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 62, color: G.ink }}>
           {value}
         </span>
-        <span style={{ fontFamily: 'Helvetica, Arial, sans-serif', fontWeight: 700, fontSize: 30, color: G.mid, marginLeft: 8 }}>
+        <span style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 30, color: G.mid, marginLeft: 8 }}>
           %
         </span>
       </div>

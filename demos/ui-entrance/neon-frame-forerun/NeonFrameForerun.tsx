@@ -97,7 +97,7 @@ const GrayHome: React.FC<{ t?: number; words?: string[] }> = ({ t = 1, words = D
     </div>
     <div style={{ flex: 1, padding: '30px 40px', boxSizing: 'border-box' }}>
       <FloatWrap h={L(0.26, 90)}>
-        <div style={{ height: 24, width: 130, background: '#565654', borderRadius: 10, marginBottom: 22, display: 'flex', alignItems: 'center', padding: '0 12px', boxSizing: 'border-box', color: '#f5f5f4', font: "600 14px/1 -apple-system,sans-serif", whiteSpace: 'nowrap', overflow: 'hidden' }}>{words[0]}</div>
+        <div style={{ height: 24, width: 130, background: '#565654', borderRadius: 10, marginBottom: 22, display: 'flex', alignItems: 'center', padding: '0 12px', boxSizing: 'border-box', color: '#f5f5f4', font: "600 14px/1 -apple-system,'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden' }}>{words[0]}</div>
       </FloatWrap>
       <FloatWrap h={L(0.34, 80)}>
         <div style={{ height: 46, border: `2px solid ${line}`, borderRadius: 12, marginBottom: 26, display: 'flex', alignItems: 'center', padding: '0 16px', background: '#f5f5f4' }}>

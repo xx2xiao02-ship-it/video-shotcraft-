@@ -118,7 +118,7 @@ export const DropBlackoutSlam: React.FC = () => {
         )}
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 340,
             color: '#ffffff',

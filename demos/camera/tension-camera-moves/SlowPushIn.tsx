@@ -40,7 +40,7 @@ export const SlowPushIn: React.FC = () => {
         background: G.side,
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       {/* 被推近的内容层：整体 scale */}

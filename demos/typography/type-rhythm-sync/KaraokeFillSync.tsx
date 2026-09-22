@@ -98,7 +98,7 @@ export const KaraokeFillSync: React.FC<{ text?: string[] }> = ({ text }) => {
         justifyContent: 'center',
         paddingLeft: 240,
         boxSizing: 'border-box',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontSize: 130,
         fontWeight: 800,
         letterSpacing: 2,

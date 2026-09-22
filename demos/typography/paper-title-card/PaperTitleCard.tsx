@@ -10,7 +10,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
 export const PAPER_TITLE_CARD_DURATION = 55; // ≈1.8s @30fps
 
 const SERIF = 'ui-serif, Georgia, "Times New Roman", serif';
-const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace';
 
 // 每句恰好一个 accent：功能名/收益词（C2）
 const DEFAULT_WORDS: { text: string; accent?: boolean }[] = [

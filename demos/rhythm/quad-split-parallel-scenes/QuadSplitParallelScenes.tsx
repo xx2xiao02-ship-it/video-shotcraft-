@@ -11,7 +11,7 @@ export const QUAD_SPLIT_PARALLEL_SCENES_DURATION = 63; // 2100ms @30fps
 
 const ACCENT = '#7c5cff';
 const ACCENT_SOFT = '#c9bcff';
-const F = 'system-ui,-apple-system,sans-serif';
+const F = 'system-ui,-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 // 四宫格底色走中性灰阶（深浅交替保证格线可读），需要主题色时换成项目色板
 const BGS = ['#c3c6cc', '#f2f1ef', '#e7e6e3', '#b8bcc3'];
 const TRAFFIC = ['#ff5f57', '#febc2e', '#28c840'];

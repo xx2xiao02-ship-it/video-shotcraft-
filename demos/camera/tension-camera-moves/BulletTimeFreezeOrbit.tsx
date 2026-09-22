@@ -83,7 +83,7 @@ export const BulletTimeFreezeOrbit: React.FC = () => {
         background: G.bg,
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: 'Helvetica, Arial, sans-serif',
+        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       <div style={{ position: 'absolute', top: 56, left: 72 }}>
