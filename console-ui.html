@@ -967,9 +967,11 @@ function bindButtons() {
         const row = document.createElement("div");
         row.style.cssText = "display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--panel2);align-items:flex-start";
         const dur = (shot.durationInFrames / sb.fps).toFixed(1);
-        // 镜头素材缩略图（真实素材 /api/library/thumb，Remotion 文字卡用占位）
-        const thumbHtml = shot.material
-          ? `<img src="/api/library/thumb?path=${encodeURIComponent(shot.material)}" alt="" style="width:80px;height:45px;border-radius:6px;object-fit:cover;border:1px solid var(--panel2);flex:0 0 auto;background:#000" onerror="this.style.display='none'">`
+        // Remotion 模板缩略图（gallery/media/poster/<效果卡名>.jpg，效果卡缺失时兜底）
+        const cardBase = shot.shotCard ? String(shot.shotCard).split("/").pop() : "";
+        const effName = cardBase === "crash-impact" ? "crash-zoom-punch" : cardBase;
+        const thumbHtml = effName
+          ? `<img src="/gallery/media/poster/${effName}.jpg" alt="" title="${effName}" style="width:80px;height:45px;border-radius:6px;object-fit:cover;border:1px solid var(--panel2);flex:0 0 auto;background:#000" onerror="this.style.display='none'">`
           : `<div style="width:80px;height:45px;border-radius:6px;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto">🎞️</div>`;
         row.innerHTML = `
           <div style="min-width:30px;font-size:12px;color:var(--mid2);padding-top:6px">${i+1}</div>
