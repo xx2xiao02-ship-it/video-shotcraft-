@@ -567,6 +567,7 @@ PE html>
     <div class="brief-title">🎬 成片预览</div>
     <div class="brief-desc" id="preview-info"></div>
     <video id="preview-video" controls style="width:100%;border-radius:10px;background:#000"></video>
+    <button id="btn-open-out" onclick="openOutFolder()" style="margin-top:10px;width:100%;padding:9px 0;border-radius:8px;border:1px solid var(--panel2);background:var(--panel);color:var(--ink);cursor:pointer;font-size:13px">📂 打开成片文件夹</button>
   </div>
 
   <div class="grid">
@@ -1240,6 +1241,15 @@ async function fetchLogs(id) {
       }
     }
   } catch { /* 忽略瞬时错误 */ }
+}
+
+// 打开成片所在文件夹（Windows 资源管理器）
+async function openOutFolder() {
+  try {
+    const j = await apiFetch("/api/open-out-folder", { method: "POST" });
+    if (j.ok) showToast("已打开成片文件夹 📂");
+    else showToast("打开失败: " + (j.error || "未知"));
+  } catch (e) { showToast("打开失败: " + e.message); }
 }
 
 async function loadPreview() {

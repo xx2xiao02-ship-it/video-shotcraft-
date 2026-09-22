@@ -403,6 +403,16 @@ const apis = {
     if (!fs.existsSync(vp)) { res.writeHead(404); res.end(); return; }
     sendVideoRange(res, vp, req.headers.range);
   },
+
+  // 打开成片所在文件夹（Windows 资源管理器）——固定路径 template/out，不接受参数
+  "POST /api/open-out-folder": (req, res) => {
+    const outDir = path.join(ROOT, "template", "out");
+    if (!fs.existsSync(outDir)) return sendJson(res, { ok: false, error: "out 目录不存在" });
+    try {
+      spawn("explorer.exe", [outDir], { detached: true, stdio: "ignore" }).unref();
+      sendJson(res, { ok: true, dir: outDir });
+    } catch (e) { sendJson(res, { ok: false, error: e.message }); }
+  },
 };
 
 const server = http.createServer(async (req, res) => {
