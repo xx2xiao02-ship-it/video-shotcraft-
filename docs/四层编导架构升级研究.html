@@ -43,7 +43,7 @@
 <div class="wrap">
 
 <h1>四层编导架构升级研究</h1>
-<div class="sub">Video ShotCraft · 编导子系统深度诊断与升级方案 · v1.0 · 2026-09-21</div>
+<div class="sub">Video ShotCraft · 编导子系统深度诊断与升级方案 · v1.1 · 2026-09-21</div>
 
 <div class="card">
 <b>一句话结论</b>：现有"四层坑位模型（L0 模式 / L1 主体 / L2 内嵌元素 / L3 位置）"与 taxonomy"三级叙事分级（L1 叙事 / L2 子类 / L3 效果池）"<b class="bad">两套体系并存但互不联动</b>——
@@ -214,8 +214,31 @@ rhythm 节奏卡在 cta 收尾位出现、B 模式的 person 主体从未落地�
 <li>本轮已完成的前置治理（L2 语义选择 + 卡重复硬剔除 + 情绪风格）将保留，与 U1-U4 合并生效</li>
 </ul>
 
+<h2>六、实施落地记录（v1.1 · 已实施）</h2>
+<div class="card">
+<h3>✅ 主体决策层（坑位预排）已上线</h3>
+<p>build-storyboard.mjs v4.1：L0 模式后先预排 subject（remotion / local-material / person / aigc-material），
+再按主体分支决策——模板主体走双向赋权选卡，素材主体纯素材全屏（shotCard=null），AIGC 主体登记标记（渲染暂用 Fallback 渐变兜底）。
+<code>MODE_PRESET</code> 三模式配置：A 模板主导(70/25/5) · B 口播主导(person 60) · C AIGC 主导(aigc 55)。</p>
+<h3>✅ 动态降级链</h3>
+<p>素材主体候选 → 检索素材库（语义+时长+情绪）→ 命中用素材；未命中回退模板兜底（渐变+关键词占位）；
+抽象/特殊叙事（素材与模板都不合适）→ AIGC 兜底（C 模式主通道、A/B 模式兜底）。主体比例是跑出来的，不是定死的。</p>
+<h3>✅ U1 pit 一致性引擎</h3>
+<p>pit.subject 统一 = 预排主体；坑位布局由 <code>SLOT_TO_PIT[slot]</code> 反推（content/position），pitByL2 仅兜底——pit 与 slot/materialRole 不再打架。</p>
+<h3>✅ U2 镜头卡元数据评分</h3>
+<p>加载 gallery/api/library.json（157 卡）：energy × 叙事匹配 +8（hook 高能/quote 收束/proof 持续）、时长体质校验（stretch 通用 / loop 长镜头金句 / fixed ±35%）、模式卡类别加权（A 模板卡 / B 素材卡 / C 氛围卡）。</p>
+<h3>✅ 三模式真实文案验证（19 镜头）</h3>
+<table>
+<tr><th>模式</th><th>主体分布</th><th>效果</th></tr>
+<tr><td>A · Remotion 主导</td><td>remotion 14 (74%) / material 4 (21%) / aigc 1 (5%)</td><td>零重复卡、语义命中（真相→fracture、研究发现→ring-diagram、方法→method 池）、pit 一致性 0 冲突</td></tr>
+<tr><td>B · 人像口播主导</td><td>person 8 (42%) / material 7 (37%) / remotion 4 (21%)</td><td>口播主体落地（person 镜头素材全屏）、素材优先规则生效</td></tr>
+<tr><td>C · AIGC 主导</td><td>material 9 (47%) / aigc 7 (37%) / remotion 3 (16%)</td><td>AIGC 主通道生效（7 镜头登记 aigc 标记 + Fallback 兜底）</td></tr>
+</table>
+<p class="good">结论：镜头库不再清一色模板——主体混合（模板/素材/口播/AIGC）、语义匹配、零重复、坑位一致，编导混乱问题在决策层已闭环。</p>
+</div>
+
 <div class="foot">
-Video ShotCraft · 四层编导架构升级研究 v1.0 · 2026-09-21 · 基于 script-generation-design.md §5 + taxonomy.json + build-storyboard.mjs 现状诊断
+Video ShotCraft · 四层编导架构升级研究 v1.1 · 2026-09-21 · 基于 script-generation-design.md §5 + taxonomy.json + build-storyboard.mjs 现状诊断
 </div>
 </div>
 </body>

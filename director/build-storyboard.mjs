@@ -203,26 +203,170 @@ const L2_TO_TAGS = {
   'compare': ['商务', '科技', '对比'],
 };
 
-// ---------- 时长→模板节奏筛选 ----------
-// 根据 durationInFrames 选适配节奏的 shotCard
-function pickShotCardByDuration(l2key, durationInFrames) {
-  const candidates = L3[l2key] || ['typography/blur-slide'];
-  if (candidates.length === 1) return candidates[0];
+// ---------- 镜头卡语义库（U2：gallery library.json 元数据） ----------
+const CARD_META = {};
+try {
+  const libJson = JSON.parse(readFileSync(join(process.cwd(), 'gallery', 'api', 'library.json'), 'utf-8'));
+  for (const cc of libJson.cards || []) CARD_META[cc.name] = cc;
+} catch (e) {}
 
-  // 短分镜（<60帧）→ 快节奏模板优先
-  // 中分镜（60-120帧）→ 标准模板
-  // 长分镜（>120帧）→ 循环动画模板优先
-  const fastPatterns = ['glitch', 'scramble', 'smash', 'strobe', 'impact', 'crash', 'slam', 'punch'];
-  const loopPatterns = ['orbit', 'marquee', 'ticker', 'ripple', 'cycle', 'loop', 'filmstrip', 'carousel'];
+// ---------- 镜头运用治理 v4：语义→镜头语言 ----------
+// 1) l2key 按文案语义选择（不再是随机）；2) 效果卡按时长节奏 + 情绪 + 使用降权打分；
+// 3) 同一 type 内 l2 / 同一效果卡使用降权，避免同屏重复与语义错配。
 
-  if (durationInFrames <= 60) {
-    const fast = candidates.filter(c => fastPatterns.some(p => c.toLowerCase().includes(p)));
-    if (fast.length > 0) return fast[Math.floor(Math.random() * fast.length)];
-  } else if (durationInFrames >= 120) {
-    const loop = candidates.filter(c => loopPatterns.some(p => c.toLowerCase().includes(p)));
-    if (loop.length > 0) return loop[Math.floor(Math.random() * loop.length)];
+// 语义规则：文案关键词 → 优先 l2key（按命中顺序）
+const L2_SEMANTIC = [
+  { re: /第一步|第二步|第三步|然后|接着|流程|循环/, l2s: ['process', 'method'] },
+  { re: /数据|统计|研究|增长|指标|报告|调查|数字|%|倍/, l2s: ['data', 'number'] },
+  { re: /因为|所以|导致|来自|源于|回馈/, l2s: ['causal', 'data'] },
+  { re: /方法|步骤|怎么做|练习|三步/, l2s: ['method', 'process'] },
+  { re: /不是.*而是|看似.*其实|别人.*你|对比|反而|更像/, l2s: ['compare', 'judgment'] },
+  { re: /概念|心理学|本质|定义|认知|卸载|称为|这叫/, l2s: ['definition', 'concept'] },
+  { re: /误区|误解|以为|误以为|真相|其实|没想到|大多数人/, l2s: ['misconception', 'anti-common'] },
+  { re: /比如|就像|举个例子|朋友|当你|每天|如果/, l2s: ['example', 'scene'] },
+  { re: /焦虑|陷阱|代价|浪费|危险|风险|失控|停/, l2s: ['anxiety', 'impact'] },
+  { re: /记住|关键|最重要|核心|收藏是|起点/, l2s: ['insight', 'emphasis'] },
+  { re: /开始|停止|今天|从.*开始|删掉|去做/, l2s: ['action', 'summary'] },
+  { re: /为什么|吗|\?|\？/, l2s: ['question'] },
+];
+
+// 镜头类型兜底（无语义命中时的稳定默认）
+const TYPE_DEFAULT_L2 = {
+  hook: ['question', 'scene', 'impact'],
+  pain: ['status', 'anxiety', 'compare'],
+  claim: ['concept', 'judgment', 'definition'],
+  proof: ['example', 'data', 'method', 'causal'],
+  quote: ['insight', 'emphasis'],
+  cta: ['action', 'summary'],
+};
+
+// 情绪 → 效果风格关键词（池内精排用）
+const MOOD_STYLE = {
+  '活力': ['crash', 'slam', 'punch', 'strobe', 'impact', 'fracture', 'speed'],
+  '科技感': ['data', 'glitch', 'scanline', 'chart', 'hatch', 'odometer', 'ring', 'glass'],
+  '沉稳': ['paper', 'marker', 'underline', 'list', 'type-entrance', 'draw', 'timeline'],
+  '温暖': ['blur-slide', 'grain', 'graze', 'type-entrance', 'dissolve'],
+  '紧张': ['rhythm-interrupt', 'speed-ramp', 'depth', 'tension', 'freeze'],
+};
+
+// 节奏关键词
+const FAST_PATTERNS = ['glitch', 'scramble', 'smash', 'strobe', 'impact', 'crash', 'slam', 'punch', 'fracture', 'speed'];
+const LOOP_PATTERNS = ['orbit', 'marquee', 'ticker', 'ripple', 'cycle', 'loop', 'filmstrip', 'carousel', 'converge', 'merge'];
+
+// 选 l2key：语义命中优先 → type 兜底 → 同 type 使用降权
+function pickL2Key(type, text, l2Usage) {
+  let candidates = [];
+  for (const { re, l2s } of L2_SEMANTIC) {
+    if (re.test(text)) { candidates = candidates.concat(l2s); break; } // 只取第一条命中（规则按优先级排）
   }
-  return candidates[Math.floor(Math.random() * candidates.length)];
+  if (candidates.length === 0) candidates = TYPE_DEFAULT_L2[type] || ['status'];
+  // 同 type 内已用过的 l2 降权（避免同屏同 l2 堆叠）：取使用次数最少的前几个
+  const scored = candidates.map(l2 => ({ l2, n: l2Usage[l2] || 0 }));
+  scored.sort((a, b) => a.n - b.n || Math.random() - 0.5);
+  const bestN = scored[0].n;
+  const pool = scored.filter(s => s.n <= bestN + 1); // 允许轻微轮换
+  return pool[Math.floor(Math.random() * pool.length)].l2;
+}
+
+// 叙事能量匹配：hook 要瞬时高能、quote 要收束低能、proof 要信息持续
+const ENERGY_MATCH = {
+  hook: ['高', '冲击'], pain: ['高', '中高', '紧张'], claim: ['中高', '中'],
+  proof: ['中高', '中', '持续'], quote: ['低', '收束'], cta: ['中', '低', '收束'],
+};
+function energyScore(card, type) {
+  const meta = CARD_META[card.split('/').pop()];
+  if (!meta?.energy) return 0;
+  return ENERGY_MATCH[type]?.some(k => meta.energy.includes(k)) ? 8 : 0;
+}
+
+// 时长体质校验（U2）：stretch 任意；loop 长镜头/金句；fixed 需在推荐时长 ±35% 内
+function physiqueOk(card, durationInFrames, type) {
+  const meta = CARD_META[card.split('/').pop()];
+  if (!meta?.duration) return true;
+  if (/归一化|stretch|任意|任何时长/i.test(meta.duration)) return true;
+  if (/loop|无限|循环/i.test(meta.duration)) return durationInFrames >= 90 || type === 'quote';
+  const m = meta.duration.match(/(\d+(?:\.\d+)?)\s*(s|f)/i);
+  if (!m) return true;
+  const targetSec = durationInFrames / 30;
+  const recSec = m[2] === 'f' ? +m[1] / 30 : +m[1];
+  return Math.abs(targetSec - recSec) / recSec <= 0.35;
+}
+
+// 模式差异化加权（U3）：A 模板主导 / B 素材人像 / C 氛围
+const MODE_STYLE_WEIGHT = {
+  A: { 'typography/': 8, 'data/': 8, 'ui-entrance/': 6, 'interaction/': 6, 'opening/': 4, 'outro/': 4, 'camera/': 2 },
+  B: { 'camera/': 8, 'opening/': 6, 'effects/': 5, 'rhythm/': 3, 'typography/': -4 },
+  C: { 'effects/': 8, 'rhythm/': 8, 'transition/': 6, 'data/': 4, 'typography/': 2 },
+};
+
+// 选效果卡：节奏 + 情绪 + 能量叙事 + 模式加权 + 使用降权（同分随机）
+function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode) {
+  let candidates = L3[l2key] || ['typography/blur-slide'];
+  if (candidates.length === 1) return candidates[0];
+  // 重复硬剔除：同篇已用卡排除（池>1 时），彻底防同屏重复
+  const used = Object.keys(cardUsage);
+  const fresh = candidates.filter(c => !used.includes(c));
+  if (fresh.length > 0) candidates = fresh;
+  const style = MOOD_STYLE[mood] || [];
+  const modePref = MODE_STYLE_WEIGHT[mode] || {};
+
+  const scored = candidates.map(card => {
+    const low = card.toLowerCase();
+    let score = 0;
+    // 节奏：短→快节奏 +12，长→循环 +12
+    if (durationInFrames <= 60 && FAST_PATTERNS.some(p => low.includes(p))) score += 12;
+    else if (durationInFrames >= 120 && LOOP_PATTERNS.some(p => low.includes(p))) score += 12;
+    // 情绪风格匹配 +10
+    if (style.some(p => low.includes(p))) score += 10;
+    // U2：energy × 叙事匹配 +8
+    score += energyScore(card, type);
+    // U3：模式卡类别加权
+    for (const [k, w] of Object.entries(modePref)) {
+      if (low.startsWith(k)) { score += w; break; }
+    }
+    // 使用降权：同篇内已用过 -20/次（防同屏重复）
+    score -= (cardUsage[card] || 0) * 20;
+    return { card, score, ok: physiqueOk(card, durationInFrames, type) };
+  });
+  const valid = scored.filter(s => s.ok);
+  if (valid.length === 0) return scored[0].card; // 体质全不满足 → 取最高分
+  valid.sort((a, b) => b.score - a.score);
+  // top 内随机（避免确定性单卡），top1 明显领先（≥5 分）则直取
+  const top = valid.slice(0, Math.min(3, valid.length));
+  if (top[0].score - (top[1]?.score ?? -999) >= 5) return top[0].card;
+  return top[Math.floor(Math.random() * top.length)].card;
+}
+
+// ================= 主体决策层（坑位预排）：L0 模式后先定 subject =================
+const MODE_PRESET = {
+  A: { subjectRatio: { remotion: 0.70, material: 0.25, aigc: 0.05 }, materialPriority: ['example', 'scene', 'status'], templateForce: ['quote', 'cta'], aigcRole: 'fallback' },
+  B: { subjectRatio: { person: 0.60, remotion: 0.28, material: 0.12 }, materialPriority: ['proof', 'example'], templateForce: ['quote', 'cta', 'data'], aigcRole: 'fallback' },
+  C: { subjectRatio: { aigc: 0.55, remotion: 0.30, material: 0.15 }, materialPriority: ['hook', 'pain'], templateForce: ['data', 'quote', 'cta'], aigcRole: 'primary' },
+};
+
+// L4 坑位一致性：slot → 布局反推（subject 由预排层统一决定，pitByL2 仅兜底）
+const SLOT_TO_PIT = {
+  'text-hero': { content: { type: 'text' }, position: 'element' },
+  'data-show': { content: { type: 'video-local' }, position: 'element' },
+  'case-show': { content: { type: 'video-local' }, position: 'background' },
+  'process-show': { content: { type: 'video-local' }, position: 'element' },
+  'transition-slot': { content: { type: 'text' }, position: 'element' },
+  'compare-slot': { content: { type: 'video-local' }, position: 'split' },
+};
+
+// 预排：强制模板 → 素材优先（有料） → AIGC 主通道 → 比例轮转
+function preassignSubject(type, text, mode, hasGoodMaterial, subjCount) {
+  const preset = MODE_PRESET[mode] || MODE_PRESET.A;
+  if (preset.templateForce.includes(type)) return 'remotion';
+  if (preset.materialPriority.includes(type) && hasGoodMaterial) return 'material';
+  if (preset.aigcRole === 'primary' && type === 'pain' && !hasGoodMaterial) return 'aigc';
+  const total = Object.values(subjCount).reduce((a, b) => a + b, 0) + 1;
+  let want = 'remotion', maxGap = -Infinity;
+  for (const [s, r] of Object.entries(preset.subjectRatio)) {
+    const gap = r - (subjCount[s] || 0) / total;
+    if (gap > maxGap) { maxGap = gap; want = s; }
+  }
+  return want;
 }
 
 // ---------- 镜头类型 ----------
@@ -239,54 +383,81 @@ function pickShotType(text, index, total) {
   return 'proof';
 }
 
-// ---------- 主流程 ----------
+// ---------- 主流程（v4.1：预排主体 → 分支决策） ----------
+const l2Usage = {};   // 同 type 内 l2 使用次数（防堆叠）
+const cardUsage = {}; // 同篇效果卡使用次数（防同屏重复）
+const subjCount = { remotion: 0, material: 0, person: 0, aigc: 0 }; // 主体计数（比例轮转）
 let rawShots = timing.segments.map((seg, i) => {
   const type = pickShotType(seg.text, i, timing.segments.length);
-  const l2keys = Object.keys(L2).filter(k => L2[k].parent === type);
-  const l2key = l2keys.length > 0 ? l2keys[Math.floor(Math.random() * l2keys.length)] : 'status';
+  const mood = extractMood(seg.text);
+  const l2key = pickL2Key(type, seg.text, l2Usage);
+  l2Usage[l2key] = (l2Usage[l2key] || 0) + 1;
   const rawDuration = seg.duration_frames + 9;
-
-  // 时长约束
   let durationInFrames = Math.max(MIN_FRAMES, Math.min(MAX_FRAMES, rawDuration));
-
-  // 选模板（考虑时长节奏）
-  const shotCard = pickShotCardByDuration(l2key, durationInFrames);
-
-  // 坑位治理：根据 shotCard 解析坑位身份 + 素材角色
-  const { slot, materialRole } = resolveSlot(shotCard);
-
-  // 语义标签（v3：从文案提取）
   const semanticTags = extractSemanticTags(seg.text);
 
-  // 按坑位素材角色匹配素材（materialRole=none 不匹配）
-  let material = null;
-  if (materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
-    const tags = ROLE_TO_TAGS[materialRole] || L2_TO_TAGS[l2key] || [];
-    material = findMaterial(tags, semanticTags, durationInFrames / FPS, extractMood(seg.text));
+  // ① 主体决策层：素材预检索（决定能否当主体）+ 预排 subject
+  const preset = MODE_PRESET[globalMode] || MODE_PRESET.A;
+  const probeMaterial = preset.materialPriority.includes(type)
+    ? findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood)
+    : null;
+  const subject = preassignSubject(type, seg.text, globalMode, probeMaterial !== null, subjCount);
+  subjCount[subject] = (subjCount[subject] || 0) + 1;
+
+  let shotCard = null, slot = null, materialRole = 'none', material = null, fallback = null;
+
+  if (subject === 'material') {
+    // ② 纯素材主体：无模板，素材全屏（hero 坑位）
+    material = probeMaterial;
+    slot = 'case-show';
+    materialRole = 'hero';
+    shotCard = null;
+    if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+  } else if (subject === 'aigc') {
+    // ③ AIGC 主体：登记生成标记（渲染暂用 Fallback 渐变兜底，后续接 AIGC 通道）
+    slot = 'case-show';
+    shotCard = null;
+    fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+  } else if (subject === 'person') {
+    // ③b 口播主体（B 模式）：人像素材全屏（无则 fallback），模板只做标注位
+    slot = 'case-show';
+    materialRole = 'hero';
+    shotCard = null;
+    material = findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood);
+    if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+  } else {
+    // ④ remotion 模板主体：双向赋权选卡（语义池 → 节奏/情绪/能量/模式/降权）
+    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode);
+    cardUsage[shotCard] = (cardUsage[shotCard] || 0) + 1;
+    const rs = resolveSlot(shotCard);
+    slot = rs.slot;
+    materialRole = rs.materialRole;
+    if (materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
+      const tags = ROLE_TO_TAGS[materialRole] || L2_TO_TAGS[l2key] || [];
+      material = findMaterial(tags, semanticTags, durationInFrames / FPS, mood);
+    }
+    if (!material && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
+      fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+    }
   }
 
-  // 失败回退（v3）：没匹配到素材 → fallback 占位（渐变 + 关键词）
-  let fallback = null;
-  if (!material && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
-    fallback = {
-      keyword: extractKeyword(seg.text),
-      gradient: ['#1a1d24', '#0d0f14'],
-    };
-  }
-
-  // 4层坑位：从 pitByL2 读取当前模式配置
-  const pitCfg = pitByL2[l2key]?.[globalMode] || { subject: 'remotion', content: { type: 'text' }, position: 'element' };
-  const pit = {
-    mode: globalMode,
-    subject: pitCfg.subject,
-    content: { ...pitCfg.content },
-    position: pitCfg.position,
-    ...(pitCfg.loop ? { loop: true } : {}),
-  };
-  // proof 类且坑位要求素材 → 给 content 补素材路径
-  if ((pit.subject === 'local-material' || pit.content.type === 'video-local') && material) {
-    pit.content.path = material.path;
-    recordUsage(material.path); // P3：只有实际入画才记使用
+  // ⑤ L4 坑位一致性：pit 由 slot 反推（主体分支定制），pitByL2 仅兜底
+  let pit;
+  if (subject === 'material') {
+    pit = { mode: globalMode, subject: 'local-material', content: { type: 'video-local', ...(material ? { path: material.path } : {}) }, position: 'background' };
+    if (material) recordUsage(material.path);
+  } else if (subject === 'aigc') {
+    pit = { mode: globalMode, subject: 'aigc-material', content: { type: 'video-aigc' }, position: 'background', aigc: true };
+  } else if (subject === 'person') {
+    pit = { mode: globalMode, subject: 'person', content: { type: 'video-local', ...(material ? { path: material.path } : {}) }, position: 'background' };
+    if (material) recordUsage(material.path);
+  } else {
+    const base = SLOT_TO_PIT[slot] || pitByL2[l2key]?.[globalMode] || { content: { type: 'text' }, position: 'element' };
+    pit = { mode: globalMode, subject: 'remotion', content: { ...base.content }, position: base.position, ...(base.loop ? { loop: true } : {}) };
+    if ((pit.subject === 'local-material' || pit.content.type === 'video-local') && material) {
+      pit.content.path = material.path;
+      recordUsage(material.path);
+    }
   }
 
   return {
