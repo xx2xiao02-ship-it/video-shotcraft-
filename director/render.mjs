@@ -23,11 +23,27 @@ fs.writeFileSync(propsPath, JSON.stringify({ storyboard }, null, 2), 'utf8');
 
 // 渲染
 const outFile = path.join(ROOT, 'template', 'out', 'dynamic.mp4');
+// 兼容性：Remotion 输出（yuvj420p 全范围）内置浏览器解码挂起 → 渲染后用 ffmpeg 重编码（libx264/yuv420p 有限范围 + faststart）
+// 注意：不要给 Remotion 传 --pixel-format=yuv420p（实测会损坏输出，重编码后仍不可播）
 const cmd = `npx remotion render src/index.ts DynamicVideo "${outFile}" --props="${propsPath}" --browser-executable="${CHROME}" --concurrency=1`;
+const FFMPEG = 'C:\\Users\\Administrator\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.1.2-full_build\\bin\\ffmpeg.exe';
 
 console.log('开始渲染...');
 try {
   execSync(cmd, { cwd: path.join(ROOT, 'template'), stdio: 'inherit' });
+  // 重编码为浏览器兼容格式（有限范围 + faststart）
+  const tmpFile = outFile + '.tmp.mp4';
+  execSync(`"${FFMPEG}" -y -i "${outFile}" -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 20 -c:a aac -b:a 128k -movflags +faststart "${tmpFile}"`);
+  // Windows 文件锁（服务端视频流可能占用旧文件）：rename 失败重试最多 6 次
+  let renamed = false;
+  for (let i = 0; i < 6; i++) {
+    try { fs.renameSync(tmpFile, outFile); renamed = true; break; }
+    catch (e) {
+      if (i === 5) throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+    }
+  }
+  if (!renamed) throw new Error('rename dynamic.mp4 failed after retries');
   console.log(`\n✓ 渲染完成：${outFile}`);
 } catch (e) {
   console.error('渲染失败:', e.message);

@@ -1683,6 +1683,8 @@ function rgbaAlpha(rgba) {
 bindButtons();
 refresh();
 loadMaterials();
+// 成片预览：页面加载即显示最新成片（标注生成时间可辨新旧）——修复"成片预览不能播放"
+loadPreview();
 setInterval(refresh, 2500);
 
 // 高级工具折叠
