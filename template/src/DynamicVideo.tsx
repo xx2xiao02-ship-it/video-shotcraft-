@@ -497,6 +497,8 @@ export type Shot = {
   durationInFrames: number;
   base?: string;
   material?: string;
+  materialOpacity?: number;
+  media?: string;
   fallback?: {
     keyword: string;
     gradient: [string, string];
@@ -523,6 +525,15 @@ export type Storyboard = {
     accent: string;
     sub: string;
     captionStyle?: CaptionStyle;
+    // P1 文字公共参数（来源：风格中心 C4 → current-theme.json → build-storyboard）
+    fontFamily?: string;
+    captionSize?: number;
+    captionWeight?: number;
+    captionColor?: string;
+    // P2 媒体公共参数
+    materialOpacity?: number;
+    fallbackSize?: number;
+    fallbackAlpha?: number;
   };
   fps: number;
   audio?: string;
@@ -603,6 +614,7 @@ const TranslatedShot: React.FC<{
     accent?: string;
     bg?: string;
     durationInFrames: number;
+    media?: string;
   };
   FallbackComponent: React.ComponentType;
 }> = ({ shotCard, shotData, FallbackComponent }) => {
@@ -623,6 +635,11 @@ const ShotView: React.FC<{
   const progress = interpolate(frame, [0, d], [0, 100], { extrapolateRight: 'clamp' });
   const captionStyle = style.captionStyle || 'pill';
   const preset = captionStylePresets[captionStyle];
+  // P1：公共文字参数覆盖预设默认（未设则回落预设值）——数据链 current-theme.json → storyboard.style
+  const capFont = style.fontFamily || "'Noto Sans SC','Microsoft YaHei',sans-serif";
+  const capSize = style.captionSize || preset.text.fontSize || 36;
+  const capWeight = style.captionWeight || preset.text.fontWeight || 600;
+  const capColor = style.captionColor || preset.text.color || '#fff';
 
   // 根据 shotCard 找组件（支持目录级：先精确，再按目录前缀匹配第一个组件）
   const exactComponent = shot.shotCard ? COMPONENT_MAP[shot.shotCard] : undefined;
@@ -635,7 +652,7 @@ const ShotView: React.FC<{
       {shot.material && (
         <video
           src={"http://127.0.0.1:8765/api/library/video?path=" + encodeURIComponent(shot.material)}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: shot.materialOpacity ?? style.materialOpacity ?? 0.6 }}
           muted loop autoPlay
         />
       )}
@@ -651,9 +668,9 @@ const ShotView: React.FC<{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <div style={{
-              fontSize: 96, fontWeight: 900, letterSpacing: 4,
-              color: 'rgba(255,255,255,0.14)',
-              fontFamily: 'sans-serif',
+              fontSize: style.fallbackSize || 96, fontWeight: 900, letterSpacing: 4,
+              color: 'rgba(255,255,255,' + (style.fallbackAlpha ?? 0.14) + ')',
+              fontFamily: capFont,
             }}>{shot.fallback.keyword}</div>
           </div>
         </div>
@@ -666,6 +683,7 @@ const ShotView: React.FC<{
         accent: style.accent,
         bg: style.bg,
         durationInFrames: shot.durationInFrames,
+        media: shot.media,
       }} FallbackComponent={ShotComponent} />
 
 
@@ -677,7 +695,7 @@ const ShotView: React.FC<{
         zIndex: 10,
       }}>
         <div style={{ ...preset.wrapper, maxWidth: 1400 }}>
-          <div style={preset.text}>{shot.text}</div>
+          <div style={{ ...preset.text, fontFamily: capFont, fontSize: capSize, fontWeight: capWeight, color: capColor }}>{shot.text}</div>
         </div>
       </div>
 
@@ -707,6 +725,7 @@ export const DynamicVideo: React.FC<{ storyboard: Storyboard }> = ({ storyboard 
       ['--accent' as any]: t.accent,
       ['--accent2' as any]: t.accent2,
       ['--danger' as any]: t.danger,
+      ['--font-family' as any]: storyboard.style.fontFamily || "'Noto Sans SC','Microsoft YaHei',sans-serif",
     }}>
       {storyboard.audio && (
         <Audio src={staticFile(storyboard.audio)} volume={0.9} />

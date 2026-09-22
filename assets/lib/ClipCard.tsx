@@ -62,9 +62,11 @@ const LoopLayer: React.FC<{
   const opacity = Math.max(0, Math.min(1, envelope));
   const volume = muted ? 1 : opacity;
 
+  // P3：支持外部素材——http(s) 走服务端流（用户素材 /api/library/video），本地才 staticFile
+  const resolved = src.startsWith('http') ? src : staticFile(src);
   return (
     <OffthreadVideo
-      src={staticFile(src)}
+      src={resolved}
       muted={muted}
       volume={volume}
       startFrom={startFrom}

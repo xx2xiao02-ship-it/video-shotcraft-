@@ -19,6 +19,7 @@ export type ShotData = {
   bg?: string;               // 背景色
   durationInFrames: number;  // 分镜时长
   baseVideo?: string;        // 素材视频路径（可选）
+  media?: string;            // P3 组件媒体输入：用户素材路径（进组件画面，如视频卡片）
 };
 
 // 组件契约：描述一个组件如何接收转译数据
@@ -31,6 +32,7 @@ export type ComponentContract = {
     accent?: string;
     bg?: string;
     durationInFrames?: string;
+    media?: string;           // P3：shot.media（素材路径/URL）→ 组件媒体 prop
   };
   // text 注入模式：'words'(默认,词数组) | 'headline'(主标题+副标题) | 'raw'(原样字符串)
   textAs?: 'words' | 'headline' | 'raw';
@@ -46,6 +48,12 @@ export type ComponentContract = {
 // 未注册的组件：原样渲染（保留演示内容），由字幕浮层承担文案展示。
 export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   // ---- typography 类 ----
+  // ---- P3 组件媒体输入 ----
+  'ui-entrance/clipcard-looping': {
+    shotCard: 'ui-entrance/clipcard-looping',
+    propsMap: { media: 'src', durationInFrames: 'durationInFrames' },
+    note: '视频卡片：注入用户素材 src 时单卡承载（素材进组件画面），无 src 保持三场景演示',
+  },
   'typography/cel-flash-stomp': {
     shotCard: 'typography/cel-flash-stomp',
     propsMap: { text: 'words', durationInFrames: 'durationInFrames' },
@@ -65,15 +73,18 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   'typography/type-entrance-moves/letter-drop-physics': {
     shotCard: 'typography/type-entrance-moves/letter-drop-physics',
     propsMap: { text: 'word', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
     note: '单字物理掉落',
   },
   'typography/type-entrance-moves/scramble-decode': {
     shotCard: 'typography/type-entrance-moves/scramble-decode',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/type-assembly-moves/split-text-stagger': {
     shotCard: 'typography/type-assembly-moves/split-text-stagger',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/type-assembly-moves/text-on-path': {
     shotCard: 'typography/type-assembly-moves/text-on-path',
@@ -82,14 +93,17 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   'typography/type-assembly-moves/letterform-drift-assembly': {
     shotCard: 'typography/type-assembly-moves/letterform-drift-assembly',
     propsMap: { text: 'word', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/type-assembly-moves/tracking-expand-reveal': {
     shotCard: 'typography/type-assembly-moves/tracking-expand-reveal',
     propsMap: { text: 'word', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/type-rhythm-sync/font-weight-pump': {
     shotCard: 'typography/type-rhythm-sync/font-weight-pump',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/type-rhythm-sync/karaoke-fill-sync': {
     shotCard: 'typography/type-rhythm-sync/karaoke-fill-sync',
@@ -98,15 +112,18 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   'typography/scramble': {
     shotCard: 'typography/scramble',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/typewriter-moves/terminal-typewriter': {
     shotCard: 'typography/typewriter-moves/terminal-typewriter',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
     note: '终端打字机',
   },
   'typography/typewriter-moves/typewriter-error-retype': {
     shotCard: 'typography/typewriter-moves/typewriter-error-retype',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/countdown-arc-scatter': {
     shotCard: 'typography/countdown-arc-scatter',
@@ -131,6 +148,7 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   'typography/lead-word-zoom-assemble': {
     shotCard: 'typography/lead-word-zoom-assemble',
     propsMap: { text: 'text', durationInFrames: 'durationInFrames' },
+    textAs: 'raw',
   },
   'typography/word-relay-geometry': {
     shotCard: 'typography/word-relay-geometry',
@@ -198,10 +216,14 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
   'data/odometer-digit-roll': {
     shotCard: 'data/odometer-digit-roll',
     propsMap: { text: 'value', durationInFrames: 'durationInFrames' },
+    enabled: false, // 数据牌组件：保留演示数字，文案走字幕浮层（数据契约后续接入）
+    note: '数据展示型，暂不注入整句',
   },
   'data/counter-confetti': {
     shotCard: 'data/counter-confetti',
     propsMap: { text: 'value', durationInFrames: 'durationInFrames' },
+    enabled: false, // 数据牌组件：保留演示数字，文案走字幕浮层
+    note: '数据展示型，暂不注入整句',
   },
 };
 
@@ -282,6 +304,9 @@ export function translateShot(shotCard: string, shot: ShotData): Record<string, 
   }
   if (contract.propsMap.durationInFrames) {
     props[contract.propsMap.durationInFrames] = shot.durationInFrames;
+  }
+  if (contract.propsMap.media && shot.media) {
+    props[contract.propsMap.media] = shot.media;
   }
   return props;
 }

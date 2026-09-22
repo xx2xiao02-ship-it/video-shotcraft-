@@ -17,7 +17,29 @@ import { ClipCard } from '../../../assets/lib/ClipCard';
 export const CLIPCARD_LOOPING_DURATION = 120; // 4s @30fps
 const CLIP = 'clips/clipcard-demo.mp4';
 
-export const ClipCardLooping: React.FC = () => {
+// P3 组件媒体输入：外部素材单卡模式（src 传入用户素材 URL 时）——承载"素材进组件画面"
+export const ClipCardLooping: React.FC<{
+  src?: string;
+  caption?: string;
+  durationInFrames?: number;
+}> = ({ src, caption, durationInFrames }) => {
+  if (src) {
+    const d = durationInFrames || 120;
+    return (
+      <AbsoluteFill style={{ background: '#0b0b0f', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <ClipCard
+          src={src}
+          muted
+          loopDurationInFrames={Math.max(30, Math.min(60, Math.round(d * 0.5)))}
+          loopCrossfadeInFrames={10}
+          durationInFrames={d}
+          size={Math.max(360, Math.min(640, Math.round(d * 4.2)))}
+          caption={caption || ''}
+          captionSize={Math.min(22, Math.max(14, Math.round(d / 8)))}
+        />
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill
       style={{

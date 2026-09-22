@@ -404,15 +404,23 @@ let rawShots = timing.segments.map((seg, i) => {
   const subject = preassignSubject(type, seg.text, globalMode, probeMaterial !== null, subjCount);
   subjCount[subject] = (subjCount[subject] || 0) + 1;
 
-  let shotCard = null, slot = null, materialRole = 'none', material = null, fallback = null;
+  let shotCard = null, slot = null, materialRole = 'none', material = null, fallback = null, media = null;
 
   if (subject === 'material') {
-    // ② 纯素材主体：无模板，素材全屏（hero 坑位）
+    // ② 素材主体：默认纯素材全屏（hero 坑位）；P3 增强——部分素材镜头配视频卡片模板承载素材进组件画面
     material = probeMaterial;
+    if (!material) material = findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood);
     slot = 'case-show';
     materialRole = 'hero';
-    shotCard = null;
-    if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
+    if (material && Math.random() < 0.35) {
+      shotCard = 'ui-entrance/clipcard-looping';   // P3 组件媒体输入：素材进组件画面
+      media = 'http://127.0.0.1:8765/api/library/video?path=' + encodeURIComponent(material.path); // 服务端视频流（零复制，ClipCard http 分支）
+      material = null;                              // 组件内嵌即主体，不再做全屏底
+      materialRole = 'inline-element';
+    } else {
+      shotCard = null;
+    }
+    if (!material && !media) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
   } else if (subject === 'aigc') {
     // ③ AIGC 主体：登记生成标记（渲染暂用 Fallback 渐变兜底，后续接 AIGC 通道）
     slot = 'case-show';
@@ -444,8 +452,13 @@ let rawShots = timing.segments.map((seg, i) => {
   // ⑤ L4 坑位一致性：pit 由 slot 反推（主体分支定制），pitByL2 仅兜底
   let pit;
   if (subject === 'material') {
-    pit = { mode: globalMode, subject: 'local-material', content: { type: 'video-local', ...(material ? { path: material.path } : {}) }, position: 'background' };
-    if (material) recordUsage(material.path);
+    if (media) {
+      pit = { mode: globalMode, subject: 'remotion', content: { type: 'video-local', path: media }, position: 'element' };
+      recordUsage(media);
+    } else {
+      pit = { mode: globalMode, subject: 'local-material', content: { type: 'video-local', ...(material ? { path: material.path } : {}) }, position: 'background' };
+      if (material) recordUsage(material.path);
+    }
   } else if (subject === 'aigc') {
     pit = { mode: globalMode, subject: 'aigc-material', content: { type: 'video-aigc' }, position: 'background', aigc: true };
   } else if (subject === 'person') {
@@ -470,6 +483,7 @@ let rawShots = timing.segments.map((seg, i) => {
     text: seg.text,
     durationInFrames,
     ...(material ? { material: material.path } : {}),
+    ...(media ? { media } : {}),
     ...(fallback ? { fallback } : {}),
   };
 });
@@ -505,6 +519,14 @@ const _mid = (CUR && CUR.mid) || '#8a8680';
 const _accent = (CUR && CUR.accent) || '#d4a853';
 const _accent2 = (CUR && CUR.accent2) || '#4ecdc4';
 const _card = (CUR && CUR.card) || '#1a1d24';
+// P1/P2：文字与媒体公共参数（与 current-theme.json 同字段名，一次读取全量注入——数据调用链路单一权威）
+const _fontFamily = (CUR && CUR.fontFamily) || "'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif";
+const _captionSize = (CUR && CUR.captionSize) || 36;
+const _captionWeight = (CUR && CUR.captionWeight) || 600;
+const _captionColor = (CUR && CUR.captionColor) || '#ffffff';
+const _materialOpacity = (CUR && CUR.materialOpacity) || 0.6;
+const _fallbackSize = (CUR && CUR.fallbackSize) || 96;
+const _fallbackAlpha = (CUR && CUR.fallbackAlpha) || 0.14;
 const storyboard = {
   title: '口播视频',
   style: {
@@ -513,6 +535,13 @@ const storyboard = {
     accent: _accent,
     sub: _mid,
     captionStyle: 'pill',
+    fontFamily: _fontFamily,
+    captionSize: _captionSize,
+    captionWeight: _captionWeight,
+    captionColor: _captionColor,
+    materialOpacity: _materialOpacity,
+    fallbackSize: _fallbackSize,
+    fallbackAlpha: _fallbackAlpha,
   },
   // 全局 theme（DynamicVideo 注入 CSS 变量，所有组件色调统一；来源：风格中心 C4 当前主题）
   theme: {
