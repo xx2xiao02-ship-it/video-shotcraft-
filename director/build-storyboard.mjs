@@ -588,7 +588,30 @@ const _captionWeight = (CUR && CUR.captionWeight) || 600;
 const _captionColor = (CUR && CUR.captionColor) || '#ffffff';
 const _materialOpacity = (CUR && CUR.materialOpacity) || 0.6;
 const _fallbackSize = (CUR && CUR.fallbackSize) || 96;
-const _fallbackAlpha = (CUR && CUR.fallbackAlpha) || 0.14;
+const _fallbackAlpha = (CUR && CUR.fallbackAlpha) || 0.14;// ---------- 音效编排（转场 / 提示音 / 底噪） ----------
+// 音效库：template/public/audio（复用既有素材；ambient-room.mp3 为按风格生成的底噪）
+const SFX = {
+  transition: ['audio/transition-soft.mp3', 'audio/transition-snap.mp3', 'audio/swoosh-quick.mp3'],
+  whoosh: ['audio/whoosh-fast.mp3', 'audio/whoosh-big.mp3'],
+  hit: ['audio/pop.mp3', 'audio/sparkle.mp3', 'audio/click-camera.mp3'],
+};
+let _sfxIdx = { transition: 0, whoosh: 0, hit: 0 };
+const nextSfx = (pool) => SFX[pool][_sfxIdx[pool]++ % SFX[pool].length];
+const assignAudio = (shots) => shots.map((s) => {
+  const card = String(s.shotCard || '');
+  let audio;
+  if (card.startsWith('transition/')) {
+    audio = { src: nextSfx('whoosh'), volume: 0.3 };          // 转场模板 → whoosh 类
+  } else if (s.durationInFrames < 60 || s.params?.textAs === 'raw') {
+    audio = { src: nextSfx('hit'), volume: 0.32 };             // 短词/关键词镜头 → pop/sparkle/click
+  } else if (s.shotCard) {
+    audio = { src: nextSfx('transition'), volume: 0.16 };      // 常规模板镜头 → 轻量切点扫
+  } else {
+    audio = { src: 'audio/transition-soft.mp3', volume: 0.14 };// 素材镜头 → 最轻切点扫
+  }
+  return { ...s, audio };
+});
+
 const storyboard = {
   title: '口播视频',
   style: {
@@ -617,7 +640,8 @@ const storyboard = {
   },
   fps: FPS,
   audio: 'audio/voiceover.mp3',
-  shots: merged,
+  ambient: 'audio/ambient-room.mp3', // 全片底噪铺底（风格生成）
+  shots: assignAudio(merged),
 };
 
 writeFileSync(join(directorDir, 'storyboard.json'), JSON.stringify(storyboard, null, 2));

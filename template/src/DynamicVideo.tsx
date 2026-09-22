@@ -504,6 +504,10 @@ export type Shot = {
     keyword: string;
     gradient: [string, string];
   };
+  audio?: {
+    src: string;
+    volume?: number;
+  };
 };
 
 export type Theme = {
@@ -538,6 +542,7 @@ export type Storyboard = {
   };
   fps: number;
   audio?: string;
+  ambient?: string;
   base?: string;
   theme?: Theme;
   shots: Shot[];
@@ -734,12 +739,18 @@ export const DynamicVideo: React.FC<{ storyboard: Storyboard }> = ({ storyboard 
       {storyboard.audio && (
         <Audio src={staticFile(storyboard.audio)} volume={0.9} />
       )}
+      {storyboard.ambient && (
+        <Audio src={staticFile(storyboard.ambient)} volume={0.12} loop />
+      )}
       {storyboard.shots.map((shot, i) => {
         const from = currentFrom;
         currentFrom += shot.durationInFrames;
         return (
           <Sequence key={i} from={from} durationInFrames={shot.durationInFrames}>
             <ShotView shot={shot} style={storyboard.style} index={i} total={storyboard.shots.length} />
+            {shot.audio && (
+              <Audio src={staticFile(shot.audio.src)} volume={shot.audio.volume ?? 0.3} />
+            )}
           </Sequence>
         );
       })}
