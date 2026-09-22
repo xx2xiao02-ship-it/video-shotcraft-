@@ -1,7 +1,7 @@
 {
   "_meta": {
     "生成时间": "2026-09-22",
-    "说明": "模板参数注册表——TemplateAdapter/build-storyboard/console-ui 单一数据源。文字=shot.text 注入形态；色彩=C4 主题变量；图片视频=素材/media/装饰；数据=数值类。",
+    "说明": "模板参数注册表——TemplateAdapter/build-storyboard/console-ui 单一数据源。文字=shot.text 注入形态；色彩=C4 主题变量；图片视频=素材/media/装饰；数据=数值类。；tone=色调风格标签(dark深色/light浅色/colorful彩色，模板选择风格一致性维度)；style=视觉语言标签(typographic大字字效/hud终端屏/neon光效/line线条几何/card卡片面板/film胶片，模板视觉表现一致性维度)；capacity=文案容量(short≤10字/medium≤22字/long≤45字，整体文案→坑位文案→模板容量收敛校验)",
     "范围": "TemplateAdapter 契约注册组件（全量 36，enabled 34）"
   },
   "templates": [
@@ -23,7 +23,10 @@
         ],
         "数据": []
       },
-      "propsType": {}
+      "propsType": {},
+      "tone": "dark",
+      "style": "card",
+      "capacity": "long"
     },
     {
       "shotCard": "typography/cel-flash-stomp",
@@ -45,7 +48,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/flying-words",
@@ -67,7 +73,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/blur-slide",
@@ -96,7 +105,10 @@
         "text": "string",
         "headline": "string[]",
         "subhead": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-entrance-moves/letter-drop-physics",
@@ -118,7 +130,10 @@
       },
       "propsType": {
         "word": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-entrance-moves/scramble-decode",
@@ -140,7 +155,10 @@
       },
       "propsType": {
         "text": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-assembly-moves/split-text-stagger",
@@ -162,7 +180,10 @@
       },
       "propsType": {
         "text": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-assembly-moves/text-on-path",
@@ -184,7 +205,9 @@
       },
       "propsType": {
         "text": "string | string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "line"
     },
     {
       "shotCard": "typography/type-assembly-moves/letterform-drift-assembly",
@@ -206,7 +229,10 @@
       },
       "propsType": {
         "word": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-assembly-moves/tracking-expand-reveal",
@@ -228,7 +254,10 @@
       },
       "propsType": {
         "word": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-rhythm-sync/font-weight-pump",
@@ -250,7 +279,10 @@
       },
       "propsType": {
         "text": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/type-rhythm-sync/karaoke-fill-sync",
@@ -274,7 +306,10 @@
         "word": "Word",
         "frame": "number",
         "text": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/scramble",
@@ -296,7 +331,10 @@
       },
       "propsType": {
         "text": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/typewriter-moves/terminal-typewriter",
@@ -320,7 +358,10 @@
         "text": "string",
         "chars": "number",
         "cursorOn": "boolean"
-      }
+      },
+      "tone": "dark",
+      "style": "hud",
+      "capacity": "medium"
     },
     {
       "shotCard": "typography/typewriter-moves/typewriter-error-retype",
@@ -342,7 +383,10 @@
       },
       "propsType": {
         "text": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "hud",
+      "capacity": "medium"
     },
     {
       "shotCard": "typography/countdown-arc-scatter",
@@ -364,7 +408,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/paper-title-card",
@@ -402,7 +449,10 @@
         "color": "string",
         "value": "string",
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/marker-underline-title",
@@ -424,7 +474,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/outline-word-fill",
@@ -446,7 +499,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/gradient-word-sweep",
@@ -468,7 +524,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "colorful",
+      "style": "neon",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/lead-word-zoom-assemble",
@@ -491,7 +550,10 @@
       "propsType": {
         "text": "string",
         "highlight": "string"
-      }
+      },
+      "tone": "light",
+      "style": "card",
+      "capacity": "long"
     },
     {
       "shotCard": "typography/word-relay-geometry",
@@ -513,7 +575,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "medium"
     },
     {
       "shotCard": "typography/glitch-cycle",
@@ -535,7 +600,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/brace-expand",
@@ -561,7 +629,10 @@
         "sc": "number",
         "on": "number",
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/brand-ink-open",
@@ -583,7 +654,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "typography/vertical-word-roll-blur-cycle",
@@ -605,7 +679,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "long"
     },
     {
       "shotCard": "typography/word-relay-filmstrip",
@@ -628,7 +705,10 @@
       "propsType": {
         "seed": "number",
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "film",
+      "capacity": "long"
     },
     {
       "shotCard": "ui-entrance/list-reveal",
@@ -650,7 +730,10 @@
       },
       "propsType": {
         "labels": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "long"
     },
     {
       "shotCard": "ui-entrance/list-stack-press",
@@ -681,7 +764,10 @@
         "lineH": "number",
         "color": "string",
         "labels": "string[]"
-      }
+      },
+      "tone": "light",
+      "style": "card",
+      "capacity": "long"
     },
     {
       "shotCard": "ui-entrance/bezier-source-converge-merge",
@@ -703,7 +789,10 @@
       },
       "propsType": {
         "capWords": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "line",
+      "capacity": "medium"
     },
     {
       "shotCard": "ui-entrance/neon-frame-forerun",
@@ -729,7 +818,10 @@
         "w": "number",
         "t": "number",
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "neon",
+      "capacity": "medium"
     },
     {
       "shotCard": "ui-entrance/morph-from-primitive",
@@ -751,7 +843,10 @@
       },
       "propsType": {
         "words": "string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "outro/logo-shrink-wordmark-lockup",
@@ -778,7 +873,10 @@
         "opacity": "number",
         "stroke": "string",
         "wordmark": "string | string[]"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
@@ -802,7 +900,10 @@
         "size": "number",
         "bloom": "number",
         "word": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "line",
+      "capacity": "short"
     },
     {
       "shotCard": "outro/ui-to-brand-morph/input-morphs-into-logo",
@@ -824,7 +925,10 @@
       },
       "propsType": {
         "word": "string"
-      }
+      },
+      "tone": "dark",
+      "style": "typographic",
+      "capacity": "short"
     },
     {
       "shotCard": "data/odometer-digit-roll",

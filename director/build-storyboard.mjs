@@ -22,6 +22,26 @@ const timing = JSON.parse(readFileSync(join(directorDir, 'timing.json'), 'utf-8'
 const templateRegistry = existsSync(join(directorDir, 'template-registry.json'))
   ? JSON.parse(readFileSync(join(directorDir, 'template-registry.json'), 'utf-8'))
   : { templates: [] };
+
+// 色调风格标签（模板选择"风格一致性"维度；权威节点 template-registry.json）
+const CARD_TONE = {};
+for (const _t of (templateRegistry.templates || [])) {
+  if (_t.shotCard && _t.tone) CARD_TONE[_t.shotCard] = _t.tone;
+}
+const THEME_TARGET_TONE = 'dark'; // 当前主题深色系 → 目标色调
+// 视觉语言标签（模板视觉表现一致性维度；权威节点 template-registry.json）
+const CARD_STYLE = {};
+for (const _t of (templateRegistry.templates || [])) {
+  if (_t.shotCard && _t.style) CARD_STYLE[_t.shotCard] = _t.style;
+}
+const THEME_TARGET_STYLE = 'typographic'; // 口播主线：大字/字效为主风格家族
+// 文案容量（整体文案→坑位文案→模板容量收敛；权威节点 template-registry.json）
+const CARD_CAP = {};
+for (const _t of (templateRegistry.templates || [])) {
+  if (_t.shotCard && _t.capacity) CARD_CAP[_t.shotCard] = _t.capacity;
+}
+const CAP_LIMIT = { short: 10, medium: 26, long: 60 }; // long=媒体/列表承载，全文走字幕
+
 const REGISTERED_SHOTCARDS = new Set(
   (templateRegistry.templates || []).filter(t => t.enabled !== false).map(t => t.shotCard)
 );
@@ -329,21 +349,33 @@ const MODE_STYLE_WEIGHT = {
 };
 
 // 选效果卡：节奏 + 情绪 + 能量叙事 + 模式加权 + 使用降权（同分随机）
-function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text) {
+function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text, prevTone, prevStyle) {
   // 双向匹配①：坑位→模板——候选池只保留"已注册可注入文案"的模板（叶子级）
   let candidates = (L3[l2key] || []).filter(c => REGISTERED_SHOTCARDS.has(c));
   // 回退：该 l2 无注册模板 → 从全部注册模板里按模式类别加权兜底
   if (candidates.length === 0) candidates = [...REGISTERED_SHOTCARDS];
-  if (candidates.length === 1) return candidates[0];
   // 双向匹配②：模板→坑位——文字形态校验（raw 整句组件吃短句；words 切词组件可吃任意长句）
   const t = (text || '').trim();
   const textOk = (card) => {
     const low = card.toLowerCase();
-    if (RAW_CARD_PATTERN.test(low)) return t.length <= 14;   // 整句组件：≤14字短句直接呈现，超长不选raw模板
-    return true;                                              // 切词组件：切词数组自适应
+    const cap = CARD_CAP[card] || 'medium';
+    if (t.length > CAP_LIMIT[cap]) return false;              // 容量收敛：文案超模板容量不选
+    if (RAW_CARD_PATTERN.test(low)) return t.length <= 10;    // 整句组件：仅 short 容量（≤10字）
+    return true;
   };
   candidates = candidates.filter(textOk);
-  if (candidates.length === 0) candidates = (L3[l2key] || []).filter(c => REGISTERED_SHOTCARDS.has(c));
+  if (candidates.length === 1) return candidates[0]; // 单候选且容量匹配（不过校验已在此被滤掉）
+  if (candidates.length === 0) {
+    // 收敛降级：坑位池无容量匹配 → 容量优先跨池匹配（文案→容量收敛先于坑位类型，绝不硬塞大字模板）
+    const fb = [...REGISTERED_SHOTCARDS].filter(card => textOk(card));
+    const ranked = fb.map(card => ({
+      card,
+      gap: Math.abs(t.length - CAP_LIMIT[CARD_CAP[card] || 'medium']),
+    }));
+    ranked.sort((a, b) => a.gap - b.gap || a.card.localeCompare(b.card));
+    if (ranked.length > 0) candidates = ranked.slice(0, 5).map(r => r.card);
+    else return null; // 全库无容量匹配 → 不选模板，走纯字幕/素材承载
+  }
   // 重复硬剔除：同篇已用卡排除（池>1 时），彻底防同屏重复
   const used = Object.keys(cardUsage);
   const fresh = candidates.filter(c => !used.includes(c));
@@ -365,6 +397,16 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
     for (const [k, w] of Object.entries(modePref)) {
       if (low.startsWith(k)) { score += w; break; }
     }
+    // U4：色调风格一致性——与主题色调一致 +15；浅色/彩色与深色主题冲突 -10
+    const cardTone = CARD_TONE[card] || 'dark';
+    score += cardTone === THEME_TARGET_TONE ? 15 : -10;
+    // U5：相邻镜头衔接——与上一个镜头模板色调一致 +8（降低模板交替的割裂感）
+    if (prevTone) score += cardTone === prevTone ? 8 : -8;
+    // U6：视觉语言一致性——主风格家族(typographic) +12；异家族减分
+    const cardStyle = CARD_STYLE[card] || 'typographic';
+    score += cardStyle === THEME_TARGET_STYLE ? 12 : -8;
+    // U7：相邻镜头视觉语言衔接——同风格 +8，异风格 -10（模板衔接不跳变）
+    if (prevStyle) score += cardStyle === prevStyle ? 8 : -10;
     // 使用降权：同篇内已用过 -20/次（防同屏重复）
     score -= (cardUsage[card] || 0) * 20;
     const phy = physiqueOk(card, durationInFrames, type);
@@ -440,6 +482,8 @@ function pickShotType(text, index, total) {
 // ---------- 主流程（v4.1：预排主体 → 分支决策） ----------
 const l2Usage = {};   // 同 type 内 l2 使用次数（防堆叠）
 const cardUsage = {}; // 同篇效果卡使用次数（防同屏重复）
+let prevCardTone = null; // 相邻镜头模板色调（衔接一致性）
+let prevCardStyle = null; // 相邻镜头模板视觉语言（衔接一致性）
 const subjCount = { remotion: 0, material: 0, person: 0, aigc: 0 }; // 主体计数（比例轮转）
 let rawShots = timing.segments.map((seg, i) => {
   const type = pickShotType(seg.text, i, timing.segments.length);
@@ -491,8 +535,14 @@ let rawShots = timing.segments.map((seg, i) => {
     if (!material) fallback = { keyword: extractKeyword(seg.text), gradient: ['#1a1d24', '#0d0f14'] };
   } else {
     // ④ remotion 模板主体：双向赋权选卡（语义池 → 节奏/情绪/能量/模式/降权）
-    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text);
-    cardUsage[shotCard] = (cardUsage[shotCard] || 0) + 1;
+    shotCard = pickShotCard(l2key, durationInFrames, mood, cardUsage, type, globalMode, seg.text, prevCardTone, prevCardStyle);
+    if (shotCard) {
+      cardUsage[shotCard] = (cardUsage[shotCard] || 0) + 1;
+      prevCardTone = CARD_TONE[shotCard] || 'dark';
+      prevCardStyle = CARD_STYLE[shotCard] || 'typographic';
+    } else {
+      prevCardTone = null; prevCardStyle = null; // 纯字幕镜头不参与衔接约束
+    }
     const rs = resolveSlot(shotCard);
     slot = rs.slot;
     materialRole = rs.materialRole;
@@ -662,3 +712,18 @@ for (const s of merged) {
 }
 console.log(`✓ 坑位分布: ${JSON.stringify(slotCount)}`);
 console.log(`✓ 素材角色: ${JSON.stringify(roleCount)}`);
+// ---------- 收敛校验报告（文案→坑位→模板→风格 映射协作收敛） ----------
+console.log('--- 收敛校验: 文案长度 vs 模板容量 / 色调 / 视觉语言 ---');
+for (let i = 0; i < merged.length; i++) {
+  const s = merged[i];
+  if (!s.shotCard) { console.log(`#${i} 素材镜头 (文案${s.text.length}字, 字幕承载)`); continue; }
+  const cap = CARD_CAP[s.shotCard] || 'medium';
+  const tone = CARD_TONE[s.shotCard] || 'dark';
+  const style = CARD_STYLE[s.shotCard] || 'typographic';
+  const limit = CAP_LIMIT[cap];
+  const okLen = s.text.length <= limit ? 'OK' : `超限!(${limit})`;
+  const toneOk = tone === THEME_TARGET_TONE ? 'OK' : `异色调(${tone})`;
+  const styleOk = style === THEME_TARGET_STYLE ? 'OK' : `异风格(${style})`;
+  const note = okLen.startsWith('超限') ? ' ⚠收敛降级' : '';
+  console.log(`#${i} ${s.shotCard} 文案${s.text.length}字 容量${cap}[${okLen}] 色调${toneOk} 风格${styleOk}${note}`);
+}

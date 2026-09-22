@@ -3,17 +3,19 @@
 // 不求页面质感，全部灰阶。
 import React from 'react';
 
+// 主题化色板：值引用 DynamicVideo 根容器注入的 CSS 变量（风格中心 C4 → current-theme.json）
+// 全库 G.xxx 引用自动跟随主题；组件内硬编码色逐步收敛到 G / var()。
 export const G = {
-  bg: '#0d0f14',
-  panel: '#1a1d24',
-  line: '#dcdcda',
-  bar: '#c2c2c0',
-  ink: '#e8e6e1',
-  mid: '#8f8f8d',
-  card: '#ffffff',
-  border: '#d8d8d6',
-  side: '#3a3a3a',
-  sideBar: '#5a5a58',
+  bg: 'var(--bg)',
+  panel: 'var(--surface)',
+  line: 'var(--text-dim)',
+  bar: 'var(--text-dim)',
+  ink: 'var(--text)',
+  mid: 'var(--text-dim)',
+  card: 'var(--surface)',
+  border: 'var(--text-dim)',
+  side: 'var(--surface)',
+  sideBar: 'var(--text-dim)',
 };
 
 export const Card: React.FC<{

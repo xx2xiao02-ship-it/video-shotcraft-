@@ -1,0 +1,282 @@
+{
+ "ui-entrance/clipcard-looping": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/cel-flash-stomp": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 8,
+  "tone": "dark"
+ },
+ "typography/flying-words": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 2,
+  "g_refs": 0,
+  "tone": "colorful"
+ },
+ "typography/blur-slide": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/type-entrance-moves/letter-drop-physics": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 3,
+  "tone": "dark"
+ },
+ "typography/type-entrance-moves/scramble-decode": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 11,
+  "tone": "dark"
+ },
+ "typography/type-assembly-moves/split-text-stagger": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 4,
+  "tone": "dark"
+ },
+ "typography/type-assembly-moves/text-on-path": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 3,
+  "tone": "dark"
+ },
+ "typography/type-assembly-moves/letterform-drift-assembly": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 3,
+  "tone": "dark"
+ },
+ "typography/type-assembly-moves/tracking-expand-reveal": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 3,
+  "tone": "dark"
+ },
+ "typography/type-rhythm-sync/font-weight-pump": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 5,
+  "tone": "dark"
+ },
+ "typography/type-rhythm-sync/karaoke-fill-sync": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 6,
+  "tone": "dark"
+ },
+ "typography/scramble": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/typewriter-moves/terminal-typewriter": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 1,
+  "tone": "dark"
+ },
+ "typography/typewriter-moves/typewriter-error-retype": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 4,
+  "tone": "dark"
+ },
+ "typography/countdown-arc-scatter": {
+  "bg_dark": 0,
+  "bg_light": 1,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/paper-title-card": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/marker-underline-title": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/outline-word-fill": {
+  "bg_dark": 0,
+  "bg_light": 1,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/gradient-word-sweep": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 4,
+  "g_refs": 0,
+  "tone": "colorful"
+ },
+ "typography/lead-word-zoom-assemble": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 5,
+  "g_refs": 0,
+  "tone": "colorful"
+ },
+ "typography/word-relay-geometry": {
+  "bg_dark": 0,
+  "bg_light": 1,
+  "sat": 0,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/glitch-cycle": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 1,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/brace-expand": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/brand-ink-open": {
+  "bg_dark": 0,
+  "bg_light": 1,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/vertical-word-roll-blur-cycle": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "typography/word-relay-filmstrip": {
+  "bg_dark": 0,
+  "bg_light": 4,
+  "sat": 2,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "light"
+ },
+ "ui-entrance/list-reveal": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "ui-entrance/list-stack-press": {
+  "bg_dark": 0,
+  "bg_light": 2,
+  "sat": 0,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "light"
+ },
+ "ui-entrance/bezier-source-converge-merge": {
+  "bg_dark": 0,
+  "bg_light": 2,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "light"
+ },
+ "ui-entrance/neon-frame-forerun": {
+  "bg_dark": 1,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 1,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "ui-entrance/morph-from-primitive": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 6,
+  "tone": "dark"
+ },
+ "outro/logo-shrink-wordmark-lockup": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ },
+ "outro/ui-to-brand-morph/icon-flip-bloom-logo": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 0,
+  "grad": 0,
+  "g_refs": 8,
+  "tone": "dark"
+ },
+ "outro/ui-to-brand-morph/input-morphs-into-logo": {
+  "bg_dark": 0,
+  "bg_light": 0,
+  "sat": 1,
+  "grad": 0,
+  "g_refs": 0,
+  "tone": "dark"
+ }
+}
