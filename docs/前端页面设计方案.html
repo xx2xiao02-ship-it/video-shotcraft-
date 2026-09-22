@@ -5,11 +5,11 @@
   <!-- 封面头 -->
   <div style="max-width:1180px;margin:0 auto;">
     <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 前端页面设计方案</div>
-    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v2.2 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v2.3 · 2026-09-21 · 基于《业务主线与模块分工》框架 · 对应项目 E:\video-shotcraft</div>
     <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
       <b style="color:#d4a853;">文档目的：</b>把当前"单页堆叠"的操作台（console-ui.html，1394 行 / 62KB，7 个业务环节共用一页），按业务主线重构为 <b>5 视图工作台</b>。
       每视图聚焦一个业务环节，同时治理前端与后端 API 契约不一致的问题（UI 仍在调用 /api/logs、/api/action、/api/state、/api/preview、/api/materials 等旧接口，server 已改为 /api/task、/api/storyboard 等新接口）。<br>
-      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。<br><b style="color:#d4a853;">v1.5 新增：</b>全站主题变量化——221 处组件硬编码色调收敛为 CSS 变量（:root 默认 + applyTheme 联动），C4 主题一键铺满全站（header/卡片/按钮/状态栏整体联动）。<br><b style="color:#d4a853;">v1.6 新增：</b>风格中心主题驱动 Remotion 成片——「当前生效主题」落 director/current-theme.json（跨会话保持），build-storyboard 生成分镜时读取并填充 style/theme 色调，成片画面使用所选主题（背景/文字/强调色/进度条）。<br><b style="color:#d4a853;">v1.7 新增：</b>素材匹配升级——情绪标签（文案情绪 → 素材情绪匹配 +15 分）+ 使用频率降权（usage.json 计数，每次 -3，高频素材自动轮换）。<br><b style="color:#d4a853;">v1.8 新增：</b>P2 视图深度接入——编导台「保存文案」写 C1（_input.txt）、成片台出口真实化（Remotion Studio 启动+打开编辑器 / 成片画廊弹窗 / 单元测试 vitest），Workbench 如实标注未接入。<br><b style="color:#d4a853;">v1.9 新增：</b>收尾——新接口 Mock 兜底（script/save、gallery 离线可用）、usage.json 入 .gitignore（运行计数不入库）、制作台错误态（重试按钮 / 清空日志 / error 红色样式修复）。<br><b style="color:#d4a853;">v2.0 新增：</b>全链路 Mock 跑测通过 + 修复 fetchLogs 日志重复追加（离线/降级数据 since 固定时不再无限堆叠）。<br><b style="color:#d4a853;">v2.1 新增：</b>分镜校准恢复素材缩略图——每镜头显示匹配素材缩略图（/api/library/thumb，Remotion 文字卡显示 🎞️ 占位），修复缩略图 lazy 加载导致视口外不显示的问题。<br><b style="color:#d4a853;">v2.2 新增：</b>分镜缩略图改为 Remotion 模板效果图——每镜头显示 shotCard 对应效果卡的 poster（gallery/media/poster/<效果卡名>.jpg），并补齐全部 157 个效果卡缩略图（上游 gallery-media Release 下载 mp4 + ffmpeg 抽帧，161 张全量覆盖）。
+      <b style="color:#d4a853;">v1.1 新增：</b>五、关键数据收敛节点（收敛规则）；六、数据契约与 mock 示例（16 个接口的请求/响应样例，基于真实文件结构）；验收标准增加 Mock 验收与收敛校验。<br><b style="color:#d4a853;">v1.2 新增：</b>十、实施状态记录（P0-1 五视图骨架 / P0-2 Mock 数据层已落地，接口落地状态表，剩余 P0-3 对齐清单）；文档与实现同步更新。<br><b style="color:#d4a853;">v1.3 新增：</b>P0-3 接口对齐已落地（server 补齐 11 个真实接口，UI 旧接口名收敛到唯一清单，主流程真实数据全通）；接口落地状态表全绿更新。<br><b style="color:#d4a853;">v1.4 新增：</b>P1 落地——素材库打标写 C5（增删标签 + 分类统计条）、风格中心读写 C4（启动加载真实主题 + 保存双写 theme-pack.json）。<br><b style="color:#d4a853;">v1.5 新增：</b>全站主题变量化——221 处组件硬编码色调收敛为 CSS 变量（:root 默认 + applyTheme 联动），C4 主题一键铺满全站（header/卡片/按钮/状态栏整体联动）。<br><b style="color:#d4a853;">v1.6 新增：</b>风格中心主题驱动 Remotion 成片——「当前生效主题」落 director/current-theme.json（跨会话保持），build-storyboard 生成分镜时读取并填充 style/theme 色调，成片画面使用所选主题（背景/文字/强调色/进度条）。<br><b style="color:#d4a853;">v1.7 新增：</b>素材匹配升级——情绪标签（文案情绪 → 素材情绪匹配 +15 分）+ 使用频率降权（usage.json 计数，每次 -3，高频素材自动轮换）。<br><b style="color:#d4a853;">v1.8 新增：</b>P2 视图深度接入——编导台「保存文案」写 C1（_input.txt）、成片台出口真实化（Remotion Studio 启动+打开编辑器 / 成片画廊弹窗 / 单元测试 vitest），Workbench 如实标注未接入。<br><b style="color:#d4a853;">v1.9 新增：</b>收尾——新接口 Mock 兜底（script/save、gallery 离线可用）、usage.json 入 .gitignore（运行计数不入库）、制作台错误态（重试按钮 / 清空日志 / error 红色样式修复）。<br><b style="color:#d4a853;">v2.0 新增：</b>全链路 Mock 跑测通过 + 修复 fetchLogs 日志重复追加（离线/降级数据 since 固定时不再无限堆叠）。<br><b style="color:#d4a853;">v2.1 新增：</b>分镜校准恢复素材缩略图——每镜头显示匹配素材缩略图（/api/library/thumb，Remotion 文字卡显示 🎞️ 占位），修复缩略图 lazy 加载导致视口外不显示的问题。<br><b style="color:#d4a853;">v2.2 新增：</b>分镜缩略图改为 Remotion 模板效果图——每镜头显示 shotCard 对应效果卡的 poster（gallery/media/poster/<效果卡名>.jpg），并补齐全部 157 个效果卡缩略图（上游 gallery-media Release 下载 mp4 + ffmpeg 抽帧，161 张全量覆盖）。<br><b style="color:#d4a853;">v2.3 新增：</b>制作台与成片台合并——导航 5→4 视图，制作台一页贯通（分镜校准 → 渲染 → 同页成片预览 + 出口卡 + 高级工具）；修复渲染失败（clipcard-looping 效果缺 public/clips/clipcard-demo.mp4 素材 + Remotion bundle 缓存未刷新）。
     </div>
   </div>
 
@@ -522,7 +522,10 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
       <b style="color:#d4a853;">验证：</b>真实文案（520 字）A 模式重跑 plan → 分镜 19 镜头，15 镜头带缩略图全部加载成功、4 文字卡占位，浏览器截图确认显示正常 ✓。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ Remotion 模板缩略图（已实施，本版提交）</div>
       <b style="color:#d4a853;">实现：</b>分镜每镜头显示其 shotCard（如 camera/crash-zoom-punch）对应效果卡的模板缩略图 gallery/media/poster/<效果名>.jpg；crash-impact 回退 crash-zoom-punch；无效果名时 🎞️ 占位。<br>
       <b style="color:#d4a853;">全量补齐：</b>从上游 Vincentwei1021/video-shotcraft 的 gallery-media Release 下载 147 个效果 mp4（代理 127.0.0.1:7897），ffmpeg 抽帧生成 poster（320×180，q6），效果卡缩略图 64 → 161 张全量覆盖；mp4 按 .gitignore 不入库，poster jpg 入库。<br>
-      <b style="color:#d4a853;">验证：</b>真实文案重跑 plan → 19 镜头全部显示模板缩略图且 19/19 加载成功（hidden=0），截图确认 ✓。
+      <b style="color:#d4a853;">验证：</b>真实文案重跑 plan → 19 镜头全部显示模板缩略图且 19/19 加载成功（hidden=0），截图确认 ✓。<br><br><div style="font-size:14px;font-weight:700;color:#4ade80;">✅ 制作台×成片台合并 + 渲染修复（已实施，本版提交）</div>
+      <b style="color:#d4a853;">合并：</b>导航去掉「成片台」，制作台标题升级为「分镜校准 / 渲染 / 成片出口（C2/C3/C6/C7）」；成片预览卡、5 个出口卡（渲染模板/Remotion Studio/Workbench/Gallery/单元测试）、高级工具折叠全部并入制作台；渲染完成不再跳视图，同页显示成片预览并自动滚动到预览区。<br>
+      <b style="color:#d4a853;">渲染失败修复：</b>clipcard-looping 效果卡需要 public/clips/clipcard-demo.mp4 示例视频（上游无现成）→ ffmpeg testsrc2 生成占位素材（30fps 方形）入库；同时清理 Remotion webpack bundle 缓存（渲染用旧 public 副本导致新素材 404）。<br>
+      <b style="color:#d4a853;">验证：</b>合并后 4 tab 导航、制作台含全部成片区 ✓；清缓存后完整渲染 2376 帧成功（exitCode 0，成片 17.6MB，1:19）；同页预览卡显示成片可播放 ✓。
     </div>
     <div style="margin-top:12px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:12.5px;color:#aab0bc;line-height:1.9;">
       <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;">接口落地状态表（UI 实际调用视角）</div>
@@ -543,7 +546,7 @@ GET /api/stream → video/mp4 视频流（Range 支持）</pre>
     </div>
   </div>
 <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
-    Video ShotCraft · 前端页面设计方案 v2.2 · 含数据契约 / Mock 示例 / 收敛节点 · P0~P3 + P2 已实施：5 视图 + Mock（全链路验证）/真实接口双通道 + C4/C5 读写 + 主题驱动成片 + 素材情绪/降权 + 视图出口真实化 + 错误态/重试 + 分镜模板缩略图（全量 161 张）
+    Video ShotCraft · 前端页面设计方案 v2.3 · 含数据契约 / Mock 示例 / 收敛节点 · P0~P3 + P2 已实施：4 视图（制作/成片合并）+ Mock（全链路验证）/真实接口双通道 + C4/C5 读写 + 主题驱动成片 + 素材情绪/降权 + 视图出口真实化 + 错误态/重试 + 模板缩略图全量 + 渲染链路修复
   </div>
 
 </div>
