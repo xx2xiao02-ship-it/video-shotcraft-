@@ -39,18 +39,18 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>模板三类参数全景 <span class="ver">v1.0 · 2026-09-21</span></h1>
-  <div class="sub">色彩 / 文字 / 图片视频 —— Remotion 模板（221 组件）参数分类治理 · 与「四层编导架构升级研究」「风格中心 C4」同体系</div>
+  <h1>模板三类参数全景 <span class="ver">v1.1 · 2026-09-22</span></h1>
+  <div class="sub">色彩 / 文字 / 图片视频 —— Remotion 模板（221 组件）参数分类治理 · P1-P3 已落地验证（v1.1 实施记录）· 与「四层编导架构升级研究」「风格中心 C4」同体系</div>
 
   <div class="verdict">
-    <b>一句话结论：</b>色彩已收敛（C4 主题变量化）；<span class="bad">文字参数未治理</span>（字幕 4 预设 + 回退层硬编码、221 组件字体族各自硬编码、无公共字体族注入）；<span class="warn">图片视频半治理</span>（素材层走数据驱动但 opacity/位置硬编码、组件内 staticFile 装饰素材不可替换、外部素材无法进入组件画面只能做底）。
+    <b>一句话结论：</b>三类参数已全部治理并渲染验证通过——🎨 色彩收敛 C4 主题变量化；🔤 文字参数入 C4（fontFamily/captionSize/captionWeight/captionColor + fallbackSize/fallbackAlpha 经 storyboard.style 注入字幕层与回退层）；🖼️ 图片视频完成 P2 媒体参数化（materialOpacity 主题可控）+ P3 组件媒体输入契约（用户素材经服务端视频流零复制进组件画面，clipcard-looping 单卡模式实证）。
   </div>
 
   <table>
     <tr><th>类别</th><th>现状</th><th>公共参数入口</th><th>主要缺口</th></tr>
     <tr><td><b>🎨 色彩</b></td><td><span class="tag tag-ok">已治理</span></td><td>C4：Theme 7 色（CSS 变量）+ Storyboard.style 4 色 + captionStyle</td><td>无（R2 规则已生效）</td></tr>
-    <tr><td><b>🔤 文字</b></td><td><span class="tag tag-no">未治理</span></td><td>无公共入口——字幕/回退层硬编码，组件字体族 15+ 种硬编码</td><td>字体族公共覆盖缺失；字幕字号/字重/字色/阴影不可调；fallback 大字硬编码</td></tr>
-    <tr><td><b>🖼️ 图片视频</b></td><td><span class="tag tag-half">半治理</span></td><td>素材视频层（shot.material → /api/library/video）+ fallback 渐变（数据驱动）</td><td>素材 opacity 0.6 / objectFit / 位置硬编码；组件 staticFile 装饰素材不可替换；组件无外部媒体输入契约</td></tr>
+    <tr><td><b>🔤 文字</b></td><td><span class="tag tag-ok">已治理</span></td><td>storyboard.style 7 字段（fontFamily/captionSize/captionWeight/captionColor/materialOpacity/fallbackSize/fallbackAlpha）经 build-storyboard 全量注入</td><td>组件内 221 处字号保留（效果特征）；组件级字体族仍各自硬编码（CSS 变量 --font-family 已覆盖根容器，未逐组件侵入）</td></tr>
+    <tr><td><b>🖼️ 图片视频</b></td><td><span class="tag tag-ok">已治理</span></td><td>素材层 shot.material → 服务端视频流；组件媒体输入契约 media → 服务端视频流 URL</td><td>35% 触发概率可调；media URL 固定 127.0.0.1:8765（远程部署需改相对服务端地址）</td></tr>
   </table>
 
   <h2>一、🎨 色彩（已完成 · 引用现状）</h2>
@@ -65,24 +65,30 @@
     <p class="good">✅ R2 硬规则：风格修改只经 C4（theme-pack.json → current-theme.json → storyboard.style），禁止绕过直改 221 组件硬编码色。</p>
   </div>
 
-  <h2>二、🔤 文字参数（本次盘点 · 未治理）</h2>
+  <h2>二、🔤 文字参数（P1 已落地 · 2026-09-22）</h2>
   <div class="card">
     <h3>2.1 公共层硬编码清单（DynamicVideo.tsx）</h3>
     <table>
       <tr><th>位置</th><th>参数</th><th>当前值</th><th>状态</th></tr>
-      <tr><td rowspan="5">字幕 4 预设<br>captionStylePresets</td><td>pill</td><td>fontSize 36 · weight 600 · 白字 · 黑底 0.6 模糊 · 圆角 12 · 阴影</td><td rowspan="4" class="warn">硬编码<br>不可调</td></tr>
+      <tr><td rowspan="5">字幕 4 预设<br>captionStylePresets</td><td>pill</td><td>fontSize 36 · weight 600 · 白字 · 黑底 0.6 模糊 · 圆角 12 · 阴影</td><td rowspan="4" class="good">P1 参数化<br>style 注入</td></tr>
       <tr><td>plain</td><td>fontSize 38 · weight 500 · 白字 · 阴影</td></tr>
       <tr><td>bold</td><td>fontSize 48 · weight 900 · #ffe600 · 4 向描边</td></tr>
       <tr><td>underline</td><td>fontSize 32 · weight 400 · 白字 0.9 · letterSpacing 2 · 下划线</td></tr>
-      <tr><td>共同</td><td>lineHeight 1.4~1.5 · textAlign center · 字幕底部 70px · maxWidth 1400</td><td class="warn">硬编码</td></tr>
-      <tr><td rowspan="4">fallback 回退层<br>（素材/AIGC 兜底）</td><td>关键词大字</td><td>fontSize 96 · weight 900 · letterSpacing 4 · 白 14% · sans-serif</td><td rowspan="4" class="warn">硬编码<br>不可调</td></tr>
+      <tr><td>共同</td><td>lineHeight 1.4~1.5 · textAlign center · 字幕底部 70px · maxWidth 1400</td><td class="warn">保留预设默认</td></tr>
+      <tr><td rowspan="4">fallback 回退层<br>（素材/AIGC 兜底）</td><td>关键词大字</td><td>fontSize 96 · weight 900 · letterSpacing 4 · 白 14% · sans-serif</td><td rowspan="4" class="good">P1 参数化<br>style 注入</td></tr>
       <tr><td>渐变底</td><td>shot.fallback.gradient[0/1]（数据驱动 ✓）</td><td class="good">数据</td></tr>
       <tr><td>布局</td><td>绝对居中 flex</td><td class="warn">硬编码</td></tr>
-      <tr><td>顶部进度条</td><td>height 4 · bg 白 8% · 填充 accent（色已参数化 ✓）</td><td class="half">半参数化</td></tr>
+      <tr><td>顶部进度条</td><td>height 4 · bg 白 8% · 填充 accent（色已参数化 ✓）</td><td class="good">色参数化</td></tr>
     </table>
   </div>
 
   <div class="card">
+    <h3>2.1b P1 落地内容</h3>
+    <ul>
+      <li><b>数据链</b>：console-ui THEMES 8 套 + 自定义（字段名与 current-theme.json 完全一致，applyTheme 全量 PUT 自动透传）→ current-theme.json → build-storyboard 一次读取注入 style 7 字段 → DynamicVideo props + CSS 变量 <code>--font-family</code></li>
+      <li><b>消费点</b>：字幕层 capFont/capSize/capWeight/capColor 覆盖 4 预设；fallback 大字 fontSize/color/字体族参数化；根容器字体族 CSS 变量</li>
+      <li><b>默认值</b>：captionSize 36 / captionWeight 600 / captionColor #ffffff / materialOpacity 0.6 / fallbackSize 96 / fallbackAlpha 0.14</li>
+    </ul>
     <h3>2.2 组件层字体族分布（demos 221 组件 · 各自硬编码）</h3>
     <table>
       <tr><th>字体族</th><th>出现次数</th><th>备注</th></tr>
@@ -100,13 +106,13 @@
     </ul>
   </div>
 
-  <h2>三、🖼️ 图片视频素材输入（本次盘点 · 半治理）</h2>
+  <h2>三、🖼️ 图片视频素材输入（P2+P3 已落地 · 2026-09-22）</h2>
   <div class="card">
     <h3>3.1 公共层（数据驱动已通）</h3>
     <table>
       <tr><th>通道</th><th>参数</th><th>当前值</th><th>状态</th></tr>
       <tr><td rowspan="3">素材视频层<br>（shot.material）</td><td>src</td><td><code>/api/library/video?path=...</code>（编码后）</td><td class="good">数据驱动</td></tr>
-      <tr><td>opacity</td><td><b>0.6</b>（做底）</td><td class="warn">硬编码</td></tr>
+      <tr><td>opacity</td><td>shot.materialOpacity（默认 0.6，主题可控）</td><td class="good">P2 参数化</td></tr>
       <tr><td>objectFit / 布局</td><td>cover · inset 0 · 100%</td><td class="warn">硬编码</td></tr>
       <tr><td rowspan="2">fallback 回退</td><td>渐变</td><td>shot.fallback.gradient[0/1]</td><td class="good">数据驱动</td></tr>
       <tr><td>关键词占位</td><td>shot.fallback.keyword（大字）</td><td class="good">数据驱动</td></tr>
@@ -117,11 +123,11 @@
       <li>相机类共用 <code>textures/live/*.png</code>：projects-full / projects-empty / card4-hires / card1 / card7 / paper1 / paper3 / nav / float-search / float-stats / wbr-full 等</li>
       <li>单文件示例：StreamResponse <code>./agent-stream.jpg</code></li>
     </ul>
-    <p><b>② 外部素材输入 props</b>：<span class="bad">几乎为零</span>——全库仅 PageCam2D 的 <code>src: string</code>（仍是 staticFile 路径参数）。<b>用户素材无法进入组件画面</b>，只能通过 shot.material 做全屏底。</p>
-    <h3>3.3 注入缺口</h3>
+    <p><b>② 外部素材输入 props</b>：<span class="good">P3 已打通</span>——组件媒体输入契约 <code>ui-entrance/clipcard-looping</code>（propsMap <code>media → src</code>），ClipCard 支持 http(s) 走服务端视频流（<code>src.startsWith('http')</code> 分支），用户素材<b>零复制进组件画面</b>（视频卡片单卡模式）。分镜命中 media 镜头经 build-storyboard 写入服务端 URL，渲染实证 19.5MB 成片素材卡正常显示。</p>
+    <h3>3.3 注入缺口（P3 后）</h3>
     <ul>
-      <li><code>ShotData.baseVideo</code> 已在类型定义，但<span class="bad">契约注册表无映射、ShotView 未使用</span>——组件级媒体输入通道半成品</li>
-      <li>素材 opacity / 位置 / 遮罩<span class="warn">不可调</span>（编导侧无法控制素材呈现强度）</li>
+      <li><span class="good">已解决</span>：ShotData.media 契约打通；素材 opacity 主题可控；media 镜头渲染验证通过（2 帧抽查素材卡正常）</li>
+      <li><span class="warn">遗留</span>：media URL 写死 <code>http://127.0.0.1:8765</code>（远程/换端口环境需改相对服务端地址）；数据展示型组件（odometer/counter-confetti）契约 enabled:false 暂不注入整句</li>
     </ul>
   </div>
 
@@ -131,34 +137,38 @@
       <span class="n">🎨 色彩</span><span class="a">→</span><span class="n">风格中心 C4</span><span class="a">→</span><span class="n">theme-pack.json</span><span class="a">→</span><span class="n">current-theme.json</span><span class="a">→</span><span class="n">storyboard.style</span><span class="a">→</span><span class="n">DynamicVideo 变量+props</span><span class="a">→</span><span class="n">221 组件</span>
     </div>
     <div class="flow">
-      <span class="n">🔤 文字</span><span class="a">→</span><span class="n bad">无公共入口</span><span class="a">→</span><span class="n">字幕 4 预设（硬编码）</span><span class="a">+</span><span class="n">组件字体族（15+ 硬编码）</span><span class="a">→</span><span class="n bad">字体族不统一</span>
+      <span class="n">🔤 文字</span><span class="a">→</span><span class="n">C4 风格中心</span><span class="a">→</span><span class="n">current-theme.json 7 字段</span><span class="a">→</span><span class="n">build-storyboard 注入 style</span><span class="a">→</span><span class="n">DynamicVideo 字幕/回退/根字体族</span><span class="a">→</span><span class="n good">全链路参数化</span>
     </div>
     <div class="flow">
-      <span class="n">🖼️ 图片视频</span><span class="a">→</span><span class="n">素材库 C5</span><span class="a">→</span><span class="n">shot.material</span><span class="a">→</span><span class="n">渲染层素材视频（opacity 0.6 硬编码）</span><span class="a">+</span><span class="n">组件 staticFile 装饰（不可替换）</span>
+      <span class="n">🖼️ 图片视频</span><span class="a">→</span><span class="n">素材库 C5</span><span class="a">→</span><span class="n">shot.material / shot.media</span><span class="a">→</span><span class="n">服务端视频流（/api/library/video）</span><span class="a">→</span><span class="n">素材层（opacity 主题可控）</span><span class="a">+</span><span class="n">组件画面（clipcard-looping 单卡）</span>
     </div>
   </div>
 
-  <h2>五、治理建议（优先级排序）</h2>
+  <h2>五、实施记录（P1-P3 已全部落地）</h2>
   <div class="card">
-    <h3>P1 · 文字公共参数入 C4（推荐先做）</h3>
+    <h3>P1 · 文字公共参数入 C4 ✅ 已落地（commit 92907e8）</h3>
     <ul>
-      <li>C4 新增文字参数 4 项：<code>fontFamily</code>（公共字体族，中文场景统一思源黑体/得意黑）、<code>captionSize</code>（字幕字号 32/36/40）、<code>captionWeight</code>（400/600/800）、<code>captionColor</code>（白/#ffe600 等）</li>
-      <li>注入链：theme-pack.json → current-theme.json → storyboard.style 扩展（fontFamily/caption*）→ DynamicVideo 字幕层 + TranslatedShot 注入 fontFamily prop</li>
-      <li>组件字体族：经 CSS 变量 <code>--font-family</code> 覆盖（不动 221 组件源码，最少侵入）</li>
+      <li>C4 文字参数 4 项入 <code>current-theme.json</code>：<code>fontFamily / captionSize / captionWeight / captionColor</code>，随 P2 预埋 <code>materialOpacity / fallbackSize / fallbackAlpha</code> 共 7 字段</li>
+      <li>注入链：console-ui THEMES（8 套 + 自定义继承）→ PUT /api/theme/current → current-theme.json → build-storyboard 全量注入 style → DynamicVideo 字幕层 capFont/capSize/capWeight/capColor + fallback 大字 + 根容器 <code>--font-family</code></li>
+      <li>默认值：36 / 600 / #ffffff / 0.6 / 96 / 0.14</li>
     </ul>
-    <h3>P2 · 媒体参数半参数化</h3>
+    <h3>P2 · 媒体参数化 ✅ 已落地（commit 92907e8）</h3>
     <ul>
-      <li>素材视频层 opacity / objectFit 入 storyboard（shot.materialOpacity 0.3~1.0），编导台可调素材呈现强度</li>
-      <li>fallback 大字字号/透明度参数化（当前 96px/14% 硬编码）</li>
+      <li>素材视频层 opacity 入 style（<code>shot.materialOpacity ?? style.materialOpacity ?? 0.6</code>），编导台/主题可调素材呈现强度</li>
+      <li>fallback 大字字号/透明度参数化（fallbackSize 默认 96 / fallbackAlpha 默认 0.14）</li>
     </ul>
-    <h3>P3 · 组件媒体输入契约（大工程，可选）</h3>
+    <h3>P3 · 组件媒体输入契约 ✅ 已落地并渲染验证（commit 92907e8）</h3>
     <ul>
-      <li>启用 ShotData.baseVideo：契约注册表加 <code>media: 'imageSrc'</code> 类映射，让部分组件接受外部素材（如卡片类替换 card4-hires.png）</li>
-      <li>组件 staticFile 装饰素材目录化（textures/live → 可替换资源），用户素材可进组件画面</li>
+      <li>契约 <code>ui-entrance/clipcard-looping</code>：propsMap <code>media → src / durationInFrames → durationInFrames</code>；ClipCard 增加 http(s) 分支（<code>src.startsWith('http')</code> 走服务端流，本地才 staticFile）</li>
+      <li>ClipCardLooping 单卡模式：src 存在时渲染素材卡（size/loopDuration/captionSize 按时长自适应），无 src 保持原三场景演示</li>
+      <li>build-storyboard：素材主体镜头 35% 概率写 <code>media=http://127.0.0.1:8765/api/library/video?path=...</code>（零复制）；pit 走 remotion/video-local/element</li>
+      <li>契约类型修复：string 类组件（lead-word-zoom-assemble/scramble/scramble-decode/split-text-stagger/font-weight-pump/terminal-typewriter/typewriter-error-retype/单字类）补 <code>textAs: 'raw'</code>；数据牌组件（odometer/counter-confetti）enabled:false 不注入整句</li>
+      <li>渲染验证：2376 帧全通过，成片 19.5MB；media 镜头 2 帧抽查素材卡正常显示</li>
     </ul>
+    <p class="good">✅ 数据调用便利性规则：四端字段名完全一致（THEMES ↔ current-theme.json ↔ style ↔ 组件 props），build-storyboard 一次读取全量注入，素材经服务端流零复制。</p>
   </div>
 
-  <div class="foot">Video ShotCraft · 模板三类参数全景 v1.0 · 色彩（已治理）/ 文字（待治理）/ 图片视频（半治理）· 与 C4 风格中心、C5 素材库、四层编导架构同体系 · 2026-09-21</div>
+  <div class="foot">Video ShotCraft · 模板三类参数全景 v1.1 · 色彩 / 文字 / 图片视频 三类参数已全部治理并渲染验证 · 与 C4 风格中心、C5 素材库、四层编导架构同体系 · 2026-09-22</div>
 </div>
 </body>
 </html>
