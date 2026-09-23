@@ -1,13 +1,45 @@
 <html style="margin:0;padding:0;">
-<title>Video ShotCraft 开发指南</title>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230D0F14'/%3E%3Ctext x='32' y='46' font-size='34' text-anchor='middle' fill='%23D4A853'%3ESC%3C/text%3E%3C/svg%3E">
+</head>
+<title>Video ShotCraft 开发指南 v2.0 · 整改基线</title>
 <div style="width:100%;box-sizing:border-box;background:#0d0f14;color:#e6e9ef;font-family:'Microsoft YaHei','PingFang SC',sans-serif;padding:32px 24px;">
 
   <div style="max-width:1180px;margin:0 auto;">
-    <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 开发指南</div>
-    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.0 · 2026-09-21 · 配套《业务主线与模块分工》《前端页面设计方案》 · 项目根 E:\video-shotcraft</div>
-    <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
-      <b style="color:#d4a853;">本文档回答"项目怎么跑起来、每块代码在干什么、出了问题怎么查"</b>——
-      环境依赖、启动方式、目录结构、核心管线原理、Git 工作流、常见问题排查。
+    <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 开发指南（整改基线版）</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v2.0 · 2026-09-23 · 覆盖至 commit 7f70d75（切词碎块根治） · 项目根 E:\video-shotcraft</div>
+    <div style="margin-top:16px;background:#14171f;border:1px solid #d4a853;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
+      <b style="color:#d4a853;">本版核心：确立「整改基线」。</b>本文档回答三件事：① 项目当前架构与数据链的<b style="color:#fff;">权威收敛节点</b>（改哪里写哪里，禁止绕过）；② 模板选择与文案呈现的<b style="color:#fff;">硬性规则</b>（容量/色调/视觉语言/整句碎块/黑名单/降级链）；③ 改代码前必须对照的<b style="color:#fff;">禁止清单（RED FLAG）</b>与<b style="color:#fff;">提交前验收流程</b>。凡与本文档冲突的修改，视为违规——先改文档基线，再改代码。
+    </div>
+  </div>
+
+  <!-- 〇、基线总览 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">〇、整改基线总览（先读这张图）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:14px;font-size:12px;color:#9fd0a0;line-height:1.7;overflow-x:auto;margin:0;white-space:pre-wrap;">数据链（单向流动，收敛节点唯一）：
+  C1 _input.txt ──tts.py──▶ C2 timing.json（语音时间轴，ffprobe真实时长）
+      └─────────────▶ director/current-theme.json（C4 主题：色调/字体/风格token）
+                        │
+  C2 + taxonomy ──build-storyboard.mjs──▶ C3 storyboard.json（分镜：类型/坑位/模板/素材/时长/降级链）
+                        │  ▲ 读 template-registry.json（35模板能力注册表）
+                        │  ▲ 读 materials/_index.json（C5 素材索引 3396）
+                        ▼
+  C3 ──render.mjs──▶ props.json ──Remotion(DynamicVideo)──▶ C7 dynamic.mp4
+
+★ 权威节点（单一数据源，改数据必须写这里，禁止绕过）：
+  - director/template-registry.json  模板能力（tone/style/capacity/三类参数 + _meta.治理沿革）
+  - director/build-storyboard.mjs    模板选择/文案收敛/降级链的全部逻辑
+  - director/storyboard.json         分镜结果（C3）
+  - director/current-theme.json      主题风格（C4）
+  - materials/_index.json            素材索引（C5）</pre>
+      <div style="font-size:12px;color:#8b93a3;margin-top:10px;line-height:1.8;">
+        <b style="color:#ff6b6b;">已确立的三条整改基线（对应历史事故，必须长期执行）：</b><br>
+        <b>基线 A · 切词单点化</b>：文案切词只在 build-storyboard 做一次，storyboard 直接给最终 chunks；渲染层（TemplateAdapter）只消费，<b style="color:#ff6b6b;">禁止二次切词覆盖</b>（历史事故：渲染层 splitToWords 6字硬切 → "刷到一条好视/频"碎块）。<br>
+        <b>基线 B · 模板能力自描述</b>：模板行为由 registry 声明（textMode raw/chunk/carrier、tone、style、capacity、媒体需求），编导层<b style="color:#ff6b6b;">读声明选模板，禁止靠名字猜行为</b>（历史事故：clipcard 是演示 demo、filmstrip 固定英文大字，编导层不知道）。<br>
+        <b>基线 C · 风格 token 化</b>：颜色/字体/字号由主题下发，组件<b style="color:#ff6b6b;">零硬编码</b>（禁止英文 demo 文案/预置字体/参数 UI——历史事故：clipcard 参数面板、vertical-roll "Built for" 残留）。
+      </div>
     </div>
   </div>
 
@@ -17,28 +49,28 @@
     <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
       <div style="display:flex;flex-wrap:wrap;gap:10px;">
         <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Node.js</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">v22.23.2 · 操作台服务 + Remotion 渲染</div>
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Node.js v22.23.2</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">操作台服务 + Remotion 渲染 + build-storyboard</div>
         </div>
         <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Python 3.14.6</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">TTS 脚本专用。<b>必须用固定路径</b>：C:\Users\Administrator\AppData\Local\Python\bin\python.exe</div>
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Python（固定路径）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">C:\Users\Administrator\AppData\Local\Python\bin\python.exe。TTS/工具脚本专用，勿用系统 python。</div>
         </div>
         <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">ffmpeg 8.1.2</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">已在 PATH。tts.py 用 ffprobe 读取每段 mp3 真实时长（字幕对齐关键）。</div>
-        </div>
-        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">edge-tts 7.2.8</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">微软免费 TTS。男声 zh-CN-YunxiNeural，含 3 次重试。</div>
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">ffmpeg / ffprobe</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">已在 PATH。tts.py 读真实时长、抽帧验证、ffprobe 核验成片。</div>
         </div>
         <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
           <div style="font-size:13px;font-weight:700;color:#d4a853;">Chrome（渲染内核）</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">路径：C:\Users\Administrator\AppData\Local\Google\Chrome\Application\chrome.exe。Remotion 用它做无头渲染，不可缺。</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">C:\Users\Administrator\AppData\Local\Google\Chrome\Application\chrome.exe。Remotion 无头渲染必需。</div>
         </div>
         <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Remotion 4.0.484</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">template/ 内 node_modules 已装：@remotion/cli + react 19.2.7 + typescript 6.0.3。</div>
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Remotion 4.0.526</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">template/ 内 node_modules 已装。版本需一致（日志曾提示 motion-blur 版本漂移警告，勿动）。</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">edge-tts 7.2.8</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">微软免费 TTS，男声 zh-CN-YunxiNeural，内置 3 次重试。</div>
         </div>
       </div>
     </div>
@@ -48,104 +80,134 @@
   <div style="max-width:1180px;margin:28px auto 0;">
     <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">二、启动与停止</div>
     <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.0;">
-      <b style="color:#d4a853;">启动操作台：</b>双击 <b>start-console.bat</b>，或命令行 <span style="color:#9fd0a0;">node console-server.mjs</span>（在 E:\video-shotcraft 下）→ 浏览器自动打开 <b>http://127.0.0.1:8765</b><br>
-      <b style="color:#d4a853;">停止：</b>关闭运行窗口；或任务管理器结束 node 进程。<br>
-      <b style="color:#d4a853;">端口占用排查：</b><span style="color:#9fd0a0;">netstat -ano | findstr 8765</span> → 找到 PID → <span style="color:#9fd0a0;">taskkill /PID &lt;PID&gt; /F</span><br>
-      <b style="color:#d4a853;">工作台/其他入口：</b>Remotion Studio（npx remotion studio）、Motion Workbench（node workbench/scripts/open.mjs）、Gallery（gallery/ 静态站）都从操作台卡片进入。
+      <b style="color:#d4a853;">启动操作台：</b>双击 <b>start-console.bat</b>，或 <span style="color:#9fd0a0;">node console-server.mjs</span>（E:\video-shotcraft 下）→ http://127.0.0.1:8765<br>
+      <b style="color:#ff6b6b;">渲染前必须确认 8765 在监听</b>：渲染时组件要拉素材流 http://127.0.0.1:8765/api/library/video?path=...，服务没起 → <span style="color:#9fd0a0;">connect ECONNREFUSED 127.0.0.1:8765</span>（历史事故）。检查：<span style="color:#9fd0a0;">Get-NetTCPConnection -LocalPort 8765</span><br>
+      <b style="color:#d4a853;">停止：</b>关闭运行窗口；<b style="color:#ff6b6b;">勿整杀 node.exe</b>（会误杀 console-server 与渲染进程，先按命令行区分）。<br>
+      <b style="color:#d4a853;">端口占用：</b><span style="color:#9fd0a0;">Get-NetTCPConnection -LocalPort 8765 -State Listen</span> → 结束对应 OwningProcess。
     </div>
   </div>
 
   <!-- 三、目录结构 -->
   <div style="max-width:1180px;margin:28px auto 0;">
-    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">三、目录结构全景（谁管什么）</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">三、目录结构（权威节点用 ★ 标注）</div>
     <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
       <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:14px;font-size:12px;color:#9fd0a0;line-height:1.7;overflow-x:auto;margin:0;white-space:pre-wrap;">E:\video-shotcraft\
-├── console-server.mjs        # 操作台 HTTP 服务（端口 8765，任务队列）
-├── console-ui.html           # 操作台前端（单页，1394 行，待按设计文档拆 5 视图）
-├── start-console.bat         # 一键启动脚本
+├── console-server.mjs        # 操作台 HTTP 服务（端口 8765，素材流 /api/library/video）
+├── console-ui.html           # 操作台前端
+├── start-console.bat         # 一键启动
 ├── director/                 # ★ 生产管线（业务大脑）
-│   ├── tts.py                #   TTS 配音 + 时间轴（写 C2/C6）
-│   ├── build-storyboard.mjs  #   自动分镜（叙事分级+坑位+素材+时长，写 C3）
+│   ├── tts.py                #   TTS 配音 + 时间轴（写 C2 timing.json + voiceover.mp3）
+│   ├── build-storyboard.mjs  # ★ 自动分镜（类型/坑位/模板选择/容量收敛/降级链，写 C3）——改这里
+│   ├── template-registry.json# ★ 模板能力注册表（35 模板 tone/style/capacity/三类参数 + _meta.沿革）——改模板能力写这里
+│   ├── current-theme.json    # ★ 主题风格（C4：色调/字体/风格token）——改风格写这里
 │   ├── render.mjs            #   Remotion 渲染（读 C3 → 产 C7）
-│   ├── taxonomy.json         #   三级叙事分级体系（L1×6 / L2×26 / L3 镜头卡）
-│   ├── theme-pack.json       #   8 套主题预设（C4）
-│   ├── storyboard.json       #   当前分镜（C3，权威文件）
-│   ├── timing.json           #   当前时间轴（C2）
-│   ├── _input.txt            #   当前文案（C1）
-│   ├── storyboard-review.html#   独立分镜校准页（三列布局，7.5MB）
-│   └── *.py / *.mjs          #   索引、扫描、修复等工具脚本
+│   ├── storyboard.json       # ★ 分镜结果（C3，权威输出）
+│   ├── props.json            #   渲染输入（由 C3 派生）
+│   ├── taxonomy.json         #   三级叙事分级体系（L1×6 / L2×26）
+│   ├── _index.json → materials/ # 素材索引
+│   └── *.py / *.mjs          #   索引/扫描/修复工具脚本
 ├── template/                 # ★ Remotion 渲染模板
-│   ├── src/DynamicVideo.tsx  #   主渲染组件（读 storyboard props 驱动镜头）
-│   ├── src/TemplateAdapter.tsx # props 转译层
-│   ├── src/aifl/             #   组件库：字幕/数字滚动/闪切/2.5D 相机等
-│   ├── public/audio/         #   voiceover.mp3（C6）
-│   └── out/                  #   渲染产物 dynamic.mp4（C7）
-├── demos/                    # 221 个镜头卡 TSX（10 类：camera/data/effects/…）
-├── materials/                # 素材库：_index.json（C5，3396 镜头）+ _thumbs/ + _scenes/
-├── workbench/                # 动效工作台（Vite + Remotion Player，交付后改片）
-├── gallery/                  # 在线样片画廊静态站（214 条样片）
-├── jianying-export/          # 剪映工程导出模块（Mac 验收）
-├── assets/                   # 可复用组件 + 素材采集脚本 + 音频（5 BGM / 16 类 149 SFX）
-└── references/               # 方法论文档（pipeline / shots / sound-design 等）</pre>
+│   ├── src/DynamicVideo.tsx  #   主渲染组件（读 props 驱动镜头）
+│   ├── src/TemplateAdapter.tsx # ★ 数据转译层（基线 A：只消费，禁止二次切词覆盖）
+│   ├── public/audio/         #   voiceover.mp3
+│   └── out/                  #   dynamic.mp4（C7）
+├── demos/                    # 镜头卡 TSX（含 BLACKLIST 组件，见基线 D）
+├── materials/                # 素材库 _index.json（3396 镜头）+ _thumbs/ + _scenes/
+├── docs/                     # 开发文档（本文件 + 业务主线/前端设计/四层编导/模板三类参数全景）
+├── workbench/                # 动效工作台（副本不动：demosrc 不参与渲染，渲染走 demos/）
+└── assets/ references/ gallery/ jianying-export/</pre>
     </div>
   </div>
 
-  <!-- 四、核心管线原理 -->
+  <!-- 四、模板选择硬规则 -->
   <div style="max-width:1180px;margin:28px auto 0;">
-    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">四、核心管线原理（三步串起来）</div>
-    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">四、模板选择硬规则（基线 B：5 条不可违反）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:1.9;">
+      <div style="background:#0d0f14;border-left:3px solid #d4a853;border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+        <b style="color:#d4a853;">规则 1 · 容量优先于坑位类型。</b>文案容量收敛先于坑位类型：长文案跨池匹配 long 承载模板（list-reveal / list-stack-press / clipcard 已禁则走 list 系 / bezier / neon-frame），<b>绝不硬塞大字卡</b>；池内无匹配 → 全库按容量差距选 top5；真无 → 降级链。容量档：short≤10 / medium≤26 / long≤60。
+      </div>
+      <div style="background:#0d0f14;border-left:3px solid #d4a853;border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+        <b style="color:#d4a853;">规则 2 · 三维度打分（U1-U7）。</b>① tone 色调：dark 26 / light 8 / colorful 1，主题深色为主，一致 +15、冲突 -10、与上一镜头同色 +8/-8；② style 视觉语言：typographic 主家族 +12/-8，相邻同风格 +8/-10（<b>衔接一致性就是靠这个维度</b>）；③ capacity 容量（规则 1）。收敛报告逐镜头输出 容量[OK/⚠] 色调OK 风格OK。
+      </div>
+      <div style="background:#0d0f14;border-left:3px solid #d4a853;border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+        <b style="color:#d4a853;">规则 3 · 整句/碎块硬分流。</b>FULL_SENTENCE_CARDS 整句类（打字机/列表/卡片/滚动）接 ≤22 字完整句，7 字以上 +15；WORD_CHUNK_CARDS 碎块类（词块/接力动画）<b>仅 ≤6 字短词</b>。文案一律整句呈现，禁止把句子切成静态大字块（历史事故："刷到一条好视/频"、"那条视频/你大"）。
+      </div>
+      <div style="background:#0d0f14;border-left:3px solid #ff6b6b;border-radius:4px;padding:10px 12px;margin-bottom:10px;">
+        <b style="color:#ff6b6b;">规则 4 · 黑名单（BLOCKED_CARDS，永不入选）。</b>ui-entrance/clipcard-looping（Remotion 演示 demo，硬编码参数 UI + demo 视频）、typography/word-relay-filmstrip（固定英文大字 "Computer" 首行）、typography/vertical-word-roll-blur-cycle（"Built for" 英文残留 + 切块）、typography/lead-word-zoom-assemble（"One shot card" demo 残留 + 长句挤爆）。<b>新增模板入库前必须验证无英文残留/无参数 UI/无演示 demo。</b>
+      </div>
+      <div style="background:#0d0f14;border-left:3px solid #d4a853;border-radius:4px;padding:10px 12px;">
+        <b style="color:#d4a853;">规则 5 · 降级链（禁止渐变占位）。</b>模板无匹配 → 先找纯素材当画面（findMaterial，素材时长与镜头时长接近优先，durGap×3 权重，minDur 0.85 + 不够长重罚 -20）→ 素材也无 → <b style="color:#9fd0a0;">aigc={prompt,status:pending}</b>（genAigcPrompt 按类型/情绪生成视频提示词，渲染显示"AI 生成镜头·待生成"占位）。<b>渐变占位在代码中已彻底移除，禁止重新引入。</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、耦合契约（整改方向） -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">五、耦合契约（本轮确立的整改方向，落地中）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:1.9;">
       <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;">
-        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 1 · tts.py（C1→C2/C6）</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 _input.txt → edge-tts 合成整段语音 → ffprobe 读真实时长 → 按句子字数比例分配每句 start/duration → 写 timing.json + voiceover.mp3。<br><b>注意：</b>时长按字数比例估算，句间真实停顿会累积偏差——这就是字幕对不齐的根源（已修复为 ffprobe 读真实总时长 + 去掉虚假停顿）。</div>
+        <div style="flex:1 1 300px;min-width:270px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">A · 切词单点化（已部分落地）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">文案切词只在 build-storyboard 一次（storyboard 给出最终 chunks）；TemplateAdapter 只消费、禁止覆盖。splitToWords 仅作无 chunks 时的兜底。<b>目标：渲染层对文字零加工。</b></div>
         </div>
-        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
-        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 2 · build-storyboard.mjs（C2→C3）</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 timing.json + taxonomy.json → 每句：判定镜头类型（L1/L2）→ 按时长选镜头卡（快/标准/循环节奏）→ 坑位治理（slot + 素材角色）→ 语义词典提标签 → 素材库检索匹配（时长≥70% + 标签≥2 + 打分排序）→ 未命中 fallback 渐变占位 → 合并超短镜头 → 注入主题 → 写 storyboard.json。</div>
+        <div style="flex:1 1 300px;min-width:270px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">B · 模板能力自描述（下一步）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">registry 从"参数统计"升级为"行为契约"：textMode(raw/chunk/carrier)、tone、style、capacity、媒体需求（组件媒体/背景/无）。编导层读声明选模板，<b>名单机制（FULL_SENTENCE/WORD_CHUNK/BLOCKED）最终由声明取代</b>。</div>
         </div>
-        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
-        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
-          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 3 · render.mjs（C3→C7）</div>
-          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 storyboard.json → 写 props.json → 调 npx remotion render src/index.ts DynamicVideo → 用本机 Chrome 无头渲染（--concurrency=1）→ 产出 template/out/dynamic.mp4。</div>
+        <div style="flex:1 1 300px;min-width:270px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">C · 风格 token 化（持续执行）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">颜色/字体/字号由 current-theme.json（C4）下发，组件零硬编码。发现组件内硬编码英文/字体/颜色 → 改为消费 token。<b>新增/修改组件时强制执行。</b></div>
         </div>
-      </div>
-      <div style="font-size:12px;color:#8b93a3;margin-top:12px;line-height:1.8;">
-        <b style="color:#aab0bc;">分级体系：</b>L1 六类叙事（钩子/痛点/论点/论据/金句/行动）→ L2 26 类细分（含匹配正则）→ L3 镜头卡映射。<br>
-        <b style="color:#aab0bc;">三模式：</b>A=Remotion 主导（已闭环）· B=人像口播主导（未开发）· C=AIGC 素材主导（未开发）。模式决定 pit 配置（subject/content/position）。
       </div>
     </div>
   </div>
 
-  <!-- 五、Git 工作流 -->
+  <!-- 六、RED FLAG 禁止清单 -->
   <div style="max-width:1180px;margin:28px auto 0;">
-    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">五、Git 版本管理（现状与建议）</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #ff6b6b;padding-left:10px;">六、RED FLAG 禁止清单（改代码前逐条对照）</div>
+    <div style="margin-top:14px;background:#1a1418;border:1px solid #5a2a30;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#c9b4b8;line-height:2.1;">
+      <b style="color:#ff6b6b;">① 禁止</b>黑名单模板入选（clipcard-looping / word-relay-filmstrip / vertical-word-roll-blur-cycle / lead-word-zoom-assemble）。<br>
+      <b style="color:#ff6b6b;">② 禁止</b>渲染层（TemplateAdapter / 组件）二次切词覆盖编导层 chunks——文字形态由编导层唯一决定。<br>
+      <b style="color:#ff6b6b;">③ 禁止</b>组件内硬编码英文 demo 文案 / 预置字体 / 参数 UI（muted=、startFrom、Computer、Built for、One shot card 等均为事故先例）。<br>
+      <b style="color:#ff6b6b;">④ 禁止</b>在 build-storyboard 内硬编码模板名直选绕过打分链（历史事故：素材主体 35% 概率直选 clipcard）。<br>
+      <b style="color:#ff6b6b;">⑤ 禁止</b>绕过收敛节点改数据：改模板能力写 template-registry.json、改主题写 current-theme.json、改素材写 _index.json、改分镜逻辑写 build-storyboard.mjs——<b>禁止改 storyboard.json 后手工覆盖</b>（它是生成产物）。<br>
+      <b style="color:#ff6b6b;">⑥ 禁止</b>重新引入渐变占位兜底（降级链只允许：纯素材 → AIGC pending）。<br>
+      <b style="color:#ff6b6b;">⑦ 禁止</b>渲染前不确认 8765 服务在监听；<b>禁止</b>整杀 node.exe（会连带杀掉 console-server）。<br>
+      <b style="color:#ff6b6b;">⑧ 禁止</b>改完代码不更新本文档基线（任何新规则/新黑名单/新降级链必须沉淀进本文档与 registry._meta）。<br>
+      <b style="color:#ff6b6b;">⑨ 禁止</b>在未重新生成 storyboard 的情况下直接渲染（props 必须是本轮生成结果）。<br>
+      <b style="color:#ff6b6b;">⑩ 禁止</b>将验证帧 _chk_*.png / _render_log.txt 提交入库（已在 .gitignore）。
+    </div>
+  </div>
+
+  <!-- 七、提交前验收流程 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">七、提交前验收流程（每次改动必走）</div>
     <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.0;">
-      <b style="color:#ff6b6b;">现状：</b>项目已是 git 仓库（main 分支），远程 origin = github.com/Vincentwei1021/video-shotcraft（上游开源项目）。<br>
-      <b style="color:#f0a84c;">未提交修改：</b>110+ 个文件（demos/ 组件深色+金色主题批量替换等成果），尚未 commit，存在丢失风险。<br>
-      <b style="color:#d4a853;">建议流程（本地固化）：</b><span style="color:#9fd0a0;">git add -A && git commit -m "style: 批量替换 demos 组件为深色+金色主题"</span><br>
-      <b style="color:#d4a853;">远程策略：</b>若 origin 是自有仓库 → 直接 push；否则建议新建私有仓库（如 video-shotcraft-local）作为本开发线，不与开源主项目混推。<br>
-      <b style="color:#d4a853;">.gitignore 已覆盖：</b>node_modules / template/out / gallery/media / 素材 / __pycache__ 等不进库，3396 素材不占仓库体积。
+      <b style="color:#d4a853;">Step 1 · 改逻辑：</b><span style="color:#9fd0a0;">node director/build-storyboard.mjs</span> → 看收敛报告：每镜头 <b>文案N字 容量[OK] 色调OK 风格OK</b>；0 渐变占位；坑位分布正常。<br>
+      <b style="color:#d4a853;">Step 2 · 改视觉：</b>抽帧验证 <span style="color:#9fd0a0;">ffmpeg -ss &lt;t&gt; -i template/out/dynamic.mp4 -frames:v 1 _chk_xN.png</span> → 核对：文案完整整句、无英文残留、无碎块、无参数 UI、无黑名单模板。<br>
+      <b style="color:#d4a853;">Step 3 · 全片：</b><span style="color:#9fd0a0;">node director/render.mjs</span>（渲染前确认 8765 监听；4-6 分钟）→ <span style="color:#9fd0a0;">ffprobe</span> 核验时长与语音对齐。<br>
+      <b style="color:#d4a853;">Step 4 · 提交：</b><span style="color:#9fd0a0;">git add -A && git commit -m "fix/feat: ..."</span> → <span style="color:#9fd0a0;">git push origin main</span>（验证帧不入库）。<br>
+      <b style="color:#d4a853;">Step 5 · 沉淀：</b>新规则写回本文档 + template-registry.json 的 _meta 治理沿革。
     </div>
   </div>
 
-  <!-- 六、常见问题排查 -->
+  <!-- 八、常见问题排查 -->
   <div style="max-width:1180px;margin:28px auto 0;">
-    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">六、常见问题排查</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">八、常见问题排查</div>
     <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.1;">
-      <b style="color:#d4a853;">1. 字幕与语音对不上</b> → 检查 tts.py 是否用 ffprobe 读真实时长（已修复）；重跑 A 模式验证；确认 timing.json 每段 start 连续。<br>
-      <b style="color:#d4a853;">2. 渲染报错/失败</b> → 看渲染日志；确认 Chrome 路径存在；--concurrency=1 已固定；磁盘空间充足。<br>
-      <b style="color:#d4a853;">3. Python 找不到/版本错</b> → 必须用 C:\Users\Administrator\AppData\Local\Python\bin\python.exe，勿用系统 python。<br>
-      <b style="color:#d4a853;">4. edge-tts 合成失败</b> → 网络问题，脚本已内置 3 次重试；仍失败检查网络后重跑。<br>
-      <b style="color:#d4a853;">5. 端口 8765 被占用</b> → netstat -ano | findstr 8765 → taskkill /PID &lt;PID&gt; /F。<br>
-      <b style="color:#d4a853;">6. 素材匹配不到/全是渐变占位</b> → 素材标签太少；去素材库补标签（写 C5）后重新生成分镜。<br>
-      <b style="color:#d4a853;">7. 操作台调接口 404</b> → UI 与 server 契约未对齐（见设计文档 P0），等待契约治理后统一。<br>
-      <b style="color:#d4a853;">8. 修改后没生效</b> → 检查是否绕过收敛节点：改主题应写 C4、改素材应写 C5、改分镜应写 C3（见设计文档第五章）。
+      <b style="color:#d4a853;">1. 渲染报 connect ECONNREFUSED 127.0.0.1:8765</b> → console-server 没起，先启动再渲染（见第二章）。<br>
+      <b style="color:#d4a853;">2. 渲染中组件报错（如 ReferenceError: words is not defined）</b> → 组件 props 名与 TemplateAdapter 契约不符，查组件签名与契约（基线 B）。<br>
+      <b style="color:#d4a853;">3. 文案出现碎块 / 英文残留 / 参数 UI</b> → 命中黑名单或渲染层二次切词，对照 RED FLAG ① ② ③ 逐条排查。<br>
+      <b style="color:#d4a853;">4. 字幕与语音对不上</b> → tts.py 是否 ffprobe 读真实时长；timing.json 每段 start 连续；渲染前重新生成 C3。<br>
+      <b style="color:#d4a853;">5. E 盘不可访问</b> → 外接盘掉线，重新挂载后继续（历史事故：E:\video-shotcraft 整体读不到）。<br>
+      <b style="color:#d4a853;">6. 系统卡死</b> → 多为渲染进程异常/磁盘打满，任务管理器结束该 node 进程（勿整杀）。<br>
+      <b style="color:#d4a853;">7. 素材匹配不到</b> → 素材标签太少，补 _index.json 标签后重新生成分镜。<br>
+      <b style="color:#d4a853;">8. 改了没生效</b> → 是否绕过收敛节点（RED FLAG ⑤）；或渲染用了旧 storyboard（RED FLAG ⑨）。
     </div>
   </div>
 
   <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
-    Video ShotCraft · 开发指南 v1.0 · 配套设计文档使用 · 待接入 Git 后随版本维护
+    Video ShotCraft · 开发指南 v2.0（整改基线版） · 2026-09-23 · 覆盖至 commit 7f70d75 · 凡与本文档冲突的修改一律视为违规
   </div>
 
 </div>

@@ -1,0 +1,152 @@
+<html style="margin:0;padding:0;">
+<title>Video ShotCraft 开发指南</title>
+<div style="width:100%;box-sizing:border-box;background:#0d0f14;color:#e6e9ef;font-family:'Microsoft YaHei','PingFang SC',sans-serif;padding:32px 24px;">
+
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="font-size:26px;font-weight:700;color:#fff;">Video ShotCraft · 开发指南</div>
+    <div style="font-size:14px;color:#8b93a3;margin-top:6px;">v1.0 · 2026-09-21 · 配套《业务主线与模块分工》《前端页面设计方案》 · 项目根 E:\video-shotcraft</div>
+    <div style="margin-top:16px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:14px;font-size:13px;color:#aab0bc;line-height:1.9;">
+      <b style="color:#d4a853;">本文档回答"项目怎么跑起来、每块代码在干什么、出了问题怎么查"</b>——
+      环境依赖、启动方式、目录结构、核心管线原理、Git 工作流、常见问题排查。
+    </div>
+  </div>
+
+  <!-- 一、环境依赖 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">一、环境依赖（本机已验证）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Node.js</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">v22.23.2 · 操作台服务 + Remotion 渲染</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Python 3.14.6</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">TTS 脚本专用。<b>必须用固定路径</b>：C:\Users\Administrator\AppData\Local\Python\bin\python.exe</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">ffmpeg 8.1.2</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">已在 PATH。tts.py 用 ffprobe 读取每段 mp3 真实时长（字幕对齐关键）。</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">edge-tts 7.2.8</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">微软免费 TTS。男声 zh-CN-YunxiNeural，含 3 次重试。</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Chrome（渲染内核）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">路径：C:\Users\Administrator\AppData\Local\Google\Chrome\Application\chrome.exe。Remotion 用它做无头渲染，不可缺。</div>
+        </div>
+        <div style="flex:1 1 280px;min-width:260px;background:#0d0f14;border:1px solid #2a2e38;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Remotion 4.0.484</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:4px;">template/ 内 node_modules 已装：@remotion/cli + react 19.2.7 + typescript 6.0.3。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 二、启动与停止 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">二、启动与停止</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.0;">
+      <b style="color:#d4a853;">启动操作台：</b>双击 <b>start-console.bat</b>，或命令行 <span style="color:#9fd0a0;">node console-server.mjs</span>（在 E:\video-shotcraft 下）→ 浏览器自动打开 <b>http://127.0.0.1:8765</b><br>
+      <b style="color:#d4a853;">停止：</b>关闭运行窗口；或任务管理器结束 node 进程。<br>
+      <b style="color:#d4a853;">端口占用排查：</b><span style="color:#9fd0a0;">netstat -ano | findstr 8765</span> → 找到 PID → <span style="color:#9fd0a0;">taskkill /PID &lt;PID&gt; /F</span><br>
+      <b style="color:#d4a853;">工作台/其他入口：</b>Remotion Studio（npx remotion studio）、Motion Workbench（node workbench/scripts/open.mjs）、Gallery（gallery/ 静态站）都从操作台卡片进入。
+    </div>
+  </div>
+
+  <!-- 三、目录结构 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">三、目录结构全景（谁管什么）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <pre style="background:#0d0f14;border:1px solid #232833;border-radius:6px;padding:14px;font-size:12px;color:#9fd0a0;line-height:1.7;overflow-x:auto;margin:0;white-space:pre-wrap;">E:\video-shotcraft\
+├── console-server.mjs        # 操作台 HTTP 服务（端口 8765，任务队列）
+├── console-ui.html           # 操作台前端（单页，1394 行，待按设计文档拆 5 视图）
+├── start-console.bat         # 一键启动脚本
+├── director/                 # ★ 生产管线（业务大脑）
+│   ├── tts.py                #   TTS 配音 + 时间轴（写 C2/C6）
+│   ├── build-storyboard.mjs  #   自动分镜（叙事分级+坑位+素材+时长，写 C3）
+│   ├── render.mjs            #   Remotion 渲染（读 C3 → 产 C7）
+│   ├── taxonomy.json         #   三级叙事分级体系（L1×6 / L2×26 / L3 镜头卡）
+│   ├── theme-pack.json       #   8 套主题预设（C4）
+│   ├── storyboard.json       #   当前分镜（C3，权威文件）
+│   ├── timing.json           #   当前时间轴（C2）
+│   ├── _input.txt            #   当前文案（C1）
+│   ├── storyboard-review.html#   独立分镜校准页（三列布局，7.5MB）
+│   └── *.py / *.mjs          #   索引、扫描、修复等工具脚本
+├── template/                 # ★ Remotion 渲染模板
+│   ├── src/DynamicVideo.tsx  #   主渲染组件（读 storyboard props 驱动镜头）
+│   ├── src/TemplateAdapter.tsx # props 转译层
+│   ├── src/aifl/             #   组件库：字幕/数字滚动/闪切/2.5D 相机等
+│   ├── public/audio/         #   voiceover.mp3（C6）
+│   └── out/                  #   渲染产物 dynamic.mp4（C7）
+├── demos/                    # 221 个镜头卡 TSX（10 类：camera/data/effects/…）
+├── materials/                # 素材库：_index.json（C5，3396 镜头）+ _thumbs/ + _scenes/
+├── workbench/                # 动效工作台（Vite + Remotion Player，交付后改片）
+├── gallery/                  # 在线样片画廊静态站（214 条样片）
+├── jianying-export/          # 剪映工程导出模块（Mac 验收）
+├── assets/                   # 可复用组件 + 素材采集脚本 + 音频（5 BGM / 16 类 149 SFX）
+└── references/               # 方法论文档（pipeline / shots / sound-design 等）</pre>
+    </div>
+  </div>
+
+  <!-- 四、核心管线原理 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">四、核心管线原理（三步串起来）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;">
+        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 1 · tts.py（C1→C2/C6）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 _input.txt → edge-tts 合成整段语音 → ffprobe 读真实时长 → 按句子字数比例分配每句 start/duration → 写 timing.json + voiceover.mp3。<br><b>注意：</b>时长按字数比例估算，句间真实停顿会累积偏差——这就是字幕对不齐的根源（已修复为 ffprobe 读真实总时长 + 去掉虚假停顿）。</div>
+        </div>
+        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
+        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 2 · build-storyboard.mjs（C2→C3）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 timing.json + taxonomy.json → 每句：判定镜头类型（L1/L2）→ 按时长选镜头卡（快/标准/循环节奏）→ 坑位治理（slot + 素材角色）→ 语义词典提标签 → 素材库检索匹配（时长≥70% + 标签≥2 + 打分排序）→ 未命中 fallback 渐变占位 → 合并超短镜头 → 注入主题 → 写 storyboard.json。</div>
+        </div>
+        <div style="align-self:center;font-size:16px;color:#4a5160;">→</div>
+        <div style="flex:1 1 330px;min-width:300px;background:#0d0f14;border:1px solid #d4a853;border-radius:8px;padding:12px;box-sizing:border-box;">
+          <div style="font-size:13px;font-weight:700;color:#d4a853;">Step 3 · render.mjs（C3→C7）</div>
+          <div style="font-size:12px;color:#8b93a3;margin-top:6px;line-height:1.8;">读 storyboard.json → 写 props.json → 调 npx remotion render src/index.ts DynamicVideo → 用本机 Chrome 无头渲染（--concurrency=1）→ 产出 template/out/dynamic.mp4。</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#8b93a3;margin-top:12px;line-height:1.8;">
+        <b style="color:#aab0bc;">分级体系：</b>L1 六类叙事（钩子/痛点/论点/论据/金句/行动）→ L2 26 类细分（含匹配正则）→ L3 镜头卡映射。<br>
+        <b style="color:#aab0bc;">三模式：</b>A=Remotion 主导（已闭环）· B=人像口播主导（未开发）· C=AIGC 素材主导（未开发）。模式决定 pit 配置（subject/content/position）。
+      </div>
+    </div>
+  </div>
+
+  <!-- 五、Git 工作流 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">五、Git 版本管理（现状与建议）</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.0;">
+      <b style="color:#ff6b6b;">现状：</b>项目已是 git 仓库（main 分支），远程 origin = github.com/Vincentwei1021/video-shotcraft（上游开源项目）。<br>
+      <b style="color:#f0a84c;">未提交修改：</b>110+ 个文件（demos/ 组件深色+金色主题批量替换等成果），尚未 commit，存在丢失风险。<br>
+      <b style="color:#d4a853;">建议流程（本地固化）：</b><span style="color:#9fd0a0;">git add -A && git commit -m "style: 批量替换 demos 组件为深色+金色主题"</span><br>
+      <b style="color:#d4a853;">远程策略：</b>若 origin 是自有仓库 → 直接 push；否则建议新建私有仓库（如 video-shotcraft-local）作为本开发线，不与开源主项目混推。<br>
+      <b style="color:#d4a853;">.gitignore 已覆盖：</b>node_modules / template/out / gallery/media / 素材 / __pycache__ 等不进库，3396 素材不占仓库体积。
+    </div>
+  </div>
+
+  <!-- 六、常见问题排查 -->
+  <div style="max-width:1180px;margin:28px auto 0;">
+    <div style="font-size:18px;font-weight:700;color:#fff;border-left:4px solid #d4a853;padding-left:10px;">六、常见问题排查</div>
+    <div style="margin-top:14px;background:#14171f;border:1px solid #232833;border-radius:10px;padding:16px;box-sizing:border-box;font-size:13px;color:#aab0bc;line-height:2.1;">
+      <b style="color:#d4a853;">1. 字幕与语音对不上</b> → 检查 tts.py 是否用 ffprobe 读真实时长（已修复）；重跑 A 模式验证；确认 timing.json 每段 start 连续。<br>
+      <b style="color:#d4a853;">2. 渲染报错/失败</b> → 看渲染日志；确认 Chrome 路径存在；--concurrency=1 已固定；磁盘空间充足。<br>
+      <b style="color:#d4a853;">3. Python 找不到/版本错</b> → 必须用 C:\Users\Administrator\AppData\Local\Python\bin\python.exe，勿用系统 python。<br>
+      <b style="color:#d4a853;">4. edge-tts 合成失败</b> → 网络问题，脚本已内置 3 次重试；仍失败检查网络后重跑。<br>
+      <b style="color:#d4a853;">5. 端口 8765 被占用</b> → netstat -ano | findstr 8765 → taskkill /PID &lt;PID&gt; /F。<br>
+      <b style="color:#d4a853;">6. 素材匹配不到/全是渐变占位</b> → 素材标签太少；去素材库补标签（写 C5）后重新生成分镜。<br>
+      <b style="color:#d4a853;">7. 操作台调接口 404</b> → UI 与 server 契约未对齐（见设计文档 P0），等待契约治理后统一。<br>
+      <b style="color:#d4a853;">8. 修改后没生效</b> → 检查是否绕过收敛节点：改主题应写 C4、改素材应写 C5、改分镜应写 C3（见设计文档第五章）。
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:28px auto 0;text-align:center;font-size:12px;color:#5a616d;padding-bottom:8px;">
+    Video ShotCraft · 开发指南 v1.0 · 配套设计文档使用 · 待接入 Git 后随版本维护
+  </div>
+
+</div>
+</html>
