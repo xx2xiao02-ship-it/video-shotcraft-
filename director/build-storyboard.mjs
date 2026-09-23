@@ -47,6 +47,56 @@ const REGISTERED_SHOTCARDS = new Set(
 );
 // raw 整句组件（吃短句，过长会溢出版面）——与契约 textAs:'raw' 对应
 const RAW_CARD_PATTERN = /scramble|typewriter|text-on-path|font-weight-pump|lead-word|split-text|letter-drop|letterform|tracking-expand/;
+// ---- 切词碎块治理：整句类(完整句呈现,≤22字) vs 碎块类(词块/接力动画,仅≤6字短词) ----
+// 整句类：打字机/展开/滚动/列表/卡片/字幕承载——文案整句呈现，绝不拆碎
+const FULL_SENTENCE_CARDS = new Set([
+  'typography/typewriter-moves/terminal-typewriter',
+  'typography/typewriter-moves/typewriter-error-retype',
+  'typography/scramble',
+  'typography/type-assembly-moves/text-on-path',
+  'typography/brace-expand',
+  'typography/paper-title-card',
+  'typography/marker-underline-title',
+  'typography/outline-word-fill',
+  'typography/brand-ink-open',
+  'ui-entrance/list-reveal',
+  'ui-entrance/list-stack-press',
+  'ui-entrance/bezier-source-converge-merge',
+  'ui-entrance/neon-frame-forerun',
+]);
+// 碎块类：静态词块/逐字接力——中间帧呈现碎片，仅接 ≤6 字短词（如"为什么""第一步"）
+const WORD_CHUNK_CARDS = new Set([
+  'typography/cel-flash-stomp',
+  'typography/flying-words',
+  'typography/blur-slide',
+  'typography/type-entrance-moves/letter-drop-physics',
+  'typography/type-entrance-moves/scramble-decode',
+  'typography/type-assembly-moves/split-text-stagger',
+  'typography/type-assembly-moves/letterform-drift-assembly',
+  'typography/type-assembly-moves/tracking-expand-reveal',
+  'typography/type-rhythm-sync/font-weight-pump',
+  'typography/type-rhythm-sync/karaoke-fill-sync',
+  'typography/countdown-arc-scatter',
+  'typography/word-relay-geometry',
+  'typography/vertical-word-roll-blur-cycle',
+  'typography/lead-word-zoom-assemble',
+  'typography/glitch-cycle',
+  'ui-entrance/morph-from-primitive',
+  'typography/gradient-word-sweep',
+  'outro/logo-shrink-wordmark-lockup',
+  'outro/ui-to-brand-morph/icon-flip-bloom-logo',
+  'outro/ui-to-brand-morph/input-morphs-into-logo',
+]);
+// 黑名单：演示 demo（ClipCardLooping 硬编码参数UI+demo视频）/固定英文大字残留（WordRelayFilmstrip "Computer" 首行）
+// —— 不接生产文案，任何镜头不入选
+const BLOCKED_CARDS = new Set([
+  'ui-entrance/clipcard-looping',
+  'typography/word-relay-filmstrip',
+  'typography/vertical-word-roll-blur-cycle',
+  'typography/lead-word-zoom-assemble',
+]);
+// 整句呈现上限（打字机/列表可承载完整句）
+const FULL_SENTENCE_LIMIT = 22;
 const taxonomy = JSON.parse(readFileSync(join(directorDir, 'taxonomy.json'), 'utf-8'));
 const L2 = taxonomy.levels.L2;
 const L3 = taxonomy.levels.L3;
@@ -366,11 +416,20 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
   if (candidates.length === 0) candidates = [...REGISTERED_SHOTCARDS];
   // 双向匹配②：模板→坑位——文字形态校验（raw 整句组件吃短句；words 切词组件可吃任意长句）
   const t = (text || '').trim();
+  // 长承载整句类：列表/卡片/滚动——承载 >22 字长句（容量 60）
+  const LONG_CARRY_LEAVES = ['list-reveal','list-stack-press','bezier-source-converge-merge','neon-frame-forerun'];
   const textOk = (card) => {
     const low = card.toLowerCase();
     const cap = CARD_CAP[card] || 'medium';
+    if (BLOCKED_CARDS.has(card)) return false;                // 黑名单：演示demo/英文残留组件不入选
     if (t.length > CAP_LIMIT[cap]) return false;              // 容量收敛：文案超模板容量不选
-    if (RAW_CARD_PATTERN.test(low)) return t.length <= (isHook ? 22 : 10);  // 整句组件：hook 开篇放宽至22字整句呈现，其余≤10
+    if (WORD_CHUNK_CARDS.has(card)) return t.length <= 6;     // 碎块类：仅 ≤6 字短词（中间帧不碎片）
+    if (FULL_SENTENCE_CARDS.has(card)) {
+      const leaf = card.split('/').pop();
+      if (LONG_CARRY_LEAVES.includes(leaf)) return t.length <= CAP_LIMIT[cap]; // 长承载：≤60 字
+      return t.length <= FULL_SENTENCE_LIMIT;                 // 整句类：完整句 ≤22 字（打字机/展开/标题卡）
+    }
+    if (RAW_CARD_PATTERN.test(low)) return t.length <= FULL_SENTENCE_LIMIT;
     return true;
   };
   candidates = candidates.filter(textOk);
@@ -407,8 +466,9 @@ function pickShotCard(l2key, durationInFrames, mood, cardUsage, type, mode, text
     for (const [k, w] of Object.entries(modePref)) {
       if (low.startsWith(k)) { score += w; break; }
     }
-    // U3.5：hook 开篇整句优先——raw 整句类模板 +15（金句完整呈现，不切词拆画面）
-    if (isHook && RAW_CARD_PATTERN.test(low)) score += 15;
+    // U3.5：整句优先——7字以上文案整句类模板 +15（完整呈现，不切词拆画面）；hook 整句再加 +10
+    if (t.length >= 7 && (FULL_SENTENCE_CARDS.has(card) || RAW_CARD_PATTERN.test(low))) score += 15;
+    if (isHook && RAW_CARD_PATTERN.test(low)) score += 10;
     // U4：色调风格一致性——与主题色调一致 +15；浅色/彩色与深色主题冲突 -10
     const cardTone = CARD_TONE[card] || 'dark';
     score += cardTone === THEME_TARGET_TONE ? 15 : -10;
@@ -524,14 +584,7 @@ let rawShots = timing.segments.map((seg, i) => {
     if (!material) material = findMaterial(ROLE_TO_TAGS.hero || [], semanticTags, durationInFrames / FPS, mood);
     slot = 'case-show';
     materialRole = 'hero';
-    if (material && Math.random() < 0.35) {
-      shotCard = 'ui-entrance/clipcard-looping';   // P3 组件媒体输入：素材进组件画面
-      media = 'http://127.0.0.1:8765/api/library/video?path=' + encodeURIComponent(material.path); // 服务端视频流（零复制，ClipCard http 分支）
-      material = null;                              // 组件内嵌即主体，不再做全屏底
-      materialRole = 'inline-element';
-    } else {
-      shotCard = null;
-    }
+    shotCard = null; // 素材主体默认纯素材全屏（组件内嵌增强已下线：clipcard-looping 为演示demo组件，见 BLOCKED_CARDS）
     if (!material && !media) aigc = { prompt: genAigcPrompt(seg.text, type, mood), status: 'pending' };
   } else if (subject === 'aigc') {
     // ③ AIGC 主体：登记生成标记（status:pending → 渲染待生成占位 → 生成后回填 status:done+path）
@@ -563,14 +616,16 @@ let rawShots = timing.segments.map((seg, i) => {
         slot = 'case-show';
       }
     }
-    const rs = resolveSlot(shotCard);
-    slot = rs.slot;
-    materialRole = rs.materialRole;
-    if (materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
+    if (shotCard) {
+      const rs = resolveSlot(shotCard);
+      slot = rs.slot;
+      materialRole = rs.materialRole;
+    }
+    if (shotCard && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
       const tags = ROLE_TO_TAGS[materialRole] || L2_TO_TAGS[l2key] || [];
       material = findMaterial(tags, semanticTags, durationInFrames / FPS, mood);
     }
-    if (!material && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
+    if (shotCard && !material && materialRole !== 'none' && (type === 'proof' || type === 'pain' || type === 'hook')) {
       fallback = { keyword: extractKeyword(seg.text), gradient: ['#11151d', '#0a1420'] }; // 主题深色兜底（模板仍为主体）
     }
   }

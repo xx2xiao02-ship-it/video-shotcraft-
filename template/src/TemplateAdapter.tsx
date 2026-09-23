@@ -232,8 +232,8 @@ export const COMPONENT_CONTRACTS: Record<string, ComponentContract> = {
 export function splitToWords(text: string, max = 3): string[] {
   const cleaned = text.trim();
   if (!cleaned) return [' '];
-  // 单段容量：中文每段 ≤6 字、英文每段 ≤3 词（大字模板单屏容量，超长自动分行/分屏）
-  const MAX_CHUNK = 6;
+  // 单段容量：中文每段 ≤10 字、英文每段 ≤3 词（标点断句优先，完整短语整段呈现不硬切）
+  const MAX_CHUNK = 10;
   const chunkChinese = (s: string): string[] => {
     const out: string[] = [];
     for (let i = 0; i < s.length; i += MAX_CHUNK) out.push(s.slice(i, i + MAX_CHUNK));

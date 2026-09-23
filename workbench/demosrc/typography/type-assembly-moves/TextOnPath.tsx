@@ -49,9 +49,6 @@ export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => 
 
   return (
     <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="TEXT ON PATH" size={54} />
-      </div>
       <svg width={1920} height={1080} style={{ position: 'absolute', inset: 0 }}>
         <path
           d={`M ${P0.x} ${P0.y} C ${P1.x} ${P1.y}, ${P2.x} ${P2.y}, ${P3.x} ${P3.y}`}
