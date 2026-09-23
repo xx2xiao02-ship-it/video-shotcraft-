@@ -40,3 +40,8 @@ director/usage.json
 # 本地验证帧（不入库）
 _chk_*.png
 _render_log.txt
+
+tmp/
+_server.log
+_server_err.log
+docs/_shots/
