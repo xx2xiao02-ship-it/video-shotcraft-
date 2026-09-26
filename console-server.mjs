@@ -1,11 +1,22 @@
 // Video ShotCraft console server
 import http from "node:http";
-import { spawn } from "node:child_process";
+import crypto from "node:crypto";
+import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import {loadAcceptanceFixture} from "./director/b-mode-acceptance.mjs";
+import {resolveLibraryVideo} from "./director/b-mode-library-video.mjs";
+import {loadMaterialIndex, matchSceneVideos} from "./director/b-mode-material-match.mjs";
+import {createTalkcraftInput} from "./director/talkcraft-input.mjs";
+import {buildTalkcraftAuditSegments} from "./director/talkcraft-audit-segments.mjs";
+import {approveTalkcraftSample, latestTalkcraftRun, readTalkcraftStatus, talkcraftProject} from "./director/talkcraft-status.mjs";
+import {readTalkcraftWorkbench, startTalkcraftWorkbench} from "./director/talkcraft-workbench.mjs";
+import {resolveTalkcraftSkillRoot} from "./director/talkcraft-skill-root.mjs";
+import {latestTalkcraftFailureReport, writeTalkcraftFailureReport} from "./director/talkcraft-failure-report.mjs";
+import {normalizeTheme, readCurrentTheme, writeCurrentTheme} from "./director/theme-contract.mjs";
 
 const ROOT = "E:\\video-shotcraft";
-const PORT = 8765;
+const PORT = Number(process.env.PORT || 8765);
 const CHROME = "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
 const PYTHON = "C:\\Users\\Administrator\\AppData\\Local\\Python\\bin\\python.exe";
 
@@ -20,8 +31,12 @@ function startTask(name, cmd, cwd) {
   proc.stdout.on("data", d => task.logs.push(d.toString()));
   proc.stderr.on("data", d => task.logs.push(d.toString()));
   proc.on("close", code => {
-    task.status = code === 0 ? "done" : "error";
     task.exitCode = code;
+    if (code !== 0 && task.runId && name.startsWith('talkcraft-')) {
+      try { task.failureReport = writeTalkcraftFailureReport(ROOT, task.runId, task).report; }
+      catch (error) { task.logs.push(`失败报告生成失败：${String(error.message || error)}`); }
+    }
+    task.status = code === 0 ? "done" : "error";
   });
   return id;
 }
@@ -36,7 +51,7 @@ function stopTask(id) {
   return true;
 }
 
-function sendVideoRange(res, videoPath, rangeHeader) {
+function sendVideoRange(res, videoPath, rangeHeader, contentType = "video/mp4") {
   const stat = fs.statSync(videoPath);
   if (rangeHeader) {
     const m = /bytes=(\d+)-(\d*)/.exec(rangeHeader);
@@ -44,14 +59,14 @@ function sendVideoRange(res, videoPath, rangeHeader) {
     const start = parseInt(m[1]);
     const end = m[2] ? parseInt(m[2]) : stat.size - 1;
     res.writeHead(206, {
-      "Content-Type": "video/mp4",
+      "Content-Type": contentType,
       "Content-Range": `bytes ${start}-${end}/${stat.size}`,
       "Content-Length": end - start + 1,
       "Accept-Ranges": "bytes",
     });
     fs.createReadStream(videoPath, { start, end }).pipe(res);
   } else {
-    res.writeHead(200, { "Content-Type": "video/mp4", "Content-Length": stat.size, "Accept-Ranges": "bytes" });
+    res.writeHead(200, { "Content-Type": contentType, "Content-Length": stat.size, "Accept-Ranges": "bytes" });
     fs.createReadStream(videoPath).pipe(res);
   }
 }
@@ -63,7 +78,7 @@ function sendJson(res, data) {
 
 function sendStatic(res, filePath, maxAge = 0) {
   const ext = path.extname(filePath).toLowerCase();
-  const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".mp4": "video/mp4", ".json": "application/json" }[ext] || "application/octet-stream";
+  const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".gif": "image/gif", ".mp4": "video/mp4", ".json": "application/json" }[ext] || "application/octet-stream";
   res.writeHead(200, { "Content-Type": mime, "Cache-Control": `max-age=${maxAge}` });
   fs.createReadStream(filePath).pipe(res);
 }
@@ -74,7 +89,257 @@ async function readBody(req) {
   return JSON.parse(Buffer.concat(chunks).toString() || "{}");
 }
 
+async function readBModeInput(req) {
+  const contentType = req.headers["content-type"] || "";
+  if (!contentType.startsWith("multipart/form-data")) return { fields: await readBody(req), avatar: null };
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 8 * 1024 * 1024) throw new Error("图片和参数总大小不能超过 8 MB");
+    chunks.push(chunk);
+  }
+  const form = await new Request("http://localhost/", {
+    method: "POST",
+    headers: { "content-type": contentType },
+    body: Buffer.concat(chunks),
+  }).formData();
+  const avatar = form.get("avatar");
+  return {
+    fields: Object.fromEntries(["text", "voice", "scenes", "background", "backgroundVideoPath"].map(key => [key, form.get(key)])),
+    avatar: avatar && typeof avatar.arrayBuffer === "function" && avatar.size ? avatar : null,
+  };
+}
+
+function withTalkcraftWorkbench(run) {
+  return {...run, workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
+    failureReport:latestTalkcraftFailureReport(ROOT, run.runId)};
+}
+
 const apis = {
+  "GET /api/talkcraft/latest": (req, res) => {
+    const runId = latestTalkcraftRun(ROOT);
+    return sendJson(res, {ok:true, run:runId ? withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId)) : null});
+  },
+  "GET /api/talkcraft/status": (req, res, url) => {
+    try { return sendJson(res, {ok:true, run:withTalkcraftWorkbench(readTalkcraftStatus(ROOT, url.searchParams.get('id') || ''))}); }
+    catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/plan": (req, res, url) => {
+    try {
+      const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
+      const shotsFile = path.join(project, 'remotion', 'shots.json');
+      const semanticFile = path.join(project, 'semantics.json');
+      const shots = fs.existsSync(shotsFile) ? JSON.parse(fs.readFileSync(shotsFile, 'utf8')) : [];
+      const sentences = fs.existsSync(semanticFile) ? JSON.parse(fs.readFileSync(semanticFile, 'utf8')).sentences || [] : [];
+      return sendJson(res, {ok:true, shots:shots.map(shot => ({...shot,
+        sentences:sentences.filter(sentence => sentence.shot === shot.id).map(sentence =>
+          ({text:sentence.text, sem:sentence.sem, weight:sentence.weight}))}))});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/candidates": (req, res, url) => {
+    try {
+      const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
+      const file = path.join(project, 'qa', 'card-candidates.md');
+      if (!fs.existsSync(file)) { res.writeHead(404); res.end('分镜候选尚未生成'); return; }
+      res.writeHead(200, {'Content-Type':'text/markdown; charset=utf-8', 'Cache-Control':'no-store',
+        'Content-Disposition':'inline; filename="card-candidates.md"', 'X-Content-Type-Options':'nosniff'});
+      fs.createReadStream(file).pipe(res);
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/script": (req, res, url) => {
+    try {
+      const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
+      return sendJson(res, {ok:true, text:fs.readFileSync(path.join(project, 'input.txt'), 'utf8').trim()});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/approved-script": (req, res) => {
+    try {
+      const file = path.join(ROOT, 'director', 'talkcraft-revised-script.txt');
+      if (!fs.existsSync(file)) { res.writeHead(404); res.end('Approved script not found'); return; }
+      return sendJson(res, {ok:true, text:fs.readFileSync(file, 'utf8').trim()});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/revise": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const sourceRunId = body.runId || '';
+      const sourceProject = talkcraftProject(ROOT, sourceRunId);
+      const sourceRun = JSON.parse(fs.readFileSync(path.join(sourceProject, 'source-run.json'), 'utf8'));
+      const avatarFile = path.join(sourceProject, 'assets', 'avatar.png');
+      if (!fs.existsSync(avatarFile)) throw new Error('原运行没有可复用的角色图，请回编导台重新选择');
+      const voice = ['zh-CN-YunxiNeural','zh-CN-XiaoxiaoNeural'].includes(body.voice) ? body.voice : sourceRun.voice;
+      const created = createTalkcraftInput(ROOT, {text:body.text, voice,
+        avatarBytes:fs.readFileSync(avatarFile)});
+      const newSourceFile = path.join(created.project, 'source-run.json');
+      const newSource = JSON.parse(fs.readFileSync(newSourceFile, 'utf8'));
+      fs.writeFileSync(newSourceFile, JSON.stringify({...newSource, sourceRunId, revisionOfRunId:sourceRunId}, null, 2), 'utf8');
+      fs.writeFileSync(path.join(created.project, 'sources.md'), `# 素材来源\n\n- 角色图：沿用运行 ${sourceRunId} 的本地静态图副本；不代表数字人口型。\n- 口播文案：本次审核修改稿；原运行文案保持不变。\n- 其余素材：待语义标注后逐镜采集并登记。\n`, 'utf8');
+      const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
+      tasks.get(id).runId = created.runId;
+      tasks.get(id).sourceRunId = sourceRunId;
+      return sendJson(res, {ok:true, id, runId:created.runId, sourceRunId, sentences:created.sentences, characters:created.characters});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/audit": (req, res, url) => {
+    try {
+      const runId = url.searchParams.get('id') || '';
+      const project = talkcraftProject(ROOT, runId);
+      const script = fs.readFileSync(path.join(project, 'input.txt'), 'utf8').trim();
+      const timestampFile = path.join(project, 'audio', 'timestamps.json');
+      const timestamps = fs.existsSync(timestampFile) ? JSON.parse(fs.readFileSync(timestampFile, 'utf8')) : null;
+      const sentences = Array.isArray(timestamps?.sentences) ? timestamps.sentences.map((sentence, index) => ({
+        index:index + 1, text:sentence.text, start:sentence.start, end:sentence.end,
+        match:sentence.match, ok:sentence.ok === true && sentence.match >= 0.9,
+      })) : [];
+      const matches = sentences.map(sentence => sentence.match).filter(Number.isFinite);
+      const contentWarning = /只是把资料放进收藏夹.{0,24}显著降低.{0,12}学习它的概率|显著降低你真正学习它的概率|记忆通道全部关闭/u.test(script)
+        ? '本次文案含此前已确认需要修正的研究结论，逐句对齐通过不代表事实审核通过。' : null;
+      const audioFile = path.join(project, 'audio', 'full.mp3');
+      const alignmentPassed = sentences.length > 0 && sentences.every(sentence => sentence.ok);
+      const semanticsFile = path.join(project, 'semantics.json');
+      const shotsFile = path.join(project, 'remotion', 'shots.json');
+      const shotbookFile = path.join(project, 'SHOTBOOK.md');
+      const semantics = fs.existsSync(semanticsFile) ? JSON.parse(fs.readFileSync(semanticsFile, 'utf8')) : null;
+      const shots = fs.existsSync(shotsFile) ? JSON.parse(fs.readFileSync(shotsFile, 'utf8')) : null;
+      const segments = buildTalkcraftAuditSegments({auditSentences:sentences,
+        semanticSentences:semantics?.sentences, shots,
+        shotbookAvailable:fs.existsSync(shotbookFile) && fs.readFileSync(shotbookFile, 'utf8').trim().length > 0});
+      const runStatus = readTalkcraftStatus(ROOT, runId);
+      return sendJson(res, {ok:true, runId, script,
+        audioAvailable:fs.existsSync(audioFile) && fs.statSync(audioFile).size > 0,
+        audioSeconds:timestamps?.total || null, sentenceCount:sentences.length,
+        minimumMatch:matches.length ? Math.min(...matches) : null,
+        alignmentPassed, contentWarning, passed:alignmentPassed && !contentWarning, sentences,
+        segmentState:segments.state, segments:segments.segments, semanticPassed:runStatus.semanticPassed});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/failure-report": (req, res, url) => {
+    try {
+      const report = latestTalkcraftFailureReport(ROOT, url.searchParams.get('id') || '');
+      return sendJson(res, {ok:!!report, report});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/create": async (req, res) => {
+    try {
+      const {fields, avatar} = await readBModeInput(req);
+      if (!avatar) throw new Error('请先选择角色图');
+      const created = createTalkcraftInput(ROOT, {text:fields.text, voice:fields.voice,
+        avatarBytes:Buffer.from(await avatar.arrayBuffer())});
+      const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
+      tasks.get(id).runId = created.runId;
+      return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/stage": async (req, res) => {
+    try {
+      const {runId, stage} = await readBody(req);
+      if (!['candidates','preflight','scaffold','sample','render-all','render-sfx-solo','qa','deliver'].includes(stage)) throw new Error('不支持的 TalkCraft 阶段');
+      talkcraftProject(ROOT, runId);
+      const active = [...tasks.values()].find(task => task.runId === runId && task.status === 'running');
+      if (active) throw new Error('本片已有任务运行中');
+      const id = startTask(`talkcraft-${stage}`, `node director/talkcraft-stages.mjs ${stage} ${runId}`, ROOT);
+      tasks.get(id).runId = runId;
+      return sendJson(res, {ok:true, id, runId, stage});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/approve-sample": async (req, res) => {
+    try {
+      const {runId} = await readBody(req);
+      return sendJson(res, {ok:true, ...approveTalkcraftSample(ROOT, runId)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/workbench": async (req, res) => {
+    try {
+      const {runId} = await readBody(req);
+      const workbench = await startTalkcraftWorkbench(ROOT, resolveTalkcraftSkillRoot(ROOT), runId);
+      return sendJson(res, {ok:true, workbenchUrl:workbench.url});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/video": (req, res, url) => {
+    try {
+      const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
+      const kind = url.searchParams.get('kind') || 'sample';
+      const names = {sample:'preview/s01.mp4', final:'final.mp4', delivery:'delivery.mp4'};
+      if (!names[kind]) throw new Error('Invalid TalkCraft video kind');
+      if (kind === 'delivery' && !readTalkcraftStatus(ROOT, url.searchParams.get('id') || '').delivery) {
+        res.writeHead(404); res.end('Delivery video not ready'); return;
+      }
+      const file = path.join(project, 'remotion', 'out', names[kind]);
+      if (!fs.existsSync(file)) {res.writeHead(404); res.end('Video not ready'); return;}
+      return sendVideoRange(res, file, req.headers.range);
+    } catch {res.writeHead(400); res.end('Invalid TalkCraft video request');}
+  },
+  "GET /api/talkcraft/audio": (req, res, url) => {
+    try {
+      const file = path.join(talkcraftProject(ROOT, url.searchParams.get('id') || ''), 'audio', 'full.mp3');
+      if (!fs.existsSync(file)) {res.writeHead(404); res.end('Audio not ready'); return;}
+      return sendVideoRange(res, file, req.headers.range, 'audio/mpeg');
+    } catch {res.writeHead(400); res.end('Invalid TalkCraft audio request');}
+  },
+  "GET /api/b-mode/acceptance": (req, res) => sendJson(res, {ok:true, ...loadAcceptanceFixture()}),
+  "POST /api/b-mode/placeholder": async (req, res) => {
+    const { fields, avatar } = await readBModeInput(req);
+    const text = typeof fields.text === "string" ? fields.text.replace(/\r\n/g, "\n").trim() : "";
+    const voice = fields.voice || "zh-CN-YunxiNeural";
+    if (!text || text.length > 1200) return sendJson(res, { ok: false, error: "占位测试文案需为 1–1200 字" });
+    if (!avatar || avatar.size > 7 * 1024 * 1024) return sendJson(res, { ok: false, error: "请上传不超过 7 MB 的角色图" });
+    if (!["zh-CN-YunxiNeural", "zh-CN-XiaoxiaoNeural"].includes(voice)) return sendJson(res, { ok: false, error: "占位测试仅支持现成音色" });
+    let scenes;
+    try { scenes = JSON.parse(fields.scenes); } catch { return sendJson(res, { ok: false, error: "分镜数据无效" }); }
+    if (!Array.isArray(scenes) || !scenes.length || scenes.length > 80 ||
+        scenes.some(scene => !scene || typeof scene.text !== "string" || scene.text.length > 80 || !["person", "graphics", "material"].includes(scene.subject) ||
+          (scene.subtitle != null && (typeof scene.subtitle !== 'string' || scene.subtitle.length > 32)) ||
+          (scene.visualText != null && (typeof scene.visualText !== 'string' || scene.visualText.length > 100))) ||
+        !scenes.some(scene => scene.subject === "person") ||
+        scenes.map(scene => scene.text).join("").replace(/\s+/gu, "") !== text.replace(/\s+/gu, "") ||
+        scenes.some((scene, index) => index > 0 && scene.videoPath && scene.videoPath === scenes[index - 1].videoPath)) {
+      return sendJson(res, { ok: false, error: "分镜未确认、单句超过 80 字，或与当前文案不一致" });
+    }
+    const invalidVideoIndex = scenes.findIndex(scene => scene.videoPath != null &&
+      (typeof scene.videoPath !== 'string' || !resolveLibraryVideo(ROOT, scene.videoPath)));
+    if (invalidVideoIndex >= 0) return sendJson(res, {ok:false, error:`第 ${invalidVideoIndex + 1} 镜头视频不在素材库中或文件不可用`});
+    const background = ["keep", "auto", "green"].includes(fields.background) ? fields.background : "keep";
+    const backgroundVideo = fields.backgroundVideoPath ? resolveLibraryVideo(ROOT, fields.backgroundVideoPath) : null;
+    if (fields.backgroundVideoPath && !backgroundVideo) return sendJson(res, {ok:false, error:"背景视频不在素材库中或文件不可用"});
+    const bytes = Buffer.from(await avatar.arrayBuffer());
+    const png = bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
+    const webp = bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP";
+    if (!png && !jpeg && !webp) return sendJson(res, { ok: false, error: "角色图仅支持 PNG、JPG 或 WebP" });
+    const runId = crypto.randomUUID();
+    const runDir = path.join(ROOT, "director", "b-mode-runs", runId);
+    fs.mkdirSync(runDir, {recursive:true});
+    try {
+      execFileSync("ffmpeg", ["-y","-hide_banner","-loglevel","error","-i","pipe:0","-frames:v","1",
+        "-vf","scale=1600:1600:force_original_aspect_ratio=decrease","-update","1",path.join(runDir,"avatar.png")],
+      {input:bytes, timeout:15000});
+    } catch { return sendJson(res, {ok:false, error:"角色图片无法读取，请换一张图片"}); }
+    fs.writeFileSync(path.join(runDir, "input.txt"), text, "utf8");
+    fs.writeFileSync(path.join(runDir, "placeholder-settings.json"), JSON.stringify({voice, background,
+      backgroundVideoPath:backgroundVideo?.path || null,
+      scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject, videoPath:scene.videoPath || null,
+        subtitle:scene.subtitle || '', visualText:scene.visualText || ''}))}, null, 2), "utf8");
+    const id = startTask("b-baseline", `node director/b-mode-placeholder.mjs ${runId}`, ROOT);
+    tasks.get(id).runId = runId;
+    return sendJson(res, {ok:true, id, runId});
+  },
+  "GET /api/b-mode/placeholder/video": (req, res, url) => {
+    const runId = url.searchParams.get("id") || "";
+    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end("Invalid run ID"); return; }
+    const report = path.join(ROOT, "director", "b-mode-runs", runId, "placeholder-report.json");
+    const file = path.join(ROOT, "template", "out", "b-mode", `${runId}.placeholder.mp4`);
+    if (!fs.existsSync(report) || !fs.existsSync(file)) { res.writeHead(404); res.end("No completed placeholder test"); return; }
+    sendVideoRange(res, file, req.headers.range);
+  },
+  "GET /api/b-mode/placeholder/audio": (req, res, url) => {
+    const runId = url.searchParams.get("id") || "";
+    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end("Invalid run ID"); return; }
+    const report = path.join(ROOT, "director", "b-mode-runs", runId, "placeholder-report.json");
+    const file = path.join(ROOT, "template", "public", "b-mode", runId, "placeholder-voice.mp3");
+    if (!fs.existsSync(report) || !fs.existsSync(file)) { res.writeHead(404); res.end("No completed placeholder audio"); return; }
+    sendVideoRange(res, file, req.headers.range, "audio/mpeg");
+  },
   "POST /api/generate": async (req, res) => {
     const body = await readBody(req);
     const text = (body.text || "").trim();
@@ -115,7 +380,8 @@ const apis = {
     const since = Number(url.searchParams.get("since") || 0);
     const t = tasks.get(id);
     if (!t) return sendJson(res, { error: "no task" });
-    return sendJson(res, { since: t.logs.length, done: t.status !== "running", status: t.status, exitCode: t.exitCode, logs: t.logs.slice(since) });
+    return sendJson(res, { since: t.logs.length, done: t.status !== "running", status: t.status, exitCode: t.exitCode,
+      logs: t.logs.slice(since), runId: t.runId, sourceRunId:t.sourceRunId || null, failureReport:t.failureReport || null });
   },
 
   "POST /api/task/clear": async (req, res) => {
@@ -147,8 +413,10 @@ const apis = {
     const idx = JSON.parse(fs.readFileSync(idxPath, "utf8"));
     const tagsParam = url.searchParams.get("tags") || "";
     const wantTags = tagsParam.split(",").map(s => s.trim()).filter(Boolean);
+    const query = (url.searchParams.get("q") || "").trim().slice(0, 80).toLowerCase();
     let filtered = idx;
-    if (wantTags.length) filtered = idx.filter(item => wantTags.every(t => item.tags.includes(t)));
+    if (wantTags.length) filtered = filtered.filter(item => wantTags.every(t => (item.tags || []).includes(t)));
+    if (query) filtered = filtered.filter(item => `${item.path} ${item.category} ${(item.tags || []).join(' ')}`.toLowerCase().includes(query));
     const offset = parseInt(url.searchParams.get("offset") || "0");
     const limit = Math.min(parseInt(url.searchParams.get("limit") || "60"), 200);
     const items = filtered.slice(offset, offset + limit).map(item => ({
@@ -156,6 +424,12 @@ const apis = {
       width: item.width, height: item.height, tags: item.tags,
     }));
     return sendJson(res, { items, total: filtered.length, offset, limit });
+  },
+  "POST /api/b-mode/material-match": async (req, res) => {
+    const body = await readBody(req);
+    if (!Array.isArray(body.scenes) || body.scenes.length > 80 || body.scenes.some(scene => typeof scene?.text !== 'string' || scene.text.length > 80))
+      return sendJson(res, {ok:false, error:'分镜数据无效'});
+    return sendJson(res, {ok:true, matches:matchSceneVideos(body.scenes, loadMaterialIndex(ROOT))});
   },
 
   "GET /api/library/thumb": (req, res, url) => {
@@ -338,17 +612,17 @@ const apis = {
     "GET /api/theme/current": (req, res) => {
     const cp = path.join(ROOT, "director", "current-theme.json");
     if (!fs.existsSync(cp)) return sendJson(res, { ok: true, theme: null });
-    try {
-      return sendJson(res, { ok: true, theme: JSON.parse(fs.readFileSync(cp, "utf8")) });
-    } catch (e) { return sendJson(res, { ok: true, theme: null }); }
+    return sendJson(res, { ok: true, theme: readCurrentTheme(ROOT) });
   },
 
   "PUT /api/theme/current": async (req, res) => {
     try {
       const body = await readBody(req);
-      if (!body || !body.name || !body.bg || !body.ink) return sendJson(res, { ok: false, error: "缺少主题数据" });
-      fs.writeFileSync(path.join(ROOT, "director", "current-theme.json"), JSON.stringify(body, null, 2), "utf8");
-      return sendJson(res, { ok: true, saved: body.name });
+      if (!body || !body.name || (!body.bg && !body.tokens?.background) || (!body.ink && !body.tokens?.text)) {
+        return sendJson(res, { ok: false, error: "缺少主题数据" });
+      }
+      const theme = writeCurrentTheme(ROOT, normalizeTheme(body));
+      return sendJson(res, { ok: true, saved: theme.name, theme });
     } catch (e) { return sendJson(res, { ok: false, error: e.message }); }
   },
 
@@ -436,6 +710,6 @@ const server = http.createServer(async (req, res) => {
   res.end("Not Found");
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "127.0.0.1", () => {
   console.log(`Server running: http://127.0.0.1:${PORT}`);
 });

@@ -2,6 +2,7 @@ import { Composition } from 'remotion';
 import { AiflMain, AIFL_TOTAL } from './aifl/Main';
 import { DynamicVideo, DEFAULT_STORYBOARD, getTotalDuration, type Storyboard } from './DynamicVideo';
 import { PreviewGallery, PREVIEW_TOTAL } from './PreviewGallery';
+import { BModeBaseline, type BModeBaselineProps } from './BModeBaseline';
 
 export const Root: React.FC = () => {
   return (
@@ -26,6 +27,16 @@ export const Root: React.FC = () => {
           const sb = (props as { storyboard: Storyboard }).storyboard;
           return { durationInFrames: getTotalDuration(sb) };
         }}
+      />
+      <Composition
+        id="BModeBaseline"
+        component={BModeBaseline}
+        durationInFrames={300}
+        fps={30}
+        width={1280}
+        height={720}
+        defaultProps={{avatar: '', audio: '', totalFrames: 300, scenes: []}}
+        calculateMetadata={({props}) => ({durationInFrames: (props as BModeBaselineProps).totalFrames})}
       />
       <Composition
         id="PreviewGallery"

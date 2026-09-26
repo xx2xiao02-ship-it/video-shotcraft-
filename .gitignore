@@ -45,3 +45,8 @@ tmp/
 _server.log
 _server_err.log
 docs/_shots/
+
+# B 模式本地测试产物
+/director/b-mode-runs/
+/template/public/b-mode/
+/template/out/b-mode/

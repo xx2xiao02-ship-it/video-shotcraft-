@@ -12,6 +12,7 @@
  */
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
+import {readCurrentTheme} from './theme-contract.mjs';
 
 const directorDir = join(process.cwd(), 'director');
 const timing = JSON.parse(readFileSync(join(directorDir, 'timing.json'), 'utf-8'));
@@ -699,7 +700,7 @@ for (let i = 0; i < rawShots.length; i++) {
 let CUR = null;
 const curPath = join(directorDir, 'current-theme.json');
 if (existsSync(curPath)) {
-  try { CUR = JSON.parse(readFileSync(curPath, 'utf8')); } catch (e) {}
+  try { CUR = readCurrentTheme(process.cwd()); } catch (e) {}
 }
 const _bg = (CUR && CUR.bg) || '#0d0f14';
 const _ink = (CUR && CUR.ink) || '#e8e6e1';

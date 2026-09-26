@@ -7,6 +7,7 @@ import {
   interpolate,
   Sequence,
   Audio,
+  Img,
   OffthreadVideo,
   staticFile,
 } from 'remotion';
@@ -508,6 +509,9 @@ export type Shot = {
     src: string;
     volume?: number;
   };
+  subject?: 'person' | 'graphics' | 'material';
+  avatar?: string;
+  layoutVariant?: string;
 };
 
 export type Theme = {
@@ -708,14 +712,23 @@ const ShotView: React.FC<{
       {/* 模板组件层（全屏视觉）—— TemplateAdapter 转译注入文案
           素材主体镜头（shotCard 为空且 material 存在）：素材即视觉主体，跳过模板层避免遮挡 */}
       {!(shot.shotCard == null && shot.material) && (
-      <TranslatedShot shotCard={shot.shotCard} shotData={{
-        text: shot.text,
-        subText: shot.subText,
-        accent: style.accent,
-        bg: style.bg,
-        durationInFrames: shot.durationInFrames,
-        media: shot.media,
-      }} FallbackComponent={ShotComponent} />
+        <div style={{position:'absolute',inset:0,opacity:shot.material ? 0.78 : 1}}>
+          <TranslatedShot shotCard={shot.shotCard} shotData={{
+            text: shot.text,
+            subText: shot.subText,
+            accent: style.accent,
+            bg: style.bg,
+            durationInFrames: shot.durationInFrames,
+            media: shot.media,
+          }} FallbackComponent={ShotComponent} />
+        </div>
+      )}
+
+      {shot.subject === 'person' && shot.avatar && (
+        <div style={{position:'absolute',right:shot.layoutVariant === 'avatar-left-copy' ? undefined : 70,left:shot.layoutVariant === 'avatar-left-copy' ? 70 : undefined,bottom:112,width:220,height:250,padding:8,boxSizing:'border-box',borderRadius:12,background:'#f5f7f2ee',boxShadow:'0 18px 45px #04152266',zIndex:9}}>
+          <Img src={staticFile(shot.avatar)} style={{width:'100%',height:'100%',objectFit:'contain'}} />
+          <div style={{position:'absolute',left:12,bottom:10,padding:'4px 7px',borderRadius:4,background:'#f8faf3',color:'#35514a',fontSize:12,fontWeight:700}}>静态角色图</div>
+        </div>
       )}
 
 

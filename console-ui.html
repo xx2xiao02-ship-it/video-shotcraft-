@@ -124,6 +124,110 @@ PE html>
     padding: 9px 12px; color: var(--ink); font-size: 13.5px; font-family: inherit;
     outline: none; resize: vertical;
   }
+  .b-settings { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .b-settings-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .b-settings-head strong { font-size: 14px; }
+  .b-settings-head span { font-size: 12px; color: var(--mid); }
+  .b-settings-grid { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr); gap: 14px 20px; }
+  .b-settings-grid label { display: flex; flex-direction: column; gap: 7px; font-size: 12px; color: var(--mid); }
+  .b-settings-grid select, .b-settings-grid input[type="range"] { width: 100%; }
+  .b-settings-grid select { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; color: var(--ink); font: inherit; font-size: 13px; }
+  .b-color-row { display: flex; align-items: center; gap: 10px; }
+  .b-color-row input[type="color"] { width: 42px; height: 32px; padding: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+  .b-save-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .b-save-row .brief-submit { width: auto; margin-top: 0; flex: 0 0 auto; }
+  .b-save-note { flex: 1 1 260px; min-width: 0; color: var(--mid2); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+  .b-mode-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  .b-mode-grid .brief-submit { min-width: 0; }
+  .b-production-audit[hidden] { display: none !important; }
+  .b-production-audit { margin: 14px 0 20px; padding: 16px 18px; border: 1px solid var(--border2); border-radius: 8px; background: var(--bg2); }
+  .b-production-audit h2 { margin: 0; font-size: 15px; }
+  .b-production-audit h3 { margin: 14px 0 7px; font-size: 12px; }
+  .b-production-audit-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .b-production-audit-state { color: var(--accent); font-size: 12px; font-weight: 650; }
+  .b-production-audit-metrics { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 10px 0; color: var(--mid); font-size: 11px; }
+  .b-production-audit-warning { margin: 12px 0; padding: 10px 12px; border-left: 3px solid #e59855; background: #3a2b1e; color: #f3d1ad; font-size: 12px; line-height: 1.55; }
+  .b-production-audit-evidence { color: var(--mid); font-size: 11px; line-height: 1.6; }
+  .b-production-audit-actions { margin: 6px 0 0; padding-left: 20px; color: var(--ink); font-size: 12px; line-height: 1.6; }
+  .b-production-audit-failed-checks-wrap { margin-top: 10px; color: #f3c7a8; font-size: 11px; }
+  .b-production-audit-failed-checks { margin: 5px 0 0; padding-left: 18px; line-height: 1.6; overflow-wrap: anywhere; }
+  .b-production-audio { width: min(100%, 560px); height: 38px; margin: 8px 0; }
+  .b-production-script { margin: 14px 0; }
+  .b-production-script-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+  .b-production-script-head h3 { margin: 0; font-size: 12px; }
+  .b-production-script-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .b-production-script-actions button { min-height: 30px; padding: 5px 10px; border: 1px solid var(--border2); border-radius: 5px; background: var(--chip); color: var(--ink); font: inherit; font-size: 11px; cursor: pointer; }
+  .b-production-script-actions button:hover { border-color: var(--accent); }
+  .b-production-script-actions button:disabled { opacity: .5; cursor: not-allowed; }
+  #b-reprocess-script { border-color: var(--accent); background: linear-gradient(135deg,#148c87,#315e8c); color: #fff; font-weight: 650; }
+  #b-production-script { display: block; width: 100%; min-height: 156px; max-height: 340px; resize: vertical; overflow: auto; padding: 10px 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); color: var(--ink); font: inherit; font-size: 12px; line-height: 1.65; white-space: pre-wrap; }
+  #b-production-script:not([readonly]) { border-color: var(--accent); }
+  .b-production-segment-state { margin: 4px 0 9px; color: var(--mid); font-size: 11px; line-height: 1.55; }
+  .b-production-segments { display: grid; gap: 8px; }
+  .b-production-segments[hidden] { display: none !important; }
+  .b-production-segment { min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); }
+  .b-production-segment.edited { border-color: var(--accent); }
+  .b-production-segment-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+  .b-production-segment-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; min-width: 0; }
+  .b-production-segment-meta strong { font-size: 12px; }
+  .b-production-segment-meta span { color: var(--mid); font-size: 10px; white-space: nowrap; }
+  .b-production-segment-review-state { color: var(--mid); font-size: 10px; white-space: nowrap; }
+  .b-production-segment.edited .b-production-segment-review-state { color: var(--accent); }
+  .b-production-segment-text { margin: 0; color: var(--ink); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .b-production-segment-edit { display: block; width: 100%; min-width: 0; min-height: 98px; resize: vertical; padding: 8px; border: 1px solid var(--accent); border-radius: 4px; background: var(--bg2); color: var(--ink); font: inherit; font-size: 12px; line-height: 1.6; }
+  .b-production-segment-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .b-production-segment-actions button, #b-reprocess-segments { min-height: 30px; padding: 5px 10px; border: 1px solid var(--border2); border-radius: 5px; background: var(--chip); color: var(--ink); font: inherit; font-size: 11px; cursor: pointer; }
+  .b-production-segment-actions button:disabled, #b-reprocess-segments:disabled { opacity: .5; cursor: not-allowed; }
+  #b-reprocess-segments { border-color: var(--accent); color: var(--accent); font-weight: 650; }
+  .b-production-full-script { margin-top: 10px; border-top: 1px solid var(--border); }
+  .b-production-full-script > summary { padding: 9px 0 4px; color: var(--mid); font-size: 11px; cursor: pointer; }
+  .b-production-full-script[open] > summary { margin-bottom: 8px; }
+  .b-production-table-wrap { max-height: 360px; overflow: auto; border: 1px solid var(--border); border-radius: 6px; }
+  .b-production-table { width: 100%; min-width: 720px; table-layout: fixed; border-collapse: collapse; font-size: 11px; }
+  .b-production-table th, .b-production-table td { padding: 7px 9px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  .b-production-table th { position: sticky; top: 0; background: var(--bg2); color: var(--mid); }
+  .b-production-table th:first-child { width: 48px; }
+  .b-production-table th:nth-child(2) { width: 126px; }
+  .b-production-table th:nth-child(3) { width: 78px; }
+  .b-production-table td:first-child, .b-production-table td:nth-child(2), .b-production-table td:nth-child(3) { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .b-production-table tr.pass td:nth-child(3) { color: #65d5a2; font-weight: 650; }
+  .b-production-table tr.fail td:nth-child(3) { color: #f3a379; font-weight: 700; }
+  .b-production-align-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 14px 0 7px; }
+  .b-production-align-head h3 { margin: 0; }
+  .b-production-align-note { color: var(--mid); font-size: 10px; }
+  .b-production-table td:last-child { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+  .b-production-next-step { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .b-production-next-step h3 { margin: 0 0 4px; font-size: 12px; }
+  .b-production-next-note { margin: 0; color: var(--mid); font-size: 11px; line-height: 1.5; }
+  .b-production-next-actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+  .b-production-next-actions button, .b-production-next-actions a { min-height: 32px; padding: 6px 11px; border: 1px solid var(--accent); border-radius: 5px; background: var(--accent); color: var(--bg); font: inherit; font-size: 11px; font-weight: 650; text-decoration: none; cursor: pointer; }
+  .b-production-next-actions button:disabled { opacity: .5; cursor: not-allowed; }
+  .b-production-next-actions a { border-color: var(--border2); background: var(--chip); color: var(--ink); font-weight: 500; }
+  .b-user-settings { margin: 0 0 24px; padding: 20px 22px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
+  .b-user-settings [hidden] { display: none !important; }
+  .b-user-settings h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .b-user-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
+  .b-user-field { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+  .b-user-field label { color: var(--mid); font-size: 12px; }
+  .b-user-field select, .b-user-field input[type="search"] { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
+  .b-user-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .b-user-actions button, .b-background-results button { min-height: 38px; border: 1px solid var(--accent); border-radius: 6px; background: var(--chip); color: var(--ink); padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .b-background-results button { border-color: var(--border2); font-weight: 400; }
+  .b-user-actions button:hover, .b-background-results button:hover { border-color: var(--accent); }
+  .b-user-note { color: var(--mid2); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+  .b-role-preview { display: flex; align-items: center; gap: 12px; min-height: 72px; }
+  .b-role-preview img { width: 66px; height: 72px; object-fit: contain; background: var(--bg); border: 1px solid var(--border2); border-radius: 4px; }
+  .b-background-picker { display: grid; gap: 9px; }
+  .b-background-results { max-height: 220px; overflow: auto; display: grid; gap: 6px; }
+  .b-background-results button { display: flex; align-items: center; gap: 10px; text-align: left; min-width: 0; }
+  .b-background-results img { width: 72px; height: 44px; object-fit: cover; flex: none; border-radius: 3px; }
+  .b-background-results span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .b-scenes { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .b-scenes summary { cursor: pointer; color: var(--ink); font-size: 13px; }
+  .b-scenes ol { margin: 12px 0 0 20px; display: grid; gap: 9px; }
+  .b-scenes li { color: var(--mid); font-size: 12px; line-height: 1.5; }
+  .b-scenes li strong { color: var(--ink); font-weight: 600; }
+  @media (max-width: 680px) { .b-settings-grid, .b-mode-grid, .b-user-grid { grid-template-columns: 1fr; } .b-settings-head { flex-direction: column; gap: 4px; } }
   .brief-grid input:focus, .brief-grid textarea:focus, .brief-grid select:focus {
     border-color: var(--accent);
   }
@@ -262,6 +366,9 @@ PE html>
   }
   .view-tab:hover { color: var(--ink); background: var(--panel); }
   .view-tab.active { color: var(--gold); background: var(--bg2); border-color: var(--panel2); }
+  .internal-only[hidden] { display: none !important; }
+  .b-mode-frame { display: block; width: 100%; height: 820px; border: 0; background: #f3f5f2; }
+  .view-title small { color: var(--mid); font-size: 11px; font-weight: 500; }
   .view { display: none; }
   .view.active { display: block; }
   .view-title {
@@ -310,12 +417,13 @@ PE html>
 
 <nav class="view-nav" id="view-nav">
   <button class="view-tab active" data-view="director">📝 编导台</button>
+  <button class="view-tab internal-only" data-view="bmode" hidden>数字人口播</button>
   <button class="view-tab" data-view="produce">🎬 制作台</button>
   <button class="view-tab" data-view="library">🎞️ 素材库</button>
 </nav>
 
 <main>
-  <div class="view" data-view="director">
+  <div class="view active" data-view="director">
   <div class="view-title">📝 编导台 · 文案 / 风格 / 分镜规划（C1/C4）</div>
   <div class="brief-card">
     <div class="brief-title">📝 编导文案</div>
@@ -347,20 +455,26 @@ PE html>
       </label>
       <label>&nbsp;</label>
     </div>
-    <div style="display:flex;gap:10px;margin-top:12px">
-      <button class="brief-submit" id="b-save" style="background:var(--border2);margin-top:0;flex:0 0 auto">
+    <div class="b-save-row">
+      <button class="brief-submit" id="b-save" style="background:var(--border2)">
         <div style="font-size:13px;font-weight:600">💾 保存文案（写 C1）</div>
       </button>
-      <div style="flex:1;font-size:11px;color:var(--mid2);align-self:center;line-height:1.5">保存到 director/_input.txt（收敛节点），供后续生成复用；不保存也不影响 A 模式（直接用输入框）。</div>
+      <div class="b-save-note">保存到 director/_input.txt（收敛节点），供后续生成复用；不保存也不影响 A 模式（直接用输入框）。</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
+    <section class="b-settings internal-only" aria-labelledby="b-settings-title" hidden>
+      <div class="b-settings-head"><strong id="b-settings-title">数字人口播</strong><span>TalkCraft 工作流与基线测试</span></div>
+      <button class="brief-submit" id="b-mode-b" style="background:linear-gradient(135deg,#148c87,#315e8c);margin-top:14px" title="打开 TalkCraft B 模式工作台">
+        进入数字人口播
+      </button>
+    </section>
+    <div class="b-mode-grid">
       <button class="brief-submit" id="b-mode-a" style="background:linear-gradient(135deg,#22c55e,var(--accent2));margin-top:0">
         <div style="font-size:14px;font-weight:600">A 模式</div>
         <div style="font-size:11px;opacity:0.9;margin-top:2px">Remotion 主导<br>素材补充</div>
       </button>
-      <button class="brief-submit" id="b-mode-b" style="background:var(--border2);margin-top:0;opacity:0.5;cursor:not-allowed" title="待开发">
+      <button class="brief-submit" id="b-mode-real" type="button" style="background:linear-gradient(135deg,#148c87,#315e8c);margin-top:0" title="使用上方文案开始 B 模式；需要选择角色图">
         <div style="font-size:14px;font-weight:600">B 模式</div>
-        <div style="font-size:11px;opacity:0.9;margin-top:2px">人像口播主导<br>Remotion 穿插</div>
+        <div style="font-size:11px;opacity:0.9;margin-top:2px">数字人口播主导<br>素材补充</div>
       </button>
       <button class="brief-submit" id="b-mode-c" style="background:var(--border2);margin-top:0;opacity:0.5;cursor:not-allowed" title="待开发">
         <div style="font-size:14px;font-weight:600">C 模式</div>
@@ -536,6 +650,42 @@ PE html>
       </div>
     </div>
   </div>
+
+  <section class="b-user-settings" id="b-user-settings" aria-labelledby="b-user-settings-title">
+    <h2 id="b-user-settings-title">数字人口播设置</h2>
+    <div class="b-user-grid">
+      <div class="b-user-field">
+        <label for="b-role-file">角色图</label>
+        <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+        <div class="b-role-preview"><img id="b-role-preview" alt="已选角色图" hidden><span class="b-user-note" id="b-role-name">尚未选择角色图</span></div>
+        <div class="b-user-actions"><button type="button" id="b-role-choose">选择角色图</button><button type="button" id="b-role-remove" hidden>移除</button></div>
+      </div>
+      <div class="b-user-field">
+        <label for="b-voice-select">音色</label>
+        <select id="b-voice-select"><option value="zh-CN-YunxiNeural">云希 · 男声</option><option value="zh-CN-XiaoxiaoNeural">晓晓 · 女声</option></select>
+        <span class="b-user-note">声音复刻未接入</span>
+      </div>
+      <div class="b-user-field">
+        <label for="b-background-select">人物背景</label>
+        <select id="b-background-select"><option value="keep">保留原背景</option><option value="auto">检查背景后决定抠像方式</option><option value="green">绿幕时抠绿</option></select>
+      </div>
+      <div class="b-user-field">
+        <label for="b-background-search">人物镜头默认背景</label>
+        <div class="b-user-actions"><button type="button" id="b-background-choose">从素材库选择</button><button type="button" id="b-background-remove" hidden>移除</button></div>
+        <span class="b-user-note" id="b-background-name">未选择</span>
+        <div class="b-background-picker" id="b-background-picker" hidden>
+          <input id="b-background-search" type="search" placeholder="搜索素材库视频">
+          <div class="b-user-actions"><button type="button" id="b-background-search-button">搜索</button></div>
+          <div class="b-background-results" id="b-background-results"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <div class="view internal-only" data-view="bmode" hidden>
+    <div class="view-title">校对 <small>文案与分镜</small></div>
+    <iframe class="b-mode-frame" id="b-mode-frame" title="数字人口播流程" data-src="/director/b-mode-console.html?embed=1"></iframe>
   </div>
 
   <div class="view" data-view="produce">
@@ -551,6 +701,44 @@ PE html>
     </div>
     <div id="gen-status" style="font-size:12px;color:var(--mid);margin-top:8px">等待开始…</div>
   </div>
+  <section class="b-production-audit" id="b-production-audit" hidden aria-labelledby="b-production-audit-title">
+    <div class="b-production-audit-head"><h2 id="b-production-audit-title">B 模式审核</h2><span class="b-production-audit-state" id="b-production-audit-state"></span></div>
+    <div class="b-production-audit-metrics" id="b-production-audit-metrics"></div>
+    <div class="b-production-audit-warning" id="b-production-audit-warning" hidden></div>
+    <div id="b-production-audit-failure" hidden><h3>失败原因与处理建议</h3><p class="b-production-audit-evidence" id="b-production-audit-evidence"></p>
+      <div class="b-production-audit-failed-checks-wrap" id="b-production-audit-failed-checks-wrap" hidden><strong>具体失败项</strong><ul class="b-production-audit-failed-checks" id="b-production-audit-failed-checks"></ul></div>
+      <ol class="b-production-audit-actions" id="b-production-audit-actions"></ol></div>
+    <div id="b-production-audio-check" hidden><label class="b-user-note" for="b-production-audio">口播音频听核</label>
+      <audio class="b-production-audio" id="b-production-audio" controls preload="metadata"></audio></div>
+    <section class="b-production-script" aria-labelledby="b-production-script-title">
+      <div class="b-production-script-head"><h3 id="b-production-script-title">分段校对</h3>
+        <button type="button" id="b-reprocess-segments" hidden>重新配音与校对整篇</button></div>
+      <p class="b-production-segment-state" id="b-production-segment-state" role="status"></p>
+      <div class="b-production-segments" id="b-production-segments"></div>
+      <details class="b-production-full-script" id="b-production-full-script">
+        <summary>查看整篇文案</summary>
+        <div class="b-production-script-head"><div class="b-production-script-actions">
+          <button type="button" id="b-load-approved-script">载入已批准校正版</button>
+          <button type="button" id="b-edit-script">修改整篇</button>
+          <button type="button" id="b-cancel-script" hidden>取消修改</button>
+          <button type="button" id="b-reprocess-script" hidden>重新处理整篇</button>
+        </div></div>
+        <textarea id="b-production-script" rows="7" readonly></textarea>
+      </details>
+      <p class="field-note">改段后会重新配音并重算整篇时间轴；新建运行，原运行保留。镜头与成片需继续校准和制作。</p>
+    </section>
+    <div class="b-production-align-head"><h3>逐句时间校对</h3><span class="b-production-align-note">核对语音与原稿的时间匹配</span></div>
+    <div class="b-production-table-wrap"><table class="b-production-table"><thead><tr><th>句</th><th>时间范围</th><th>匹配率</th><th>原稿句</th></tr></thead><tbody id="b-production-rows"></tbody></table></div>
+    <section class="b-production-next-step" aria-labelledby="b-production-next-title">
+      <div><h3 id="b-production-next-title">下一步</h3><p class="b-production-next-note" id="b-production-next-note"></p></div>
+      <div class="b-production-next-actions">
+        <a id="b-production-final-link" target="_blank" rel="noopener" hidden>查看整片</a>
+        <a id="b-production-sample-link" target="_blank" rel="noopener" hidden>查看首镜校验片</a>
+        <a id="b-production-candidates-link" target="_blank" rel="noopener" hidden>查看镜头候选</a>
+        <button type="button" id="b-production-next-button" hidden></button>
+      </div>
+    </section>
+  </section>
 
   <!-- 分镜校准面板 -->
   <div class="brief-card" id="storyboard-card" style="display:none">
@@ -642,12 +830,12 @@ PE html>
 
   <div class="statusbar">
     <div class="sb-item"><span class="dot" id="sb-dot"></span><span id="sb-srv">服务检测中…</span></div>
-    <div class="sb-item">当前模式 <b>A · Remotion 主导</b></div>
-    <div class="sb-item">当前主题 <b id="sb-theme">黑金高级</b></div>
+    <div class="sb-item">当前模式 <b id="sb-mode">A · Remotion 主导</b></div>
+    <div class="sb-item"><span id="sb-theme-label">当前主题</span> <b id="sb-theme">黑金高级</b></div>
     <div class="sb-item">最近任务 <b id="sb-task">-</b></div>
   </div>
 
-  <div class="footer">Video ShotCraft · 本地操作台 · 服务地址 http://127.0.0.1:8765</div>
+  <div class="footer">Video ShotCraft · 本地操作台 · 服务地址 <span id="console-address"></span></div>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -802,6 +990,8 @@ const PANEL_META = {
 const state = { tasks: [], logs: {}, lastFetched: {} };
 // 本次会话内最新一次渲染/生成启动时刻（Infinity = 尚未启动过）——历史任务不得触发成片预览
 let sessionRenderStart = Infinity;
+const initialRoute = new URLSearchParams(location.search);
+let activeProductionMode = initialRoute.get("mode") === "B" || sessionStorage.getItem("sc-production-mode") === "B" ? "B" : "A";
 
 const $ = (s) => document.querySelector(s);
 const toast = $("#toast");
@@ -896,6 +1086,8 @@ function bindButtons() {
   $("#b-mode-a").onclick = async () => {
     const text = $("#b-fulltext").value.trim();
     if (!text) { showToast("请先粘贴口播文案"); return; }
+    activeProductionMode = "A";
+    sessionStorage.setItem("sc-production-mode", "A");
     $("#gen-progress-card").style.display = "";
     switchView("produce");
     let genProg = 5; setGenProgress(genProg, "TTS 语音合成中…");
@@ -932,6 +1124,7 @@ function bindButtons() {
     refresh();
   };
 
+  $("#b-mode-b").onclick = () => switchView("bmode");
   function setGenProgress(pct, status) {
     $("#gen-progress-bar").style.width = pct + "%";
     $("#gen-pct").textContent = Math.round(pct) + "%";
@@ -1266,6 +1459,11 @@ async function openOutFolder() {
 }
 
 async function loadPreview() {
+  if (activeProductionMode === "B") {
+    $("#preview-card").style.display = "none";
+    $("#preview-video").removeAttribute("src");
+    return;
+  }
   try {
     const j = await apiFetch("/api/preview");
     if (j.exists) {
@@ -1405,7 +1603,8 @@ function applyTheme(t) {
   // P2：当前生效主题 → 成片风格权威（current-theme.json，供 build-storyboard 生成 Remotion 色调）
   try { apiFetch("/api/theme/current", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(t) }); } catch (e) {}
   currentTheme = t;
-  const sbEl = document.getElementById("sb-theme"); if (sbEl) sbEl.textContent = t.name;
+  const sbEl = document.getElementById("sb-theme");
+  if (sbEl && !document.querySelector('.view[data-view="bmode"]').classList.contains("active")) sbEl.textContent = t.name;
   setSlot("bg", t.bg);
   setSlot("ink", t.ink);
   setSlot("mid", t.mid);
@@ -1884,9 +2083,676 @@ loadLibTags();
 loadLibList();
 
 // ===== P0-1 五视图导航与状态栏 =====
-const VIEW_ORDER = ["director", "produce", "library"];
+const VIEW_ORDER = ["director", "bmode", "produce", "library"];
+const B_INPUT_KEY = "shotcraft-b-director-settings-v1";
+let bRoleFile = null;
+let bRoleUrl = null;
+let bBackgroundPath = null;
+let bBackgroundMeta = null;
+function saveBDirectorSettings() {
+  try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voice:$("#b-voice-select").value,
+    background:$("#b-background-select").value, backgroundVideoPath:bBackgroundPath,
+    backgroundVideoMeta:bBackgroundMeta})); } catch { showToast("B 模式设置无法保存到浏览器"); }
+}
+function setBDirectorRole(file) {
+  if (file && (!["image/png","image/jpeg","image/webp"].includes(file.type) || file.size > 7 * 1024 * 1024)) {
+    $("#b-role-file").value = "";
+    showToast("角色图需为 PNG、JPG 或 WebP，且不超过 7 MB");
+    return false;
+  }
+  if (bRoleUrl) URL.revokeObjectURL(bRoleUrl);
+  bRoleFile = file || null;
+  bRoleUrl = file ? URL.createObjectURL(file) : null;
+  $("#b-role-preview").hidden = !file;
+  if (file) $("#b-role-preview").src = bRoleUrl;
+  else $("#b-role-preview").removeAttribute("src");
+  $("#b-role-name").textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "尚未选择角色图";
+  $("#b-role-remove").hidden = !file;
+  return true;
+}
+function renderBDirectorBackground() {
+  $("#b-background-name").textContent = bBackgroundPath ? bBackgroundPath.split(/[\\/]/).pop() : "未选择";
+  $("#b-background-remove").hidden = !bBackgroundPath;
+}
+async function searchBDirectorBackground() {
+  const results = $("#b-background-results");
+  results.textContent = "正在查询…";
+  try {
+    const q = $("#b-background-search").value.trim();
+    const data = await apiFetch(`/api/library/list?q=${encodeURIComponent(q)}&limit=20`);
+    results.replaceChildren();
+    const videos = (data.items || []).filter(item => /\.mp4$/i.test(item.path || ""));
+    if (!videos.length) { results.textContent = "没有匹配的视频"; return; }
+    for (const item of videos) {
+      const button = document.createElement("button");
+      button.type = "button";
+      const image = document.createElement("img");
+      image.alt = "";
+      image.src = `/api/library/thumb?path=${encodeURIComponent(item.path)}`;
+      const label = document.createElement("span");
+      label.textContent = item.path.split(/[\\/]/).pop();
+      button.append(image, label);
+      button.onclick = () => {
+        bBackgroundPath = item.path;
+        bBackgroundMeta = {durationSeconds:Number(item.duration_sec).toFixed(1), category:item.category};
+        renderBDirectorBackground();
+        saveBDirectorSettings();
+        $("#b-background-picker").hidden = true;
+      };
+      results.append(button);
+    }
+  } catch { results.textContent = "素材库暂时不可用"; }
+}
+try {
+  const saved = JSON.parse(localStorage.getItem(B_INPUT_KEY) || localStorage.getItem("shotcraft-b-workspace-v1") || "{}");
+  if (["zh-CN-YunxiNeural","zh-CN-XiaoxiaoNeural"].includes(saved.voice)) $("#b-voice-select").value = saved.voice;
+  if (["keep","auto","green"].includes(saved.background)) $("#b-background-select").value = saved.background;
+  if (typeof saved.backgroundVideoPath === "string") bBackgroundPath = saved.backgroundVideoPath;
+  if (saved.backgroundVideoMeta && typeof saved.backgroundVideoMeta === "object") bBackgroundMeta = saved.backgroundVideoMeta;
+} catch {}
+renderBDirectorBackground();
+$("#b-role-choose").onclick = () => $("#b-role-file").click();
+$("#b-role-remove").onclick = () => { pendingBModeText = null; $("#b-role-file").value = ""; setBDirectorRole(null); };
+$("#b-role-file").onchange = event => {
+  if (!setBDirectorRole(event.target.files[0])) return;
+  if (bRoleFile && pendingBModeText !== null) {
+    if ($("#b-fulltext").value.trim() !== pendingBModeText) {
+      pendingBModeText = null;
+      showToast("文案已修改，请重新点击 B 模式");
+      return;
+    }
+    startBMode();
+  }
+};
+$("#b-voice-select").onchange = saveBDirectorSettings;
+$("#b-background-select").onchange = saveBDirectorSettings;
+$("#b-background-choose").onclick = () => {
+  const picker = $("#b-background-picker");
+  picker.hidden = !picker.hidden;
+  if (!picker.hidden) searchBDirectorBackground();
+};
+$("#b-background-search-button").onclick = searchBDirectorBackground;
+$("#b-background-search").onkeydown = event => {
+  if (event.key === "Enter") { event.preventDefault(); searchBDirectorBackground(); }
+};
+$("#b-background-remove").onclick = () => {
+  bBackgroundPath = null;
+  bBackgroundMeta = null;
+  renderBDirectorBackground();
+  saveBDirectorSettings();
+};
+let pendingBModeText = null;
+let bModeBusy = false;
+let bAuditRunId = null;
+let bAuditOriginalScript = "";
+let bAuditScriptBeforeEdit = "";
+let bAuditEditing = false;
+let bAuditSentences = [];
+let bAuditSegments = [];
+let bAuditSegmentState = "pending";
+let bAuditSemanticPassed = false;
+let bAuditRunStatus = null;
+let bAuditSegmentDrafts = new Map();
+let bEditingSegmentId = null;
+function getBAuditSegmentText(segment) {
+  return bAuditSegmentDrafts.has(segment.id) ? bAuditSegmentDrafts.get(segment.id) : (segment.text || "");
+}
+function buildBAuditScriptFromSegments() {
+  return bAuditSegments.map(getBAuditSegmentText).join("\n\n").trim();
+}
+function updateBAuditSegmentControls() {
+  const button = $("#b-reprocess-segments");
+  const changedCount = bAuditSegmentDrafts.size;
+  button.hidden = changedCount === 0;
+  button.textContent = `重新配音与校对整篇（${changedCount}段已改）`;
+  button.disabled = bModeBusy || bAuditEditing || bEditingSegmentId !== null;
+}
+function renderBAuditNextAction() {
+  const button = $("#b-production-next-button");
+  const note = $("#b-production-next-note");
+  const finalLink = $("#b-production-final-link");
+  const sampleLink = $("#b-production-sample-link");
+  const candidatesLink = $("#b-production-candidates-link");
+  button.hidden = true;
+  button.disabled = true;
+  button.dataset.stage = "";
+  finalLink.hidden = true;
+  finalLink.removeAttribute("href");
+  sampleLink.hidden = true;
+  sampleLink.removeAttribute("href");
+  candidatesLink.hidden = true;
+  candidatesLink.removeAttribute("href");
+  const run = bAuditRunStatus;
+  if (!run) { note.textContent = "等待读取当前运行状态。"; return; }
+  if (run.final) {
+    finalLink.hidden = false;
+    finalLink.href = `/api/talkcraft/video?id=${encodeURIComponent(run.runId)}&kind=final`;
+  }
+  if (run.sample) {
+    sampleLink.hidden = false;
+    sampleLink.href = `/api/talkcraft/video?id=${encodeURIComponent(run.runId)}&kind=sample`;
+  }
+  if (bAuditSegmentDrafts.size || bAuditEditing || bEditingSegmentId !== null) {
+    note.textContent = "先保存或提交当前文案修改，再进入下一步。";
+    return;
+  }
+  if (bAuditSegmentState !== "ready" || !run.semanticPassed || !run.shotbook) {
+    note.textContent = "先完成语义分段与 SHOTBOOK 校验，才能进入镜头制作。";
+    return;
+  }
+  const setAction = (stage, label, description) => {
+    button.hidden = false;
+    button.disabled = bModeBusy;
+    button.dataset.stage = stage;
+    button.textContent = label;
+    note.textContent = description;
+  };
+  if (!run.candidatesReady) {
+    setAction("candidates", "生成镜头候选", "只生成本地卡片候选，不会生成视频。确认候选和素材后再做分镜预检。");
+  } else if (!run.preflight) {
+    candidatesLink.hidden = false;
+    candidatesLink.href = `/api/talkcraft/candidates?id=${encodeURIComponent(run.runId)}`;
+    setAction("preflight", "运行分镜预检", "检查 SHOTBOOK、素材、选卡和时间范围；缺项会显示失败报告。");
+  } else if (!run.workbenchReady) {
+    setAction("scaffold", "搭建渲染工程", "创建本运行独立的 Remotion 工程；此步不会渲染视频。");
+  } else if (!run.sample) {
+    setAction("sample", "生成首镜校验", "生成一条有声样板镜，确认后才可渲染整片。");
+  } else if (!run.sampleApproved) {
+    setAction("approve-sample", "确认首镜并继续", "先查看首镜校验片；确认后才会开放整片渲染。");
+  } else if (!run.final) {
+    setAction("render-all", "生成整片", "按已确认的样板与分镜渲染完整视频。");
+  } else if (!run.qaPassed) {
+    setAction("qa", "运行机器质检", "检查成片画面、字幕、时间轴与音效。");
+  } else if (!run.reviewPassed) {
+    note.textContent = "机器质检已通过；下一步需完成独立审片，之后才能生成交付版。";
+  } else if (!run.delivery) {
+    setAction("deliver", "生成交付版", "根据已通过的质检与独立审片生成交付文件。");
+  } else {
+    note.textContent = "交付版已生成。";
+  }
+}
+function renderBAuditSegments() {
+  const status = $("#b-production-segment-state");
+  const list = $("#b-production-segments");
+  list.replaceChildren();
+  if (bAuditSegmentState === "ready" && bAuditSegments.length) {
+    status.textContent = bAuditSemanticPassed
+      ? `${bAuditSegments.length} 个语义段，修改后会重新生成整篇配音和时间轴。`
+      : `${bAuditSegments.length} 个语义段；分镜语义检查尚未通过。`;
+    for (const segment of bAuditSegments) {
+      const currentText = getBAuditSegmentText(segment);
+      const changed = currentText !== (segment.text || "");
+      const item = document.createElement("article");
+      item.className = `b-production-segment${changed ? " edited" : ""}`;
+      const head = document.createElement("div");
+      head.className = "b-production-segment-head";
+      const meta = document.createElement("div");
+      meta.className = "b-production-segment-meta";
+      const title = document.createElement("strong");
+      title.textContent = `第 ${String(segment.order).padStart(2, "0")} 段`;
+      const time = document.createElement("span");
+      time.textContent = Number.isFinite(segment.start) && Number.isFinite(segment.end)
+        ? `${segment.start.toFixed(2)}–${segment.end.toFixed(2)} 秒` : "时间待校准";
+      const count = document.createElement("span");
+      count.textContent = `${segment.sentenceCount} 句`;
+      const state = document.createElement("span");
+      state.className = "b-production-segment-review-state";
+      state.textContent = changed ? "已改，待重新处理" : segment.alignmentPassed ? "对齐通过" : "含低匹配句";
+      meta.append(title, time, count);
+      head.append(meta, state);
+      item.append(head);
+      if (bEditingSegmentId === segment.id) {
+        const editor = document.createElement("textarea");
+        editor.className = "b-production-segment-edit";
+        editor.value = currentText;
+        editor.rows = Math.max(3, Math.min(8, segment.sentenceCount + 1));
+        editor.setAttribute("aria-label", `修改第 ${segment.order} 段文案`);
+        const actions = document.createElement("div");
+        actions.className = "b-production-segment-actions";
+        const save = document.createElement("button");
+        save.type = "button";
+        save.textContent = "保存本段";
+        save.onclick = () => {
+          const nextText = editor.value.trim();
+          if (!nextText) { showToast("这一段文案不能为空"); editor.focus(); return; }
+          if (nextText === (segment.text || "")) bAuditSegmentDrafts.delete(segment.id);
+          else bAuditSegmentDrafts.set(segment.id, nextText);
+          bEditingSegmentId = null;
+          $("#b-production-script").value = buildBAuditScriptFromSegments();
+          renderBAuditSegments();
+          showToast(`第 ${String(segment.order).padStart(2, "0")} 段已保存；提交后会重做整篇配音和时间轴`);
+        };
+        const cancel = document.createElement("button");
+        cancel.type = "button";
+        cancel.textContent = "取消";
+        cancel.onclick = () => { bEditingSegmentId = null; renderBAuditSegments(); };
+        actions.append(save, cancel);
+        item.append(editor, actions);
+      } else {
+        const text = document.createElement("p");
+        text.className = "b-production-segment-text";
+        text.textContent = currentText;
+        const actions = document.createElement("div");
+        actions.className = "b-production-segment-actions";
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "修改本段";
+        edit.disabled = bModeBusy || bAuditEditing;
+        edit.onclick = () => {
+          if (bModeBusy || bAuditEditing) return;
+          bEditingSegmentId = segment.id;
+          renderBAuditSegments();
+          $(".b-production-segment-edit")?.focus();
+        };
+        actions.append(edit);
+        item.append(text, actions);
+      }
+      list.append(item);
+    }
+  } else {
+    status.textContent = bAuditSegmentState === "invalid"
+      ? "分段与逐句时间数据不一致，暂不能按段修改。"
+      : "编导尚未完成语义分段；完成 SHOTBOOK 分镜后，这里会按镜头显示段落。";
+    const empty = document.createElement("p");
+    empty.className = "field-note";
+    empty.textContent = "当前没有可确认的语义段。可展开“查看整篇文案”修改全文；不会按固定句数硬切。";
+    list.append(empty);
+  }
+  updateBAuditSegmentControls();
+  renderBAuditNextAction();
+}
+function renderBAuditSentenceRows() {
+  const rows = $("#b-production-rows");
+  rows.replaceChildren();
+  for (const sentence of bAuditSentences) {
+    const row = document.createElement("tr");
+    row.className = sentence.ok ? "pass" : "fail";
+    const number = document.createElement("td");
+    number.textContent = String(sentence.index).padStart(2, "0");
+    const time = document.createElement("td");
+    time.textContent = Number.isFinite(sentence.start) && Number.isFinite(sentence.end)
+      ? `${sentence.start.toFixed(2)}–${sentence.end.toFixed(2)} 秒` : "未对齐";
+    const match = document.createElement("td");
+    match.textContent = Number.isFinite(sentence.match) ? `${(sentence.match * 100).toFixed(1)}%` : "无";
+    const text = document.createElement("td");
+    text.textContent = sentence.text || "";
+    row.append(number, time, match, text);
+    rows.append(row);
+  }
+}
+function setBAuditEditorEditing(editing) {
+  bAuditEditing = editing;
+  $("#b-production-script").readOnly = !editing;
+  $("#b-production-script").disabled = bModeBusy;
+  $("#b-load-approved-script").hidden = editing;
+  $("#b-edit-script").hidden = editing;
+  $("#b-cancel-script").hidden = !editing;
+  $("#b-reprocess-script").hidden = !editing;
+  for (const id of ["b-load-approved-script","b-edit-script","b-cancel-script","b-reprocess-script"]) $("#"+id).disabled = bModeBusy;
+  renderBAuditSegments();
+}
+$("#b-edit-script").onclick = () => {
+  if (bEditingSegmentId !== null) { showToast("请先保存或取消当前段的修改"); return; }
+  bAuditScriptBeforeEdit = $("#b-production-script").value;
+  setBAuditEditorEditing(true);
+};
+$("#b-cancel-script").onclick = () => {
+  $("#b-production-script").value = bAuditScriptBeforeEdit || bAuditOriginalScript;
+  setBAuditEditorEditing(false);
+};
+$("#b-load-approved-script").onclick = async () => {
+  if (bEditingSegmentId !== null) { showToast("请先保存或取消当前段的修改"); return; }
+  try {
+    const response = await fetch('/api/talkcraft/approved-script');
+    const data = await response.json();
+    if (!response.ok || !data.ok || typeof data.text !== 'string' || !data.text.trim()) throw new Error(data.error || '已批准校正版不可用');
+    bAuditScriptBeforeEdit = $("#b-production-script").value;
+    $("#b-production-script").value = data.text.trim();
+    setBAuditEditorEditing(true);
+  } catch (error) { showToast(String(error.message || error)); }
+};
+$("#b-reprocess-script").onclick = reprocessBAuditScript;
+$("#b-reprocess-segments").onclick = () => {
+  const text = buildBAuditScriptFromSegments();
+  if (!text || !bAuditSegmentDrafts.size) { showToast("先保存需要修改的段落"); return; }
+  reprocessBAuditScript(text);
+};
+$("#b-production-next-button").onclick = submitBAuditNextStep;
+async function submitBAuditNextStep() {
+  const button = $("#b-production-next-button");
+  const stage = button.dataset.stage;
+  const label = button.textContent;
+  const runId = bAuditRunStatus?.runId || bAuditRunId || localStorage.getItem("shotcraft-b-talkcraft-run");
+  if (!stage || !runId || bModeBusy) return;
+  bModeBusy = true;
+  renderBAuditNextAction();
+  setBProgress(5, `正在启动${label}…`);
+  try {
+    if (stage === "approve-sample") {
+      const response = await fetch("/api/talkcraft/approve-sample", {method:"POST",
+        headers:{"content-type":"application/json"}, body:JSON.stringify({runId})});
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || "样板确认失败");
+      setBProgress(45, "首镜已确认；原运行与样板保留");
+      await renderBProductionAudit(runId);
+      return;
+    }
+    const response = await fetch("/api/talkcraft/stage", {method:"POST",
+      headers:{"content-type":"application/json"}, body:JSON.stringify({runId, stage})});
+    const started = await response.json();
+    if (!response.ok || !started.ok) throw new Error(started.error || `${label}无法启动`);
+    await renderBProductionAudit(runId);
+    setBProgress(12, `${label}运行中…`);
+    for (let attempt = 0; attempt < 600; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const taskResponse = await fetch(`/api/task?id=${started.id}&since=0`);
+      const task = await taskResponse.json();
+      if (!taskResponse.ok || task.error) throw new Error(`${label}任务状态暂时不可用`);
+      if (task.done) {
+        if (task.exitCode !== 0) {
+          setBProgress(0, task.failureReport?.title || `${label}未通过`);
+        } else {
+          setBProgress(45, `${label}已完成`);
+        }
+        await renderBProductionAudit(runId);
+        return;
+      }
+      setBProgress(Math.min(44, 12 + attempt * 0.05), `${label}运行中…`);
+    }
+    throw new Error(`${label}超过 15 分钟，任务仍可能在后台运行`);
+  } catch (error) {
+    setBProgress(0, `${label}未完成`);
+    showToast(String(error.message || error));
+  } finally {
+    bModeBusy = false;
+    renderBAuditSegments();
+  }
+}
+function setBProgress(pct, status) {
+  $("#gen-progress-card").style.display = "";
+  $("#gen-progress-bar").style.width = `${pct}%`;
+  $("#gen-pct").textContent = `${Math.round(pct)}%`;
+  $("#gen-status").textContent = status;
+}
+function populateBProductionFailure(report) {
+  const evidence = report?.evidence || {};
+  $("#b-production-audit-failure").hidden = !report;
+  const parts = [report?.cause];
+  if (evidence.edgeTtsNoAudio) parts.push("在线配音未返回音频");
+  if (evidence.fallbackVoice) parts.push(`后备音色：${evidence.fallbackVoice === "windows-offline-zh-CN" ? "Windows 离线中文音色" : evidence.fallbackVoice}`);
+  if (evidence.audioSaved) parts.push(`配音已保存，${evidence.audioSeconds?.toFixed(1) || "未知"} 秒`);
+  if (evidence.sentences) parts.push(`${evidence.belowThreshold}/${evidence.sentences} 句低于 0.90${Number.isFinite(evidence.minimumMatch) ? `，最低 ${(evidence.minimumMatch*100).toFixed(1)}%` : ""}`);
+  $("#b-production-audit-evidence").textContent = parts.filter(Boolean).join("；");
+  const actions = $("#b-production-audit-actions");
+  actions.replaceChildren();
+  for (const action of report?.actions || []) {
+    const item = document.createElement("li");
+    item.textContent = action;
+    actions.append(item);
+  }
+  const failedChecks = report?.failedChecks || [];
+  const checksWrap = $("#b-production-audit-failed-checks-wrap");
+  const checks = $("#b-production-audit-failed-checks");
+  checksWrap.hidden = !failedChecks.length;
+  checks.replaceChildren();
+  for (const failure of failedChecks) {
+    const item = document.createElement("li");
+    item.textContent = String(failure).replace(/^\[[^\]]+\]\s+FAIL:\s*/u, "");
+    checks.append(item);
+  }
+}
+function currentTalkcraftFailure(run) {
+  const report = run?.failureReport;
+  if (!report) return null;
+  const succeeded = {
+    "talkcraft-candidates":run.candidatesReady,
+    "talkcraft-preflight":run.preflight,
+    "talkcraft-scaffold":run.workbenchReady,
+    "talkcraft-sample":run.sample,
+    "talkcraft-render-all":run.final,
+    "talkcraft-qa":run.qaPassed,
+    "talkcraft-deliver":run.delivery,
+  };
+  return succeeded[report.task?.name] ? null : report;
+}
+async function renderBProductionAudit(runId, knownRun = null) {
+  const section = $("#b-production-audit");
+  section.hidden = false;
+  try {
+    let run = knownRun;
+    if (!run) {
+      const statusResponse = await fetch(`/api/talkcraft/status?id=${encodeURIComponent(runId)}`);
+      const status = await statusResponse.json();
+      if (statusResponse.ok && status.ok) run = status.run;
+    }
+    bAuditRunStatus = run || null;
+    const response = await fetch(`/api/talkcraft/audit?id=${encodeURIComponent(runId)}`);
+    const audit = await response.json();
+    if (!response.ok || !audit.ok) throw new Error(audit.error || "审核数据读取失败");
+    const failure = currentTalkcraftFailure(run);
+    $("#b-production-audit-state").textContent = failure ? "处理失败" : audit.contentWarning ? "内容待核对" :
+      audit.alignmentPassed ? "字级时间通过" : audit.sentenceCount ? "字级时间未通过" : "等待字级时间";
+    const metrics = $("#b-production-audit-metrics");
+    metrics.replaceChildren();
+    const values = [`${audit.sentenceCount} 句`, audit.audioSeconds ? `${audit.audioSeconds.toFixed(1)} 秒` : null,
+      Number.isFinite(audit.minimumMatch) ? `最低匹配率 ${(audit.minimumMatch*100).toFixed(1)}%` : null].filter(Boolean);
+    for (const value of values) { const item=document.createElement("span"); item.textContent=value; metrics.append(item); }
+    const warning = failure?.contentWarning || audit.contentWarning || "";
+    $("#b-production-audit-warning").hidden = !warning;
+    $("#b-production-audit-warning").textContent = warning;
+    populateBProductionFailure(failure);
+    if (bAuditRunId !== runId) {
+      bAuditRunId = runId;
+      bAuditOriginalScript = audit.script || "";
+      bAuditSentences = audit.sentences || [];
+      bAuditSegments = audit.segments || [];
+      bAuditSegmentState = audit.segmentState || "pending";
+      bAuditSemanticPassed = audit.semanticPassed === true;
+      bAuditSegmentDrafts.clear();
+      bEditingSegmentId = null;
+      $("#b-production-script").value = bAuditOriginalScript;
+      setBAuditEditorEditing(false);
+    } else if (!bAuditEditing) {
+      bAuditSentences = audit.sentences || [];
+      bAuditSegments = audit.segments || [];
+      bAuditSegmentState = audit.segmentState || "pending";
+      bAuditSemanticPassed = audit.semanticPassed === true;
+      if (!bAuditSegmentDrafts.size) {
+        bAuditOriginalScript = audit.script || "";
+        $("#b-production-script").value = bAuditOriginalScript;
+      }
+    }
+    const audio = $("#b-production-audio");
+    $("#b-production-audio-check").hidden = !audit.audioAvailable;
+    if (audit.audioAvailable) {
+      const url=`/api/talkcraft/audio?id=${encodeURIComponent(runId)}`;
+      if (audio.getAttribute("src") !== url) audio.src=url;
+    } else { audio.pause(); audio.removeAttribute("src"); audio.load(); }
+    renderBAuditSegments();
+    renderBAuditSentenceRows();
+  } catch (error) { $("#b-production-audit-state").textContent=String(error.message || error); }
+}
+async function reprocessBAuditScript(scriptText = null) {
+  if (bModeBusy) return;
+  const text = (scriptText ?? $("#b-production-script").value).trim();
+  const sourceRunId = bAuditRunId || localStorage.getItem("shotcraft-b-talkcraft-run");
+  if (!sourceRunId) { showToast("没有可沿用角色图的运行记录"); return; }
+  if (!text || text.length > 1200) { showToast("口播文案需为 1–1200 字"); return; }
+  if (text === bAuditOriginalScript) { showToast("文案没有修改"); return; }
+  bModeBusy = true;
+  setBAuditEditorEditing(true);
+  setBProgress(5, "正在创建校正版新运行…");
+  try {
+    const response = await fetch('/api/talkcraft/revise', {method:'POST', headers:{'content-type':'application/json'},
+      body:JSON.stringify({runId:sourceRunId, text})});
+    const started = await response.json();
+    if (!response.ok || !started.ok) throw new Error(started.error || '校正版运行无法启动');
+    localStorage.setItem('shotcraft-b-talkcraft-run', started.runId);
+    bAuditSegmentDrafts.clear();
+    bEditingSegmentId = null;
+    bAuditOriginalScript = text;
+    $("#b-production-script").value = text;
+    $("#b-fulltext").value = text;
+    setBAuditEditorEditing(false);
+    await renderBProductionAudit(started.runId);
+    setBProgress(12, "校正版配音与字级时间处理中…");
+    for (let attempt=0; attempt<600; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const taskResponse = await fetch(`/api/task?id=${started.id}&since=0`);
+      const task = await taskResponse.json();
+      if (!taskResponse.ok || task.error) throw new Error('校正版任务状态暂时不可用');
+      if (task.done) {
+        if (task.exitCode !== 0) {
+          setBProgress(0, task.failureReport?.title || '校正版处理失败');
+          await renderBProductionAudit(started.runId, task.failureReport ? {failureReport:task.failureReport} : null);
+        } else {
+          setBProgress(45, '校正版输入处理完成；原运行已保留');
+          await renderBProductionAudit(started.runId);
+        }
+        return;
+      }
+      setBProgress(Math.min(44, 12 + attempt*0.5), '校正版配音与字级时间处理中…');
+    }
+    throw new Error('校正版任务超过 15 分钟，仍可能在后台运行');
+  } catch (error) {
+    setBProgress(0, '校正版处理失败');
+    showToast(String(error.message || error));
+  } finally {
+    bModeBusy = false;
+    setBAuditEditorEditing(false);
+  }
+}
+function showBProductionInputFailure(message) {
+  bAuditRunStatus = null;
+  $("#b-production-audit").hidden = false;
+  $("#b-production-audit-state").textContent = "输入准备失败";
+  $("#b-production-audit-metrics").textContent = "未取得有效运行 ID";
+  $("#b-production-audit-warning").hidden = true;
+  $("#b-production-audit-failure").hidden = false;
+  $("#b-production-audit-evidence").textContent = "服务未返回有效运行 ID；本次没有可审核的配音和字级时间戳。";
+  const actions = $("#b-production-audit-actions");
+  actions.replaceChildren();
+  const item = document.createElement("li");
+  item.textContent = message;
+  actions.append(item);
+  $("#b-production-script").textContent = $("#b-fulltext").value.trim();
+  $("#b-production-audio-check").hidden = true;
+  const audio = $("#b-production-audio");
+  audio.pause(); audio.removeAttribute("src"); audio.load();
+  $("#b-production-rows").replaceChildren();
+  renderBAuditNextAction();
+}
+async function restoreBWorkflowState() {
+  if (activeProductionMode !== "B") return;
+  const requestedRunId = initialRoute.get("runId");
+  const selectRequestedRun = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(requestedRunId || "");
+  let runId = selectRequestedRun ? requestedRunId : localStorage.getItem("shotcraft-b-talkcraft-run");
+  if (selectRequestedRun) localStorage.setItem("shotcraft-b-talkcraft-run", runId);
+  try {
+    let run = null;
+    if (runId) {
+      const response = await fetch(`/api/talkcraft/status?id=${encodeURIComponent(runId)}`);
+      const data = await response.json();
+      if (response.ok && data.ok && data.run) run = data.run;
+    }
+    if (!run) {
+      const response = await fetch("/api/talkcraft/latest");
+      const data = await response.json();
+      if (!response.ok || !data.ok || !data.run) return;
+      run = data.run;
+      runId = run.runId;
+      localStorage.setItem("shotcraft-b-talkcraft-run", runId);
+    }
+    const failure=currentTalkcraftFailure(run);
+    if (failure) setBProgress(0, failure.title);
+    else if (run.sentences) {
+      const progress = run.delivery ? [100,"交付成片已就绪"] : run.reviewPassed ? [90,"独立审片通过，等待生成交付版"] :
+        run.qaPassed ? [80,"机器质检通过，等待独立审片"] : run.final ? [65,"整片已生成，等待机器质检"] : [45,"输入处理完成"];
+      setBProgress(progress[0],progress[1]);
+    }
+    await renderBProductionAudit(runId, run);
+  } catch {}
+}
+async function startBMode() {
+  if (bModeBusy) { showToast("B 模式任务正在运行"); return; }
+  const text = pendingBModeText ?? $("#b-fulltext").value.trim();
+  if (!text) { showToast("请先粘贴口播文案"); return; }
+  if (text !== $("#b-fulltext").value.trim()) {
+    pendingBModeText = null;
+    showToast("文案已修改，请重新点击 B 模式");
+    return;
+  }
+  if (!bRoleFile) {
+    $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
+    showToast("请先选择角色图");
+    $("#b-role-file").click();
+    return;
+  }
+  pendingBModeText = null;
+  bModeBusy = true;
+  $("#b-production-audit").hidden = true;
+  activeProductionMode = "B";
+  sessionStorage.setItem("sc-production-mode", "B");
+  $("#storyboard-card").style.display = "none";
+  $("#preview-card").style.display = "none";
+  $("#preview-video").removeAttribute("src");
+  switchView("produce");
+  setBProgress(5, "准备口播工程…");
+  let startedRunId = null;
+  try {
+    const form = new FormData();
+    form.set("text", text);
+    form.set("voice", $("#b-voice-select").value);
+    form.set("avatar", bRoleFile);
+    form.set("background", $("#b-background-select").value);
+    if (bBackgroundPath) form.set("backgroundVideoPath", bBackgroundPath);
+    const response = await fetch("/api/talkcraft/create", {method:"POST", body:form});
+    const started = await response.json();
+    if (!response.ok || !started.ok) throw new Error(started.error || "B 模式无法启动");
+    startedRunId = started.runId;
+    localStorage.setItem("shotcraft-b-talkcraft-run", started.runId);
+    await renderBProductionAudit(started.runId);
+    setBProgress(12, "配音与字级时间处理中…");
+    for (let attempt=0; attempt<600; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const taskResponse = await fetch(`/api/task?id=${started.id}&since=0`);
+      const task = await taskResponse.json();
+      if (!taskResponse.ok || task.error) throw new Error("任务状态暂时不可用");
+      if (task.done) {
+        if (task.exitCode !== 0) {
+          const error = new Error("配音或字级时间处理失败");
+          error.failureReport = task.failureReport;
+          throw error;
+        }
+        setBProgress(45, "输入处理完成，审核内容已显示在下方");
+        await renderBProductionAudit(started.runId);
+        return;
+      }
+      setBProgress(Math.min(44, 12 + attempt * 0.5), "配音与字级时间处理中…");
+    }
+    throw new Error("任务超过 15 分钟，仍可能在后台运行");
+  } catch (error) {
+    const message = /EPERM/u.test(String(error.message)) ? "本地媒体处理权限不足。" : String(error.message || error);
+    setBProgress(0, error.failureReport?.title || "B 模式启动或处理失败");
+    if (startedRunId) await renderBProductionAudit(startedRunId, error.failureReport ? {failureReport:error.failureReport} : null);
+    else showBProductionInputFailure(message);
+  } finally {
+    bModeBusy = false;
+    setBAuditEditorEditing(bAuditEditing);
+  }
+}
 function switchView(name) {
   if (!VIEW_ORDER.includes(name)) name = "director";
+  if (activeProductionMode === "B") {
+    $("#preview-card").style.display = "none";
+    $("#preview-video").removeAttribute("src");
+  }
+  const bView = document.querySelector('.view[data-view="bmode"]');
+  bView.hidden = name !== "bmode";
+  if (name === "bmode") {
+    const frame = $("#b-mode-frame");
+    if (!frame.hasAttribute("src")) frame.src = frame.dataset.src;
+  }
   document.querySelectorAll(".view").forEach((v) => {
     v.classList.toggle("active", v.dataset.view === name);
   });
@@ -1896,11 +2762,36 @@ function switchView(name) {
   try {
     sessionStorage.setItem("sc-view", name);
     const sb = document.getElementById("sb-theme");
-    if (sb && typeof currentTheme !== "undefined" && currentTheme) sb.textContent = currentTheme.name;
+    const isB = name === "bmode" || activeProductionMode === "B";
+    $("#sb-theme-label").textContent = isB ? "B 视觉" : "当前主题";
+    if (sb) sb.textContent = isB ? "待接入主题中心" : (typeof currentTheme !== "undefined" && currentTheme ? currentTheme.name : "-");
+    $("#sb-mode").textContent = isB ? "B · 数字人口播" : "A · Remotion 主导";
   } catch {}
+  if (name === "bmode") window.scrollTo({top: 0, behavior: "instant"});
 }
 document.querySelectorAll(".view-tab").forEach((t) => {
-  t.onclick = () => switchView(t.dataset.view);
+  t.onclick = () => {
+    pendingBModeText = null;
+    switchView(t.dataset.view);
+    if (t.dataset.view === "produce" && activeProductionMode === "B" && !bModeBusy) restoreBWorkflowState();
+  };
+});
+$("#b-mode-real").onclick = () => {
+  const text = $("#b-fulltext").value.trim();
+  if (!text) { showToast("请先粘贴口播文案"); return; }
+  pendingBModeText = text;
+  startBMode();
+};
+window.addEventListener("message", (event) => {
+  const frame = $("#b-mode-frame");
+  if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
+  if (event.data?.type === "shotcraft-b-request-script") {
+    frame.contentWindow.postMessage({type: "shotcraft-b-script", text: $("#b-fulltext").value}, location.origin);
+    return;
+  }
+  if (event.data?.type !== "shotcraft-b-height") return;
+  const height = Number(event.data.height);
+  if (Number.isFinite(height) && height >= 400 && height <= 20000) frame.style.height = `${height}px`;
 });
 
 // 状态栏：服务状态 / 最近任务
@@ -1922,8 +2813,12 @@ document.querySelectorAll(".view-tab").forEach((t) => {
 
 // 恢复上次所在视图
 try {
+  const requested = new URLSearchParams(location.search).get("view");
   const saved = sessionStorage.getItem("sc-view");
-  if (saved) switchView(saved);
+  switchView(requested && VIEW_ORDER.includes(requested) ? requested : saved === "bmode" ? "director" : saved || "director");
+  if (requested) history.replaceState(null, "", location.pathname);
 } catch {}
+restoreBWorkflowState();
+$("#console-address").textContent = location.origin;
 </script>
 </html>
