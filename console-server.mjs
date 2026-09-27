@@ -14,14 +14,40 @@ import {readTalkcraftWorkbench, startTalkcraftWorkbench} from "./director/talkcr
 import {resolveTalkcraftSkillRoot} from "./director/talkcraft-skill-root.mjs";
 import {latestTalkcraftFailureReport, writeTalkcraftFailureReport} from "./director/talkcraft-failure-report.mjs";
 import {normalizeTheme, readCurrentTheme, writeCurrentTheme} from "./director/theme-contract.mjs";
+import {runningHubRuntimeConfig} from "./director/api-center.mjs";
+import {getVolcengineVoiceStatus, trainVolcengineVoice, volcengineVoiceReadiness} from "./director/volcengine-voice.mjs";
+import {readStoredProviderConfig, writeStoredProviderConfig} from "./director/provider-config.mjs";
+import {checkProviderConnectivity} from "./director/provider-connectivity.mjs";
+import {packagingHandle, PACKAGING_PREFIX} from "./director/packaging-routes.mjs";
+import {readSubtitleSettings, writeSubtitleSettings} from "./director/subtitle-v1.mjs";
 
-const ROOT = "E:\\video-shotcraft";
+const ROOT = process.env.SHOTCRAFT_ROOT || "E:\\video-shotcraft";
 const PORT = Number(process.env.PORT || 8765);
+const DEFAULT_OUTPUT_DIR = path.join(ROOT, "template", "out");
+const OUTPUT_CONFIG_FILE = path.join(ROOT, ".shotcraft-output.json");
 const CHROME = "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
 const PYTHON = "C:\\Users\\Administrator\\AppData\\Local\\Python\\bin\\python.exe";
 
 let taskId = 0;
 const tasks = new Map();
+
+function readOutputDir() {
+  try {
+    const config = JSON.parse(fs.readFileSync(OUTPUT_CONFIG_FILE, "utf8"));
+    if (typeof config.path === "string" && config.path.trim()) return path.resolve(config.path.trim());
+  } catch {}
+  return DEFAULT_OUTPUT_DIR;
+}
+
+function writeOutputDir(value) {
+  const raw = String(value || "").trim();
+  if (!raw) throw new Error("导出路径无效");
+  const outputDir = path.resolve(raw);
+  if (!path.isAbsolute(outputDir) || outputDir.length < 3) throw new Error("导出路径无效");
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(OUTPUT_CONFIG_FILE, JSON.stringify({ path: outputDir }, null, 2), "utf8");
+  return outputDir;
+}
 
 function startTask(name, cmd, cwd) {
   const id = ++taskId;
@@ -89,14 +115,14 @@ async function readBody(req) {
   return JSON.parse(Buffer.concat(chunks).toString() || "{}");
 }
 
-async function readBModeInput(req) {
+async function readBModeInput(req, {maxBytes = 8 * 1024 * 1024} = {}) {
   const contentType = req.headers["content-type"] || "";
   if (!contentType.startsWith("multipart/form-data")) return { fields: await readBody(req), avatar: null };
   const chunks = [];
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 8 * 1024 * 1024) throw new Error("图片和参数总大小不能超过 8 MB");
+    if (size > maxBytes) throw new Error(`上传内容不能超过 ${Math.round(maxBytes / 1024 / 1024)} MB`);
     chunks.push(chunk);
   }
   const form = await new Request("http://localhost/", {
@@ -105,10 +131,23 @@ async function readBModeInput(req) {
     body: Buffer.concat(chunks),
   }).formData();
   const avatar = form.get("avatar");
+  const cloneAudio = form.get("cloneAudio") || form.get("audio");
   return {
-    fields: Object.fromEntries(["text", "voice", "scenes", "background", "backgroundVideoPath"].map(key => [key, form.get(key)])),
+    fields: Object.fromEntries(["text", "voice", "voiceMode", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat"].map(key => [key, form.get(key)])),
     avatar: avatar && typeof avatar.arrayBuffer === "function" && avatar.size ? avatar : null,
+    cloneAudio: cloneAudio && typeof cloneAudio.arrayBuffer === "function" && cloneAudio.size ? cloneAudio : null,
   };
+}
+
+const STANDARD_VOICES = new Set(["zh-CN-YunxiNeural", "zh-CN-XiaoxiaoNeural"]);
+const validSpeakerId = value => /^[A-Za-z0-9_-]{2,128}$/u.test(String(value || ""));
+function readVoiceSelection(fields) {
+  const voiceMode = fields.voiceMode === "volcengine-clone" ? "volcengine-clone" : "standard";
+  const voice = String(fields.voice || "zh-CN-YunxiNeural");
+  const speakerId = String(fields.speakerId || "").trim();
+  if (voiceMode === "standard" && !STANDARD_VOICES.has(voice)) throw new Error("当前仅支持已接通的现成音色");
+  if (voiceMode === "volcengine-clone" && !validSpeakerId(speakerId)) throw new Error("火山复刻音色需要有效的 speaker_id");
+  return {voiceMode, voice, speakerId: voiceMode === "volcengine-clone" ? speakerId : null};
 }
 
 function withTalkcraftWorkbench(run) {
@@ -117,6 +156,18 @@ function withTalkcraftWorkbench(run) {
 }
 
 const apis = {
+  "GET /api/subtitle-v1/settings": (req, res) => {
+    const timingPath = path.join(ROOT, "director", "timing.json");
+    let sample = "把每一个观点讲清楚，让字幕跟上节奏。";
+    if (fs.existsSync(timingPath)) {
+      try { sample = JSON.parse(fs.readFileSync(timingPath, "utf8")).segments?.[0]?.text || sample; } catch {}
+    }
+    return sendJson(res, {ok: true, settings: readSubtitleSettings(ROOT), sample});
+  },
+  "PUT /api/subtitle-v1/settings": async (req, res) => {
+    try { return sendJson(res, {ok: true, settings: writeSubtitleSettings(ROOT, await readBody(req))}); }
+    catch (error) { return sendJson(res, {ok: false, error: String(error.message || error)}); }
+  },
   "GET /api/talkcraft/latest": (req, res) => {
     const runId = latestTalkcraftRun(ROOT);
     return sendJson(res, {ok:true, run:runId ? withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId)) : null});
@@ -168,8 +219,10 @@ const apis = {
       const sourceRun = JSON.parse(fs.readFileSync(path.join(sourceProject, 'source-run.json'), 'utf8'));
       const avatarFile = path.join(sourceProject, 'assets', 'avatar.png');
       if (!fs.existsSync(avatarFile)) throw new Error('原运行没有可复用的角色图，请回编导台重新选择');
-      const voice = ['zh-CN-YunxiNeural','zh-CN-XiaoxiaoNeural'].includes(body.voice) ? body.voice : sourceRun.voice;
-      const created = createTalkcraftInput(ROOT, {text:body.text, voice,
+      const selection = sourceRun.voiceMode === 'volcengine-clone'
+        ? readVoiceSelection({voiceMode:'volcengine-clone', speakerId:body.speakerId || sourceRun.speakerId})
+        : readVoiceSelection({voiceMode:'standard', voice:body.voice || sourceRun.voice});
+      const created = createTalkcraftInput(ROOT, {text:body.text, ...selection,
         avatarBytes:fs.readFileSync(avatarFile)});
       const newSourceFile = path.join(created.project, 'source-run.json');
       const newSource = JSON.parse(fs.readFileSync(newSourceFile, 'utf8'));
@@ -224,7 +277,8 @@ const apis = {
     try {
       const {fields, avatar} = await readBModeInput(req);
       if (!avatar) throw new Error('请先选择角色图');
-      const created = createTalkcraftInput(ROOT, {text:fields.text, voice:fields.voice,
+      const selection = readVoiceSelection(fields);
+      const created = createTalkcraftInput(ROOT, {text:fields.text, ...selection,
         avatarBytes:Buffer.from(await avatar.arrayBuffer())});
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
@@ -277,14 +331,72 @@ const apis = {
       return sendVideoRange(res, file, req.headers.range, 'audio/mpeg');
     } catch {res.writeHead(400); res.end('Invalid TalkCraft audio request');}
   },
+  "GET /api/volcengine/voice/config": (req, res) => {
+    return sendJson(res, {ok:true, ...volcengineVoiceReadiness()});
+  },
+  "POST /api/settings/providers/check": async (req, res) => {
+    try {
+      const {provider, taskId} = await readBody(req);
+      return sendJson(res, {ok:true, ...await checkProviderConnectivity(provider, {taskId})});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/settings/providers": (req, res) => {
+    const stored = readStoredProviderConfig();
+    const running = runningHubRuntimeConfig();
+    const volcengine = volcengineVoiceReadiness();
+    return sendJson(res, {ok:true,
+      runninghub:{configured:!!running.apiKey, baseUrl:running.baseUrl, appId:running.appId, apiKeyConfigured:!!running.apiKey},
+      volcengine:{...volcengine, apiKeyConfigured:volcengine.synthesisConfigured,
+        ttsResourceId:stored.volcengineTtsResourceId || 'seed-icl-2.0', model:stored.volcengineModel || 'seed-tts-2.0-standard'}});
+  },
+  "POST /api/settings/providers": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const current = readStoredProviderConfig();
+      const clean = value => value == null ? undefined : String(value).trim();
+      const result = writeStoredProviderConfig({
+        runninghubBaseUrl:clean(body.runninghubBaseUrl) || current.runninghubBaseUrl || undefined,
+        runninghubAppId:clean(body.runninghubAppId) || current.runninghubAppId || undefined,
+        runninghubApiKey:body.runninghubApiKey === undefined ? undefined : clean(body.runninghubApiKey),
+        volcengineApiKey:body.volcengineApiKey === undefined ? undefined : clean(body.volcengineApiKey),
+        volcengineTtsResourceId:clean(body.volcengineTtsResourceId) || current.volcengineTtsResourceId || 'seed-icl-2.0',
+        volcengineModel:clean(body.volcengineModel) || current.volcengineModel || 'seed-tts-2.0-standard',
+      });
+      return sendJson(res, {ok:true, saved:true, path:result.path});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/volcengine/voice/train": async (req, res) => {
+    try {
+      const {fields, cloneAudio} = await readBModeInput(req, {maxBytes:11 * 1024 * 1024});
+      if (!cloneAudio || cloneAudio.size > 10 * 1024 * 1024) throw new Error('请上传不超过 10 MB 的声音样本');
+      const name = String(cloneAudio.name || '').toLowerCase();
+      const extension = name.match(/\.(wav|mp3|ogg|m4a|aac)$/u)?.[1];
+      if (!extension) throw new Error('声音样本仅支持 WAV、MP3、OGG、M4A 或 AAC');
+      const speakerId = String(fields.speakerId || '').trim();
+      if (!validSpeakerId(speakerId)) throw new Error('请填写火山控制台提供的 speaker_id');
+      const result = await trainVolcengineVoice({
+        audioBytes:Buffer.from(await cloneAudio.arrayBuffer()), audioFormat:extension,
+        speakerId, promptText:fields.promptText || '',
+      });
+      return sendJson(res, {ok:true, ...result});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/volcengine/voice/status": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      if (!validSpeakerId(body.speakerId)) throw new Error('请提供有效的 speaker_id');
+      return sendJson(res, {ok:true, speakerId:body.speakerId, result:await getVolcengineVoiceStatus({speakerId:body.speakerId})});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
   "GET /api/b-mode/acceptance": (req, res) => sendJson(res, {ok:true, ...loadAcceptanceFixture()}),
   "POST /api/b-mode/placeholder": async (req, res) => {
     const { fields, avatar } = await readBModeInput(req);
     const text = typeof fields.text === "string" ? fields.text.replace(/\r\n/g, "\n").trim() : "";
-    const voice = fields.voice || "zh-CN-YunxiNeural";
+    let selection;
+    try { selection = readVoiceSelection(fields); } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+    const {voiceMode, voice, speakerId} = selection;
     if (!text || text.length > 1200) return sendJson(res, { ok: false, error: "占位测试文案需为 1–1200 字" });
     if (!avatar || avatar.size > 7 * 1024 * 1024) return sendJson(res, { ok: false, error: "请上传不超过 7 MB 的角色图" });
-    if (!["zh-CN-YunxiNeural", "zh-CN-XiaoxiaoNeural"].includes(voice)) return sendJson(res, { ok: false, error: "占位测试仅支持现成音色" });
     let scenes;
     try { scenes = JSON.parse(fields.scenes); } catch { return sendJson(res, { ok: false, error: "分镜数据无效" }); }
     if (!Array.isArray(scenes) || !scenes.length || scenes.length > 80 ||
@@ -316,7 +428,7 @@ const apis = {
       {input:bytes, timeout:15000});
     } catch { return sendJson(res, {ok:false, error:"角色图片无法读取，请换一张图片"}); }
     fs.writeFileSync(path.join(runDir, "input.txt"), text, "utf8");
-    fs.writeFileSync(path.join(runDir, "placeholder-settings.json"), JSON.stringify({voice, background,
+    fs.writeFileSync(path.join(runDir, "placeholder-settings.json"), JSON.stringify({voice, voiceMode, speakerId, background,
       backgroundVideoPath:backgroundVideo?.path || null,
       scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject, videoPath:scene.videoPath || null,
         subtitle:scene.subtitle || '', visualText:scene.visualText || ''}))}, null, 2), "utf8");
@@ -339,6 +451,65 @@ const apis = {
     const file = path.join(ROOT, "template", "public", "b-mode", runId, "placeholder-voice.mp3");
     if (!fs.existsSync(report) || !fs.existsSync(file)) { res.writeHead(404); res.end("No completed placeholder audio"); return; }
     sendVideoRange(res, file, req.headers.range, "audio/mpeg");
+  },
+  "GET /api/b-mode/digital-human/config": (req, res) => {
+    const provider = runningHubRuntimeConfig();
+    return sendJson(res, {ok:true, configured:!!provider.apiKey, appId:provider.appId, baseUrl:provider.baseUrl, nodes:provider.nodes});
+  },
+  "POST /api/b-mode/digital-human": async (req, res) => {
+    if (!runningHubRuntimeConfig().apiKey) {
+      return sendJson(res, {ok:false, error:'服务端尚未配置 INFINITETALK_API_KEY，未创建 RunningHub 任务'});
+    }
+    const {fields, avatar} = await readBModeInput(req);
+    const text = typeof fields.text === 'string' ? fields.text.replace(/\r\n/g, '\n').trim() : '';
+    if (!text || text.length > 1200) return sendJson(res, {ok:false, error:'真实验证文案需为 1–1200 字'});
+    if (!avatar || avatar.size > 7 * 1024 * 1024) return sendJson(res, {ok:false, error:'请上传不超过 7 MB 的角色图'});
+    let selection;
+    try { selection = readVoiceSelection(fields); } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+    const {voiceMode, voice, speakerId} = selection;
+    let scenes;
+    try { scenes = JSON.parse(fields.scenes); } catch { return sendJson(res, {ok:false, error:'分镜数据无效'}); }
+    if (!Array.isArray(scenes) || !scenes.length || scenes.filter(scene => scene?.subject === 'person').length !== 1 ||
+        scenes.some(scene => !scene || typeof scene.text !== 'string' || scene.text.length > 80 || !['person', 'graphics', 'material'].includes(scene.subject)) ||
+        scenes.map(scene => scene.text).join('').replace(/\s+/gu, '') !== text.replace(/\s+/gu, '')) {
+      return sendJson(res, {ok:false, error:'首轮真实验证只允许一个连续 person 分镜，且分镜必须与文案一致'});
+    }
+    const bytes = Buffer.from(await avatar.arrayBuffer());
+    const png = bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
+    const webp = bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP';
+    if (!png && !jpeg && !webp) return sendJson(res, {ok:false, error:'角色图仅支持 PNG、JPG 或 WebP'});
+    const runId = crypto.randomUUID();
+    const runDir = path.join(ROOT, 'director', 'b-mode-runs', runId);
+    fs.mkdirSync(runDir, {recursive:true});
+    try {
+      execFileSync('ffmpeg', ['-y','-hide_banner','-loglevel','error','-i','pipe:0','-frames:v','1',
+        '-vf','scale=1600:1600:force_original_aspect_ratio=decrease','-update','1',path.join(runDir,'avatar.png')], {input:bytes, timeout:15000});
+    } catch { return sendJson(res, {ok:false, error:'角色图片无法读取，请换一张图片'}); }
+    fs.writeFileSync(path.join(runDir, 'input.txt'), text, 'utf8');
+    fs.writeFileSync(path.join(runDir, 'digital-human-settings.json'), JSON.stringify({
+      text, voice, voiceMode, speakerId, scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject})),
+      prompt:String(fields.prompt || '人物自然说话，身体保持稳定，配合轻微自然手势'),
+      maxSide:String(fields.maxSide || '1080'), intensity:String(fields.intensity || '0'), scale:String(fields.scale || '1.05'),
+      instanceType:String(fields.instanceType || 'plus'),
+    }, null, 2), 'utf8');
+    const id = startTask('b-digital-human', 'node director/b-mode-digital-human.mjs ' + runId, ROOT);
+    tasks.get(id).runId = runId;
+    return sendJson(res, {ok:true, id, runId, mode:'runninghub', billable:true});
+  },
+  "GET /api/b-mode/digital-human/report": (req, res, url) => {
+    const runId = url.searchParams.get('id') || '';
+    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
+    const file = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human-report.json');
+    if (!fs.existsSync(file)) { res.writeHead(404); res.end('No digital-human report'); return; }
+    return sendJson(res, {ok:true, report:JSON.parse(fs.readFileSync(file, 'utf8'))});
+  },
+  "GET /api/b-mode/digital-human/video": (req, res, url) => {
+    const runId = url.searchParams.get('id') || '';
+    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
+    const file = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human.mp4');
+    if (!fs.existsSync(file)) { res.writeHead(404); res.end('No digital-human video'); return; }
+    return sendVideoRange(res, file, req.headers.range);
   },
   "POST /api/generate": async (req, res) => {
     const body = await readBody(req);
@@ -627,14 +798,14 @@ const apis = {
   },
 
   "GET /api/preview": (req, res) => {
-    const outPath = path.join(ROOT, "template", "out", "dynamic.mp4");
+    const outPath = path.join(readOutputDir(), "dynamic.mp4");
     if (!fs.existsSync(outPath)) return sendJson(res, { exists: false });
     const st = fs.statSync(outPath);
     return sendJson(res, { exists: true, size: st.size, mtime: st.mtimeMs });
   },
 
   "GET /api/stream": (req, res) => {
-    const outPath = path.join(ROOT, "template", "out", "dynamic.mp4");
+    const outPath = path.join(readOutputDir(), "dynamic.mp4");
     if (!fs.existsSync(outPath)) { res.writeHead(404); res.end(); return; }
     sendVideoRange(res, outPath, req.headers.range);
   },
@@ -653,7 +824,7 @@ const apis = {
 
   // P2：成片画廊（template/out 视频列表）
   "GET /api/gallery": (req, res) => {
-    const outDir = path.join(ROOT, "template", "out");
+    const outDir = readOutputDir();
     let items = [];
     if (fs.existsSync(outDir)) {
       items = fs.readdirSync(outDir)
@@ -673,14 +844,41 @@ const apis = {
     if (!file || file.includes("..") || file.includes("/") || file.includes("\\")) {
       res.writeHead(400); res.end("bad file"); return;
     }
-    const vp = path.join(ROOT, "template", "out", file);
+    const vp = path.join(readOutputDir(), file);
     if (!fs.existsSync(vp)) { res.writeHead(404); res.end(); return; }
     sendVideoRange(res, vp, req.headers.range);
   },
 
-  // 打开成片所在文件夹（Windows 资源管理器）——固定路径 template/out，不接受参数
+  // 删除单个成片记录（实际删除 template/out 下对应视频）
+  "POST /api/gallery/delete": async (req, res) => {
+    const body = await readBody(req);
+    const file = typeof body?.file === "string" ? body.file : "";
+    if (!file || file.includes("..") || file.includes("/") || file.includes("\\") || !file.toLowerCase().endsWith(".mp4")) {
+      return sendJson(res, { ok: false, error: "文件名无效" });
+    }
+    const vp = path.join(readOutputDir(), file);
+    if (!fs.existsSync(vp)) return sendJson(res, { ok: false, error: "成片不存在或已删除" });
+    try {
+      fs.unlinkSync(vp);
+      return sendJson(res, { ok: true, deleted: file });
+    } catch (e) { return sendJson(res, { ok: false, error: e.message }); }
+  },
+
+  "GET /api/output-path": (req, res) => {
+    return sendJson(res, { ok: true, path: readOutputDir(), defaultPath: DEFAULT_OUTPUT_DIR });
+  },
+
+  "POST /api/output-path": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const outputDir = writeOutputDir(body.path);
+      return sendJson(res, { ok: true, path: outputDir });
+    } catch (e) { return sendJson(res, { ok: false, error: e.message }); }
+  },
+
+  // 打开当前导出路径（Windows 资源管理器）——路径来自本地配置，不接受请求参数
   "POST /api/open-out-folder": (req, res) => {
-    const outDir = path.join(ROOT, "template", "out");
+    const outDir = readOutputDir();
     if (!fs.existsSync(outDir)) return sendJson(res, { ok: false, error: "out 目录不存在" });
     try {
       spawn("explorer.exe", [outDir], { detached: true, stdio: "ignore" }).unref();
@@ -698,6 +896,14 @@ const server = http.createServer(async (req, res) => {
   if (apis[key]) {
     try { await apis[key](req, res, url); }
     catch (e) { sendJson(res, { error: e.message }); }
+    return;
+  }
+
+  // 视频外包装模块（packaging-*）：路由实现共享自 director/packaging-routes.mjs
+  if (p.startsWith(PACKAGING_PREFIX)) {
+    const out = await packagingHandle(method, p, url, () => readBody(req));
+    res.writeHead(out.status, { "content-type": "application/json; charset=utf-8" });
+    res.end(JSON.stringify(out.payload));
     return;
   }
 

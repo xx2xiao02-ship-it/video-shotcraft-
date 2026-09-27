@@ -1,4 +1,12 @@
-<!DOCTY  /* P1.5 全站主题变量（黑金高级默认；applyTheme 切换时整体联动） */
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video ShotCraft 操作台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* P1.5 全站主题变量（黑金高级默认；applyTheme 切换时整体联动） */
   :root {
     --bg: var(--bg); --bg2: var(--bg2); --panel: var(--panel); --panel2: var(--panel2); --chip: var(--chip);
     --border: var(--border); --border2: var(--border2);
@@ -7,14 +15,6 @@
     --accent-glow: rgba(245,158,11,.4); --accent-soft: rgba(245,158,11,.2);
     --accent2: var(--accent2);
   }
-PE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video ShotCraft 操作台</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
     background: var(--bg); color: var(--ink); min-height: 100vh;
@@ -110,6 +110,16 @@ PE html>
     border-radius: 10px; font-size: 13px; opacity: 0; pointer-events: none; transition: all .25s ease;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .preview-video-toggle { margin-top: 10px; width: 100%; padding: 9px 0; border: 1px solid var(--border2); border-radius: 8px; background: var(--chip); color: var(--ink); cursor: pointer; font: inherit; font-size: 13px; }
+  .history-list { display: grid; gap: 8px; margin-top: 10px; }
+  .history-empty { padding: 12px; border: 1px dashed var(--border); border-radius: 8px; color: var(--mid); font-size: 12px; text-align: center; }
+  .history-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--bg); }
+  .history-meta { min-width: 0; flex: 1; }
+  .history-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-size: 12px; font-weight: 600; }
+  .history-detail { margin-top: 3px; color: var(--mid); font-size: 11px; }
+  .history-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .history-actions button { padding: 6px 9px; border: 1px solid var(--border2); border-radius: 6px; background: var(--chip); color: var(--ink); cursor: pointer; font: inherit; font-size: 11px; }
+  .history-actions button.danger { color: #c0392b; border-color: #c0392b66; }
 
   .brief-card {
     background: var(--bg2); border: 1px solid var(--panel2); border-radius: 14px;
@@ -206,15 +216,41 @@ PE html>
   .b-user-settings { margin: 0 0 24px; padding: 20px 22px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
   .b-user-settings [hidden] { display: none !important; }
   .b-user-settings h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-  .b-user-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; }
-  .b-user-field { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
-  .b-user-field label { color: var(--mid); font-size: 12px; }
+  .b-user-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); position: relative; }
+  .b-settings-group { display: contents; }
+  .b-settings-group-title { grid-column: 1 / -1; display: flex; align-items: center; gap: 9px; margin: 4px 0 -4px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: 13px; font-weight: 750; }
+  .b-settings-group-title::before { content: ""; width: 4px; height: 16px; border-radius: 3px; background: var(--accent); }
+  .b-settings-group-title.audio::before { background: var(--border2); }
+  .b-user-field { min-width: 0; display: flex; flex-direction: column; gap: 9px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
+  .b-user-field:nth-child(odd) { border-left: 3px solid var(--accent); }
+  .b-user-field:nth-child(even) { border-left: 3px solid var(--border2); }
+  .b-user-field label { color: var(--ink); font-size: 12px; font-weight: 650; }
   .b-user-field select, .b-user-field input[type="search"] { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
   .b-user-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .b-user-actions button, .b-background-results button { min-height: 38px; border: 1px solid var(--accent); border-radius: 6px; background: var(--chip); color: var(--ink); padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
   .b-background-results button { border-color: var(--border2); font-weight: 400; }
   .b-user-actions button:hover, .b-background-results button:hover { border-color: var(--accent); }
+  .b-segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .b-segmented button { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border2); border-radius: 8px; background: var(--chip); color: var(--mid); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s ease; }
+  .b-segmented button:hover { border-color: var(--accent); color: var(--ink); }
+  .b-segmented button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
   .b-user-note { color: var(--mid2); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+  .b-api-settings { margin: 18px 0 24px; padding: 14px 18px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
+  .b-api-settings summary { cursor: pointer; color: var(--ink); font-size: 13px; font-weight: 600; }
+  .b-api-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px 18px; margin-top: 14px; }
+  .b-api-card { padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .b-api-card h3 { margin: 0 0 10px; font-size: 13px; }
+  .b-api-card label { display: grid; gap: 5px; margin-top: 8px; color: var(--mid); font-size: 11px; }
+  .b-api-card input { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg2); color: var(--ink); font: inherit; font-size: 12px; }
+  .b-api-card .b-api-status { margin-top: 9px; color: var(--mid2); font-size: 11px; line-height: 1.4; }
+  .b-api-card button { margin-top: 10px; padding: 8px 12px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg2); color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; }
+  .b-api-card button:hover { border-color: var(--accent); }
+  .b-api-card button:disabled { opacity: .6; cursor: wait; }
+  .b-api-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  @media (max-width: 680px) { .b-api-grid { grid-template-columns: 1fr; } }
+  .b-user-next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .b-user-next .brief-submit { width: auto; min-width: 150px; margin-top: 0; }
+  .b-user-next-note { flex: 1 1 280px; color: var(--mid2); font-size: 11px; line-height: 1.5; }
   .b-role-preview { display: flex; align-items: center; gap: 12px; min-height: 72px; }
   .b-role-preview img { width: 66px; height: 72px; object-fit: contain; background: var(--bg); border: 1px solid var(--border2); border-radius: 4px; }
   .b-background-picker { display: grid; gap: 9px; }
@@ -247,9 +283,10 @@ PE html>
   .style-card .brief-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
   .style-card .brief-desc { font-size: 12.5px; color: var(--mid); line-height: 1.5; margin-bottom: 16px; }
   .theme-grid {
-    display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-bottom: 18px;
+    display: contents;
   }
   .theme-thumb {
+    height: 64px; box-sizing: border-box;
     border-radius: 10px; padding: 10px 8px; cursor: pointer; border: 2px solid transparent;
     transition: all .15s ease; text-align: center;
   }
@@ -285,7 +322,31 @@ PE html>
     transition: all .2s ease;
     box-shadow: 0 12px 40px rgba(0,0,0,0.4);
   }
-  .style-params-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .style-params-right {
+    flex: 1; min-width: 0; height: calc(240px * 16 / 9);
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(64px, auto); gap: 8px; align-content: start; overflow-y: auto;
+  }
+  .style-details { min-width: 0; grid-column: span 3; align-self: start; }
+  .style-details > summary {
+    cursor: pointer; color: var(--ui-ink); font-size: 13px; font-weight: 600;
+    box-sizing: border-box; height: 64px; display: flex; align-items: center;
+    padding: 0 16px; border: 1px solid var(--ui-border); border-radius: 8px;
+  }
+  .style-details > summary::before { content: "▸"; margin-right: 8px; }
+  .style-details[open] > summary::before { content: "▾"; }
+  .style-details[open] > summary { margin-bottom: 12px; }
+  .style-details .color-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (min-width: 681px) and (max-width: 980px) {
+    .style-params-right { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .style-details { grid-column: 1 / -1; }
+  }
+  @media (max-width: 680px) {
+    .preview-wrap { flex-direction: column; }
+    .style-params-right { width: 100%; height: auto; overflow: visible; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .style-details { grid-column: 1 / -1; }
+    .style-details .color-slots { grid-template-columns: 1fr; }
+  }
   .p-overlay { position: absolute; inset: 0; z-index: 1; }
   .p-deco-circle {
     position: absolute; border-radius: 50%; filter: blur(50px); z-index: 0;
@@ -375,6 +436,36 @@ PE html>
     font-size: 15px; font-weight: 700; color: var(--gold); margin: 20px 0 14px;
     display: flex; align-items: center; gap: 8px;
   }
+  #subtitle-v1-card[hidden] { display: none; }
+  .subtitle-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 390px); gap: 20px; align-items: start; }
+  .subtitle-templates { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin: 12px 0 16px; }
+  .subtitle-template { padding: 10px; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+  .subtitle-template[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .subtitle-template strong { display: block; font-size: 13px; }
+  .subtitle-template span { display: block; margin-top: 4px; color: var(--mid); font-size: 11px; }
+  .subtitle-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .subtitle-fields label { display: grid; gap: 5px; color: var(--mid); font-size: 12px; }
+  .subtitle-fields select, .subtitle-fields input[type="number"] { min-width: 0; width: 100%; padding: 8px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; }
+  .subtitle-fields input[type="color"] { width: 100%; height: 36px; padding: 2px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); }
+  .subtitle-fields input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .subtitle-range-head { display: flex; justify-content: space-between; gap: 8px; }
+  .subtitle-range-head output { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .subtitle-fields label.is-disabled { opacity: .5; }
+  .subtitle-format-tabs { display: inline-flex; gap: 4px; padding: 3px; background: var(--bg); border: 1px solid var(--border2); border-radius: 6px; }
+  .subtitle-format-tabs button { border: 0; border-radius: 4px; padding: 7px 13px; background: transparent; color: var(--mid); font: inherit; font-size: 12px; cursor: pointer; }
+  .subtitle-format-tabs button[aria-pressed="true"] { background: var(--panel2); color: var(--ink); }
+  .subtitle-previews { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .85fr); gap: 10px; align-items: start; }
+  .subtitle-preview-choice { min-width: 0; border: 0; padding: 0; background: transparent; color: var(--mid); font: inherit; text-align: left; cursor: pointer; }
+  .subtitle-preview-choice[aria-pressed="true"] .subtitle-preview { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .subtitle-preview-choice > span { display: block; margin-bottom: 7px; font-size: 12px; }
+  .subtitle-preview { position: relative; overflow: hidden; background: #252d34; border: 1px solid var(--border2); border-radius: 6px; }
+  .subtitle-preview[data-format="horizontal"] { aspect-ratio: 16 / 9; }
+  .subtitle-preview[data-format="vertical"] { aspect-ratio: 9 / 16; }
+  .subtitle-preview::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, #4b6266 0%, #1c2b30 48%, #3a3530 100%); }
+  .subtitle-preview-text { position: absolute; left: 6%; right: 6%; margin: auto; width: max-content; max-width: 82%; box-sizing: border-box; text-align: center; line-height: 1.45; overflow-wrap: anywhere; }
+  .subtitle-actions { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+  .subtitle-actions .brief-submit { width: auto; margin: 0; padding: 9px 20px; }
+  @media (max-width: 760px) { .subtitle-layout { grid-template-columns: 1fr; } }
   .view-title::after {
     content: ""; flex: 1; height: 1px; background: var(--panel2);
   }
@@ -386,6 +477,69 @@ PE html>
   .statusbar .sb-item { display: flex; align-items: center; gap: 7px; }
   .statusbar .sb-item b { color: var(--ink); font-weight: 600; }
   .statusbar .dot { width: 8px; height: 8px; background: var(--mid2); }
+
+  /* ===== 操作台外观：与视频主题完全分离 ===== */
+  body[data-ui-theme="dark"] {
+    --ui-bg: #080808;
+    --ui-surface: #111111;
+    --ui-surface-2: #191919;
+    --ui-border: #2a2a2a;
+    --ui-ink: #f7f7f7;
+    --ui-muted: #a3a3a3;
+    --ui-button-bg: #f7f7f7;
+    --ui-button-ink: #080808;
+    --ui-focus: #ffffff;
+    --bg: #080808; --bg2: #111111; --panel: #111111; --panel2: #242424; --chip: #242424;
+    --border: #2a2a2a; --border2: #3c3c3c; --ink: #f7f7f7; --ink2: #e5e5e5;
+    --mid: #a3a3a3; --mid2: #858585; --muted: #858585;
+    --accent: #f7f7f7; --accent2: #d1d1d1; --accent-deep: #d1d1d1; --gold: #f7f7f7;
+    --accent-glow: rgba(255,255,255,.2); --accent-soft: rgba(255,255,255,.1);
+  }
+  body[data-ui-theme="light"] {
+    --ui-bg: #f4f4f4;
+    --ui-surface: #ffffff;
+    --ui-surface-2: #e9e9e9;
+    --ui-border: #d1d1d1;
+    --ui-ink: #101010;
+    --ui-muted: #666666;
+    --ui-button-bg: #101010;
+    --ui-button-ink: #ffffff;
+    --ui-focus: #101010;
+    --bg: #f4f4f4; --bg2: #ffffff; --panel: #ffffff; --panel2: #e9e9e9; --chip: #e9e9e9;
+    --border: #d1d1d1; --border2: #bdbdbd; --ink: #101010; --ink2: #292929;
+    --mid: #666666; --mid2: #777777; --muted: #777777;
+    --accent: #101010; --accent2: #343434; --accent-deep: #343434; --gold: #101010;
+    --accent-glow: rgba(0,0,0,.18); --accent-soft: rgba(0,0,0,.08);
+  }
+  body { background: var(--ui-bg) !important; color: var(--ui-ink) !important; }
+  header { background: var(--ui-bg) !important; border-color: var(--ui-border) !important; padding: 24px 32px 18px; }
+  header .logo { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; border-radius: 12px; }
+  header h1 { letter-spacing: -.02em; }
+  header .sub, header .status-dot, .card .desc, .brief-desc, .b-save-note, .b-user-note, .footer { color: var(--ui-muted) !important; }
+  .dot { background: var(--ui-button-bg) !important; box-shadow: none !important; }
+  .view-nav { padding-top: 18px; }
+  .view-tab { color: var(--ui-muted) !important; border-color: transparent !important; }
+  .view-tab:hover { color: var(--ui-ink) !important; background: var(--ui-surface-2) !important; }
+  .view-tab.active { color: var(--ui-ink) !important; background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
+  .card, .panel, .brief-card, .style-card, .b-user-settings, .b-api-settings { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
+  .panel .phead, .panel .phead button, .slot, .b-api-card, .b-production-segment, .b-production-table-wrap { border-color: var(--ui-border) !important; background: var(--ui-surface-2) !important; }
+  .brief-grid input, .brief-grid textarea, .brief-grid select, .b-settings-grid select, .b-user-field select, .b-user-field input[type="search"], .b-api-card input, #b-production-script, .b-production-segment-edit, #lib-edit-input { background: var(--ui-bg) !important; color: var(--ui-ink) !important; border-color: var(--ui-border) !important; }
+  .brief-grid input:focus, .brief-grid textarea:focus, .brief-grid select:focus, .b-user-field select:focus, .b-user-field input[type="search"]:focus, #b-production-script:focus { border-color: var(--ui-focus) !important; }
+  button:not(.view-tab):not([data-ui-choice]), .brief-submit, .b-user-actions button, .b-background-results button, .style-actions button { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; border-color: var(--ui-border) !important; }
+  button:not(.view-tab):not([data-ui-choice]):hover, .brief-submit:hover, .b-user-actions button:hover, .b-background-results button:hover, .style-actions button:hover { filter: brightness(.88); transform: translateY(-1px); }
+  .b-segmented button { background: var(--ui-surface-2) !important; color: var(--ui-muted) !important; border-color: var(--ui-border) !important; }
+  .b-segmented button.active { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; border-color: var(--ui-button-bg) !important; }
+  .view-title, .style-params-title { color: var(--ui-ink) !important; }
+  .view-title::after, .b-settings, .b-scenes, .b-production-full-script, .statusbar { border-color: var(--ui-border) !important; }
+  .statusbar { background: var(--ui-bg) !important; }
+  .statusbar .sb-item b { color: var(--ui-ink) !important; }
+  .toast { background: var(--ui-surface) !important; color: var(--ui-ink) !important; border-color: var(--ui-border) !important; }
+  .ui-appearance { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+  .ui-appearance-label { color: var(--ui-muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  .ui-appearance-toggle { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--ui-border); border-radius: 999px; background: var(--ui-surface-2); }
+  .ui-appearance-toggle button { min-width: 54px; padding: 6px 10px; border: 0 !important; border-radius: 999px; background: transparent !important; color: var(--ui-muted) !important; font: inherit; font-size: 12px; cursor: pointer; }
+  .ui-appearance-toggle button.active { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; }
+  @media (max-width: 680px) { header { padding: 18px 18px 14px; } .ui-appearance { width: 100%; margin-left: 0; justify-content: space-between; } }
 </style>
 
 <!-- 字体引入 -->
@@ -413,18 +567,26 @@ PE html>
     <div class="sub">本地视频制作工具 · Remotion 渲染 · 项目目录 E:\video-shotcraft</div>
   </div>
   <div class="status-dot"><span class="dot"></span>服务运行中</div>
+  <div class="ui-appearance" aria-label="操作台外观">
+    <span class="ui-appearance-label">操作台</span>
+    <div class="ui-appearance-toggle" role="group" aria-label="选择操作台外观">
+      <button type="button" data-ui-choice="dark" aria-pressed="true">黑色</button>
+      <button type="button" data-ui-choice="light" aria-pressed="false">白色</button>
+    </div>
+  </div>
 </header>
 
 <nav class="view-nav" id="view-nav">
   <button class="view-tab active" data-view="director">📝 编导台</button>
   <button class="view-tab internal-only" data-view="bmode" hidden>数字人口播</button>
   <button class="view-tab" data-view="produce">🎬 制作台</button>
+  <button class="view-tab" data-view="packaging">📦 外包装</button>
   <button class="view-tab" data-view="library">🎞️ 素材库</button>
 </nav>
 
 <main>
   <div class="view active" data-view="director">
-  <div class="view-title">📝 编导台 · 文案 / 风格 / 分镜规划（C1/C4）</div>
+  <div class="view-title">📝 编导台 · 文案 / 风格 / 分镜规划</div>
   <div class="brief-card">
     <div class="brief-title">📝 编导文案</div>
     <div class="brief-desc">直接把完整口播文案贴到下面，主题、论点、金句我来提取，你不用拆。填好点"保存文案"，回到豆包告诉我"文案已提交"。</div>
@@ -457,9 +619,9 @@ PE html>
     </div>
     <div class="b-save-row">
       <button class="brief-submit" id="b-save" style="background:var(--border2)">
-        <div style="font-size:13px;font-weight:600">💾 保存文案（写 C1）</div>
+        <div style="font-size:13px;font-weight:600">💾 保存文案</div>
       </button>
-      <div class="b-save-note">保存到 director/_input.txt（收敛节点），供后续生成复用；不保存也不影响 A 模式（直接用输入框）。</div>
+      <div class="b-save-note">保存后可供后续生成复用；也可以直接使用输入框中的文案。</div>
     </div>
     <section class="b-settings internal-only" aria-labelledby="b-settings-title" hidden>
       <div class="b-settings-head"><strong id="b-settings-title">数字人口播</strong><span>TalkCraft 工作流与基线测试</span></div>
@@ -472,9 +634,9 @@ PE html>
         <div style="font-size:14px;font-weight:600">A 模式</div>
         <div style="font-size:11px;opacity:0.9;margin-top:2px">Remotion 主导<br>素材补充</div>
       </button>
-      <button class="brief-submit" id="b-mode-real" type="button" style="background:linear-gradient(135deg,#148c87,#315e8c);margin-top:0" title="使用上方文案开始 B 模式；需要选择角色图">
-        <div style="font-size:14px;font-weight:600">B 模式</div>
-        <div style="font-size:11px;opacity:0.9;margin-top:2px">数字人口播主导<br>素材补充</div>
+      <button class="brief-submit" id="b-mode-real" type="button" style="background:linear-gradient(135deg,#148c87,#315e8c);margin-top:0" title="使用上方文案开始生成 B 模式视频；需要选择角色图">
+        <div style="font-size:14px;font-weight:600">开始生成视频</div>
+        <div style="font-size:11px;opacity:0.9;margin-top:2px">B 模式 · 数字人口播主导<br>素材补充</div>
       </button>
       <button class="brief-submit" id="b-mode-c" style="background:var(--border2);margin-top:0;opacity:0.5;cursor:not-allowed" title="待开发">
         <div style="font-size:14px;font-weight:600">C 模式</div>
@@ -489,15 +651,13 @@ PE html>
   <div class="style-card collapsed" id="style-card">
     <div class="style-card-header" id="style-card-header">
       <div>
-        <div class="brief-title">🎨 色彩风格</div>
-        <div class="brief-desc">选一套预置主题，或手动调整色彩和字体，实时预览效果</div>
+        <div class="brief-title">🎨 视频主题</div>
+        <div class="brief-desc">这里控制成片风格，与右上角的操作台黑白外观分别保存。</div>
       </div>
       <div class="collapse-arrow">▼</div>
     </div>
 
     <div class="style-card-body">
-      <div class="theme-grid" id="theme-grid"></div>
-
     <div class="preview-wrap">
       <!-- 左侧：竖屏分镜预览 -->
       <div class="style-preview" id="style-preview">
@@ -534,6 +694,9 @@ PE html>
 
       <!-- 右侧：参数区 -->
       <div class="style-params-right">
+        <div class="theme-grid" id="theme-grid"></div>
+        <details class="style-details" id="style-details">
+          <summary>主题详细设置</summary>
         <div class="style-params-title">🎨 色彩参数</div>
         <div class="color-slots">
           <div class="slot">
@@ -641,6 +804,7 @@ PE html>
             <span class="range-val" id="slot-radius-val">12px</span>
           </div>
         </div>
+        </details>
       </div>
     </div>
 
@@ -654,33 +818,93 @@ PE html>
   <section class="b-user-settings" id="b-user-settings" aria-labelledby="b-user-settings-title">
     <h2 id="b-user-settings-title">数字人口播设置</h2>
     <div class="b-user-grid">
+      <div class="b-settings-group">
+      <div class="b-settings-group-title">人物设置</div>
       <div class="b-user-field">
         <label for="b-role-file">角色图</label>
         <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
         <div class="b-role-preview"><img id="b-role-preview" alt="已选角色图" hidden><span class="b-user-note" id="b-role-name">尚未选择角色图</span></div>
         <div class="b-user-actions"><button type="button" id="b-role-choose">选择角色图</button><button type="button" id="b-role-remove" hidden>移除</button></div>
-      </div>
-      <div class="b-user-field">
-        <label for="b-voice-select">音色</label>
-        <select id="b-voice-select"><option value="zh-CN-YunxiNeural">云希 · 男声</option><option value="zh-CN-XiaoxiaoNeural">晓晓 · 女声</option></select>
-        <span class="b-user-note">声音复刻未接入</span>
+        <span class="b-user-note">上传一张人物静态图，作为数字人口播的角色输入；选择后只保存设置，不会自动进入编导或生成视频。</span>
       </div>
       <div class="b-user-field">
         <label for="b-background-select">人物背景</label>
         <select id="b-background-select"><option value="keep">保留原背景</option><option value="auto">检查背景后决定抠像方式</option><option value="green">绿幕时抠绿</option></select>
+        <span class="b-user-note">控制数字人生成后的背景处理：保留原背景、自动判断，或仅对稳定绿幕执行抠绿。</span>
       </div>
       <div class="b-user-field">
         <label for="b-background-search">人物镜头默认背景</label>
-        <div class="b-user-actions"><button type="button" id="b-background-choose">从素材库选择</button><button type="button" id="b-background-remove" hidden>移除</button></div>
+        <div class="b-user-actions"><button type="button" id="b-background-choose" title="打开素材库，选择人物镜头默认使用的背景视频">从素材库选择</button><button type="button" id="b-background-remove" hidden>移除</button></div>
         <span class="b-user-note" id="b-background-name">未选择</span>
+        <span class="b-user-note">给没有单独指定画面的数字人镜头设置默认背景；每个分镜仍可单独选择素材。</span>
         <div class="b-background-picker" id="b-background-picker" hidden>
           <input id="b-background-search" type="search" placeholder="搜索素材库视频">
           <div class="b-user-actions"><button type="button" id="b-background-search-button">搜索</button></div>
           <div class="b-background-results" id="b-background-results"></div>
         </div>
       </div>
+      </div>
+      <div class="b-settings-group">
+      <div class="b-settings-group-title audio">声音设置</div>
+      <div class="b-user-field">
+        <label>音色来源</label>
+        <input id="b-voice-mode" type="hidden" value="standard">
+        <div class="b-segmented" id="b-voice-mode-buttons" role="group" aria-label="音色来源">
+          <button type="button" data-voice-mode="standard" aria-pressed="true">现成音色</button>
+          <button type="button" data-voice-mode="volcengine-clone" aria-pressed="false">火山声音复刻</button>
+        </div>
+        <span class="b-user-note">现成音色直接使用；选择火山声音复刻后，填写火山控制台返回的 speaker_id。</span>
+      </div>
+      <div class="b-user-field">
+        <label for="b-voice-select">音色</label>
+        <select id="b-voice-select"><option value="zh-CN-YunxiNeural">云希 · 男声</option><option value="zh-CN-XiaoxiaoNeural">晓晓 · 女声</option></select>
+        <span class="b-user-note" id="b-voice-note">选择整段口播使用的现成配音音色。</span>
+      </div>
+      <div class="b-user-field" id="b-volcengine-voice-field" hidden>
+        <label for="b-speaker-id">火山复刻 speaker_id</label>
+        <input id="b-speaker-id" type="text" autocomplete="off" placeholder="例如 S_xxxxxxxxx" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--ink);font-size:13px;outline:none">
+        <label for="b-clone-audio" class="b-user-note" style="display:block;margin-top:8px">声音样本（WAV / MP3 / OGG / M4A / AAC，最大 10 MB）</label>
+        <input id="b-clone-audio" type="file" accept="audio/wav,audio/mpeg,audio/ogg,audio/mp4,audio/aac,.m4a" hidden>
+        <div class="b-user-actions"><button type="button" id="b-clone-audio-choose">选择声音样本</button><button type="button" id="b-clone-audio-submit">提交复刻训练</button></div>
+        <span class="b-user-note" id="b-clone-audio-name">尚未选择声音样本</span>
+        <label for="b-clone-reference" class="b-user-note">参考文本（可选）</label>
+        <input id="b-clone-reference" type="text" autocomplete="off" placeholder="与样本朗读内容一致">
+        <span class="b-user-note">训练需要火山控制台提供的 speaker_id；点击“提交复刻训练”后才会上传。</span>
+        <span class="b-user-note" id="b-volcengine-status">正在检查火山服务配置…</span>
+        <span class="b-user-note" id="b-clone-audio-status"></span>
+      </div>
+      </div>
+    </div>
+    <div class="b-user-next">
+      <button class="brief-submit" id="b-enter-director" type="button" style="background:linear-gradient(135deg,#148c87,#315e8c)">进入编导</button>
+      <span class="b-user-next-note">点击后才进入 B 模式编导界面，并带入上面的文案与设置；不会直接生成视频。进入后请在编导界面继续点击“开始 TalkCraft 编导”。</span>
     </div>
   </section>
+  <details class="b-api-settings" id="b-api-settings">
+    <summary>服务 API 设置（RunningHub / 火山声音复刻 2.0）</summary>
+    <div class="b-api-grid">
+      <section class="b-api-card" aria-labelledby="b-runninghub-api-title">
+        <h3 id="b-runninghub-api-title">RunningHub · InfiniteTalk</h3>
+        <label>API 地址<input id="api-runninghub-base" type="url" placeholder="https://www.runninghub.cn/openapi/v2"></label>
+        <label>App ID<input id="api-runninghub-app" type="text" autocomplete="off"></label>
+        <label>API Key<input id="api-runninghub-key" type="password" autocomplete="new-password" placeholder="留空表示保持已保存的 Key"></label>
+        <div class="b-api-status" id="api-runninghub-status">正在读取配置…</div>
+        <label>已有任务 ID（只读鉴权验证）<input id="api-runninghub-task-id" type="text" autocomplete="off" placeholder="填入已有 RunningHub 任务 ID"></label>
+        <button type="button" id="api-runninghub-check" class="button secondary">检查连接与鉴权</button>
+        <div class="b-api-status" id="api-runninghub-check-status" aria-live="polite"></div>
+      </section>
+      <section class="b-api-card" aria-labelledby="b-volcengine-api-title">
+        <h3 id="b-volcengine-api-title">火山声音复刻 2.0</h3>
+        <label>API Key（训练与合成）<input id="api-volcengine-key" type="password" autocomplete="new-password" placeholder="留空表示保持已保存的 Key"></label>
+        <label>合成 Resource ID<input id="api-volcengine-tts-resource" type="text" value="seed-icl-2.0"></label>
+        <label>合成模型<input id="api-volcengine-model" type="text" value="seed-tts-2.0-standard"></label>
+        <div class="b-api-status" id="api-volcengine-status">正在读取配置…</div>
+        <button type="button" id="api-volcengine-check" class="button secondary">仅检查网络</button>
+        <div class="b-api-status" id="api-volcengine-check-status" aria-live="polite"></div>
+      </section>
+    </div>
+    <div class="b-api-actions"><button type="button" id="api-settings-save" class="brief-submit" style="background:linear-gradient(135deg,#148c87,#315e8c);margin-top:0">保存 API 设置</button><span class="b-user-note">密钥只保存在本机 Windows DPAPI 加密存储中，不会写入文案、方案 JSON 或页面。</span></div>
+  </details>
   </div>
 
   <div class="view internal-only" data-view="bmode" hidden>
@@ -688,8 +912,45 @@ PE html>
     <iframe class="b-mode-frame" id="b-mode-frame" title="数字人口播流程" data-src="/director/b-mode-console.html?embed=1"></iframe>
   </div>
 
+  <div class="view" data-view="packaging" hidden>
+    <div class="view-title">外包装 <small>封面与标题</small></div>
+    <iframe class="b-mode-frame" id="packaging-frame" title="视频外包装" data-src="/director/packaging-console.html?embed=1"></iframe>
+  </div>
+
   <div class="view" data-view="produce">
   <div class="view-title">🎬 制作台 · 分镜校准 / 渲染 / 成片出口（C2/C3/C6/C7）</div>
+  <section class="brief-card" id="subtitle-v1-card" hidden>
+    <div class="brief-title">字幕设置</div>
+    <div class="subtitle-layout">
+      <div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:12px 0"><input type="checkbox" id="subtitle-enabled" checked> 启用字幕</label>
+        <div class="subtitle-format-tabs" role="group" aria-label="正在编辑的画幅">
+          <button type="button" data-subtitle-format="horizontal" aria-pressed="true">横版 16:9</button>
+          <button type="button" data-subtitle-format="vertical" aria-pressed="false">竖版 9:16</button>
+        </div>
+        <div class="subtitle-templates" id="subtitle-templates" aria-label="字幕模板"></div>
+        <div class="subtitle-fields">
+          <label>位置<select id="subtitle-position"><option value="bottom">底部</option><option value="center">居中</option><option value="top">顶部</option></select></label>
+          <label>字号（像素）<input type="number" id="subtitle-size" min="28" max="96" step="1"></label>
+          <label>字体（横竖同步）<select id="subtitle-font"><option value="sans">思源黑体</option><option value="serif">思源宋体</option><option value="wenkai">霞鹜文楷</option><option value="smiley">得意黑</option></select></label>
+          <label>每行最多字数<input type="number" id="subtitle-max-chars" min="8" max="40" step="1"></label>
+          <label>文字颜色<input type="color" id="subtitle-text-color"></label>
+          <label>强调颜色<input type="color" id="subtitle-active-color"></label>
+          <label>底板颜色<input type="color" id="subtitle-panel-color"></label>
+          <label id="subtitle-opacity-label"><span class="subtitle-range-head">胶囊透明度<output id="subtitle-opacity-value">85%</output></span><input type="range" id="subtitle-opacity" min="0" max="100" step="1"></label>
+          <label id="subtitle-highlight-label"><span class="subtitle-range-head">高亮放大比例<output id="subtitle-scale-value">1.20×</output></span><input type="range" id="subtitle-scale" min="1" max="1.8" step="0.05"></label>
+        </div>
+        <div class="subtitle-actions"><button class="brief-submit" id="subtitle-save" type="button">保存字幕设置</button><span id="subtitle-status" role="status" style="font-size:12px;color:var(--mid)"></span></div>
+      </div>
+      <div>
+        <div class="subtitle-previews">
+          <button class="subtitle-preview-choice" type="button" data-subtitle-format="horizontal" aria-pressed="true"><span>横版预览 · 16:9</span><div class="subtitle-preview" data-format="horizontal"><div class="subtitle-preview-text" id="subtitle-preview-horizontal"></div></div></button>
+          <button class="subtitle-preview-choice" type="button" data-subtitle-format="vertical" aria-pressed="false"><span>竖版预览 · 9:16</span><div class="subtitle-preview" data-format="vertical"><div class="subtitle-preview-text" id="subtitle-preview-vertical"></div></div></button>
+        </div>
+        <p style="font-size:11px;color:var(--mid2);margin:8px 0">当前文案首句</p>
+      </div>
+    </div>
+  </section>
   <!-- 整体生成进度条 -->
   <div class="brief-card" id="gen-progress-card" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -754,35 +1015,23 @@ PE html>
   <div class="brief-card" id="preview-card" style="display:none">
     <div class="brief-title">🎬 成片预览</div>
     <div class="brief-desc" id="preview-info"></div>
-    <video id="preview-video" controls style="width:100%;border-radius:10px;background:#000"></video>
+    <button id="preview-video-toggle" class="preview-video-toggle" type="button">▶ 查看当前成片</button>
+    <video id="preview-video" controls style="display:none;width:100%;border-radius:10px;background:#000"></video>
     <button id="btn-open-out" onclick="openOutFolder()" style="margin-top:10px;width:100%;padding:9px 0;border-radius:8px;border:1px solid var(--panel2);background:var(--panel);color:var(--ink);cursor:pointer;font-size:13px">📂 打开成片文件夹</button>
-  </div>
-
-  <div class="grid">
-    <div class="card" data-action="render">
-      <div class="icon">🎬</div>
-      <div class="name">渲染模板视频</div>
-      <div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div>
-      <div class="btn-text">点击开始渲染 →</div>
+    <div class="history-head" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px">
+      <div class="brief-title" style="margin:0">🗂️ 历史记录</div>
+      <button id="output-path-toggle" type="button" style="padding:7px 11px;border:1px solid var(--panel2);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit;font-size:12px">⚙ 导出路径</button>
     </div>
-    <div class="card" data-action="studio">
-      <div class="icon">🎛️</div>
-      <div class="name">Remotion Studio</div>
-      <div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div>
-      <div class="btn-text">打开编辑器 →</div>
+    <div class="brief-desc">已生成的成片保存在 template/out，可查看或删除单条记录。</div>
+    <div id="output-path-panel" hidden style="padding:12px;margin:10px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
+      <label for="output-path-input" style="display:block;color:var(--mid);font-size:12px;margin-bottom:6px">视频导出存储路径</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="output-path-input" type="text" spellcheck="false" placeholder="例如 E:\\video-shotcraft\\template\\out" style="flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--bg2);color:var(--ink);font:inherit;font-size:12px">
+        <button id="output-path-save" type="button" style="padding:8px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--chip);color:var(--ink);cursor:pointer;font:inherit;font-size:12px">保存</button>
+      </div>
+      <div id="output-path-status" style="margin-top:6px;color:var(--mid2);font-size:11px">修改后新的渲染任务会写入该目录。</div>
     </div>
-    <div class="card" data-action="gallery">
-      <div class="icon">🖼️</div>
-      <div class="name">运动预览 Gallery</div>
-      <div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div>
-      <div class="btn-text">打开画廊 →</div>
-    </div>
-    <div class="card" data-action="test">
-      <div class="icon">🧪</div>
-      <div class="name">单元测试</div>
-      <div class="desc">23 项工具函数测试<br>验证项目健康状态</div>
-      <div class="btn-text">运行测试 →</div>
-    </div>
+    <div class="history-list" id="history-list"><div class="history-empty">正在加载历史记录…</div></div>
   </div>
 
   <!-- 高级工具（折叠） -->
@@ -792,6 +1041,12 @@ PE html>
       <span style="font-size:11px;color:var(--mid2);font-weight:400">（Remotion Studio / 剪辑台 / 单元测试 / 旧流程面板）</span>
     </div>
     <div id="advanced-body" style="display:none;margin-top:16px">
+      <div class="grid">
+        <div class="card" data-action="render"><div class="icon">🎬</div><div class="name">渲染模板视频</div><div class="desc">Remotion 渲染 promo.mp4<br>1920×1080 · 30fps · 36 秒</div><div class="btn-text">点击开始渲染 →</div></div>
+        <div class="card" data-action="studio"><div class="icon">🎛️</div><div class="name">Remotion Studio</div><div class="desc">模板可视化编辑<br>时间线 / 预览 / 参数调节</div><div class="btn-text">打开编辑器 →</div></div>
+        <div class="card" data-action="gallery"><div class="icon">🖼️</div><div class="name">运动预览 Gallery</div><div class="desc">216 种运镜效果<br>搜索 / 筛选 / 预览</div><div class="btn-text">打开画廊 →</div></div>
+        <div class="card" data-action="test"><div class="icon">🧪</div><div class="name">单元测试</div><div class="desc">23 项工具函数测试<br>验证项目健康状态</div><div class="btn-text">运行测试 →</div></div>
+      </div>
       <div id="panels"></div>
     </div>
   </div>
@@ -801,23 +1056,18 @@ PE html>
 
   <div class="view" data-view="library">
   <div class="view-title">🎞️ 素材库 · 上传 / 分类筛选 / 预览（C5）</div>
-  <!-- 素材库 -->
-  <div class="brief-card">
+  <!-- 上传与素材浏览合并为一个区域，避免上下重复展示同一批素材 -->
+  <div class="brief-card" id="library-card">
     <div class="brief-title">📁 素材库</div>
-    <div class="brief-desc">上传背景视频或图片，生成时自动匹配到对应镜头</div>
+    <div class="brief-desc" id="lib-desc">上传背景视频或图片；上传后不会自动分类，分类与标签以素材库索引为准。</div>
     <div style="display:flex;gap:10px;margin:14px 0">
       <input type="file" id="mat-file" accept="video/*,image/*" multiple style="display:none">
       <input type="file" id="mat-folder" webkitdirectory directory style="display:none">
       <button class="brief-submit" id="mat-upload" style="flex:1;margin-top:0">📤 上传文件（可多选）</button>
       <button class="brief-submit" id="mat-upload-folder" style="flex:1;margin-top:0;background:var(--border2)">📁 上传整个文件夹</button>
     </div>
-    <div id="mat-list" style="display:flex;flex-wrap:wrap;gap:10px"></div>
-  </div>
-
-  <!-- 素材库浏览 -->
-  <div class="brief-card" id="library-card">
-    <div class="brief-title">🎞️ 素材库浏览</div>
-    <div class="brief-desc" id="lib-desc">加载中…</div>
+    <div class="brief-title" style="font-size:14px;margin-top:18px">🎞️ 素材浏览</div>
+    <div class="brief-desc" style="margin-bottom:10px">点击标签筛选素材，点击缩略图查看详情。</div>
     <div id="lib-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin:14px 0;max-height:140px;overflow-y:auto"></div>
     <div id="lib-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
     <div style="display:flex;gap:10px;justify-content:center;align-items:center;margin-top:14px">
@@ -831,7 +1081,7 @@ PE html>
   <div class="statusbar">
     <div class="sb-item"><span class="dot" id="sb-dot"></span><span id="sb-srv">服务检测中…</span></div>
     <div class="sb-item">当前模式 <b id="sb-mode">A · Remotion 主导</b></div>
-    <div class="sb-item"><span id="sb-theme-label">当前主题</span> <b id="sb-theme">黑金高级</b></div>
+    <div class="sb-item"><span id="sb-theme-label">视频主题</span> <b id="sb-theme">黑金高级</b></div>
     <div class="sb-item">最近任务 <b id="sb-task">-</b></div>
   </div>
 
@@ -992,9 +1242,31 @@ const state = { tasks: [], logs: {}, lastFetched: {} };
 let sessionRenderStart = Infinity;
 const initialRoute = new URLSearchParams(location.search);
 let activeProductionMode = initialRoute.get("mode") === "B" || sessionStorage.getItem("sc-production-mode") === "B" ? "B" : "A";
+if (initialRoute.get("mode") === "B") sessionStorage.setItem("sc-production-mode", "B");
 
 const $ = (s) => document.querySelector(s);
 const toast = $("#toast");
+
+// 操作台外观只控制 UI 壳层，不参与视频主题 current-theme.json。
+const UI_APPEARANCE_KEY = "shotcraft-ui-appearance";
+function applyUiAppearance(mode, persist = true) {
+  const next = mode === "light" ? "light" : "dark";
+  document.body.dataset.uiTheme = next;
+  // 外包装 iframe 同步黑色/白色外观
+  try { document.getElementById("packaging-frame")?.contentWindow?.postMessage({ type: "sc-ui-appearance", mode: next }, "*"); } catch {}
+  document.querySelectorAll("[data-ui-choice]").forEach((button) => {
+    const active = button.dataset.uiChoice === next;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (persist) {
+    try { localStorage.setItem(UI_APPEARANCE_KEY, next); } catch {}
+  }
+}
+document.querySelectorAll("[data-ui-choice]").forEach((button) => {
+  button.addEventListener("click", () => applyUiAppearance(button.dataset.uiChoice));
+});
+applyUiAppearance((() => { try { return localStorage.getItem(UI_APPEARANCE_KEY) || "dark"; } catch { return "dark"; } })(), false);
 let toastTimer = null;
 function showToast(msg) {
   toast.textContent = msg;
@@ -1315,7 +1587,7 @@ async function saveScript() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    showToast(j.ok ? (j.mock ? "文案已保存 → C1 ✓（Mock 模式）" : `文案已保存（${j.chars} 字）→ C1 ✓`) : "保存失败: " + (j.error || ""));
+    showToast(j.ok ? (j.mock ? "文案已保存（模拟模式）" : `文案已保存（${j.chars} 字）`) : "保存失败: " + (j.error || ""));
   } catch (e) { showToast("保存失败: " + e.message); }
 }
 
@@ -1458,6 +1730,114 @@ async function openOutFolder() {
   } catch (e) { showToast("打开失败: " + e.message); }
 }
 
+async function loadOutputPath() {
+  try {
+    const j = await apiFetch("/api/output-path");
+    if (j.path) $("#output-path-input").value = j.path;
+    $("#output-path-status").textContent = j.path ? `当前路径：${j.path}` : "尚未设置导出路径";
+  } catch {}
+}
+
+async function saveOutputPath() {
+  const input = $("#output-path-input");
+  const status = $("#output-path-status");
+  const value = input.value.trim();
+  if (!value) { status.textContent = "请填写导出路径"; return; }
+  try {
+    const j = await apiFetch("/api/output-path", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path: value }),
+    });
+    if (!j.ok) throw new Error(j.error || "保存失败");
+    input.value = j.path;
+    status.textContent = `已保存：${j.path}；新的渲染任务会写入该目录。`;
+    showToast("导出路径已保存");
+    await loadGalleryHistory();
+  } catch (e) { status.textContent = "保存失败：" + e.message; }
+}
+
+function toggleCurrentPreview() {
+  const video = $("#preview-video");
+  const button = $("#preview-video-toggle");
+  if (!video || !button) return;
+  const visible = video.style.display !== "none";
+  if (visible) {
+    video.pause();
+    video.style.display = "none";
+    button.textContent = "▶ 查看当前成片";
+    return;
+  }
+  if (!video.src) video.src = "/api/stream?" + Date.now();
+  video.style.display = "block";
+  button.textContent = "▾ 收起当前成片";
+}
+
+async function deleteGalleryItem(file) {
+  if (!window.confirm(`确定删除成片“${file}”吗？此操作不可恢复。`)) return;
+  try {
+    const j = await apiFetch("/api/gallery/delete", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ file }),
+    });
+    if (!j.ok) throw new Error(j.error || "删除失败");
+    showToast("已删除成片记录");
+    await loadGalleryHistory();
+  } catch (e) { showToast("删除失败: " + e.message); }
+}
+
+async function loadGalleryHistory() {
+  const list = $("#history-list");
+  if (!list) return;
+  try {
+    const j = await apiFetch("/api/gallery");
+    const items = (j && j.items) || [];
+    list.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.textContent = "暂无历史成片";
+      list.append(empty);
+      return;
+    }
+    for (const item of items) {
+      const row = document.createElement("div");
+      row.className = "history-row";
+      const meta = document.createElement("div");
+      meta.className = "history-meta";
+      const name = document.createElement("div");
+      name.className = "history-name";
+      name.title = item.name;
+      name.textContent = item.name;
+      const detail = document.createElement("div");
+      detail.className = "history-detail";
+      detail.textContent = `${(item.size / 1024 / 1024).toFixed(1)} MB · ${new Date(item.mtime).toLocaleString()}`;
+      meta.append(name, detail);
+      const actions = document.createElement("div");
+      actions.className = "history-actions";
+      const view = document.createElement("button");
+      view.type = "button";
+      view.textContent = "查看";
+      view.onclick = () => {
+        const video = $("#preview-video");
+        const toggle = $("#preview-video-toggle");
+        if (!video) return;
+        video.src = "/api/gallery/video?file=" + encodeURIComponent(item.name);
+        video.style.display = "block";
+        if (toggle) toggle.textContent = "▾ 收起当前成片";
+        video.scrollIntoView({behavior:"smooth", block:"center"});
+      };
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "danger";
+      remove.textContent = "删除";
+      remove.onclick = () => deleteGalleryItem(item.name);
+      actions.append(view, remove);
+      row.append(meta, actions);
+      list.append(row);
+    }
+  } catch (e) {
+    list.innerHTML = '<div class="history-empty">历史记录暂时无法加载</div>';
+  }
+}
+
 async function loadPreview() {
   if (activeProductionMode === "B") {
     $("#preview-card").style.display = "none";
@@ -1469,51 +1849,29 @@ async function loadPreview() {
     if (j.exists) {
       $("#preview-card").style.display = "";
       $("#preview-info").textContent = `文件大小 ${(j.size/1024/1024).toFixed(1)} MB · 生成于 ${new Date(j.mtime).toLocaleTimeString()}`;
-      if (mockMode) {
-        $("#preview-video").style.display = "none";
-        $("#preview-info").textContent += " · Mock 模式无视频流";
-      } else {
-        $("#preview-video").style.display = "";
-        $("#preview-video").src = "/api/stream?" + Date.now();
-      }
+      $("#preview-video").style.display = "none";
+      $("#preview-video").removeAttribute("src");
+      $("#preview-video-toggle").textContent = mockMode ? "当前为 Mock 数据，暂无视频" : "▶ 查看当前成片";
+      $("#preview-video-toggle").disabled = mockMode;
+      await loadGalleryHistory();
       setGenProgress(100, "✅ 生成完成");
     }
   } catch {}
 }
 
+$("#preview-video-toggle").onclick = toggleCurrentPreview;
+$("#output-path-toggle").onclick = () => {
+  const panel = $("#output-path-panel");
+  panel.hidden = !panel.hidden;
+  if (!panel.hidden) loadOutputPath();
+};
+$("#output-path-save").onclick = saveOutputPath;
+loadOutputPath();
+
 // 素材库
 async function loadMaterials() {
-  try {
-    const j = await apiFetch("/api/materials");
-    const list = $("#mat-list");
-    list.innerHTML = "";
-    if (!j.items || !j.items.length) {
-      list.innerHTML = '<div style="color:var(--mid2);font-size:13px;padding:8px 0">暂无素材</div>';
-      return;
-    }
-    for (const it of j.items) {
-      const div = document.createElement("div");
-      div.style.cssText = "width:120px;border-radius:10px;overflow:hidden;background:var(--bg);border:1px solid var(--border);cursor:pointer";
-      const src = "/api/library/video?path=" + encodeURIComponent(it.name);
-      if (it.type === "image") {
-        div.innerHTML = `
-          <div style="height:80px;overflow:hidden">
-            <img src="${src}" style="width:100%;height:100%;object-fit:cover">
-          </div>
-          <div style="padding:6px 8px;font-size:11px;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name}</div>
-        `;
-      } else {
-        div.innerHTML = `
-          <div style="height:80px;overflow:hidden;position:relative">
-            <video src="${src}" style="width:100%;height:100%;object-fit:cover" muted></video>
-            <div style="position:absolute;bottom:4px;right:4px;background:#000a;color:#fff;font-size:10px;padding:1px 5px;border-radius:4px">🎥</div>
-          </div>
-          <div style="padding:6px 8px;font-size:11px;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name}</div>
-        `;
-      }
-      list.appendChild(div);
-    }
-  } catch {}
+  // 上传完成后刷新唯一的素材浏览区，不再生成第二份缩略图列表。
+  await Promise.allSettled([loadLibTags(), loadLibList()]);
 }
 
 // 素材上传（多选文件）
@@ -2083,16 +2441,121 @@ loadLibTags();
 loadLibList();
 
 // ===== P0-1 五视图导航与状态栏 =====
-const VIEW_ORDER = ["director", "bmode", "produce", "library"];
+const VIEW_ORDER = ["director", "bmode", "produce", "packaging", "library"];
 const B_INPUT_KEY = "shotcraft-b-director-settings-v1";
 let bRoleFile = null;
 let bRoleUrl = null;
 let bBackgroundPath = null;
 let bBackgroundMeta = null;
+let bCloneAudioFile = null;
+let pendingBDirectorPayload = null;
+let bDirectorFrameReady = false;
 function saveBDirectorSettings() {
-  try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voice:$("#b-voice-select").value,
+  try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voiceMode:$("#b-voice-mode").value, speakerId:$("#b-speaker-id").value.trim(), voice:$("#b-voice-select").value,
     background:$("#b-background-select").value, backgroundVideoPath:bBackgroundPath,
     backgroundVideoMeta:bBackgroundMeta})); } catch { showToast("B 模式设置无法保存到浏览器"); }
+}
+function renderBVoiceSource() {
+  const cloned = $("#b-voice-mode").value === "volcengine-clone";
+  $("#b-volcengine-voice-field").hidden = !cloned;
+  $("#b-voice-select").disabled = cloned;
+  document.querySelectorAll("[data-voice-mode]").forEach((button) => {
+    const active = button.dataset.voiceMode === $("#b-voice-mode").value;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  $("#b-voice-note").textContent = cloned ? "当前将使用火山声音复刻；生成时由服务端按 speaker_id 调用。" : "选择整段口播使用的现成配音音色。";
+}
+async function refreshBVolcengineStatus() {
+  try {
+    const data = await (await fetch('/api/volcengine/voice/config', {cache:'no-store'})).json();
+    $('#b-volcengine-status').textContent = data?.synthesisConfigured ? 'API Key 已保存；网络、鉴权和音色状态尚未验证。' : '尚未配置火山 API Key。';
+  } catch { $('#b-volcengine-status').textContent = '暂时无法读取火山服务配置。'; }
+}
+function setBCloneAudio(file) {
+  if (file && (file.size > 10 * 1024 * 1024 || !/\.(wav|mp3|ogg|m4a|aac)$/i.test(file.name))) {
+    $('#b-clone-audio').value = '';
+    showToast('声音样本需为 WAV、MP3、OGG、M4A 或 AAC，且不超过 10 MB');
+    return false;
+  }
+  bCloneAudioFile = file || null;
+  $('#b-clone-audio-name').textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : '尚未选择声音样本';
+  return true;
+}
+async function submitBCloneAudio() {
+  if (!bCloneAudioFile) { showToast('请先选择声音样本'); return; }
+  if (!$('#b-speaker-id').value.trim()) { showToast('请先填写火山控制台提供的 speaker_id'); return; }
+  const button = $('#b-clone-audio-submit');
+  const status = $('#b-clone-audio-status');
+  button.disabled = true;
+  status.textContent = '正在提交训练；只有点击后才会上传声音样本…';
+  try {
+    const form = new FormData();
+    form.set('speakerId', $('#b-speaker-id').value.trim());
+    form.set('cloneAudio', bCloneAudioFile);
+    form.set('promptText', $('#b-clone-reference').value.trim());
+    const response = await fetch('/api/volcengine/voice/train', {method:'POST', body:form});
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || '火山复刻训练提交失败');
+    if (data.speakerId) { $('#b-speaker-id').value = data.speakerId; saveBDirectorSettings(); }
+    const state = {0:'未找到音色', 1:'训练中', 2:'训练成功，可用于合成', 3:'训练失败', 4:'已激活，可用于合成'}[data.status] || `状态 ${data.status ?? '未知'}`;
+    status.textContent = `火山返回：${state}；speaker_id：${data.speakerId}。${data.status === 1 ? '后续状态请在火山控制台查看。' : ''}`;
+    showToast(`火山声音复刻：${state}`);
+  } catch (error) { status.textContent = String(error.message || error); showToast(status.textContent); }
+  finally { button.disabled = false; }
+}
+async function refreshProviderSettings() {
+  try {
+    const data = await (await fetch('/api/settings/providers', {cache:'no-store'})).json();
+    const running = data.runninghub || {};
+    const volcengine = data.volcengine || {};
+    $('#api-runninghub-base').value = running.baseUrl || '';
+    $('#api-runninghub-app').value = running.appId || '';
+    $('#api-runninghub-status').textContent = running.apiKeyConfigured ? 'API Key 已保存；联通与鉴权尚未验证。' : '未配置 API Key。';
+    $('#api-volcengine-tts-resource').value = volcengine.ttsResourceId || 'seed-icl-2.0';
+    $('#api-volcengine-model').value = volcengine.model || 'seed-tts-2.0-standard';
+    $('#api-volcengine-status').textContent = volcengine.apiKeyConfigured ? 'API Key 已保存；联通与鉴权尚未验证。' : '未配置 API Key。';
+  } catch (error) {
+    $('#api-runninghub-status').textContent = 'API 设置读取失败。';
+    $('#api-volcengine-status').textContent = 'API 设置读取失败。';
+  }
+}
+async function saveProviderSettings() {
+  const button = $('#api-settings-save');
+  button.disabled = true;
+  try {
+    const body = {
+      runninghubBaseUrl:$('#api-runninghub-base').value.trim(), runninghubAppId:$('#api-runninghub-app').value.trim(),
+      volcengineTtsResourceId:$('#api-volcengine-tts-resource').value.trim(), volcengineModel:$('#api-volcengine-model').value.trim(),
+    };
+    if ($('#api-runninghub-key').value.trim()) body.runninghubApiKey = $('#api-runninghub-key').value.trim();
+    if ($('#api-volcengine-key').value.trim()) body.volcengineApiKey = $('#api-volcengine-key').value.trim();
+    const response = await fetch('/api/settings/providers', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(body)});
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || 'API 设置保存失败');
+    $('#api-runninghub-key').value = '';
+    $('#api-volcengine-key').value = '';
+    $('#api-runninghub-check-status').textContent = '';
+    $('#api-volcengine-check-status').textContent = '';
+    await refreshProviderSettings();
+    await refreshBVolcengineStatus();
+    showToast('API 设置已保存；密钥已清空输入框');
+  } catch (error) { showToast(String(error.message || error)); }
+  finally { button.disabled = false; }
+}
+async function checkProviderConnection(provider) {
+  const button = $(`#api-${provider}-check`);
+  const status = $(`#api-${provider}-check-status`);
+  button.disabled = true;
+  status.textContent = '正在检查…';
+  try {
+    const taskId = provider === 'runninghub' ? $('#api-runninghub-task-id').value.trim() : '';
+    const response = await fetch('/api/settings/providers/check', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({provider, taskId})});
+    const data = await response.json();
+    if (!data.ok) throw new Error(data.error || '检查失败');
+    status.textContent = `${data.reachable === null ? '未发起请求' : data.reachable ? '网络可达' : '网络不可达'}；${data.configured ? '密钥已配置' : '密钥未配置'}；${data.authVerified ? '鉴权已验证' : data.authStatus === 'invalid_credentials' ? '鉴权失败' : '鉴权未验证'}。${data.detail}${data.httpStatus ? `（HTTP ${data.httpStatus}）` : ''}`;
+  } catch (error) { status.textContent = String(error.message || error); }
+  finally { button.disabled = false; }
 }
 function setBDirectorRole(file) {
   if (file && (!["image/png","image/jpeg","image/webp"].includes(file.type) || file.size > 7 * 1024 * 1024)) {
@@ -2145,26 +2608,69 @@ async function searchBDirectorBackground() {
 }
 try {
   const saved = JSON.parse(localStorage.getItem(B_INPUT_KEY) || localStorage.getItem("shotcraft-b-workspace-v1") || "{}");
+  if (["standard","volcengine-clone"].includes(saved.voiceMode)) $("#b-voice-mode").value = saved.voiceMode;
+  if (typeof saved.speakerId === "string") $("#b-speaker-id").value = saved.speakerId;
   if (["zh-CN-YunxiNeural","zh-CN-XiaoxiaoNeural"].includes(saved.voice)) $("#b-voice-select").value = saved.voice;
   if (["keep","auto","green"].includes(saved.background)) $("#b-background-select").value = saved.background;
   if (typeof saved.backgroundVideoPath === "string") bBackgroundPath = saved.backgroundVideoPath;
   if (saved.backgroundVideoMeta && typeof saved.backgroundVideoMeta === "object") bBackgroundMeta = saved.backgroundVideoMeta;
 } catch {}
+renderBVoiceSource();
+refreshBVolcengineStatus();
+refreshProviderSettings();
 renderBDirectorBackground();
 $("#b-role-choose").onclick = () => $("#b-role-file").click();
 $("#b-role-remove").onclick = () => { pendingBModeText = null; $("#b-role-file").value = ""; setBDirectorRole(null); };
 $("#b-role-file").onchange = event => {
   if (!setBDirectorRole(event.target.files[0])) return;
-  if (bRoleFile && pendingBModeText !== null) {
-    if ($("#b-fulltext").value.trim() !== pendingBModeText) {
-      pendingBModeText = null;
-      showToast("文案已修改，请重新点击 B 模式");
-      return;
-    }
-    startBMode();
-  }
+  // 选择图片只更新设置，不自动进入编导或启动生成任务。
+  pendingBModeText = null;
 };
+$("#b-clone-audio-choose").onclick = () => $("#b-clone-audio").click();
+$("#b-clone-audio").onchange = event => setBCloneAudio(event.target.files[0]);
+$("#b-clone-audio-submit").onclick = submitBCloneAudio;
+function enterBDirector() {
+  const text = $("#b-fulltext").value.trim();
+  if (!text) { showToast("请先粘贴口播文案"); return; }
+  if (!bRoleFile) {
+    $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
+    showToast("请先选择角色图，再进入编导台");
+    return;
+  }
+  pendingBModeText = null;
+  pendingBDirectorPayload = {
+    type: "shotcraft-b-open-from-director",
+    text,
+    voiceMode: $("#b-voice-mode").value,
+    speakerId: $("#b-speaker-id").value.trim(),
+    voice: $("#b-voice-select").value,
+    avatar: bRoleFile,
+    background: $("#b-background-select").value,
+    backgroundVideoPath: bBackgroundPath,
+    backgroundVideoMeta: bBackgroundMeta,
+  };
+  switchView("bmode");
+  postPendingBDirectorPayload();
+}
+function postPendingBDirectorPayload() {
+  const frame = $("#b-mode-frame");
+  if (!pendingBDirectorPayload || !bDirectorFrameReady || !frame?.contentWindow) return;
+  frame.contentWindow.postMessage(pendingBDirectorPayload, location.origin);
+  pendingBDirectorPayload = null;
+}
+$("#b-enter-director").onclick = enterBDirector;
+$("#api-settings-save").onclick = saveProviderSettings;
+$("#api-runninghub-check").onclick = () => checkProviderConnection('runninghub');
+$("#api-volcengine-check").onclick = () => checkProviderConnection('volcengine');
+document.querySelectorAll("[data-voice-mode]").forEach((button) => {
+  button.onclick = () => {
+    $("#b-voice-mode").value = button.dataset.voiceMode;
+    renderBVoiceSource();
+    saveBDirectorSettings();
+  };
+});
 $("#b-voice-select").onchange = saveBDirectorSettings;
+$("#b-speaker-id").oninput = saveBDirectorSettings;
 $("#b-background-select").onchange = saveBDirectorSettings;
 $("#b-background-choose").onclick = () => {
   const picker = $("#b-background-picker");
@@ -2232,12 +2738,17 @@ function renderBAuditNextAction() {
     sampleLink.hidden = false;
     sampleLink.href = `/api/talkcraft/video?id=${encodeURIComponent(run.runId)}&kind=sample`;
   }
+  const sceneProgress = `${run.scenesImplemented}/${run.shots} 镜已接入`;
   if (bAuditSegmentDrafts.size || bAuditEditing || bEditingSegmentId !== null) {
     note.textContent = "先保存或提交当前文案修改，再进入下一步。";
     return;
   }
   if (bAuditSegmentState !== "ready" || !run.semanticPassed || !run.shotbook) {
-    note.textContent = "先完成语义分段与 SHOTBOOK 校验，才能进入镜头制作。";
+    button.hidden = false;
+    button.disabled = bModeBusy;
+    button.dataset.stage = "refresh-editorial";
+    button.textContent = "刷新分镜状态";
+    note.textContent = "配音和字级时间已保存。当前缺少语义标注或 SHOTBOOK 分镜，尚不能生成镜头；编导处理完成后，这里会显示可执行的下一步。";
     return;
   }
   const setAction = (stage, label, description) => {
@@ -2248,19 +2759,23 @@ function renderBAuditNextAction() {
     note.textContent = description;
   };
   if (!run.candidatesReady) {
-    setAction("candidates", "生成镜头候选", "只生成本地卡片候选，不会生成视频。确认候选和素材后再做分镜预检。");
+    setAction("candidates", "继续：生成镜头候选", "只生成本地卡片候选，不会生成视频。确认候选和素材后再做分镜预检。");
   } else if (!run.preflight) {
     candidatesLink.hidden = false;
     candidatesLink.href = `/api/talkcraft/candidates?id=${encodeURIComponent(run.runId)}`;
     setAction("preflight", "运行分镜预检", "检查 SHOTBOOK、素材、选卡和时间范围；缺项会显示失败报告。");
   } else if (!run.workbenchReady) {
-    setAction("scaffold", "搭建渲染工程", "创建本运行独立的 Remotion 工程；此步不会渲染视频。");
+    setAction("scaffold", "继续：搭建渲染工程", "创建本运行独立的 Remotion 工程；此步不会渲染视频。");
   } else if (!run.sample) {
-    setAction("sample", "生成首镜校验", "生成一条有声样板镜，确认后才可渲染整片。");
+    setAction("sample", "继续：生成首镜校验", "生成一条有声样板镜，确认后才可渲染整片。");
   } else if (!run.sampleApproved) {
-    setAction("approve-sample", "确认首镜并继续", "先查看首镜校验片；确认后才会开放整片渲染。");
+    setAction("approve-sample", "确认首镜样板", run.scenesReady
+      ? `先查看首镜校验片。${sceneProgress}；确认后即可点击“继续生成整片视频”。`
+      : `先查看首镜校验片。${sceneProgress}；其余镜头完成后才能渲染整片。`);
+  } else if (!run.scenesReady) {
+    note.textContent = `${sceneProgress}；其余镜头制作中：${run.scenesMissing.map(id => id.toUpperCase()).join('、')}。`;
   } else if (!run.final) {
-    setAction("render-all", "生成整片", "按已确认的样板与分镜渲染完整视频。");
+    setAction("render-all", "继续生成整片视频", "按已确认的样板与分镜渲染完整视频。");
   } else if (!run.qaPassed) {
     setAction("qa", "运行机器质检", "检查成片画面、字幕、时间轴与音效。");
   } else if (!run.reviewPassed) {
@@ -2428,12 +2943,20 @@ async function submitBAuditNextStep() {
   renderBAuditNextAction();
   setBProgress(5, `正在启动${label}…`);
   try {
+    if (stage === "refresh-editorial") {
+      await renderBProductionAudit(runId);
+      setBProgress(45, bAuditRunStatus?.semanticPassed && bAuditRunStatus?.shotbook
+        ? "分镜已就绪，请点击下一步" : "分镜仍在准备中，配音已保存");
+      return;
+    }
     if (stage === "approve-sample") {
       const response = await fetch("/api/talkcraft/approve-sample", {method:"POST",
         headers:{"content-type":"application/json"}, body:JSON.stringify({runId})});
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.error || "样板确认失败");
-      setBProgress(45, "首镜已确认；原运行与样板保留");
+      setBProgress(50, bAuditRunStatus?.scenesReady
+        ? "首镜已确认，可以继续生成整片视频"
+        : "首镜已确认；其余镜头制作中");
       await renderBProductionAudit(runId);
       return;
     }
@@ -2667,7 +3190,8 @@ async function restoreBWorkflowState() {
     if (failure) setBProgress(0, failure.title);
     else if (run.sentences) {
       const progress = run.delivery ? [100,"交付成片已就绪"] : run.reviewPassed ? [90,"独立审片通过，等待生成交付版"] :
-        run.qaPassed ? [80,"机器质检通过，等待独立审片"] : run.final ? [65,"整片已生成，等待机器质检"] : [45,"输入处理完成"];
+        run.qaPassed ? [80,"机器质检通过，等待独立审片"] : run.final ? [65,"整片已生成，等待机器质检"] :
+        run.sampleApproved ? [50,"首镜已确认；其余镜头制作中"] : run.sample ? [45,"首镜校验片已生成，待确认"] : [45,"输入处理完成"];
       setBProgress(progress[0],progress[1]);
     }
     await renderBProductionAudit(runId, run);
@@ -2688,6 +3212,11 @@ async function startBMode() {
     $("#b-role-file").click();
     return;
   }
+  if ($("#b-voice-mode").value === "volcengine-clone" && !/^[A-Za-z0-9_-]{2,128}$/.test($("#b-speaker-id").value.trim())) {
+    $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
+    showToast("请先填写有效的火山 speaker_id");
+    return;
+  }
   pendingBModeText = null;
   bModeBusy = true;
   $("#b-production-audit").hidden = true;
@@ -2702,6 +3231,8 @@ async function startBMode() {
   try {
     const form = new FormData();
     form.set("text", text);
+    form.set("voiceMode", $("#b-voice-mode").value);
+    if ($("#b-speaker-id").value.trim()) form.set("speakerId", $("#b-speaker-id").value.trim());
     form.set("voice", $("#b-voice-select").value);
     form.set("avatar", bRoleFile);
     form.set("background", $("#b-background-select").value);
@@ -2749,9 +3280,19 @@ function switchView(name) {
   }
   const bView = document.querySelector('.view[data-view="bmode"]');
   bView.hidden = name !== "bmode";
+  const packagingView = document.querySelector('.view[data-view="packaging"]');
+  if (packagingView) packagingView.hidden = name !== "packaging";
+  if (name === "packaging") {
+    const frame = $("#packaging-frame");
+    if (frame && !frame.hasAttribute("src")) frame.src = frame.dataset.src;
+  }
   if (name === "bmode") {
     const frame = $("#b-mode-frame");
-    if (!frame.hasAttribute("src")) frame.src = frame.dataset.src;
+    if (!frame.hasAttribute("src")) {
+      bDirectorFrameReady = false;
+      frame.src = frame.dataset.src;
+    }
+    postPendingBDirectorPayload();
   }
   document.querySelectorAll(".view").forEach((v) => {
     v.classList.toggle("active", v.dataset.view === name);
@@ -2763,11 +3304,11 @@ function switchView(name) {
     sessionStorage.setItem("sc-view", name);
     const sb = document.getElementById("sb-theme");
     const isB = name === "bmode" || activeProductionMode === "B";
-    $("#sb-theme-label").textContent = isB ? "B 视觉" : "当前主题";
+    $("#sb-theme-label").textContent = isB ? "B 视觉" : "视频主题";
     if (sb) sb.textContent = isB ? "待接入主题中心" : (typeof currentTheme !== "undefined" && currentTheme ? currentTheme.name : "-");
     $("#sb-mode").textContent = isB ? "B · 数字人口播" : "A · Remotion 主导";
   } catch {}
-  if (name === "bmode") window.scrollTo({top: 0, behavior: "instant"});
+  if (name === "bmode" || name === "director" || name === "produce") window.scrollTo({top: 0, behavior: "instant"});
 }
 document.querySelectorAll(".view-tab").forEach((t) => {
   t.onclick = () => {
@@ -2785,6 +3326,11 @@ $("#b-mode-real").onclick = () => {
 window.addEventListener("message", (event) => {
   const frame = $("#b-mode-frame");
   if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
+  if (event.data?.type === "shotcraft-b-ready") {
+    bDirectorFrameReady = true;
+    postPendingBDirectorPayload();
+    return;
+  }
   if (event.data?.type === "shotcraft-b-request-script") {
     frame.contentWindow.postMessage({type: "shotcraft-b-script", text: $("#b-fulltext").value}, location.origin);
     return;
