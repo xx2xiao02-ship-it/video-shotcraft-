@@ -50,3 +50,8 @@ docs/_shots/
 /director/b-mode-runs/
 /template/public/b-mode/
 /template/out/b-mode/
+
+# 视频外包装模块运行产物
+/director/packaging-runs/
+# 视频外包装 vendored skill（可按 packaging-design.md 指引重新克隆）
+/director/packaging-skill/

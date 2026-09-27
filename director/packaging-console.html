@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>视频外包装 · 封面与标题</title>
+<link rel="stylesheet" href="/director/packaging-console.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">SC</span> Video ShotCraft</a>
+  <span class="top-divider"></span>
+  <span class="workspace-name">视频外包装 · 封面与标题</span>
+  <div class="top-status">
+    <span class="status-dot waiting" id="ai-dot"></span>
+    <span id="ai-chip">AI 未检测</span>
+    <div class="segmented" id="ui-toggle" style="min-width:0">
+      <button type="button" data-ui="dark">黑</button>
+      <button type="button" data-ui="light">白</button>
+    </div>
+    <a class="back-link" href="/">返回编导台</a>
+  </div>
+</header>
+
+<div class="workspace">
+  <nav class="steps" aria-label="外包装流程">
+    <div class="steps-title">外包装流程</div>
+    <button class="step active" data-go="source" type="button">
+      <span class="step-index">01</span>
+      <span><strong>选择视频与画面帧</strong><small>素材入口 · 候选帧</small></span>
+    </button>
+    <button class="step" data-go="ai" type="button">
+      <span class="step-index">02</span>
+      <span><strong>风格模板与 AI 封面</strong><small>GPT-Image2 图库 · 反推</small></span>
+    </button>
+    <button class="step" data-go="titles" type="button">
+      <span class="step-index">03</span>
+      <span><strong>标题文案</strong><small>规则候选 · AI 增强</small></span>
+    </button>
+    <div class="steps-foot"><span class="status-dot"></span>产物保存在 director/packaging-runs/</div>
+  </nav>
+
+  <main class="main-content">
+    <section class="panel active" id="panel-source">
+      <div class="panel-heading"><div><p class="eyebrow">01 / SOURCE</p><h1>最新成片与画面帧</h1></div><span class="panel-state" id="source-state">检测中…</span></div>
+      <div class="settings-column">
+        <section class="settings-section">
+          <div class="section-line"><h2>最新成片</h2><span class="section-meta">自动选取最新渲染的一条；做过封面会自动跳过</span></div>
+          <div id="latest-card" class="latest-card"><p class="field-note">检测中…</p></div>
+          <div class="file-actions">
+            <button type="button" class="button secondary" id="btn-recheck">重新检测</button>
+          </div>
+        </section>
+        <section class="settings-section">
+          <div class="section-line"><h2>候选画面帧</h2><span class="section-meta">均匀抽 6 帧，跳过片头片尾</span></div>
+          <div id="frames-grid" class="frames"><p class="field-note">就绪后显示候选帧</p></div>
+          <p class="field-note">点击一帧作为封面基准画面，也会用于 AI 参考图与反推。</p>
+        </section>
+        <details class="internal-data-panel">
+          <summary class="internal-data-summary">手动指定其他视频<small>默认自动选最新，一般用不到</small></summary>
+          <div style="padding:12px 14px">
+            <label class="minor-label" for="video-path">视频绝对路径（mp4 / mov / webm / mkv）</label>
+            <div class="background-search-row">
+              <input id="video-path" type="text" placeholder="E:\video-shotcraft\template\out\dynamic.mp4">
+              <button type="button" class="button secondary" id="btn-use-path">使用该路径</button>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-ai" hidden>
+      <div class="panel-heading"><div><p class="eyebrow">02 / AI COVER</p><h1>风格模板与 AI 封面</h1></div><span class="panel-state" id="ai-state">未配置</span></div>
+      <div class="settings-column">
+        <section class="settings-section">
+          <div class="section-line"><h2>画幅</h2></div>
+          <div class="segmented" id="ratio-segmented">
+            <button type="button" class="selected" data-ratio="16:9">16:9 横版</button>
+            <button type="button" data-ratio="9:16">9:16 竖版</button>
+          </div>
+        </section>
+        <section class="settings-section">
+          <div class="section-line"><h2>风格模板 · GPT-Image2 图库</h2><span class="section-meta">封面适用的实测 prompt，带成品参考；其余分类可切换浏览</span></div>
+          <div class="background-search-row">
+            <select id="gallery-category" style="flex:1"></select>
+            <button type="button" class="button secondary" id="btn-gallery-refresh">刷新</button>
+          </div>
+          <div id="gallery-list" class="gallery"><p class="field-note">加载中…</p></div>
+          <p class="field-note" id="gallery-selected">未选择模板（也可以直接自由填写提示词）</p>
+        </section>
+    <section class="settings-section">
+      <div class="section-line"><h2>生成设置</h2></div>
+      <p class="field-note" id="ai-config-status"></p>
+      <div class="compose-row" style="margin-top:0">
+        <div>
+          <span class="minor-label">封面内容来源</span>
+          <div class="segmented" id="cover-source">
+            <button type="button" class="selected" data-source="frame">视频画面帧</button>
+            <button type="button" data-source="script">文案核心观点</button>
+          </div>
+        </div>
+      </div>
+      <div id="script-block" hidden>
+        <div class="file-actions" style="margin-top:0">
+          <button type="button" class="button primary" id="btn-script-prompt">提炼生图提示词</button>
+          <span class="field-note" id="script-status" style="margin:0"></span>
+        </div>
+        <details class="internal-data-panel" id="script-details" style="margin-top:10px">
+          <summary class="internal-data-summary">口播文案<small>内部数据，默认不展示；点击查看或编辑</small></summary>
+          <div style="padding:12px 14px">
+            <textarea id="script-text" rows="6" placeholder="未自动读取到文案时，可在这里粘贴口播稿"></textarea>
+          </div>
+        </details>
+      </div>
+      <details class="internal-data-panel" id="prompt-details" open style="margin-top:13px">
+        <summary class="internal-data-summary">提示词<small id="prompt-summary-note">选模板自动填入；点击展开检查或编辑</small></summary>
+        <div style="padding:12px 14px">
+          <textarea id="ai-prompt" rows="5" placeholder="自由填写，或从上方图库选择模板"></textarea>
+        </div>
+      </details>
+          <div class="compose-row">
+            <div>
+              <span class="minor-label">模型</span>
+              <select id="ai-model-select"></select>
+            </div>
+            <div>
+              <span class="minor-label">质量分档</span>
+              <select id="ai-quality">
+                <option value="low">low · 草稿（最省）</option>
+                <option value="medium" selected>medium · 标准</option>
+                <option value="high">high · 成品</option>
+                <option value="xhigh">xhigh</option>
+                <option value="max">max</option>
+              </select>
+            </div>
+          </div>
+          <details class="internal-data-panel" style="margin-top:13px">
+            <summary class="internal-data-summary">API 设置<small>Key 只存本机 DPAPI 加密文件，不回传页面</small></summary>
+            <div style="padding:12px 14px">
+              <label class="minor-label" for="ai-key">OPENAI_API_KEY（留空表示不修改）</label>
+              <input id="ai-key" type="password" style="width:100%" placeholder="sk-...">
+              <label class="minor-label" for="ai-base-url" style="margin-top:10px">API Base URL</label>
+              <input id="ai-base-url" type="text" style="width:100%" placeholder="默认 https://api.openai.com/v1">
+              <div class="file-actions"><button type="button" class="button secondary" id="btn-ai-save">保存配置</button></div>
+            </div>
+          </details>
+          <div class="input-actions">
+            <button type="button" class="button primary" id="btn-ai-cover" disabled>生成 AI 封面</button>
+            <button type="button" class="button secondary" id="btn-ai-reverse" disabled>从当前帧反推提示词</button>
+          </div>
+          <p class="field-note" id="ai-status-line"></p>
+          <div class="result">
+            <img id="ai-result-img" alt="AI 封面预览" hidden>
+            <p class="field-note" id="ai-result-meta"></p>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-titles" hidden>
+      <div class="panel-heading"><div><p class="eyebrow">03 / TITLES</p><h1>标题文案</h1></div><span class="panel-state">候选列表</span></div>
+      <div class="settings-column">
+        <section class="settings-section">
+          <div class="section-line"><h2>生成候选</h2></div>
+          <div class="background-search-row">
+            <input id="topic" type="text" style="flex:1" placeholder="视频主题，如：家用咖啡机选购">
+            <select id="platform" style="max-width:170px">
+              <option value="general">通用（≤30 字）</option>
+              <option value="douyin">抖音（≤20 字）</option>
+              <option value="shipinhao">视频号（≤20 字）</option>
+              <option value="xiaohongshu">小红书（≤20 字）</option>
+              <option value="bilibili">B 站（≤40 字）</option>
+            </select>
+            <button type="button" class="button primary" id="btn-titles">生成候选</button>
+          </div>
+          <ul id="titles-list" class="titles"></ul>
+          <div class="file-actions">
+            <button type="button" class="button secondary" id="btn-ai-titles">AI 增强</button>
+            <span class="field-note" id="titles-status" style="margin:0"></span>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/director/packaging-console.js" defer></script>
+</body>
+</html>
