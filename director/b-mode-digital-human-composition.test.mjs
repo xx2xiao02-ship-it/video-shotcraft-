@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {planDigitalHumanUnits} from './b-mode-digital-human-plan.mjs';
-import {buildDigitalHumanComposition} from './b-mode-digital-human-composition.mjs';
+import {buildDigitalHumanComposition, silentTailPadFrames} from './b-mode-digital-human-composition.mjs';
 
 test('dispersed person shots stay separate and adjacent shots share one video with offset', () => {
   const scenes = [
@@ -30,4 +30,11 @@ test('composition rejects a short generated clip', () => {
   assert.throws(() => buildDigitalHumanComposition({runId:'11111111-1111-4111-8111-111111111111',
     timing, plan, units:[{...plan.units[0], status:'SUCCESS', durationSeconds:0.5}],
     avatarFiles:['a.png']}), /时长不足/);
+});
+
+test('only a short silent audio tail can be padded without another provider task', () => {
+  assert.equal(silentTailPadFrames(103, 3.24, -91), 6);
+  assert.equal(silentTailPadFrames(103, 3.5, -10), 0);
+  assert.throws(() => silentTailPadFrames(103, 3.24, -20), /主配音尾部仍有声音/);
+  assert.throws(() => silentTailPadFrames(103, 3.0, -91), /超过 0.3 秒/);
 });

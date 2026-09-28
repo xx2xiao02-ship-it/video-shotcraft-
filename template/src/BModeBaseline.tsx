@@ -96,7 +96,9 @@ const Shot: React.FC<{scene: BaselineScene; avatar: string; index: number; count
       </div>
     </>}
     <div style={{position:'absolute',left:62,right:62,bottom:29,color:'#b3c7bc',display:'flex',justifyContent:'space-between',fontSize:17}}>
-      <span>{scene.digitalHumanVideo ? '数字人口播' : '图片占位预览 · 尚未生成数字人口型'}</span>
+      <span>{scene.subject === 'person'
+        ? (scene.digitalHumanVideo ? '数字人口播' : '图片占位预览 · 尚未生成数字人口型')
+        : (scene.subject === 'graphics' ? '图解镜头' : '素材镜头')}</span>
     </div>
     <div style={{position:'absolute',left:0,right:0,bottom:0,height:6,background:'#ffffff22'}}><div style={{height:'100%',width:`${Math.min(100,frame / Math.max(1,scene.durationInFrames) * 100)}%`,background:'#8bd8ba'}} /></div>
   </AbsoluteFill>;

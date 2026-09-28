@@ -559,11 +559,15 @@ const apis = {
     const runId = url.searchParams.get('id') || '';
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
     const reportFile = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human-report.json');
-    const file = path.join(ROOT, 'template', 'out', 'b-mode', `${runId}.digital-human-final.mp4`);
-    if (!fs.existsSync(reportFile) || !fs.existsSync(file) ||
-        JSON.parse(fs.readFileSync(reportFile, 'utf8')).status !== 'SUCCESS') {
+    if (!fs.existsSync(reportFile)) { res.writeHead(404); res.end('No completed digital-human composition'); return; }
+    const report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+    const fileName = path.basename(report.output || '');
+    if (report.status !== 'SUCCESS' ||
+        !new RegExp(`^${runId}\\.digital-human-final(?:-[a-z0-9-]+)?\\.mp4$`).test(fileName)) {
       res.writeHead(404); res.end('No completed digital-human composition'); return;
     }
+    const file = path.join(ROOT, 'template', 'out', 'b-mode', fileName);
+    if (!fs.existsSync(file)) { res.writeHead(404); res.end('No completed digital-human composition'); return; }
     return sendVideoRange(res, file, req.headers.range);
   },
   "POST /api/generate": async (req, res) => {

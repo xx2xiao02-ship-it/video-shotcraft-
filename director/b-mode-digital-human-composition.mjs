@@ -1,9 +1,34 @@
-import {execFileSync} from 'node:child_process';
+import {execFileSync, spawnSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {copyFileSync, existsSync, mkdirSync, renameSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 
 const FPS = 30;
+
+export function silentTailPadFrames(plannedFrames, actualSeconds, trailingPeakDb) {
+  const missing = plannedFrames - Math.round(actualSeconds * FPS);
+  if (missing <= 0) return 0;
+  if (missing > 9 || !Number.isFinite(trailingPeakDb) || trailingPeakDb > -35) {
+    throw new Error('数字人素材时长不足，且缺口超过 0.3 秒或主配音尾部仍有声音');
+  }
+  return missing;
+}
+
+function videoDurationSeconds(file) {
+  const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-select_streams','v:0',
+    '-show_entries','stream=duration','-of','json',file], {encoding:'utf8'}));
+  const duration = Number(probe.streams?.[0]?.duration);
+  if (!Number.isFinite(duration) || duration <= 0) throw new Error('数字人素材缺少有效视频时长');
+  return duration;
+}
+
+function trailingAudioPeakDb(file, fromSeconds, durationSeconds) {
+  const check = spawnSync('ffmpeg', ['-hide_banner','-ss',String(fromSeconds),'-i',file,
+    '-t',String(durationSeconds),'-af','volumedetect','-f','null','-'], {encoding:'utf8'});
+  const peak = /max_volume:\s*(-?[\d.]+) dB/.exec(check.stderr || '');
+  if (check.status !== 0 || !peak) throw new Error('无法检验数字人缺帧对应的主配音静音尾部');
+  return Number(peak[1]);
+}
 
 export function buildDigitalHumanComposition({runId, timing, plan, units, avatarFiles}) {
   if (!Number.isInteger(timing?.totalFrames) || timing.totalFrames <= 0) throw new Error('主 TTS 总帧数无效');
@@ -49,12 +74,12 @@ export function buildDigitalHumanComposition({runId, timing, plan, units, avatar
     audio:manifest.audio, totalFrames:timing.totalFrames, scenes}};
 }
 
-export function renderDigitalHumanComposition({root, runId, timing, plan, units, avatarPaths}) {
-  const {manifest, props} = buildDigitalHumanComposition({runId, timing, plan, units, avatarFiles:avatarPaths});
+export function renderDigitalHumanComposition({root, runId, timing, plan, units, avatarPaths, outputTag = ''}) {
+  if (outputTag && !/^[a-z0-9-]+$/.test(outputTag)) throw new Error('成片版本标记无效');
   const runDir = path.join(root, 'director', 'b-mode-runs', runId);
   const publicDir = path.join(root, 'template', 'public', 'b-mode', runId);
   const outDir = path.join(root, 'template', 'out', 'b-mode');
-  const finalFile = path.join(outDir, `${runId}.digital-human-final.mp4`);
+  const finalFile = path.join(outDir, `${runId}.digital-human-final${outputTag ? '-' + outputTag : ''}.mp4`);
   const attempt = randomUUID().slice(0, 8);
   const rawFile = path.join(outDir, `${runId}.digital-human-raw-${attempt}.mp4`);
   const finalPart = path.join(outDir, `${runId}.digital-human-final-${attempt}.part.mp4`);
@@ -62,8 +87,33 @@ export function renderDigitalHumanComposition({root, runId, timing, plan, units,
   if (!existsSync(path.join(publicDir, 'digital-human-input.wav'))) throw new Error('最终版主 TTS WAV 不存在');
   if (!avatarPaths.every(existsSync) || !units.every(unit => existsSync(unit.output))) throw new Error('数字人形象或片段文件缺失');
   mkdirSync(outDir, {recursive:true});
+  const tailPaddedUnits = [];
+  const preparedUnits = units.map((unit, index) => {
+    const actualSeconds = videoDurationSeconds(unit.output);
+    const plannedFrames = plan.units[index]?.durationInFrames;
+    if (!Number.isInteger(plannedFrames)) throw new Error('数字人镜头组与素材数量不一致');
+    const missing = plannedFrames - Math.round(actualSeconds * FPS);
+    if (missing <= 0) return {...unit, durationSeconds:actualSeconds};
+    if (missing > 9) throw new Error(`第 ${index + 1} 个数字人素材时长不足，超过静音补帧上限`);
+    const audioFile = path.join(publicDir, `digital-human-person-${String(index + 1).padStart(2, '0')}.wav`);
+    if (!existsSync(audioFile)) throw new Error('数字人裁切音频缺失，无法判断静音尾部');
+    const fromSeconds = Math.max(0, actualSeconds - 0.1);
+    const peak = trailingAudioPeakDb(audioFile, fromSeconds, plannedFrames / FPS - fromSeconds);
+    silentTailPadFrames(plannedFrames, actualSeconds, peak);
+    const paddedFile = path.join(runDir, `digital-human-person-${String(index + 1).padStart(2, '0')}-tail-padded${outputTag ? '-' + outputTag : ''}.mp4`);
+    if (existsSync(paddedFile)) throw new Error('已有补帧素材，保留原文件，拒绝覆盖');
+    execFileSync('ffmpeg', ['-y','-hide_banner','-loglevel','error','-i',unit.output,
+      '-vf','tpad=stop_mode=clone:stop_duration=0.4,fps=30','-frames:v',String(plannedFrames),
+      '-an','-c:v','libx264','-pix_fmt','yuv420p',paddedFile], {stdio:'inherit'});
+    const paddedSeconds = videoDurationSeconds(paddedFile);
+    if (Math.round(paddedSeconds * FPS) < plannedFrames) throw new Error('数字人尾部补帧失败');
+    tailPaddedUnits.push({index, frames:missing, trailingPeakDb:peak});
+    return {...unit, output:paddedFile, durationSeconds:paddedSeconds};
+  });
+  const {manifest, props} = buildDigitalHumanComposition({runId, timing, plan,
+    units:preparedUnits, avatarFiles:avatarPaths});
   copyFileSync(avatarPaths[0], path.join(publicDir, 'digital-human-avatar.png'));
-  units.forEach((unit, index) => copyFileSync(unit.output,
+  preparedUnits.forEach((unit, index) => copyFileSync(unit.output,
     path.join(publicDir, `digital-human-person-${String(index + 1).padStart(2, '0')}.mp4`)));
   const propsFile = path.join(runDir, 'digital-human-composition-props.json');
   writeFileSync(propsFile, JSON.stringify(props, null, 2), 'utf8');
@@ -87,5 +137,6 @@ export function renderDigitalHumanComposition({root, runId, timing, plan, units,
   }
   renameSync(finalPart, finalFile);
   return {output:finalFile, durationSeconds:Number(probe.format.duration), totalFrames:timing.totalFrames,
+    tailPaddedUnits,
     streams:probe.streams.map(stream => ({type:stream.codec_type, codec:stream.codec_name}))};
 }
