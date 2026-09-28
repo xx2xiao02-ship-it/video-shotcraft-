@@ -127,6 +127,51 @@
   }
   .brief-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .brief-desc { font-size: 12.5px; color: var(--mid); line-height: 1.5; margin-bottom: 16px; }
+  .music-controls button, #music-list button { padding: 7px 12px; border: 1px solid var(--border2); border-radius: 6px; background: var(--chip); color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; }
+  .music-controls button:disabled, #music-list button:disabled { opacity: .6; cursor: default; }
+  #music-list button { min-width: 62px; }
+  .audio-kind-tabs { display:flex; gap:4px; margin:12px 0; }
+  .audio-kind-tabs button { border:1px solid var(--border2); background:var(--bg2); color:var(--mid); padding:8px 12px; border-radius:6px; font:inherit; cursor:pointer; }
+  .audio-kind-tabs button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
+  .audio-item { display:grid; grid-template-columns:minmax(0,1fr) minmax(180px,320px); gap:8px 16px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .audio-item audio { width:100%; min-width:0; }
+  .audio-item-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:end; grid-column:1 / -1; }
+  .audio-item-meta label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--mid); }
+  .audio-item-meta input, .audio-item-meta select { padding:7px; background:var(--bg); color:var(--ink); border:1px solid var(--border2); border-radius:6px; font:inherit; }
+  .audio-item button, #production-music button { border:1px solid var(--border2); border-radius:6px; background:var(--bg2); color:var(--ink); padding:7px 12px; font:inherit; cursor:pointer; }
+  .audio-item button:disabled, #production-music button:disabled { opacity:.6; cursor:default; }
+  #production-music { padding:10px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin:8px 0 16px; }
+  .music-toolbar { display:flex; align-items:center; gap:12px; min-height:38px; }
+  .music-toolbar-copy { min-width:0; flex:1; display:flex; align-items:baseline; gap:12px; }
+  .music-toolbar-copy .brief-title { margin:0; font-size:14px; white-space:nowrap; }
+  #production-music-status { min-width:0; color:var(--mid); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .music-toolbar-actions { display:flex; gap:6px; flex-shrink:0; }
+  .music-toolbar-actions button { min-height:32px; font-size:12px; }
+  #production-music-toggle[aria-expanded="true"] { border-color:var(--accent); color:var(--accent); }
+  .music-adjust { display:flex; align-items:center; gap:8px; padding:6px 0 2px; color:var(--mid); font-size:12px; }
+  .music-adjust input { width:clamp(90px, 15vw, 160px); }
+  .music-adjust output { min-width:34px; color:var(--ink); }
+  .music-adjust button { min-height:30px; font-size:12px; }
+  #music-adjust[hidden], #production-music-panel[hidden] { display:none; }
+  #production-music-panel { margin-top:8px; border-top:1px solid var(--border); }
+  #production-music-recommendation { padding:6px 0; color:var(--mid); font-size:12px; }
+  #production-music-recommendation:empty { display:none; }
+  #production-music-list { max-height:228px; overflow-y:auto; }
+  .music-track { display:grid; grid-template-columns:32px minmax(0,1fr) 58px; align-items:center; gap:9px; min-height:48px; padding:5px 2px; border-bottom:1px solid var(--border); }
+  .music-track:last-child { border-bottom:0; }
+  .music-track-name { min-width:0; font-size:12px; overflow-wrap:anywhere; }
+  .music-track-meta { color:var(--mid); font-size:11px; margin-top:2px; }
+  .music-track button { min-height:30px; padding:4px 6px; font-size:12px; }
+  .music-track .music-preview-button { width:30px; min-width:30px; padding:0; }
+  .music-track .music-preview-button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+  .music-track:hover { background:var(--bg2); }
+  .match-preview { border-top:1px solid var(--border); margin-top:24px; padding-top:20px; }
+  .match-preview textarea { box-sizing:border-box; width:100%; min-height:96px; resize:vertical; padding:10px; background:var(--bg); border:1px solid var(--border2); border-radius:6px; color:var(--ink); font:inherit; }
+  .match-result { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .match-result > span:first-child { overflow-wrap:anywhere; }
+  .match-result-reason { grid-column:1 / -1; color:var(--mid); font-size:12px; }
+  #match-preview-results { max-height:380px; overflow-y:auto; }
+  @media (max-width:640px) { .music-toolbar { align-items:flex-start; } .music-toolbar-copy { flex-direction:column; gap:2px; } .music-adjust { flex-wrap:wrap; } .audio-item { grid-template-columns:minmax(0,1fr); } }
   .brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .brief-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--mid); }
   .brief-grid input, .brief-grid textarea, .brief-grid select {
@@ -213,27 +258,76 @@
   .b-production-next-actions button, .b-production-next-actions a { min-height: 32px; padding: 6px 11px; border: 1px solid var(--accent); border-radius: 5px; background: var(--accent); color: var(--bg); font: inherit; font-size: 11px; font-weight: 650; text-decoration: none; cursor: pointer; }
   .b-production-next-actions button:disabled { opacity: .5; cursor: not-allowed; }
   .b-production-next-actions a { border-color: var(--border2); background: var(--chip); color: var(--ink); font-weight: 500; }
-  .b-user-settings { margin: 0 0 24px; padding: 20px 22px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
+  .b-user-settings { margin: 0 0 24px; padding: 22px 26px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
   .b-user-settings [hidden] { display: none !important; }
-  .b-user-settings h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-  .b-user-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); position: relative; }
-  .b-settings-group { display: contents; }
-  .b-settings-group-title { grid-column: 1 / -1; display: flex; align-items: center; gap: 9px; margin: 4px 0 -4px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: 13px; font-weight: 750; }
-  .b-settings-group-title::before { content: ""; width: 4px; height: 16px; border-radius: 3px; background: var(--accent); }
-  .b-settings-group-title.audio::before { background: var(--border2); }
-  .b-user-field { min-width: 0; display: flex; flex-direction: column; gap: 9px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg2); }
-  .b-user-field:nth-child(odd) { border-left: 3px solid var(--accent); }
-  .b-user-field:nth-child(even) { border-left: 3px solid var(--border2); }
-  .b-user-field label { color: var(--ink); font-size: 12px; font-weight: 650; }
+  .b-user-settings h2 { font-size: 17px; font-weight: 650; margin: 0; }
+  .b-user-settings-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 18px; }
+  .b-debug-entry { min-height:30px; padding:5px 10px; border:1px solid var(--ui-border); border-radius:6px; background:var(--ui-surface-2); color:var(--ui-ink); font:inherit; font-size:11px; cursor:pointer; }
+  .b-debug-entry:hover { border-color:var(--accent); }
+  .b-user-grid { display: grid; gap: 18px; }
+  .b-settings-group { min-width: 0; }
+  .b-settings-group-title { padding: 0 0 8px; border-bottom: 1px solid var(--ui-border); color: var(--ui-muted); font-size: 12px; font-weight: 700; }
+  .b-user-field { min-width: 0; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--ui-border); }
+  .b-settings-group .b-user-field:last-child { border-bottom: 0; padding-bottom: 0; }
+  .b-user-field > label { color: var(--ui-ink); font-size: 13px; font-weight: 600; padding-top: 8px; }
+  .b-field-content { min-width: 0; display: grid; gap: 9px; }
+  .b-field-main { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .b-field-content > .b-user-note { max-width: 660px; }
+  .b-field-content > input[type="text"] { width: min(100%, 560px); box-sizing: border-box; min-height: 38px; border: 1px solid var(--ui-border); border-radius: 6px; background: var(--ui-bg); color: var(--ui-ink); padding: 8px 10px; font: inherit; font-size: 13px; }
+  .b-field-content > label { color: var(--ui-ink); font-size: 12px; font-weight: 600; margin-top: 4px; }
   .b-user-field select, .b-user-field input[type="search"] { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
+  .b-field-content > select { max-width: 560px; }
   .b-user-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .b-user-actions button, .b-background-results button { min-height: 38px; border: 1px solid var(--accent); border-radius: 6px; background: var(--chip); color: var(--ink); padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .b-user-actions button, .b-background-results button { min-height: 36px; border: 1px solid var(--accent); border-radius: 6px; background: var(--chip); color: var(--ink); padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
   .b-background-results button { border-color: var(--border2); font-weight: 400; }
   .b-user-actions button:hover, .b-background-results button:hover { border-color: var(--accent); }
+  #b-user-settings .b-user-actions button { background: var(--ui-surface-2) !important; color: var(--ui-ink) !important; border-color: var(--ui-border) !important; }
+  #b-user-settings #b-clone-audio-submit { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; }
   .b-segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  .b-segmented button { min-height: 40px; padding: 8px 12px; border: 1px solid var(--border2); border-radius: 8px; background: var(--chip); color: var(--mid); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s ease; }
+  #b-voice-mode-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; }
+  #b-user-settings #b-voice-mode-buttons button { background: var(--ui-surface-2) !important; color: var(--ui-ink) !important; border-color: var(--ui-border) !important; box-shadow: none; }
+  #b-user-settings #b-voice-mode-buttons button.active { background: var(--ui-button-bg) !important; color: var(--ui-button-ink) !important; border-color: var(--ui-button-bg) !important; }
+  .b-segmented button { min-height: 38px; padding: 7px 10px; border: 1px solid var(--border2); border-radius: 6px; background: var(--chip); color: var(--mid); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: .15s ease; }
   .b-segmented button:hover { border-color: var(--accent); color: var(--ink); }
   .b-segmented button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .b-voice-dialog { min-width: 0; }
+  .b-voice-dialog p { margin: 0 0 15px; color: var(--mid2); font-size: 12px; line-height: 1.5; }
+  .b-voice-dialog a { display: inline-block; margin-left: 10px; color: var(--accent); font-size: 12px; }
+  .b-voice-dialog label { display: block; margin: 12px 0 6px; font-size: 12px; font-weight: 650; }
+  .b-voice-dialog input { width: 100%; box-sizing: border-box; min-height: 38px; border: 1px solid var(--border2); border-radius: 6px; padding: 8px 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 13px; }
+  .b-voice-library-toolbar { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+  .b-voice-library-toolbar input { flex: 1; min-width: 0; }
+  .b-voice-library-toolbar button { flex: none; min-height: 38px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); padding: 7px 11px; cursor: pointer; }
+  .b-voice-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; max-height: 260px; overflow: auto; }
+  .b-voice-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 5px 8px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); }
+  .b-voice-item.selected { border-color: var(--accent); }
+  .b-voice-item-select { display: block; min-width: 0; border: 0; background: transparent; color: var(--ink); text-align: left; padding: 2px 0; cursor: pointer; }
+  #b-voice-dialog .b-voice-item-select { background: transparent !important; color: var(--ink) !important; }
+  .b-voice-item strong { font-size: 13px; }
+  .b-voice-item small { display: block; margin-top: 3px; color: var(--mid2); font-size: 11px; overflow-wrap: anywhere; }
+  .b-voice-item-actions { display: flex; gap: 5px; align-items: center; }
+  .b-voice-item-actions button { border: 1px solid var(--border2); border-radius: 5px; background: var(--bg2); color: var(--ink); min-width: 32px; min-height: 30px; padding: 4px 6px; font: inherit; font-size: 12px; cursor: pointer; }
+  #b-voice-dialog .b-voice-item-actions button, #b-voice-dialog .b-voice-dialog-actions button, #b-voice-dialog .b-voice-library-toolbar button { background: var(--bg) !important; color: var(--ink) !important; border-color: var(--border2) !important; }
+  .b-voice-item-actions button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+  .b-voice-list-empty { padding: 18px; color: var(--mid2); font-size: 12px; }
+  .b-voice-detail { min-width: 0; border-top: 1px solid var(--border2); margin-top: 10px; padding-top: 10px; }
+  .b-voice-selection { color: var(--mid2); font-size: 12px; overflow-wrap: anywhere; }
+  .b-voice-add { margin-top: 10px; border-top: 1px solid var(--border2); padding-top: 10px; font-size: 12px; }
+  .b-voice-add summary { cursor: pointer; color: var(--mid); }
+  .b-voice-add-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 7px; align-items: end; }
+  .b-voice-add-row label { min-width: 0; margin: 0; }
+  .b-voice-add-row button { min-height: 38px; border: 1px solid var(--border2); border-radius: 6px; background: var(--bg); color: var(--ink); padding: 7px 12px; cursor: pointer; }
+  @media (max-width: 620px) { .b-voice-list, .b-voice-add-row { grid-template-columns: 1fr; } .b-voice-library-toolbar #b-voice-count { display: none; } }
+  .b-voice-dialog audio { display: block; width: 100%; margin: 8px 0 0; }
+  .b-voice-dialog audio[hidden] { display: none; }
+  .b-voice-detail p:empty, .b-voice-add p:empty { display: none; }
+  .b-voice-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .b-voice-dialog-actions button, .b-voice-preset, .b-voice-legacy button { min-height: 36px; border: 1px solid var(--border2); border-radius: 6px; padding: 7px 12px; background: var(--bg); color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; }
+  .b-voice-dialog-actions .primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  #b-voice-dialog .b-voice-dialog-actions .primary { background: var(--accent) !important; color: var(--bg) !important; border-color: var(--accent) !important; }
+  .b-voice-legacy { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; }
+  .b-voice-legacy summary { cursor: pointer; color: var(--mid); }
+  .b-voice-legacy button { margin: 10px 6px 0 0; }
   .b-user-note { color: var(--mid2); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
   .b-api-settings { margin: 18px 0 24px; padding: 14px 18px; border: 1px solid var(--panel2); border-radius: 8px; background: var(--bg2); }
   .b-api-settings summary { cursor: pointer; color: var(--ink); font-size: 13px; font-weight: 600; }
@@ -248,11 +342,11 @@
   .b-api-card button:disabled { opacity: .6; cursor: wait; }
   .b-api-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   @media (max-width: 680px) { .b-api-grid { grid-template-columns: 1fr; } }
-  .b-user-next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .b-user-next { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--ui-border); }
   .b-user-next .brief-submit { width: auto; min-width: 150px; margin-top: 0; }
   .b-user-next-note { flex: 1 1 280px; color: var(--mid2); font-size: 11px; line-height: 1.5; }
-  .b-role-preview { display: flex; align-items: center; gap: 12px; min-height: 72px; }
-  .b-role-preview img { width: 66px; height: 72px; object-fit: contain; background: var(--bg); border: 1px solid var(--border2); border-radius: 4px; }
+  .b-role-preview { display: flex; align-items: center; gap: 10px; min-height: 36px; }
+  .b-role-preview img { width: 48px; height: 48px; object-fit: contain; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 4px; }
   .b-background-picker { display: grid; gap: 9px; }
   .b-background-results { max-height: 220px; overflow: auto; display: grid; gap: 6px; }
   .b-background-results button { display: flex; align-items: center; gap: 10px; text-align: left; min-width: 0; }
@@ -263,7 +357,7 @@
   .b-scenes ol { margin: 12px 0 0 20px; display: grid; gap: 9px; }
   .b-scenes li { color: var(--mid); font-size: 12px; line-height: 1.5; }
   .b-scenes li strong { color: var(--ink); font-weight: 600; }
-  @media (max-width: 680px) { .b-settings-grid, .b-mode-grid, .b-user-grid { grid-template-columns: 1fr; } .b-settings-head { flex-direction: column; gap: 4px; } }
+  @media (max-width: 680px) { .b-settings-grid, .b-mode-grid { grid-template-columns: 1fr; } .b-settings-head { flex-direction: column; gap: 4px; } .b-user-settings { padding: 18px 16px; } .b-user-field { grid-template-columns: 1fr; gap: 8px; } .b-user-field > label { padding-top: 0; } }
   .brief-grid input:focus, .brief-grid textarea:focus, .brief-grid select:focus {
     border-color: var(--accent);
   }
@@ -324,27 +418,22 @@
   }
   .style-params-right {
     flex: 1; min-width: 0; height: calc(240px * 16 / 9);
-    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-auto-rows: minmax(64px, auto); gap: 8px; align-content: start; overflow-y: auto;
   }
-  .style-details { min-width: 0; grid-column: span 3; align-self: start; }
+  .style-details { min-width: 0; grid-column: 1 / -1; align-self: start; }
   .style-details > summary {
     cursor: pointer; color: var(--ui-ink); font-size: 13px; font-weight: 600;
-    box-sizing: border-box; height: 64px; display: flex; align-items: center;
+    box-sizing: border-box; height: 48px; display: flex; align-items: center;
     padding: 0 16px; border: 1px solid var(--ui-border); border-radius: 8px;
   }
   .style-details > summary::before { content: "▸"; margin-right: 8px; }
   .style-details[open] > summary::before { content: "▾"; }
   .style-details[open] > summary { margin-bottom: 12px; }
   .style-details .color-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  @media (min-width: 681px) and (max-width: 980px) {
-    .style-params-right { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .style-details { grid-column: 1 / -1; }
-  }
   @media (max-width: 680px) {
     .preview-wrap { flex-direction: column; }
     .style-params-right { width: 100%; height: auto; overflow: visible; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .style-details { grid-column: 1 / -1; }
     .style-details .color-slots { grid-template-columns: 1fr; }
   }
   .p-overlay { position: absolute; inset: 0; z-index: 1; }
@@ -454,10 +543,11 @@
   .subtitle-format-tabs { display: inline-flex; gap: 4px; padding: 3px; background: var(--bg); border: 1px solid var(--border2); border-radius: 6px; }
   .subtitle-format-tabs button { border: 0; border-radius: 4px; padding: 7px 13px; background: transparent; color: var(--mid); font: inherit; font-size: 12px; cursor: pointer; }
   .subtitle-format-tabs button[aria-pressed="true"] { background: var(--panel2); color: var(--ink); }
-  .subtitle-previews { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .85fr); gap: 10px; align-items: start; }
-  .subtitle-preview-choice { min-width: 0; border: 0; padding: 0; background: transparent; color: var(--mid); font: inherit; text-align: left; cursor: pointer; }
-  .subtitle-preview-choice[aria-pressed="true"] .subtitle-preview { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .subtitle-preview-choice > span { display: block; margin-bottom: 7px; font-size: 12px; }
+  .subtitle-previews { display: flex; justify-content: center; }
+  .subtitle-preview-choice { min-width: 0; }
+  .subtitle-preview-choice[data-subtitle-format="horizontal"] { width: 100%; max-width: 390px; }
+  .subtitle-preview-choice[data-subtitle-format="vertical"] { width: min(100%, 220px); }
+  .subtitle-preview-choice[hidden] { display: none; }
   .subtitle-preview { position: relative; overflow: hidden; background: #252d34; border: 1px solid var(--border2); border-radius: 6px; }
   .subtitle-preview[data-format="horizontal"] { aspect-ratio: 16 / 9; }
   .subtitle-preview[data-format="vertical"] { aspect-ratio: 9 / 16; }
@@ -804,84 +894,99 @@
             <span class="range-val" id="slot-radius-val">12px</span>
           </div>
         </div>
+        <div class="style-actions">
+          <button class="save-theme" id="save-theme">💾 保存为我的主题</button>
+          <button class="reset-theme" id="reset-theme">↺ 重置为当前主题</button>
+        </div>
         </details>
       </div>
     </div>
-
-      <div class="style-actions">
-        <button class="save-theme" id="save-theme">💾 保存为我的主题</button>
-        <button class="reset-theme" id="reset-theme">↺ 重置为当前主题</button>
-      </div>
     </div>
   </div>
 
   <section class="b-user-settings" id="b-user-settings" aria-labelledby="b-user-settings-title">
-    <h2 id="b-user-settings-title">数字人口播设置</h2>
+    <div class="b-user-settings-head"><h2 id="b-user-settings-title">数字人口播设置</h2><button type="button" class="b-debug-entry" id="b-open-debug">打开数字人调试入口</button></div>
     <div class="b-user-grid">
       <div class="b-settings-group">
-      <div class="b-settings-group-title">人物设置</div>
-      <div class="b-user-field">
-        <label for="b-role-file">角色图</label>
-        <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-        <div class="b-role-preview"><img id="b-role-preview" alt="已选角色图" hidden><span class="b-user-note" id="b-role-name">尚未选择角色图</span></div>
-        <div class="b-user-actions"><button type="button" id="b-role-choose">选择角色图</button><button type="button" id="b-role-remove" hidden>移除</button></div>
-        <span class="b-user-note">上传一张人物静态图，作为数字人口播的角色输入；选择后只保存设置，不会自动进入编导或生成视频。</span>
-      </div>
-      <div class="b-user-field">
-        <label for="b-background-select">人物背景</label>
-        <select id="b-background-select"><option value="keep">保留原背景</option><option value="auto">检查背景后决定抠像方式</option><option value="green">绿幕时抠绿</option></select>
-        <span class="b-user-note">控制数字人生成后的背景处理：保留原背景、自动判断，或仅对稳定绿幕执行抠绿。</span>
-      </div>
-      <div class="b-user-field">
-        <label for="b-background-search">人物镜头默认背景</label>
-        <div class="b-user-actions"><button type="button" id="b-background-choose" title="打开素材库，选择人物镜头默认使用的背景视频">从素材库选择</button><button type="button" id="b-background-remove" hidden>移除</button></div>
-        <span class="b-user-note" id="b-background-name">未选择</span>
-        <span class="b-user-note">给没有单独指定画面的数字人镜头设置默认背景；每个分镜仍可单独选择素材。</span>
-        <div class="b-background-picker" id="b-background-picker" hidden>
-          <input id="b-background-search" type="search" placeholder="搜索素材库视频">
-          <div class="b-user-actions"><button type="button" id="b-background-search-button">搜索</button></div>
-          <div class="b-background-results" id="b-background-results"></div>
+        <div class="b-settings-group-title">人物</div>
+        <div class="b-user-field">
+          <label for="b-role-file">角色图</label>
+          <div class="b-field-content">
+            <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <div class="b-field-main"><div class="b-role-preview"><img id="b-role-preview" alt="已选角色图" hidden><span class="b-user-note" id="b-role-name">尚未选择角色图</span></div><div class="b-user-actions"><button type="button" id="b-role-choose">选择角色图</button><button type="button" id="b-role-remove" hidden>移除</button></div></div>
+            <span class="b-user-note">PNG / JPG / WebP；选择后仅保存，不会自动生成。</span>
+          </div>
         </div>
-      </div>
+        <div class="b-user-field">
+          <label for="b-background-select">人物背景</label>
+          <div class="b-field-content"><select id="b-background-select"><option value="keep">保留原背景</option><option value="auto">检查背景后决定抠像方式</option><option value="green">绿幕时抠绿</option></select></div>
+        </div>
+        <div class="b-user-field">
+          <label for="b-background-search">默认背景视频</label>
+          <div class="b-field-content">
+            <div class="b-field-main"><span class="b-user-note" id="b-background-name">未选择</span><div class="b-user-actions"><button type="button" id="b-background-choose" title="打开素材库，选择人物镜头默认使用的背景视频">从素材库选择</button><button type="button" id="b-background-remove" hidden>移除</button></div></div>
+            <span class="b-user-note">用于没有单独指定画面的数字人镜头。</span>
+            <div class="b-background-picker" id="b-background-picker" hidden>
+              <input id="b-background-search" type="search" placeholder="搜索素材库视频">
+              <div class="b-user-actions"><button type="button" id="b-background-search-button">搜索</button></div>
+              <div class="b-background-results" id="b-background-results"></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="b-settings-group">
-      <div class="b-settings-group-title audio">声音设置</div>
-      <div class="b-user-field">
-        <label>音色来源</label>
-        <input id="b-voice-mode" type="hidden" value="standard">
-        <div class="b-segmented" id="b-voice-mode-buttons" role="group" aria-label="音色来源">
-          <button type="button" data-voice-mode="standard" aria-pressed="true">现成音色</button>
-          <button type="button" data-voice-mode="volcengine-clone" aria-pressed="false">火山声音复刻</button>
+        <div class="b-settings-group-title audio">声音</div>
+        <div class="b-user-field" id="b-voice-source-field">
+          <label>音色来源</label>
+          <div class="b-field-content">
+            <input id="b-voice-mode" type="hidden" value="standard">
+            <input id="b-tts2-speaker-id" type="hidden">
+            <select id="b-voice-select" hidden><option value="zh-CN-YunxiNeural">云希 · 男声</option><option value="zh-CN-XiaoxiaoNeural">晓晓 · 女声</option></select>
+            <div class="b-segmented" id="b-voice-mode-buttons" role="group" aria-label="音色来源">
+              <button type="button" data-voice-mode="volcengine-tts2" aria-pressed="true">现成音色 · 火山合成 2.0</button>
+              <button type="button" data-voice-mode="volcengine-clone" aria-pressed="false">火山声音复刻</button>
+            </div>
+          </div>
         </div>
-        <span class="b-user-note">现成音色直接使用；选择火山声音复刻后，填写火山控制台返回的 speaker_id。</span>
-      </div>
-      <div class="b-user-field">
-        <label for="b-voice-select">音色</label>
-        <select id="b-voice-select"><option value="zh-CN-YunxiNeural">云希 · 男声</option><option value="zh-CN-XiaoxiaoNeural">晓晓 · 女声</option></select>
-        <span class="b-user-note" id="b-voice-note">选择整段口播使用的现成配音音色。</span>
-      </div>
-      <div class="b-user-field" id="b-volcengine-voice-field" hidden>
-        <label for="b-speaker-id">火山复刻 speaker_id</label>
-        <input id="b-speaker-id" type="text" autocomplete="off" placeholder="例如 S_xxxxxxxxx" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--ink);font-size:13px;outline:none">
-        <label for="b-clone-audio" class="b-user-note" style="display:block;margin-top:8px">声音样本（WAV / MP3 / OGG / M4A / AAC，最大 10 MB）</label>
-        <input id="b-clone-audio" type="file" accept="audio/wav,audio/mpeg,audio/ogg,audio/mp4,audio/aac,.m4a" hidden>
-        <div class="b-user-actions"><button type="button" id="b-clone-audio-choose">选择声音样本</button><button type="button" id="b-clone-audio-submit">提交复刻训练</button></div>
-        <span class="b-user-note" id="b-clone-audio-name">尚未选择声音样本</span>
-        <label for="b-clone-reference" class="b-user-note">参考文本（可选）</label>
-        <input id="b-clone-reference" type="text" autocomplete="off" placeholder="与样本朗读内容一致">
-        <span class="b-user-note">训练需要火山控制台提供的 speaker_id；点击“提交复刻训练”后才会上传。</span>
-        <span class="b-user-note" id="b-volcengine-status">正在检查火山服务配置…</span>
-        <span class="b-user-note" id="b-clone-audio-status"></span>
-      </div>
+        <div class="b-user-field" id="b-volcengine-voice-field" hidden>
+          <label for="b-speaker-id">火山复刻 speaker_id</label>
+          <div class="b-field-content">
+            <input id="b-speaker-id" type="text" autocomplete="off" placeholder="例如 S_xxxxxxxxx">
+            <label for="b-clone-audio">声音样本（WAV / MP3 / OGG / M4A / AAC，最大 10 MB）</label>
+            <input id="b-clone-audio" type="file" accept="audio/wav,audio/mpeg,audio/ogg,audio/mp4,audio/aac,.m4a" hidden>
+            <div class="b-field-main"><div class="b-user-actions"><button type="button" id="b-clone-audio-choose">选择声音样本</button><button type="button" id="b-clone-audio-submit">提交复刻训练</button></div><span class="b-user-note" id="b-clone-audio-name">尚未选择声音样本</span></div>
+            <label for="b-clone-reference">参考文本（可选）</label>
+            <input id="b-clone-reference" type="text" autocomplete="off" placeholder="与样本朗读内容一致">
+            <span class="b-user-note">点击提交后才会上传并开始复刻训练。</span>
+            <span class="b-user-note" id="b-volcengine-status">正在检查火山服务配置…</span>
+            <span class="b-user-note" id="b-clone-audio-status"></span>
+          </div>
+        </div>
+        <div class="b-user-field b-voice-dialog" id="b-voice-dialog" hidden>
+          <label for="b-voice-search">音色库</label>
+          <div class="b-field-content">
+            <p>试听无缓存时会提示确认，生成可能计费。<a href="https://console.volcengine.com/speech/new/voices?projectName=default" target="_blank" rel="noopener noreferrer">火山控制台</a></p>
+            <div class="b-voice-library-toolbar"><input id="b-voice-search" type="search" aria-label="搜索音色" placeholder="搜索名称或音色 ID"><button type="button" id="b-voice-favorites" aria-pressed="false">收藏</button><span class="b-user-note" id="b-voice-count"></span></div>
+            <div class="b-voice-list" id="b-voice-list" aria-label="可选音色"></div>
+            <div class="b-voice-detail">
+              <div class="b-voice-selection" id="b-voice-selection"></div>
+              <div class="b-voice-dialog-actions"><button type="button" id="b-voice-preview">试听</button><button type="button" id="b-voice-apply" class="primary">选用音色</button><button type="button" id="b-voice-close">收起</button></div>
+              <p id="b-voice-preview-status" role="status" aria-live="polite"></p>
+              <audio id="b-voice-preview-audio" controls hidden></audio>
+            </div>
+            <details class="b-voice-add"><summary>自定义音色 / 手动输入 ID</summary><label for="b-voice-candidate">当前候选音色 ID</label><input id="b-voice-candidate" type="text" autocomplete="off" placeholder="从火山控制台复制音色 ID"><div class="b-voice-add-row"><label for="b-voice-add-name">名称<input id="b-voice-add-name" type="text" maxlength="30" placeholder="我的音色"></label><label for="b-voice-add-id">音色 ID<input id="b-voice-add-id" type="text" placeholder="从控制台复制"></label><button type="button" id="b-voice-add-button">加入音色库</button></div><p id="b-voice-add-status" role="status" aria-live="polite"></p></details>
+            <details class="b-voice-legacy"><summary>旧版免费音色（兼容）</summary><button type="button" data-legacy-voice="zh-CN-YunxiNeural">云希 · 男声</button><button type="button" data-legacy-voice="zh-CN-XiaoxiaoNeural">晓晓 · 女声</button></details>
+          </div>
+        </div>
       </div>
     </div>
     <div class="b-user-next">
       <button class="brief-submit" id="b-enter-director" type="button" style="background:linear-gradient(135deg,#148c87,#315e8c)">进入编导</button>
-      <span class="b-user-next-note">点击后才进入 B 模式编导界面，并带入上面的文案与设置；不会直接生成视频。进入后请在编导界面继续点击“开始 TalkCraft 编导”。</span>
+      <span class="b-user-next-note">带入当前设置；进入编导后再启动生成。</span>
     </div>
   </section>
   <details class="b-api-settings" id="b-api-settings">
-    <summary>服务 API 设置（RunningHub / 火山声音复刻 2.0）</summary>
+    <summary>服务 API 设置（RunningHub / 火山语音 2.0）</summary>
     <div class="b-api-grid">
       <section class="b-api-card" aria-labelledby="b-runninghub-api-title">
         <h3 id="b-runninghub-api-title">RunningHub · InfiniteTalk</h3>
@@ -894,12 +999,14 @@
         <div class="b-api-status" id="api-runninghub-check-status" aria-live="polite"></div>
       </section>
       <section class="b-api-card" aria-labelledby="b-volcengine-api-title">
-        <h3 id="b-volcengine-api-title">火山声音复刻 2.0</h3>
-        <label>API Key（训练与合成）<input id="api-volcengine-key" type="password" autocomplete="new-password" placeholder="留空表示保持已保存的 Key"></label>
-        <label>合成 Resource ID<input id="api-volcengine-tts-resource" type="text" value="seed-icl-2.0"></label>
-        <label>合成模型<input id="api-volcengine-model" type="text" value="seed-tts-2.0-standard"></label>
+        <h3 id="b-volcengine-api-title">火山语音服务</h3>
+        <label>共用 API Key（声音复刻 / 语音合成 2.0）<input id="api-volcengine-key" type="password" autocomplete="new-password" placeholder="留空表示保持已保存的 Key"></label>
+        <span class="b-user-note">同一密钥用于声音复刻训练、复刻音色合成和现成音色合成 2.0；接口与资源 ID 分别使用。</span>
+        <label>复刻音色合成 Resource ID<input id="api-volcengine-tts-resource" type="text" value="seed-icl-2.0"></label>
+        <label>复刻音色合成模型<input id="api-volcengine-model" type="text" value="seed-tts-2.0-standard"></label>
+        <span class="b-user-note">现成音色合成 2.0 使用新版 API Key 的 HTTP Chunked 接口及固定 Resource ID：seed-tts-2.0，不使用上面的复刻合成参数。</span>
         <div class="b-api-status" id="api-volcengine-status">正在读取配置…</div>
-        <button type="button" id="api-volcengine-check" class="button secondary">仅检查网络</button>
+        <button type="button" id="api-volcengine-check" class="button secondary">仅检查复刻接口网络</button>
         <div class="b-api-status" id="api-volcengine-check-status" aria-live="polite"></div>
       </section>
     </div>
@@ -919,6 +1026,26 @@
 
   <div class="view" data-view="produce">
   <div class="view-title">🎬 制作台 · 分镜校准 / 渲染 / 成片出口（C2/C3/C6/C7）</div>
+  <section id="production-music" aria-labelledby="production-music-title">
+    <div class="music-toolbar">
+      <div class="music-toolbar-copy"><div class="brief-title" id="production-music-title">背景音乐</div><div id="production-music-status" role="status"></div></div>
+      <div class="music-toolbar-actions">
+        <button type="button" id="production-music-recommend">推荐</button>
+        <button type="button" id="production-music-toggle" aria-expanded="false" aria-controls="production-music-panel">曲库 ▾</button>
+      </div>
+    </div>
+    <div class="music-adjust" id="music-adjust" hidden>
+      <label for="music-volume">音量</label>
+      <input id="music-volume" type="range" min="0" max="50" value="18">
+      <output id="music-volume-value">18%</output>
+      <button type="button" id="music-volume-save" title="保存音量" aria-label="保存音量">✓</button>
+      <button type="button" id="music-clear" title="不使用音乐" aria-label="不使用音乐">×</button>
+    </div>
+    <div id="production-music-panel" hidden>
+      <div id="production-music-recommendation" role="status"></div>
+      <div id="production-music-list"></div>
+    </div>
+  </section>
   <section class="brief-card" id="subtitle-v1-card" hidden>
     <div class="brief-title">字幕设置</div>
     <div class="subtitle-layout">
@@ -944,10 +1071,9 @@
       </div>
       <div>
         <div class="subtitle-previews">
-          <button class="subtitle-preview-choice" type="button" data-subtitle-format="horizontal" aria-pressed="true"><span>横版预览 · 16:9</span><div class="subtitle-preview" data-format="horizontal"><div class="subtitle-preview-text" id="subtitle-preview-horizontal"></div></div></button>
-          <button class="subtitle-preview-choice" type="button" data-subtitle-format="vertical" aria-pressed="false"><span>竖版预览 · 9:16</span><div class="subtitle-preview" data-format="vertical"><div class="subtitle-preview-text" id="subtitle-preview-vertical"></div></div></button>
+          <div class="subtitle-preview-choice" data-subtitle-format="horizontal" role="img" aria-label="横版字幕预览"><div class="subtitle-preview" data-format="horizontal"><div class="subtitle-preview-text" id="subtitle-preview-horizontal"></div></div></div>
+          <div class="subtitle-preview-choice" data-subtitle-format="vertical" role="img" aria-label="竖版字幕预览" hidden><div class="subtitle-preview" data-format="vertical"><div class="subtitle-preview-text" id="subtitle-preview-vertical"></div></div></div>
         </div>
-        <p style="font-size:11px;color:var(--mid2);margin:8px 0">当前文案首句</p>
       </div>
     </div>
   </section>
@@ -1075,6 +1201,25 @@
       <span id="lib-page" style="color:var(--mid);font-size:13px">1 / 1</span>
       <button class="brief-submit" id="lib-next" style="margin-top:0;background:var(--border2);width:auto;padding:8px 20px">下一页 →</button>
     </div>
+    <div class="brief-title" style="font-size:14px;margin-top:24px">音频素材</div>
+    <div class="audio-kind-tabs" role="group" aria-label="音频素材类型">
+      <button type="button" id="audio-kind-bgm" aria-pressed="true">背景音乐</button>
+      <button type="button" id="audio-kind-sfx" aria-pressed="false">音效</button>
+    </div>
+    <div class="brief-desc" id="music-desc">加载音乐中…</div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0">
+      <input id="music-search" type="search" placeholder="搜索音频" aria-label="搜索音频素材" style="flex:1;min-width:180px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px;color:var(--ink)">
+      <input type="file" id="music-file" accept=".mp3,.wav,audio/mpeg,audio/wav" multiple hidden>
+      <button class="brief-submit" id="music-upload" style="width:auto;margin:0">上传音频</button>
+    </div>
+    <div id="music-list" style="display:grid;gap:8px"></div>
+    <section class="match-preview" id="isolated-match-preview" style="display:none">
+      <div class="brief-title" style="font-size:14px">素材匹配预览</div>
+      <label for="match-preview-scenes">分镜文案</label>
+      <textarea id="match-preview-scenes" aria-label="分镜文案" rows="4"></textarea>
+      <button class="brief-submit" type="button" id="match-preview-run" style="width:auto;margin-top:10px">匹配素材</button>
+      <div id="match-preview-results" role="status" aria-live="polite"></div>
+    </section>
   </div>
   </div>
 
@@ -1466,6 +1611,7 @@ function bindButtons() {
   $("#sb-render").onclick = async () => {
     // 渲染重试机制：偶发失败自动重试，最多 3 次（共 4 次尝试），每次间隔 3 秒
     const MAX_ATTEMPTS = 4;
+    const bgmForRender = musicSelections.A;
     let attempt = 0;
     // 本次会话新生成开始：隐藏旧成片预览，成功后再显示
     sessionRenderStart = Date.now();
@@ -1477,7 +1623,7 @@ function bindButtons() {
     const tryRender = async () => {
       attempt++;
       try {
-        const j = await apiFetch("/api/render/confirm", { method: "POST" });
+        const j = await apiFetch("/api/render/confirm", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({bgm: bgmForRender}) });
         if (j.ok && j.id) {
           showToast("渲染已启动 ✓（尝试 " + attempt + "/" + MAX_ATTEMPTS + "）");
           let since = 0;
@@ -1871,7 +2017,7 @@ loadOutputPath();
 // 素材库
 async function loadMaterials() {
   // 上传完成后刷新唯一的素材浏览区，不再生成第二份缩略图列表。
-  await Promise.allSettled([loadLibTags(), loadLibList()]);
+  await Promise.allSettled([loadLibTags(), loadLibList(), loadMusic()]);
 }
 
 // 素材上传（多选文件）
@@ -1914,6 +2060,454 @@ $("#mat-folder").onchange = async () => {
   loadMaterials();
   $("#mat-folder").value = "";
 };
+
+const audioItems = {bgm: [], sfx: []};
+let audioKind = 'bgm';
+let recommendedMusic = [];
+const musicPreviewAudio = new Audio();
+let musicPreviewButton = null;
+const musicSelections = {A: null, B: null};
+function showMusicSelection() {
+  const selected = musicSelections[activeProductionMode];
+  $("#production-music-status").textContent = selected ? selected.name : '未选择';
+  $("#production-music-status").title = selected?.name || '';
+  $("#music-adjust").hidden = !selected;
+  $("#music-volume").disabled = !selected;
+  $("#music-volume-save").disabled = !selected;
+  $("#music-volume").value = Math.round((selected?.volume ?? 0.18) * 100);
+  $("#music-volume-value").textContent = `${$("#music-volume").value}%`;
+}
+async function saveMusicSelection(selection) {
+  const mode = activeProductionMode;
+  const response = await fetch('/api/library/music/selection', {
+    method: 'PUT', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({mode, selection}),
+  });
+  const result = await response.json();
+  if (!response.ok || !result.ok) throw new Error(result.error || '保存失败');
+  musicSelections[mode] = result.selection;
+  showMusicSelection();
+  renderProductionMusic();
+}
+function audioUrl(item) {
+  return `/api/library/audio/file?kind=${item.kind}&source=${item.source}&name=${encodeURIComponent(item.name)}`;
+}
+function stopMusicPreview() {
+  musicPreviewAudio.pause();
+  musicPreviewAudio.removeAttribute('src');
+  if (musicPreviewButton) {
+    musicPreviewButton.textContent = '▶';
+    musicPreviewButton.setAttribute('aria-pressed', 'false');
+    musicPreviewButton.title = '试听';
+    musicPreviewButton.setAttribute('aria-label', `试听 ${musicPreviewButton.dataset.name}`);
+  }
+  musicPreviewButton = null;
+}
+musicPreviewAudio.onended = stopMusicPreview;
+function setMusicPanelOpen(open) {
+  $("#production-music-panel").hidden = !open;
+  $("#production-music-toggle").setAttribute('aria-expanded', String(open));
+  $("#production-music-toggle").textContent = open ? '曲库 ▴' : '曲库 ▾';
+  if (!open) stopMusicPreview();
+}
+$("#production-music-toggle").onclick = () => setMusicPanelOpen($("#production-music-panel").hidden);
+function renderAudioLibrary() {
+  const list = $("#music-list");
+  list.replaceChildren();
+  for (const kind of ['bgm', 'sfx']) $(`#audio-kind-${kind}`).setAttribute('aria-pressed', String(audioKind === kind));
+  const items = audioItems[audioKind];
+  $("#music-desc").textContent = `${audioKind === 'bgm' ? '背景音乐' : '音效'} ${items.length} 个 · 已建索引 ${items.filter(item => item.indexed).length} 个`;
+  const query = $("#music-search").value.trim().toLowerCase();
+  const visible = items.filter(item => item.name.toLowerCase().includes(query) || item.tags.some(tag => tag.toLowerCase().includes(query)));
+  if (!visible.length) { list.textContent = query ? '没有匹配的音频' : '暂无音频'; return; }
+  for (const item of visible) {
+    const row = document.createElement("div");
+    row.className = 'audio-item';
+    const info = document.createElement("div");
+    const name = document.createElement("div");
+    name.textContent = item.name;
+    const detail = document.createElement("div");
+    detail.style.cssText = "color:var(--mid);font-size:12px;margin-top:3px";
+    detail.textContent = `${item.source === 'builtin' ? '内置' : '上传'} · ${item.durationSec ? `${item.durationSec.toFixed(1)} 秒 · ` : ''}${(item.bytes / 1024 / 1024).toFixed(1)} MB`;
+    info.append(name, detail);
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "none";
+    audio.src = audioUrl(item);
+    const fields = document.createElement('div');
+    fields.className = 'audio-item-meta';
+    const tagsLabel = document.createElement('label');
+    tagsLabel.textContent = '标签（逗号分隔）';
+    const tags = document.createElement('input');
+    tags.value = item.tags.join('，');
+    tags.placeholder = audioKind === 'bgm' ? '科技，轻快' : '转场，提示';
+    tagsLabel.appendChild(tags);
+    const licenseLabel = document.createElement('label');
+    licenseLabel.textContent = '授权';
+    const license = document.createElement('select');
+    for (const [value, label] of [['unknown', '待核实'], ['owned', '自有'], ['licensed', '已授权'], ['restricted', '不可使用']]) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      license.appendChild(option);
+    }
+    license.value = item.licenseStatus;
+    licenseLabel.appendChild(license);
+    const save = document.createElement('button');
+    save.type = 'button';
+    save.textContent = '保存索引';
+    save.onclick = async () => {
+      try {
+        const response = await fetch('/api/library/audio/metadata', {method: 'PUT', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({kind: item.kind, source: item.source, name: item.name,
+            tags: tags.value.split(/[,，]/).map(tag => tag.trim()).filter(Boolean), licenseStatus: license.value})});
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.error || '索引保存失败');
+        await loadMusic();
+        showToast('音频索引已保存');
+      } catch (error) { showToast(error.message); }
+    };
+    fields.append(tagsLabel, licenseLabel, save);
+    row.append(info, audio, fields);
+    list.appendChild(row);
+  }
+}
+function renderProductionMusic() {
+  const list = $("#production-music-list");
+  stopMusicPreview();
+  list.replaceChildren();
+  const selected = musicSelections[activeProductionMode];
+  const recommended = new Map(recommendedMusic.map(item => [`${item.source}:${item.name}`, item]));
+  const items = [...audioItems.bgm].sort((left, right) => Number(recommended.has(`${right.source}:${right.name}`)) - Number(recommended.has(`${left.source}:${left.name}`)));
+  if (!items.length) { list.textContent = '暂无背景音乐'; return; }
+  for (const item of items) {
+    const row = document.createElement('div');
+    row.className = 'music-track';
+    const preview = document.createElement('button');
+    preview.type = 'button';
+    preview.className = 'music-preview-button';
+    preview.dataset.name = item.name;
+    preview.textContent = '▶';
+    preview.title = '试听';
+    preview.setAttribute('aria-label', `试听 ${item.name}`);
+    preview.setAttribute('aria-pressed', 'false');
+    preview.onclick = async () => {
+      if (musicPreviewButton === preview) { stopMusicPreview(); return; }
+      stopMusicPreview();
+      musicPreviewButton = preview;
+      musicPreviewAudio.src = audioUrl(item);
+      preview.textContent = '❚❚';
+      preview.title = '暂停试听';
+      preview.setAttribute('aria-label', `暂停试听 ${item.name}`);
+      preview.setAttribute('aria-pressed', 'true');
+      try { await musicPreviewAudio.play(); }
+      catch (error) { if (musicPreviewButton === preview) stopMusicPreview(); showToast(`试听失败：${error.message}`); }
+    };
+    const info = document.createElement('div');
+    info.className = 'music-track-name';
+    info.textContent = item.name;
+    const detail = document.createElement('div');
+    detail.className = 'music-track-meta';
+    const match = recommended.get(`${item.source}:${item.name}`);
+    detail.textContent = `${match ? `匹配 ${match.matchedTags.join('、')} · ` : ''}${item.durationSec ? `${Math.round(item.durationSec)} 秒 · ` : ''}${{unknown:'授权待核实',owned:'自有',licensed:'已授权',restricted:'不可使用'}[item.licenseStatus]}`;
+    info.appendChild(detail);
+    const use = document.createElement('button');
+    use.type = 'button';
+    const active = selected?.source === item.source && selected?.name === item.name;
+    use.textContent = active ? '已选' : '选用';
+    use.disabled = active || item.licenseStatus === 'restricted';
+    use.onclick = async () => {
+      if (item.licenseStatus === 'unknown' && !window.confirm('这首音乐的使用授权尚未核实。确认仍要选用吗？')) return;
+      try { await saveMusicSelection({source: item.source, name: item.name, volume: selected?.volume ?? 0.18}); showToast('背景音乐已保存'); }
+      catch (error) { showToast(error.message); }
+    };
+    row.append(preview, info, use);
+    list.appendChild(row);
+  }
+}
+async function loadMusic() {
+  try {
+    for (const kind of ['bgm', 'sfx']) {
+      const response = await fetch(`/api/library/audio?kind=${kind}`);
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || '音频列表读取失败');
+      audioItems[kind] = data.items;
+    }
+    for (const mode of ['A', 'B']) {
+      const selectionResponse = await fetch(`/api/library/music/selection?mode=${mode}`);
+      const selectionData = await selectionResponse.json();
+      if (!selectionResponse.ok || !selectionData.ok) throw new Error(selectionData.error || '选曲读取失败');
+      musicSelections[mode] = selectionData.selection;
+    }
+    showMusicSelection();
+    renderAudioLibrary();
+    renderProductionMusic();
+  } catch (error) { $("#music-desc").textContent = error.message; }
+}
+$("#music-search").oninput = renderAudioLibrary;
+for (const kind of ['bgm', 'sfx']) $(`#audio-kind-${kind}`).onclick = () => {
+  audioKind = kind;
+  $("#music-search").value = '';
+  renderAudioLibrary();
+};
+$("#production-music-recommend").onclick = async () => {
+  try {
+    let script = $("#b-fulltext").value.trim();
+    if (activeProductionMode === 'A') {
+      const storyboard = await fetch('/api/storyboard').then(response => response.json());
+      script = storyboard.storyboard?.shots?.map(shot => shot.text).join('\n').trim() || '';
+    }
+    if (!script) { showToast('请先填写视频文案'); return; }
+    const response = await fetch('/api/library/audio/recommend', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:script})});
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || '推荐失败');
+    recommendedMusic = result.items;
+    $("#production-music-recommendation").textContent = recommendedMusic.length
+      ? `${recommendedMusic.length} 首匹配`
+      : '暂无标签匹配音乐';
+    renderProductionMusic();
+    setMusicPanelOpen(true);
+  } catch (error) { showToast(error.message); }
+};
+$("#music-clear").onclick = async () => {
+  try { await saveMusicSelection(null); showToast('已取消背景音乐'); }
+  catch (error) { showToast(error.message); }
+};
+$("#music-volume").oninput = () => { $("#music-volume-value").textContent = `${$("#music-volume").value}%`; };
+$("#music-volume-save").onclick = async () => {
+  const selected = musicSelections[activeProductionMode];
+  if (!selected) return;
+  try { await saveMusicSelection({...selected, volume: Number($("#music-volume").value) / 100}); showToast('音乐音量已保存'); }
+  catch (error) { showToast(error.message); }
+};
+$("#music-upload").onclick = () => $("#music-file").click();
+$("#music-file").onchange = async () => {
+  const files = [...$("#music-file").files];
+  let added = 0;
+  for (const file of files) {
+    try {
+      const response = await fetch(`/api/library/audio/upload?kind=${audioKind}&name=${encodeURIComponent(file.name)}`, { method: "POST", body: file });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || "上传失败");
+      added++;
+    } catch (error) { showToast(`${file.name}：${error.message}`); }
+  }
+  if (files.length) showToast(`音频上传完成：${added}/${files.length}`);
+  $("#music-file").value = "";
+  await loadMusic();
+};
+
+async function loadMatchPreviewStatus() {
+  try {
+    const response = await fetch('/api/isolated/material-match/status');
+    const status = await response.json();
+    if (response.ok && status.enabled) $("#isolated-match-preview").style.display = '';
+  } catch {}
+}
+$("#match-preview-run").onclick = async () => {
+  const lines = $("#match-preview-scenes").value.trim().split(/\r?\n/);
+  if (!lines[0] || lines.some(line => !line.trim() || line.length > 80) || lines.length > 80) {
+    showToast('分镜文案应为 1 至 80 条，每条不超过 80 字');
+    return;
+  }
+  const button = $("#match-preview-run");
+  const results = $("#match-preview-results");
+  button.disabled = true;
+  results.textContent = '匹配中…';
+  try {
+    const response = await fetch('/api/isolated/material-match', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({scenes: lines.map(text => ({text}))}),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || '匹配失败');
+    results.replaceChildren();
+    for (const match of data.matches) {
+      const row = document.createElement('div');
+      row.className = 'match-result';
+      const name = document.createElement('span');
+      name.textContent = `${match.sceneIndex + 1}. ${match.path || '未匹配'}`;
+      const status = document.createElement('span');
+      status.textContent = '待确认';
+      const reason = document.createElement('span');
+      reason.className = 'match-result-reason';
+      reason.textContent = match.reason;
+      row.append(name, status, reason);
+      results.append(row);
+    }
+  } catch (error) { results.textContent = error.message; }
+  finally { button.disabled = false; }
+};
+loadMatchPreviewStatus();
+
+const SUBTITLE_TEMPLATES = [
+  { id: "creator", name: "口播高亮", detail: "重点逐字强调", position: "bottom", fontSize: 52, textColor: "#ffffff", activeColor: "#ffd34d", panelColor: "#07101e", maxChars: 22, fontId: "sans", panelOpacity: 85, highlightScale: 1.2 },
+  { id: "pill", name: "黑底胶囊", detail: "复杂背景清晰可读", position: "bottom", fontSize: 48, textColor: "#ffffff", activeColor: "#8de7ff", panelColor: "#07101e", maxChars: 20, fontId: "sans", panelOpacity: 85, highlightScale: 1.2 },
+  { id: "minimal", name: "极简白字", detail: "轻量不遮挡画面", position: "bottom", fontSize: 50, textColor: "#ffffff", activeColor: "#ffd34d", panelColor: "#000000", maxChars: 24, fontId: "sans", panelOpacity: 0, highlightScale: 1.2 },
+  { id: "notice", name: "顶部提示", detail: "顶部信息条", position: "top", fontSize: 40, textColor: "#d7e7f2", activeColor: "#76f0c6", panelColor: "#07101e", maxChars: 30, fontId: "sans", panelOpacity: 90, highlightScale: 1.2 },
+  { id: "impact", name: "居中强调", detail: "突出关键结论", position: "center", fontSize: 68, textColor: "#ffffff", activeColor: "#ff765f", panelColor: "#07101e", maxChars: 14, fontId: "smiley", panelOpacity: 75, highlightScale: 1.35 },
+];
+const SUBTITLE_FONTS = {
+  sans: "'Noto Sans SC', 'Microsoft YaHei', sans-serif",
+  serif: "'Noto Serif SC', 'Songti SC', serif",
+  wenkai: "'LXGW WenKai', 'Noto Sans SC', sans-serif",
+  smiley: "'Smiley Sans', 'Noto Sans SC', sans-serif",
+};
+const SUBTITLE_CANVAS = {
+  horizontal: { width: 1920, height: 1080 },
+  vertical: { width: 1080, height: 1920 },
+};
+let subtitleSettings = {
+  horizontal: { enabled: true, ...SUBTITLE_TEMPLATES[0], templateId: "creator" },
+  vertical: { enabled: true, ...SUBTITLE_TEMPLATES[0], templateId: "creator", fontSize: 46, maxChars: 12 },
+};
+let activeSubtitleFormat = "horizontal";
+let subtitleSample = "把每一个观点讲清楚，让字幕跟上节奏。";
+
+function renderSubtitleSettings() {
+  const s = subtitleSettings[activeSubtitleFormat];
+  $("#subtitle-enabled").checked = s.enabled;
+  $("#subtitle-position").querySelector('option[value="bottom"]').textContent = activeSubtitleFormat === "vertical" ? "下方 1/4 处" : "底部";
+  $("#subtitle-position").value = s.position;
+  $("#subtitle-size").value = s.fontSize;
+  $("#subtitle-font").value = s.fontId;
+  $("#subtitle-max-chars").value = s.maxChars;
+  $("#subtitle-text-color").value = s.textColor;
+  $("#subtitle-active-color").value = s.activeColor;
+  $("#subtitle-panel-color").value = s.panelColor;
+  $("#subtitle-opacity").value = s.panelOpacity;
+  $("#subtitle-opacity-value").textContent = s.panelOpacity + "%";
+  $("#subtitle-opacity").disabled = s.templateId === "minimal";
+  $("#subtitle-opacity-label").classList.toggle("is-disabled", s.templateId === "minimal");
+  $("#subtitle-scale").value = s.highlightScale;
+  $("#subtitle-scale-value").textContent = Number(s.highlightScale).toFixed(2) + "×";
+  const highlightEnabled = s.templateId === "creator" || s.templateId === "impact";
+  $("#subtitle-scale").disabled = !highlightEnabled;
+  $("#subtitle-highlight-label").classList.toggle("is-disabled", !highlightEnabled);
+  document.querySelectorAll(".subtitle-template").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.template === s.templateId)));
+  document.querySelectorAll(".subtitle-format-tabs button").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.subtitleFormat === activeSubtitleFormat)));
+  document.querySelectorAll(".subtitle-preview-choice").forEach(button => {
+    button.hidden = button.dataset.subtitleFormat !== activeSubtitleFormat;
+  });
+  renderSubtitlePreview(activeSubtitleFormat);
+}
+
+function renderSubtitlePreview(format) {
+  const s = subtitleSettings[format];
+  const preview = $("#subtitle-preview-" + format);
+  const frame = preview.parentElement;
+  const canvas = SUBTITLE_CANVAS[format];
+  const scale = frame.clientWidth / canvas.width;
+  const isNotice = s.templateId === "notice";
+  preview.replaceChildren();
+  preview.style.display = s.enabled ? "block" : "none";
+  preview.style.top = s.position === "top" ? (canvas.height * 0.09 * scale) + "px" : s.position === "center" ? "50%" : "";
+  preview.style.bottom = s.position === "bottom" ? (canvas.height * (format === "vertical" ? 0.25 : 0.09) * scale) + "px" : "";
+  preview.style.transform = s.position === "center" ? "translateY(-50%)" : "";
+  preview.style.fontSize = (s.fontSize * scale) + "px";
+  preview.style.padding = `${(isNotice ? 8 : 14) * scale}px ${(isNotice ? 18 : 28) * scale}px`;
+  preview.style.letterSpacing = scale + "px";
+  preview.style.fontFamily = SUBTITLE_FONTS[s.fontId] || SUBTITLE_FONTS.sans;
+  preview.style.fontWeight = s.templateId === "impact" ? "800" : "700";
+  preview.style.color = s.textColor;
+  preview.style.background = s.templateId === "minimal" ? "transparent" : s.panelColor + Math.round(s.panelOpacity * 255 / 100).toString(16).padStart(2, "0");
+  preview.style.borderRadius = (s.templateId === "pill" ? 14 : s.templateId === "notice" ? 2 : 6) * scale + "px";
+  preview.style.textShadow = s.templateId === "minimal" ? "0 2px 6px #000" : "none";
+  const displayText = subtitleSample.length > s.maxChars ? subtitleSample.slice(0, s.maxChars) + "…" : subtitleSample;
+  if (s.templateId === "creator" || s.templateId === "impact") {
+    const emphasis = document.createElement("span");
+    emphasis.style.color = s.activeColor;
+    emphasis.style.fontSize = Math.round(s.highlightScale * 100) + "%";
+    emphasis.textContent = displayText.slice(0, 4);
+    preview.append(emphasis, document.createTextNode(displayText.slice(4)));
+  } else {
+    preview.textContent = displayText;
+  }
+}
+
+const subtitlePreviewObserver = new ResizeObserver(entries => {
+  for (const entry of entries) renderSubtitlePreview(entry.target.dataset.format);
+});
+document.querySelectorAll(".subtitle-preview").forEach(frame => subtitlePreviewObserver.observe(frame));
+document.querySelectorAll(".subtitle-format-tabs button").forEach(button => {
+  button.onclick = () => {
+    activeSubtitleFormat = button.dataset.subtitleFormat;
+    renderSubtitleSettings();
+  };
+});
+
+const subtitleGrid = $("#subtitle-templates");
+SUBTITLE_TEMPLATES.forEach(template => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "subtitle-template";
+  button.dataset.template = template.id;
+  const name = document.createElement("strong");
+  name.textContent = template.name;
+  const detail = document.createElement("span");
+  detail.textContent = template.detail;
+  button.append(name, detail);
+  button.onclick = () => {
+    subtitleSettings[activeSubtitleFormat] = {
+      ...subtitleSettings[activeSubtitleFormat], ...template, templateId: template.id,
+      fontId: subtitleSettings.horizontal.fontId,
+      fontSize: activeSubtitleFormat === "vertical" ? Math.round(template.fontSize * 0.86) : template.fontSize,
+      maxChars: activeSubtitleFormat === "vertical" ? Math.min(template.maxChars, 14) : template.maxChars,
+    };
+    $("#subtitle-status").textContent = "有未保存的修改";
+    renderSubtitleSettings();
+  };
+  subtitleGrid.appendChild(button);
+});
+
+const subtitleInputs = [
+  ["subtitle-enabled", "enabled", el => el.checked],
+  ["subtitle-position", "position", el => el.value],
+  ["subtitle-size", "fontSize", el => Number(el.value)],
+  ["subtitle-font", "fontId", el => el.value],
+  ["subtitle-max-chars", "maxChars", el => Number(el.value)],
+  ["subtitle-text-color", "textColor", el => el.value],
+  ["subtitle-active-color", "activeColor", el => el.value],
+  ["subtitle-panel-color", "panelColor", el => el.value],
+  ["subtitle-opacity", "panelOpacity", el => Number(el.value)],
+  ["subtitle-scale", "highlightScale", el => Number(el.value)],
+];
+subtitleInputs.forEach(([id, key, read]) => {
+  $("#" + id).oninput = event => {
+    const value = read(event.target);
+    if (key === "fontId") {
+      subtitleSettings.horizontal.fontId = value;
+      subtitleSettings.vertical.fontId = value;
+    } else {
+      subtitleSettings[activeSubtitleFormat][key] = value;
+    }
+    $("#subtitle-status").textContent = "有未保存的修改";
+    renderSubtitleSettings();
+  };
+});
+$("#subtitle-save").onclick = async () => {
+  const status = $("#subtitle-status");
+  try {
+    const response = await fetch("/api/subtitle-v1/settings", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(subtitleSettings),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "保存失败");
+    subtitleSettings = result.settings;
+    status.textContent = "已保存";
+  } catch (error) { status.textContent = "保存失败：" + error.message; }
+};
+(async () => {
+  try {
+    const response = await fetch("/api/subtitle-v1/settings");
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || "加载失败");
+    subtitleSettings = result.settings;
+    subtitleSample = result.sample;
+    $("#subtitle-status").textContent = "已加载设置";
+  } catch (error) { $("#subtitle-status").textContent = "配置加载失败：" + error.message; }
+  renderSubtitleSettings();
+})();
 
 // ===== 色彩风格模块 =====
 let THEMES = [
@@ -2439,6 +3033,7 @@ function openLibEdit(item) {
 
 loadLibTags();
 loadLibList();
+loadMusic();
 
 // ===== P0-1 五视图导航与状态栏 =====
 const VIEW_ORDER = ["director", "bmode", "produce", "packaging", "library"];
@@ -2450,26 +3045,186 @@ let bBackgroundMeta = null;
 let bCloneAudioFile = null;
 let pendingBDirectorPayload = null;
 let bDirectorFrameReady = false;
+let bVoicePreviewUrl = null;
+let bVoicePreviewBusy = false;
+let bVoiceLibraryExpanded = true;
+const B_VOICE_LIBRARY_KEY = "shotcraft-volc-voice-library-v1";
+const B_VOICE_FAVORITES_KEY = "shotcraft-volc-voice-favorites-v1";
+const B_VOICE_PRESETS = [
+  {id:"zh_female_xiaohe_uranus_bigtts", name:"小何 2.0", source:"你提供"},
+  {id:"zh_male_taocheng_uranus_bigtts", name:"小天 2.0", source:"你提供"},
+  {id:"zh_male_m191_uranus_bigtts", name:"云舟 2.0", source:"你提供"},
+  {id:"zh_male_liufei_uranus_bigtts", name:"刘飞 2.0", source:"你提供"},
+  {id:"zh_female_vv_uranus_bigtts", name:"Vivi 2.0", source:"文档示例"},
+];
+const validBVoiceId = value => /^[A-Za-z0-9_-]{2,256}$/.test(String(value || ""));
+function loadBVoiceLibrary(key) {
+  try {
+    const entries = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(entries) ? entries : [];
+  } catch { return []; }
+}
+let bVoiceCustom = loadBVoiceLibrary(B_VOICE_LIBRARY_KEY).filter(entry => entry && validBVoiceId(entry.id) && typeof entry.name === "string" && entry.name.length <= 30);
+let bVoiceFavorites = new Set(loadBVoiceLibrary(B_VOICE_FAVORITES_KEY).filter(validBVoiceId));
+let bVoiceFavoritesOnly = false;
+function renderBVoiceLibrary() {
+  const list = $("#b-voice-list");
+  const query = $("#b-voice-search").value.trim().toLowerCase();
+  const entries = [...B_VOICE_PRESETS, ...bVoiceCustom].filter(entry =>
+    (!bVoiceFavoritesOnly || bVoiceFavorites.has(entry.id)) &&
+    (!query || `${entry.name} ${entry.id}`.toLowerCase().includes(query)));
+  list.replaceChildren();
+  $("#b-voice-count").textContent = `${entries.length} 个音色`;
+  const candidate = $("#b-voice-candidate").value.trim();
+  const selectedEntry = [...B_VOICE_PRESETS, ...bVoiceCustom].find(entry => entry.id === candidate);
+  $("#b-voice-selection").textContent = candidate ? `候选：${selectedEntry?.name || candidate}` : $("#b-voice-mode").value === "standard" ? `当前：${$("#b-voice-select").value === "zh-CN-XiaoxiaoNeural" ? "晓晓" : "云希"} · 旧版免费音色` : "请选择音色";
+  $("#b-voice-favorites").setAttribute("aria-pressed", String(bVoiceFavoritesOnly));
+  if (!entries.length) {
+    const empty = document.createElement("div");
+    empty.className = "b-voice-list-empty";
+    empty.textContent = "没有匹配的音色";
+    list.append(empty);
+    return;
+  }
+  for (const entry of entries) {
+    const item = document.createElement("div");
+    item.className = "b-voice-item";
+    if (entry.id === $("#b-voice-candidate").value.trim()) item.classList.add("selected");
+    const text = document.createElement("button");
+    text.type = "button";
+    text.className = "b-voice-item-select";
+    text.setAttribute("aria-label", `选择${entry.name}`);
+    text.setAttribute("aria-pressed", String(entry.id === candidate));
+    text.onclick = () => { $("#b-voice-candidate").value = entry.id; renderBVoiceLibrary(); };
+    const title = document.createElement("strong");
+    title.textContent = entry.name;
+    const source = document.createElement("small");
+    source.textContent = `${entry.source || "自定义"} · ${entry.id}`;
+    text.append(title, source);
+    const actions = document.createElement("div");
+    actions.className = "b-voice-item-actions";
+    const favorite = document.createElement("button");
+    favorite.type = "button";
+    favorite.textContent = bVoiceFavorites.has(entry.id) ? "★" : "☆";
+    favorite.title = bVoiceFavorites.has(entry.id) ? "取消收藏" : "收藏";
+    favorite.setAttribute("aria-label", `${favorite.title}${entry.name}`);
+    favorite.setAttribute("aria-pressed", String(bVoiceFavorites.has(entry.id)));
+    favorite.onclick = () => {
+      if (bVoiceFavorites.has(entry.id)) bVoiceFavorites.delete(entry.id);
+      else bVoiceFavorites.add(entry.id);
+      localStorage.setItem(B_VOICE_FAVORITES_KEY, JSON.stringify([...bVoiceFavorites]));
+      renderBVoiceLibrary();
+    };
+    const preview = document.createElement("button");
+    preview.type = "button";
+    preview.textContent = "▶";
+    preview.title = `试听${entry.name}`;
+    preview.setAttribute("aria-label", `试听${entry.name}`);
+    preview.onclick = () => { $("#b-voice-candidate").value = entry.id; renderBVoiceLibrary(); previewBVoice(); };
+    actions.append(favorite, preview);
+    if (!B_VOICE_PRESETS.some(preset => preset.id === entry.id)) {
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.title = `移除${entry.name}`;
+      remove.setAttribute("aria-label", `移除${entry.name}`);
+      remove.onclick = () => {
+        if (!window.confirm(`从本地音色库移除“${entry.name}”？不会删除火山控制台音色。`)) return;
+        bVoiceCustom = bVoiceCustom.filter(item => item.id !== entry.id);
+        localStorage.setItem(B_VOICE_LIBRARY_KEY, JSON.stringify(bVoiceCustom));
+        renderBVoiceLibrary();
+      };
+      actions.append(remove);
+    }
+    item.append(text, actions);
+    list.append(item);
+  }
+}
 function saveBDirectorSettings() {
-  try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voiceMode:$("#b-voice-mode").value, speakerId:$("#b-speaker-id").value.trim(), voice:$("#b-voice-select").value,
+  try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voiceMode:$("#b-voice-mode").value, speakerId:$("#b-speaker-id").value.trim(), tts2SpeakerId:$("#b-tts2-speaker-id").value.trim(), voice:$("#b-voice-select").value,
     background:$("#b-background-select").value, backgroundVideoPath:bBackgroundPath,
     backgroundVideoMeta:bBackgroundMeta})); } catch { showToast("B 模式设置无法保存到浏览器"); }
 }
 function renderBVoiceSource() {
   const cloned = $("#b-voice-mode").value === "volcengine-clone";
+  const tts2 = $("#b-voice-mode").value === "volcengine-tts2";
   $("#b-volcengine-voice-field").hidden = !cloned;
-  $("#b-voice-select").disabled = cloned;
+  $("#b-voice-dialog").hidden = cloned || !bVoiceLibraryExpanded;
+  if (cloned) closeBVoicePreview();
+  $("#b-voice-select").disabled = cloned || tts2;
   document.querySelectorAll("[data-voice-mode]").forEach((button) => {
-    const active = button.dataset.voiceMode === $("#b-voice-mode").value;
+    const active = button.dataset.voiceMode === "volcengine-clone" ? cloned : !cloned;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
+    if (button.dataset.voiceMode === "volcengine-tts2") {
+      const speakerId = $("#b-tts2-speaker-id").value.trim();
+      button.title = tts2 && speakerId ? `当前音色：${speakerId}` : "展开音色库";
+      button.setAttribute("aria-label", tts2 && speakerId ? `现成音色，当前音色：${speakerId}，点击展开` : "现成音色，点击展开音色库");
+    }
   });
-  $("#b-voice-note").textContent = cloned ? "当前将使用火山声音复刻；生成时由服务端按 speaker_id 调用。" : "选择整段口播使用的现成配音音色。";
+  if (!$("#b-voice-dialog").hidden) renderBVoiceLibrary();
+}
+function bSelectedSpeakerId() {
+  return $("#b-voice-mode").value === "volcengine-tts2" ? $("#b-tts2-speaker-id").value.trim() : $("#b-speaker-id").value.trim();
+}
+function expandBVoiceLibrary() {
+  if ($("#b-voice-mode").value === "volcengine-clone") {
+    $("#b-voice-mode").value = validBVoiceId($("#b-tts2-speaker-id").value.trim()) ? "volcengine-tts2" : "standard";
+  }
+  $("#b-voice-candidate").value = $("#b-voice-mode").value === "volcengine-tts2" ? $("#b-tts2-speaker-id").value.trim() : "";
+  $("#b-voice-preview-status").textContent = "";
+  bVoiceLibraryExpanded = true;
+  renderBVoiceSource();
+  saveBDirectorSettings();
+}
+function validBVoiceCandidate() {
+  const speaker = $("#b-voice-candidate").value.trim();
+  if (!validBVoiceId(speaker)) {
+    $("#b-voice-preview-status").textContent = "请填写有效的火山音色 ID";
+    return null;
+  }
+  return speaker;
+}
+function closeBVoicePreview() {
+  $("#b-voice-preview-audio").pause();
+  $("#b-voice-preview-audio").removeAttribute("src");
+  $("#b-voice-preview-audio").hidden = true;
+  if (bVoicePreviewUrl) URL.revokeObjectURL(bVoicePreviewUrl);
+  bVoicePreviewUrl = null;
+}
+async function previewBVoice() {
+  if (bVoicePreviewBusy) return;
+  const speakerId = validBVoiceCandidate();
+  if (!speakerId) return;
+  bVoicePreviewBusy = true;
+  $("#b-voice-preview").disabled = true;
+  closeBVoicePreview();
+  $("#b-voice-preview-status").textContent = "正在打开试听文件…";
+  try {
+    let response = await fetch(`/api/volcengine/tts2/preview?speakerId=${encodeURIComponent(speakerId)}`, {cache:"no-store"});
+    if (response.status === 404) {
+      if (!window.confirm("此音色尚无试听文件。首次生成约 3 秒短句可能产生费用，确认生成？")) return;
+      $("#b-voice-preview-status").textContent = "正在生成并保存试听文件…";
+      response = await fetch("/api/volcengine/tts2/preview", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({speakerId})});
+    }
+    if (!response.ok || !response.headers.get("content-type")?.startsWith("audio/mpeg")) {
+      const data = await response.json();
+      throw new Error(data.error || "试听失败");
+    }
+    const audio = await response.blob();
+    if ($("#b-voice-dialog").hidden) return;
+    bVoicePreviewUrl = URL.createObjectURL(audio);
+    $("#b-voice-preview-audio").src = bVoicePreviewUrl;
+    $("#b-voice-preview-audio").hidden = false;
+    $("#b-voice-preview-status").textContent = "试听音频已就绪";
+    await $("#b-voice-preview-audio").play();
+  } catch (error) { $("#b-voice-preview-status").textContent = String(error.message || error); }
+  finally { bVoicePreviewBusy = false; $("#b-voice-preview").disabled = false; }
 }
 async function refreshBVolcengineStatus() {
   try {
     const data = await (await fetch('/api/volcengine/voice/config', {cache:'no-store'})).json();
-    $('#b-volcengine-status').textContent = data?.synthesisConfigured ? 'API Key 已保存；网络、鉴权和音色状态尚未验证。' : '尚未配置火山 API Key。';
+    $('#b-volcengine-status').textContent = data?.apiKeyConfigured ? '共用 API Key 已配置；复刻鉴权和音色状态尚未验证。' : '尚未配置火山共用 API Key。';
   } catch { $('#b-volcengine-status').textContent = '暂时无法读取火山服务配置。'; }
 }
 function setBCloneAudio(file) {
@@ -2514,7 +3269,9 @@ async function refreshProviderSettings() {
     $('#api-runninghub-status').textContent = running.apiKeyConfigured ? 'API Key 已保存；联通与鉴权尚未验证。' : '未配置 API Key。';
     $('#api-volcengine-tts-resource').value = volcengine.ttsResourceId || 'seed-icl-2.0';
     $('#api-volcengine-model').value = volcengine.model || 'seed-tts-2.0-standard';
-    $('#api-volcengine-status').textContent = volcengine.apiKeyConfigured ? 'API Key 已保存；联通与鉴权尚未验证。' : '未配置 API Key。';
+    $('#api-volcengine-status').textContent = volcengine.apiKeyConfigured
+      ? `共用 API Key 已配置；复刻训练${volcengine.cloneTrainingConfigured ? '配置齐全' : '缺少配置'}，复刻音色合成${volcengine.synthesisConfigured ? '配置齐全' : '缺少配置'}，现成音色合成 2.0 ${(volcengine.tts2Configured ?? volcengine.apiKeyConfigured) ? '配置齐全' : '缺少配置'}。网络与鉴权尚未验证。`
+      : '共用 API Key 未配置；复刻与合成均不可用。';
   } catch (error) {
     $('#api-runninghub-status').textContent = 'API 设置读取失败。';
     $('#api-volcengine-status').textContent = 'API 设置读取失败。';
@@ -2608,13 +3365,15 @@ async function searchBDirectorBackground() {
 }
 try {
   const saved = JSON.parse(localStorage.getItem(B_INPUT_KEY) || localStorage.getItem("shotcraft-b-workspace-v1") || "{}");
-  if (["standard","volcengine-clone"].includes(saved.voiceMode)) $("#b-voice-mode").value = saved.voiceMode;
+  if (["standard","volcengine-clone","volcengine-tts2"].includes(saved.voiceMode)) $("#b-voice-mode").value = saved.voiceMode;
   if (typeof saved.speakerId === "string") $("#b-speaker-id").value = saved.speakerId;
+  if (typeof saved.tts2SpeakerId === "string") $("#b-tts2-speaker-id").value = saved.tts2SpeakerId;
   if (["zh-CN-YunxiNeural","zh-CN-XiaoxiaoNeural"].includes(saved.voice)) $("#b-voice-select").value = saved.voice;
   if (["keep","auto","green"].includes(saved.background)) $("#b-background-select").value = saved.background;
   if (typeof saved.backgroundVideoPath === "string") bBackgroundPath = saved.backgroundVideoPath;
   if (saved.backgroundVideoMeta && typeof saved.backgroundVideoMeta === "object") bBackgroundMeta = saved.backgroundVideoMeta;
 } catch {}
+$("#b-voice-candidate").value = $("#b-voice-mode").value === "volcengine-tts2" ? $("#b-tts2-speaker-id").value.trim() : "";
 renderBVoiceSource();
 refreshBVolcengineStatus();
 refreshProviderSettings();
@@ -2632,6 +3391,8 @@ $("#b-clone-audio-submit").onclick = submitBCloneAudio;
 function enterBDirector() {
   const text = $("#b-fulltext").value.trim();
   if (!text) { showToast("请先粘贴口播文案"); return; }
+  if ($("#b-voice-mode").value === "volcengine-clone" && !/^[A-Za-z0-9_-]{2,128}$/.test(bSelectedSpeakerId())) { showToast("请先填写有效的火山 speaker_id"); return; }
+  if ($("#b-voice-mode").value === "volcengine-tts2" && !/^[A-Za-z0-9_-]{2,256}$/.test(bSelectedSpeakerId())) { showToast("请先填写有效的火山合成 2.0 音色 ID"); return; }
   if (!bRoleFile) {
     $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
     showToast("请先选择角色图，再进入编导台");
@@ -2642,7 +3403,7 @@ function enterBDirector() {
     type: "shotcraft-b-open-from-director",
     text,
     voiceMode: $("#b-voice-mode").value,
-    speakerId: $("#b-speaker-id").value.trim(),
+    speakerId: bSelectedSpeakerId(),
     voice: $("#b-voice-select").value,
     avatar: bRoleFile,
     background: $("#b-background-select").value,
@@ -2659,16 +3420,58 @@ function postPendingBDirectorPayload() {
   pendingBDirectorPayload = null;
 }
 $("#b-enter-director").onclick = enterBDirector;
+$("#b-open-debug").onclick = () => switchView("bmode");
 $("#api-settings-save").onclick = saveProviderSettings;
 $("#api-runninghub-check").onclick = () => checkProviderConnection('runninghub');
 $("#api-volcengine-check").onclick = () => checkProviderConnection('volcengine');
 document.querySelectorAll("[data-voice-mode]").forEach((button) => {
   button.onclick = () => {
+    if (button.dataset.voiceMode === "volcengine-tts2") { expandBVoiceLibrary(); return; }
     $("#b-voice-mode").value = button.dataset.voiceMode;
     renderBVoiceSource();
     saveBDirectorSettings();
   };
 });
+$("#b-voice-search").oninput = renderBVoiceLibrary;
+$("#b-voice-candidate").oninput = renderBVoiceLibrary;
+$("#b-voice-favorites").onclick = () => { bVoiceFavoritesOnly = !bVoiceFavoritesOnly; renderBVoiceLibrary(); };
+$("#b-voice-add-button").onclick = () => {
+  const id = $("#b-voice-add-id").value.trim();
+  const name = $("#b-voice-add-name").value.trim();
+  const status = $("#b-voice-add-status");
+  if (!validBVoiceId(id) || !name || name.length > 30) { status.textContent = "请填写名称和有效的音色 ID"; return; }
+  if ([...B_VOICE_PRESETS, ...bVoiceCustom].some(entry => entry.id === id)) { status.textContent = "音色库中已存在这个 ID"; return; }
+  if (bVoiceCustom.length >= 50) { status.textContent = "自定义音色已达到 50 个上限"; return; }
+  bVoiceCustom.push({id, name, source:"自定义"});
+  try { localStorage.setItem(B_VOICE_LIBRARY_KEY, JSON.stringify(bVoiceCustom)); }
+  catch { bVoiceCustom.pop(); status.textContent = "浏览器无法保存音色库"; return; }
+  $("#b-voice-add-id").value = "";
+  $("#b-voice-add-name").value = "";
+  $("#b-voice-search").value = "";
+  bVoiceFavoritesOnly = false;
+  $("#b-voice-candidate").value = id;
+  status.textContent = "已加入本地音色库";
+  renderBVoiceLibrary();
+};
+$("#b-voice-preview").onclick = previewBVoice;
+$("#b-voice-apply").onclick = () => {
+  const speakerId = validBVoiceCandidate();
+  if (!speakerId) return;
+  $("#b-tts2-speaker-id").value = speakerId;
+  $("#b-voice-mode").value = "volcengine-tts2";
+  renderBVoiceSource();
+  saveBDirectorSettings();
+  $("#b-voice-preview-status").textContent = "已选用此音色";
+};
+document.querySelectorAll("[data-legacy-voice]").forEach(button => button.onclick = () => {
+  $("#b-voice-select").value = button.dataset.legacyVoice;
+  $("#b-voice-mode").value = "standard";
+  $("#b-voice-candidate").value = "";
+  renderBVoiceSource();
+  saveBDirectorSettings();
+  $("#b-voice-preview-status").textContent = "已选用旧版免费音色";
+});
+$("#b-voice-close").onclick = () => { bVoiceLibraryExpanded = false; closeBVoicePreview(); renderBVoiceSource(); };
 $("#b-voice-select").onchange = saveBDirectorSettings;
 $("#b-speaker-id").oninput = saveBDirectorSettings;
 $("#b-background-select").onchange = saveBDirectorSettings;
@@ -2961,7 +3764,7 @@ async function submitBAuditNextStep() {
       return;
     }
     const response = await fetch("/api/talkcraft/stage", {method:"POST",
-      headers:{"content-type":"application/json"}, body:JSON.stringify({runId, stage})});
+      headers:{"content-type":"application/json"}, body:JSON.stringify({runId, stage, ...(stage === 'sample' ? {bgm: musicSelections.B} : {})})});
     const started = await response.json();
     if (!response.ok || !started.ok) throw new Error(started.error || `${label}无法启动`);
     await renderBProductionAudit(runId);
@@ -3217,6 +4020,11 @@ async function startBMode() {
     showToast("请先填写有效的火山 speaker_id");
     return;
   }
+  if ($("#b-voice-mode").value === "volcengine-tts2" && !/^[A-Za-z0-9_-]{2,256}$/.test(bSelectedSpeakerId())) {
+    $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
+    showToast("请先填写有效的火山合成 2.0 音色 ID");
+    return;
+  }
   pendingBModeText = null;
   bModeBusy = true;
   $("#b-production-audit").hidden = true;
@@ -3232,7 +4040,7 @@ async function startBMode() {
     const form = new FormData();
     form.set("text", text);
     form.set("voiceMode", $("#b-voice-mode").value);
-    if ($("#b-speaker-id").value.trim()) form.set("speakerId", $("#b-speaker-id").value.trim());
+    if (bSelectedSpeakerId()) form.set("speakerId", bSelectedSpeakerId());
     form.set("voice", $("#b-voice-select").value);
     form.set("avatar", bRoleFile);
     form.set("background", $("#b-background-select").value);
@@ -3274,6 +4082,9 @@ async function startBMode() {
 }
 function switchView(name) {
   if (!VIEW_ORDER.includes(name)) name = "director";
+  if (name === 'produce') { showMusicSelection(); renderProductionMusic(); }
+  $("#subtitle-v1-card").hidden = name !== "produce" || activeProductionMode !== "A";
+  if (name === "produce" && activeProductionMode === "A") renderSubtitleSettings();
   if (activeProductionMode === "B") {
     $("#preview-card").style.display = "none";
     $("#preview-video").removeAttribute("src");
