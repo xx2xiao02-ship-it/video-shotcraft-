@@ -31,3 +31,10 @@ test('rejects gaps in TTS frame timing even when total durations match', () => {
   ]}), /时间段闭合/);
 });
 
+test('rejects proportional Volcengine timestamps before paid generation', () => {
+  assert.throws(() => planDigitalHumanUnits('人物。', [{text:'人物。', subject:'person'}], {
+    timingMethod:'volcengine-word-timestamps', totalFrames:30,
+    segments:[{text:'人物。', fromFrame:0, durationInFrames:30}],
+  }), /真实音频对齐/);
+});
+

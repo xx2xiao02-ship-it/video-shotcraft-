@@ -555,6 +555,17 @@ const apis = {
     if (!fs.existsSync(file)) { res.writeHead(404); res.end('No digital-human video'); return; }
     return sendVideoRange(res, file, req.headers.range);
   },
+  "GET /api/b-mode/digital-human/final-video": (req, res, url) => {
+    const runId = url.searchParams.get('id') || '';
+    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
+    const reportFile = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human-report.json');
+    const file = path.join(ROOT, 'template', 'out', 'b-mode', `${runId}.digital-human-final.mp4`);
+    if (!fs.existsSync(reportFile) || !fs.existsSync(file) ||
+        JSON.parse(fs.readFileSync(reportFile, 'utf8')).status !== 'SUCCESS') {
+      res.writeHead(404); res.end('No completed digital-human composition'); return;
+    }
+    return sendVideoRange(res, file, req.headers.range);
+  },
   "POST /api/generate": async (req, res) => {
     const body = await readBody(req);
     const text = (body.text || "").trim();

@@ -4,6 +4,9 @@ export function planDigitalHumanUnits(text, draftScenes, timing) {
   if (!String(text || '').trim()) throw new Error('数字人计划缺少完整文案');
   if (!Array.isArray(draftScenes) || !draftScenes.length) throw new Error('数字人计划缺少已确认分镜');
   if (!Array.isArray(timing?.segments) || !timing.segments.length) throw new Error('数字人计划缺少 TTS 时间段');
+  if (String(timing.timingMethod || '').startsWith('volcengine-')) {
+    throw new Error('火山语音当前只有按文字比例估算的句段时间，须先完成真实音频对齐才能裁数字人镜头');
+  }
   if (normalize(draftScenes.map(scene => scene?.text).join('')) !== normalize(text)) {
     throw new Error('分镜原文与输入文案不一致，请重建并确认分镜');
   }

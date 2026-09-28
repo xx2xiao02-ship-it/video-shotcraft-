@@ -10,6 +10,8 @@ export type BaselineScene = {
   durationInFrames: number;
   video?: string | null;
   videoDurationFrames?: number;
+  digitalHumanVideo?: string;
+  digitalHumanStartFrame?: number;
 };
 
 export type BModeBaselineProps = {
@@ -75,8 +77,10 @@ const Shot: React.FC<{scene: BaselineScene; avatar: string; index: number; count
     <div style={{position:'absolute',left:62,right:62,top:84,height:1,background:'#b7d3c755'}} />
     {scene.subject === 'person' ? <>
       <div style={{position:'absolute',left:64,top:126,width:470,height:474,background:'#f5f7f2',borderRadius:6,overflow:'hidden',opacity:entrance}}>
-        <Img src={staticFile(avatar)} style={{width:'100%',height:'100%',objectFit:'contain'}} />
-        <div style={{position:'absolute',left:14,bottom:14,padding:'7px 10px',borderRadius:4,background:'#f8faf3',color:'#35514a',fontSize:16,fontWeight:700}}>静态角色图</div>
+        {scene.digitalHumanVideo
+          ? <OffthreadVideo src={staticFile(scene.digitalHumanVideo)} startFrom={scene.digitalHumanStartFrame || 0} muted style={{width:'100%',height:'100%',objectFit:'contain'}} />
+          : <Img src={staticFile(avatar)} style={{width:'100%',height:'100%',objectFit:'contain'}} />}
+        {!scene.digitalHumanVideo && <div style={{position:'absolute',left:14,bottom:14,padding:'7px 10px',borderRadius:4,background:'#f8faf3',color:'#35514a',fontSize:16,fontWeight:700}}>静态角色图</div>}
       </div>
       <div style={{position:'absolute',left:590,top:154,width:620,opacity:entrance,transform:`translateY(${(1-entrance)*22}px)`}}>
         <TextStack lines={lines} subtitle={subtitle} subject="person" width={620} compact={Boolean(scene.visualText)} />
@@ -92,7 +96,7 @@ const Shot: React.FC<{scene: BaselineScene; avatar: string; index: number; count
       </div>
     </>}
     <div style={{position:'absolute',left:62,right:62,bottom:29,color:'#b3c7bc',display:'flex',justifyContent:'space-between',fontSize:17}}>
-      <span>图片占位预览 · 尚未生成数字人口型</span>
+      <span>{scene.digitalHumanVideo ? '数字人口播' : '图片占位预览 · 尚未生成数字人口型'}</span>
     </div>
     <div style={{position:'absolute',left:0,right:0,bottom:0,height:6,background:'#ffffff22'}}><div style={{height:'100%',width:`${Math.min(100,frame / Math.max(1,scene.durationInFrames) * 100)}%`,background:'#8bd8ba'}} /></div>
   </AbsoluteFill>;

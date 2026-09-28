@@ -7,6 +7,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {RunningHubInfiniteTalkTransport} from './runninghub-infinitetalk.mjs';
 import {planDigitalHumanUnits} from './b-mode-digital-human-plan.mjs';
+import {renderDigitalHumanComposition} from './b-mode-digital-human-composition.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
 import {runningHubRuntimeConfig} from './api-center.mjs';
 
@@ -68,6 +69,8 @@ console.log('Digital human stage 1b: normalize audio to WAV');
 run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', inputMp3, '-vn', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', inputWav]);
 const timing = readJson(timingFile);
 const plan = planDigitalHumanUnits(text, settings.scenes, timing);
+report.timingMethod = timing.timingMethod;
+report.totalFrames = timing.totalFrames;
 report.units = plan.units.map((unit, index) => ({
   index,
   sceneIndexes: unit.sceneIndexes,
@@ -138,8 +141,13 @@ try {
     writeJson(reportFile, report);
     console.log(`Digital human complete: ${unitReport.output}`);
   }
+  report.status = 'COMPOSING';
+  writeJson(reportFile, report);
+  const composition = renderDigitalHumanComposition({root:ROOT, runId, timing, plan,
+    units:report.units, avatarPaths});
   report.status = 'SUCCESS';
-  report.output = report.units[0]?.output || null;
+  report.output = composition.output;
+  report.composition = composition;
   report.outputUrlAvailable = report.units.every(unit => unit.status === 'SUCCESS');
   report.outputUrlExpires = '24h';
   report.durationSeconds = Number(timing.durationSeconds || timing.totalFrames / 30 || 0);

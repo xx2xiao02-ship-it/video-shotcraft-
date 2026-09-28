@@ -556,10 +556,10 @@ async function showDigitalHumanResult(runId) {
   const video = $('#digital-human-video');
   box.hidden = false;
   $('#digital-human-meta').textContent = report.status === 'SUCCESS'
-    ? `${Number(report.durationSeconds || 0).toFixed(1)} 秒主时间轴 · 已生成 ${report.units?.length || 0} 个数字人片段 · 首片段预览`
+    ? `${Number(report.durationSeconds || 0).toFixed(1)} 秒成片 · 已生成 ${report.units?.length || 0} 个数字人片段 · 完整成片预览`
     : `状态：${report.status || '未知'}${report.error ? ` · ${report.error}` : ''}`;
   if (report.status === 'SUCCESS') {
-    video.src = `/api/b-mode/digital-human/video?id=${encodeURIComponent(runId)}&clip=0`;
+    video.src = `/api/b-mode/digital-human/final-video?id=${encodeURIComponent(runId)}`;
     video.hidden = false;
     $('#results-empty').hidden = true;
     $('#panel-results .panel-state').textContent = 'RunningHub 数字人结果';
@@ -587,7 +587,7 @@ async function runDigitalHuman() {
     form.set('voice', draft.voice);
     form.set('prompt', '人物自然说话，身体保持稳定，配合轻微自然手势');
     form.set('scenes', JSON.stringify(draft.scenes.map(scene => ({text:scene.text, subject:scene.subject}))));
-    form.set('avatar', roleFile);
+    for (const file of roleFiles.length ? roleFiles : [roleFile]) form.append('avatar', file);
     const response = await fetch('/api/b-mode/digital-human', {method:'POST', body:form});
     const started = await response.json();
     if (!response.ok || !started.ok) throw new Error(started.error || 'RunningHub 任务无法启动');
