@@ -228,13 +228,14 @@ const apis = {
       const sourceRunId = body.runId || '';
       const sourceProject = talkcraftProject(ROOT, sourceRunId);
       const sourceRun = JSON.parse(fs.readFileSync(path.join(sourceProject, 'source-run.json'), 'utf8'));
-      const avatarFile = path.join(sourceProject, 'assets', 'avatar.png');
-      if (!fs.existsSync(avatarFile)) throw new Error('原运行没有可复用的角色图，请回编导台重新选择');
+      const avatarFiles = (sourceRun.avatarFiles?.length ? sourceRun.avatarFiles : ['avatar.png'])
+        .map(name => path.join(sourceProject, 'assets', path.basename(name)));
+      if (!avatarFiles.every(fs.existsSync)) throw new Error('原运行没有可复用的角色图，请回编导台重新选择');
       const selection = ['volcengine-clone', 'volcengine-tts2'].includes(sourceRun.voiceMode)
         ? readVoiceSelection({voiceMode:sourceRun.voiceMode, speakerId:body.speakerId || sourceRun.speakerId})
         : readVoiceSelection({voiceMode:'standard', voice:body.voice || sourceRun.voice});
       const created = createTalkcraftInput(ROOT, {text:body.text, ...selection,
-        avatarBytes:fs.readFileSync(avatarFile)});
+        avatarBytes:avatarFiles.map(file => fs.readFileSync(file)), generationMode:sourceRun.digitalHumanMode ?? null});
       const newSourceFile = path.join(created.project, 'source-run.json');
       const newSource = JSON.parse(fs.readFileSync(newSourceFile, 'utf8'));
       fs.writeFileSync(newSourceFile, JSON.stringify({...newSource, sourceRunId, revisionOfRunId:sourceRunId}, null, 2), 'utf8');
@@ -286,11 +287,12 @@ const apis = {
   },
   "POST /api/talkcraft/create": async (req, res) => {
     try {
-      const {fields, avatar} = await readBModeInput(req);
-      if (!avatar) throw new Error('请先选择角色图');
+      const {fields, avatars} = await readBModeInput(req, {maxBytes:60 * 1024 * 1024});
+      if (!avatars.length) throw new Error('请先选择角色图');
       const selection = readVoiceSelection(fields);
       const created = createTalkcraftInput(ROOT, {text:fields.text, ...selection,
-        avatarBytes:Buffer.from(await avatar.arrayBuffer())});
+        avatarBytes:await Promise.all(avatars.map(async file => Buffer.from(await file.arrayBuffer()))),
+        generationMode:fields.generationMode || 'segments'});
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
       return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences});
@@ -300,7 +302,7 @@ const apis = {
     try {
       const body = await readBody(req);
       const {runId, stage} = body;
-      if (!['candidates','preflight','scaffold','sample','render-all','render-sfx-solo','qa','deliver'].includes(stage)) throw new Error('不支持的 TalkCraft 阶段');
+      if (!['candidates','preflight','scaffold','digital-human','sample','render-all','render-sfx-solo','qa','deliver'].includes(stage)) throw new Error('不支持的 TalkCraft 阶段');
       const project = talkcraftProject(ROOT, runId);
       const active = [...tasks.values()].find(task => task.runId === runId && task.status === 'running');
       if (active) throw new Error('本片已有任务运行中');

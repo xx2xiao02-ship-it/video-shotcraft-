@@ -11,6 +11,7 @@ import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {writeTalkcraftQaManifests} from './talkcraft-qa-manifests.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
 import {talkcraftMusicProps} from './background-music.mjs';
+import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -140,6 +141,11 @@ export function runTalkcraftStage(stage, runId) {
     run('node', [script('sfx_dump.mjs'), 'remotion/public/sfx'], project);
     return {project, artifact:'remotion/public/sfx'};
   }
+  if (stage === 'digital-human') {
+    runTalkcraftStage('preflight', runId);
+    run(process.execPath, [path.join(ROOT, 'director', 'talkcraft-digital-human.mjs'), runId], ROOT);
+    return {project, status:'digital_human_assets_ready'};
+  }
   if (stage === 'sample') {
     if (existsSync(path.join(project, 'remotion', 'out', 'preview', 's01.mp4'))) {
       throw new Error('Existing first-shot sample was preserved');
@@ -148,6 +154,10 @@ export function runTalkcraftStage(stage, runId) {
     runTalkcraftStage('candidates', runId);
     runTalkcraftStage('preflight', runId);
     runTalkcraftStage('beat-lint', runId);
+    const digitalHuman = readTalkcraftDigitalHumanStatus(project);
+    if (digitalHuman.required && !digitalHuman.ready) {
+      throw new Error('数字人镜头素材未生成，不能渲染样板镜');
+    }
     const bgmProps = talkcraftMusicProps(ROOT, path.join(project, 'remotion'), true);
     run('node', [script('render_shots.mjs'), '--entry', 'src/index.ts', '--comp', 'Main',
       '--shots', 'shots.json', '--only', 's01',
@@ -170,6 +180,10 @@ export function runTalkcraftStage(stage, runId) {
     runTalkcraftStage('preflight', runId);
     runTalkcraftStage('beat-lint', runId);
     runTalkcraftStage('workbench-contract', runId);
+    const digitalHuman = readTalkcraftDigitalHumanStatus(project);
+    if (digitalHuman.required && !digitalHuman.ready) {
+      throw new Error('数字人镜头素材未生成，不能渲染整片');
+    }
     const bgmProps = talkcraftMusicProps(ROOT, path.join(project, 'remotion'), false);
     const verifiedSegments = hasVerifiedPreviewSegments(project);
     run('node', [script('render_shots.mjs'), '--entry', 'src/index.ts', '--comp', 'Main',

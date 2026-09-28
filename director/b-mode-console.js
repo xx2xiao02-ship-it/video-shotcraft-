@@ -862,7 +862,8 @@ async function startTalkcraft() {
     form.set('voiceMode', selectedVoiceMode());
     if (draft.voiceMode !== 'standard') form.set('speakerId', selectedSpeakerId());
     form.set('voice', draft.voice);
-    form.set('avatar', roleFile);
+    for (const file of roleFiles) form.append('avatar', file);
+    form.set('generationMode', draft.renderMode === 'runninghub-combined' ? 'combined' : 'segments');
     const response = await fetch('/api/talkcraft/create', {method:'POST', body:form});
     const started = await response.json();
     if (!response.ok || !started.ok) throw new Error(started.error || 'TalkCraft 无法启动');
@@ -1033,7 +1034,10 @@ window.addEventListener('message', (event) => {
       $('#script-count').textContent = `${nextText.length} 字`;
     }
     pendingDirectorStart = false;
-    setRole(avatar);
+    setRole(Array.isArray(event.data.avatars) ? event.data.avatars : avatar);
+    if (['segments', 'combined'].includes(event.data.generationMode)) {
+      draft.renderMode = event.data.generationMode === 'combined' ? 'runninghub-combined' : 'runninghub';
+    }
     draft.voice = event.data.voice;
     draft.voiceMode = event.data.voiceMode === 'volcengine-clone' ? 'clone' : event.data.voiceMode;
     if (draft.voiceMode === 'volcengine-tts2') draft.tts2SpeakerId = String(event.data.speakerId);
@@ -1084,7 +1088,10 @@ window.addEventListener('message', (event) => {
       $('#script-count').textContent = `${nextText.length} 字`;
     }
     pendingDirectorStart = false;
-    setRole(avatar);
+    setRole(Array.isArray(event.data.avatars) ? event.data.avatars : avatar);
+    if (['segments', 'combined'].includes(event.data.generationMode)) {
+      draft.renderMode = event.data.generationMode === 'combined' ? 'runninghub-combined' : 'runninghub';
+    }
     draft.voice = event.data.voice;
     draft.voiceMode = event.data.voiceMode === 'volcengine-clone' ? 'clone' : event.data.voiceMode;
     if (draft.voiceMode === 'volcengine-tts2') draft.tts2SpeakerId = String(event.data.speakerId);

@@ -66,17 +66,17 @@ export const atChar = (sceneIndex: number, query: string, occurrence=0): number 
       typescript:runtimePackage.devDependencies.typescript}}, null, 2), 'utf8');
 
   const shotDefs = shots.map((shot, index) => ({
-    id:shot.id, startSec:shot.start, durationSec:shot.end - shot.start,
+    id:shot.id, subject:shot.subject || 'other', startSec:shot.start, durationSec:shot.end - shot.start,
     lead:0, tail:0, path:[{t:0, scale:index % 2 ? 1.05 : 1},
       {t:shot.end - shot.start, scale:index % 2 ? 1 : 1.05}], impulses:[],
   }));
   writeFileSync(path.join(src, 'shots.ts'), `import type {CamKey, CamImpulse} from './camera';
 export const FPS = 30;
 export const TOTAL_FRAMES = ${source.totalFrames};
-export type Shot = {id:string; startSec:number; durationSec:number; lead:number; tail:number; path:CamKey[]; impulses:CamImpulse[]};
+export type Shot = {id:string; subject:'person'|'other'; startSec:number; durationSec:number; lead:number; tail:number; path:CamKey[]; impulses:CamImpulse[]};
 export const SHOTS: Shot[] = ${JSON.stringify(shotDefs, null, 2)};
 export const shotSequence = (shot: Shot, fps=FPS) => ({from:Math.round(shot.startSec*fps)-shot.lead,
-  duration:Math.round(shot.durationSec*fps)+shot.lead+shot.tail});
+  duration:Math.round((shot.startSec+shot.durationSec)*fps)-Math.round(shot.startSec*fps)+shot.lead+shot.tail});
 export const darkAt = (_sec:number) => false;
 `, 'utf8');
   writeFileSync(path.join(src, 'sfx.ts'), `export type SfxCue = {t:number; file:string; volume:number};
@@ -134,7 +134,7 @@ export const Subtitles: React.FC = () => {
 };
 `, 'utf8');
   writeFileSync(path.join(src, 'Main.tsx'), `import React from 'react';
-import {AbsoluteFill, Audio, Sequence, staticFile} from 'remotion';
+import {AbsoluteFill, Audio, OffthreadVideo, Sequence, staticFile} from 'remotion';
 import {CameraRig} from './camera';
 import {Environment, Overlays} from './Environment';
 import {Subtitles} from './Subtitles';
@@ -150,6 +150,9 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
     return <Sequence key={shot.id} from={range.from} durationInFrames={range.duration}>
       <CameraRig path={shot.path} impulses={shot.impulses} durationSec={shot.durationSec} leadFrames={shot.lead}>
         <Scene shot={shot} />
+        {shot.subject === 'person' && <div style={{position:'absolute', right:'2%', bottom:'8%', width:'38%', height:'84%', overflow:'hidden', borderRadius:6}}>
+          <OffthreadVideo src={staticFile('digital-human/'+shot.id+'.mp4')} muted style={{width:'100%',height:'100%',objectFit:'contain'}} />
+        </div>}
       </CameraRig>
     </Sequence>;
   })}

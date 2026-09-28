@@ -270,6 +270,8 @@
   .b-user-field { min-width: 0; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--ui-border); }
   .b-settings-group .b-user-field:last-child { border-bottom: 0; padding-bottom: 0; }
   .b-user-field > label { color: var(--ui-ink); font-size: 13px; font-weight: 600; padding-top: 8px; }
+  .b-mode-check { display: flex; align-items: center; gap: 9px; color: var(--ui-ink); font-size: 13px; cursor: pointer; }
+  .b-mode-check input { width: 17px; height: 17px; accent-color: var(--accent); }
   .b-field-content { min-width: 0; display: grid; gap: 9px; }
   .b-field-main { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
   .b-field-content > .b-user-note { max-width: 660px; }
@@ -910,11 +912,18 @@
       <div class="b-settings-group">
         <div class="b-settings-group-title">人物</div>
         <div class="b-user-field">
+          <label for="b-multi-shot">生成方式</label>
+          <div class="b-field-content">
+            <label class="b-mode-check"><input id="b-multi-shot" type="checkbox" checked>多镜头</label>
+            <span class="b-user-note">勾选：相邻人物镜头合并，按片段生成；取消：人物片段合成一次音频，生成后按时间轴切回。</span>
+          </div>
+        </div>
+        <div class="b-user-field">
           <label for="b-role-file">角色图</label>
           <div class="b-field-content">
-            <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <input id="b-role-file" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
             <div class="b-field-main"><div class="b-role-preview"><img id="b-role-preview" alt="已选角色图" hidden><span class="b-user-note" id="b-role-name">尚未选择角色图</span></div><div class="b-user-actions"><button type="button" id="b-role-choose">选择角色图</button><button type="button" id="b-role-remove" hidden>移除</button></div></div>
-            <span class="b-user-note">PNG / JPG / WebP；选择后仅保存，不会自动生成。</span>
+            <span class="b-user-note">PNG / JPG / WebP，最多 8 张，每张不超过 7 MB；选择后不会自动生成。</span>
           </div>
         </div>
         <div class="b-user-field">
@@ -3039,6 +3048,7 @@ loadMusic();
 const VIEW_ORDER = ["director", "bmode", "produce", "packaging", "library"];
 const B_INPUT_KEY = "shotcraft-b-director-settings-v1";
 let bRoleFile = null;
+let bRoleFiles = [];
 let bRoleUrl = null;
 let bBackgroundPath = null;
 let bBackgroundMeta = null;
@@ -3142,6 +3152,7 @@ function renderBVoiceLibrary() {
 }
 function saveBDirectorSettings() {
   try { localStorage.setItem(B_INPUT_KEY, JSON.stringify({voiceMode:$("#b-voice-mode").value, speakerId:$("#b-speaker-id").value.trim(), tts2SpeakerId:$("#b-tts2-speaker-id").value.trim(), voice:$("#b-voice-select").value,
+    multiShot:$("#b-multi-shot").checked,
     background:$("#b-background-select").value, backgroundVideoPath:bBackgroundPath,
     backgroundVideoMeta:bBackgroundMeta})); } catch { showToast("B 模式设置无法保存到浏览器"); }
 }
@@ -3314,19 +3325,22 @@ async function checkProviderConnection(provider) {
   } catch (error) { status.textContent = String(error.message || error); }
   finally { button.disabled = false; }
 }
-function setBDirectorRole(file) {
-  if (file && (!["image/png","image/jpeg","image/webp"].includes(file.type) || file.size > 7 * 1024 * 1024)) {
+function setBDirectorRole(input) {
+  const files = (Array.isArray(input) ? input : [input]).filter(Boolean);
+  if (files.length > 8 || files.some(file => !["image/png","image/jpeg","image/webp"].includes(file.type) || file.size > 7 * 1024 * 1024)) {
     $("#b-role-file").value = "";
-    showToast("角色图需为 PNG、JPG 或 WebP，且不超过 7 MB");
+    showToast("角色图需为 1–8 张 PNG、JPG 或 WebP，且每张不超过 7 MB");
     return false;
   }
+  const file = files[0] || null;
   if (bRoleUrl) URL.revokeObjectURL(bRoleUrl);
+  bRoleFiles = files;
   bRoleFile = file || null;
   bRoleUrl = file ? URL.createObjectURL(file) : null;
   $("#b-role-preview").hidden = !file;
   if (file) $("#b-role-preview").src = bRoleUrl;
   else $("#b-role-preview").removeAttribute("src");
-  $("#b-role-name").textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "尚未选择角色图";
+  $("#b-role-name").textContent = file ? `${files.length} 张角色图 · 首张 ${file.name}` : "尚未选择角色图";
   $("#b-role-remove").hidden = !file;
   return true;
 }
@@ -3366,6 +3380,7 @@ async function searchBDirectorBackground() {
 try {
   const saved = JSON.parse(localStorage.getItem(B_INPUT_KEY) || localStorage.getItem("shotcraft-b-workspace-v1") || "{}");
   if (["standard","volcengine-clone","volcengine-tts2"].includes(saved.voiceMode)) $("#b-voice-mode").value = saved.voiceMode;
+  if (typeof saved.multiShot === "boolean") $("#b-multi-shot").checked = saved.multiShot;
   if (typeof saved.speakerId === "string") $("#b-speaker-id").value = saved.speakerId;
   if (typeof saved.tts2SpeakerId === "string") $("#b-tts2-speaker-id").value = saved.tts2SpeakerId;
   if (["zh-CN-YunxiNeural","zh-CN-XiaoxiaoNeural"].includes(saved.voice)) $("#b-voice-select").value = saved.voice;
@@ -3379,9 +3394,10 @@ refreshBVolcengineStatus();
 refreshProviderSettings();
 renderBDirectorBackground();
 $("#b-role-choose").onclick = () => $("#b-role-file").click();
+$("#b-multi-shot").onchange = saveBDirectorSettings;
 $("#b-role-remove").onclick = () => { pendingBModeText = null; $("#b-role-file").value = ""; setBDirectorRole(null); };
 $("#b-role-file").onchange = event => {
-  if (!setBDirectorRole(event.target.files[0])) return;
+  if (!setBDirectorRole([...event.target.files])) return;
   // 选择图片只更新设置，不自动进入编导或启动生成任务。
   pendingBModeText = null;
 };
@@ -3405,7 +3421,9 @@ function enterBDirector() {
     voiceMode: $("#b-voice-mode").value,
     speakerId: bSelectedSpeakerId(),
     voice: $("#b-voice-select").value,
+    generationMode: $("#b-multi-shot").checked ? "segments" : "combined",
     avatar: bRoleFile,
+    avatars: bRoleFiles,
     background: $("#b-background-select").value,
     backgroundVideoPath: bBackgroundPath,
     backgroundVideoMeta: bBackgroundMeta,
@@ -3569,6 +3587,15 @@ function renderBAuditNextAction() {
     setAction("preflight", "运行分镜预检", "检查 SHOTBOOK、素材、选卡和时间范围；缺项会显示失败报告。");
   } else if (!run.workbenchReady) {
     setAction("scaffold", "继续：搭建渲染工程", "创建本运行独立的 Remotion 工程；此步不会渲染视频。");
+  } else if (run.digitalHuman?.required && !run.digitalHuman.ready) {
+    if (run.digitalHuman.status) {
+      note.textContent = `数字人生成状态：${run.digitalHuman.status}。已有任务记录，禁止重复提交；请检查任务报告。`;
+    } else if (run.digitalHuman.error) {
+      note.textContent = run.digitalHuman.error;
+    } else {
+      const count = run.digitalHuman.mode === 'combined' ? 1 : run.digitalHuman.units;
+      setAction("digital-human", "生成数字人镜头", `${run.digitalHuman.mode === 'combined' ? '合并音频一次生成' : '相邻人物镜头按片段生成'}；预计提交 ${count} 次 RunningHub 付费任务。`);
+    }
   } else if (!run.sample) {
     setAction("sample", "继续：生成首镜校验", "生成一条有声样板镜，确认后才可渲染整片。");
   } else if (!run.sampleApproved) {
@@ -3742,6 +3769,10 @@ async function submitBAuditNextStep() {
   const label = button.textContent;
   const runId = bAuditRunStatus?.runId || bAuditRunId || localStorage.getItem("shotcraft-b-talkcraft-run");
   if (!stage || !runId || bModeBusy) return;
+  if (stage === 'digital-human') {
+    const count = bAuditRunStatus.digitalHuman.mode === 'combined' ? 1 : bAuditRunStatus.digitalHuman.units;
+    if (!window.confirm(`将提交 ${count} 次 RunningHub 数字人付费生成。确认执行吗？`)) return;
+  }
   bModeBusy = true;
   renderBAuditNextAction();
   setBProgress(5, `正在启动${label}…`);
@@ -3834,6 +3865,7 @@ function currentTalkcraftFailure(run) {
     "talkcraft-candidates":run.candidatesReady,
     "talkcraft-preflight":run.preflight,
     "talkcraft-scaffold":run.workbenchReady,
+    "talkcraft-digital-human":run.digitalHuman?.ready,
     "talkcraft-sample":run.sample,
     "talkcraft-render-all":run.final,
     "talkcraft-qa":run.qaPassed,
@@ -4042,7 +4074,8 @@ async function startBMode() {
     form.set("voiceMode", $("#b-voice-mode").value);
     if (bSelectedSpeakerId()) form.set("speakerId", bSelectedSpeakerId());
     form.set("voice", $("#b-voice-select").value);
-    form.set("avatar", bRoleFile);
+    form.set("generationMode", $("#b-multi-shot").checked ? "segments" : "combined");
+    for (const file of bRoleFiles) form.append("avatar", file);
     form.set("background", $("#b-background-select").value);
     if (bBackgroundPath) form.set("backgroundVideoPath", bBackgroundPath);
     const response = await fetch("/api/talkcraft/create", {method:"POST", body:form});

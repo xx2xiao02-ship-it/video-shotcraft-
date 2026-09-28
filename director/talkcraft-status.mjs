@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
 
 const RUN_ID = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i;
 const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -73,6 +74,7 @@ export function readTalkcraftStatus(root, runId) {
   const project = talkcraftProject(root, runId);
   const has = name => existsSync(path.join(project, name));
   const source = json(path.join(project, 'source-run.json'));
+  const digitalHuman = readTalkcraftDigitalHumanStatus(project);
   const themeSnapshot = has('theme.json') ? json(path.join(project, 'theme.json')) : null;
   const timing = has('audio/timestamps.json') ? json(path.join(project, 'audio', 'timestamps.json')) : null;
   const shots = has('remotion/shots.json') ? json(path.join(project, 'remotion', 'shots.json')) : null;
@@ -104,7 +106,7 @@ export function readTalkcraftStatus(root, runId) {
   const candidatesReport = path.join(project, 'qa', 'card-candidates.md');
   const candidatesReady = existsSync(candidatesFile) && statSync(candidatesFile).size > 0 &&
     existsSync(candidatesReport) && statSync(candidatesReport).size > 0;
-  return {runId, sourceRunId:source.sourceRunId || null, voice:source.voice || null,
+  return {runId, sourceRunId:source.sourceRunId || null, voice:source.voice || null, digitalHuman,
     themeSchema:themeSnapshot?.source?.schema || source.themeSchema || null,
     themeId:themeSnapshot?.themeId || source.themeId || null,
     themeHash:themeSnapshot?.themeHash || source.themeHash || null,
