@@ -24,7 +24,7 @@ function loadDraft() {
     restored.tts2SpeakerId = typeof saved.tts2SpeakerId === 'string' ? saved.tts2SpeakerId.trim() : '';
     restored.scenes = Array.isArray(saved.scenes) ? saved.scenes.filter(scene => scene && typeof scene.text === 'string' && SUBJECT_LABELS[scene.subject]) : [];
     restored.approved = saved.approved === true;
-    restored.renderMode = saved.renderMode === 'runninghub' ? 'runninghub' : 'placeholder';
+    restored.renderMode = ['runninghub', 'runninghub-combined'].includes(saved.renderMode) ? saved.renderMode : 'placeholder';
     return restored;
   } catch {
     return freshDraft();
@@ -104,7 +104,7 @@ function setRole(input) {
   if (!roleFile) $('#role-file').value = '';
   draft.approved = false;
   renderReview();
-  if (file && pendingDirectorStart) queueMicrotask(() => startTalkcraft());
+  if (roleFile && pendingDirectorStart) queueMicrotask(() => startTalkcraft());
 }
 
 function setClone(file) {
@@ -431,6 +431,20 @@ function reviewRow(label, value) {
 }
 
 function renderReview() {
+  $('#render-mode').value = draft.renderMode;
+  $('#generate-render-mode').value = draft.renderMode;
+  const realMode = draft.renderMode === 'runninghub' || draft.renderMode === 'runninghub-combined';
+  const combinedMode = draft.renderMode === 'runninghub-combined';
+  const unitCount = personUnits();
+  const modeLabel = combinedMode ? `RunningHub 合并音频一次生成 · ${unitCount ? 1 : 0} 次调用`
+    : realMode ? `RunningHub 按连续片段生成 · ${unitCount} 次调用` : '图片占位（安全回退）';
+  $('#render-mode-note').textContent = combinedMode
+    ? '只拼接数字人镜头的配音，整批随机选一张角色图；生成一次后按镜头时间切回原片。'
+    : realMode ? '每组连续数字人镜头单独生成，并从角色图中各选一张。' : '图片占位不产生外部费用。';
+  $('#generation-mode-description').textContent = combinedMode
+    ? `先从主 TTS 裁出 ${unitCount} 组数字人配音并合并，随机选一张角色图提交一次 RunningHub；生成后按记录的帧边界切片并放回原时间轴。真实调用可能产生费用。`
+    : realMode ? `先生成主 TTS，再为 ${unitCount} 组连续数字人镜头分别裁音频和提交 RunningHub。真实调用可能产生费用。`
+      : '图片占位用于不产生外部费用的测试。';
   const rows = $('#review-rows');
   rows.replaceChildren(
     reviewRow('角色图', roleFile ? roleFile.name : '未选择'),
@@ -440,20 +454,20 @@ function renderReview() {
     reviewRow('人物背景', backgroundLabel()),
     reviewRow('镜头视频', `${draft.scenes.filter(scene => scene.videoPath).length}/${draft.scenes.length} 个已选 · ${draft.scenes.length - draft.scenes.filter(scene => scene.videoPath).length} 个待选`),
     reviewRow('人物背景兜底', backgroundVideoLabel()),
-    reviewRow('人物生成方式', draft.renderMode === 'runninghub' ? 'RunningHub 真实数字人' : '图片占位（安全回退）'),
+    reviewRow('人物生成方式', modeLabel),
   );
   const checks = [
     [!!roleFile, '角色图已选择'],
-    [!!draft.script.trim() && draft.script.trim().length <= 1200, '占位测试文案为 1–1200 字'],
+    [!!draft.script.trim() && draft.script.trim().length <= 1200, '口播文案为 1–1200 字'],
     [draft.voiceMode === 'standard' || (volcengineConfigured && (draft.voiceMode === 'clone' ? /^[A-Za-z0-9_-]{2,128}$/u.test(draft.speakerId || '') : /^[A-Za-z0-9_-]{2,256}$/u.test(draft.tts2SpeakerId || ''))), draft.voiceMode === 'standard' ? '现成音色可用' : (volcengineConfigured ? (draft.voiceMode === 'clone' ? '火山复刻 speaker_id 已填写' : '火山合成 2.0 音色 ID 已填写') : '火山语音服务尚未配置')],
     [draft.approved && draft.planSource === draft.script.trim(), '分镜已确认且与文案一致'],
-    [draft.scenes.length > 0 && draft.scenes.every(scene => scene.text.length <= 80), '占位测试每句不超过 80 字'],
-    [draft.renderMode !== 'runninghub' || digitalHumanConfigured, draft.renderMode === 'runninghub' ? (digitalHumanConfigured ? 'RunningHub 鉴权已配置' : 'RunningHub 鉴权未配置') : '当前使用图片占位，不调用外部服务'],
+    [draft.scenes.length > 0 && draft.scenes.every(scene => scene.text.length <= 80), '每句文案不超过 80 字'],
+    [!realMode || digitalHumanConfigured, realMode ? (digitalHumanConfigured ? 'RunningHub 鉴权已配置' : 'RunningHub 鉴权未配置') : '当前使用图片占位，不调用外部服务'],
   ];
   $('#run-placeholder').disabled = placeholderRunning || !checks.slice(0, 5).every(([ready]) => ready);
-  $('#run-digital-human').disabled = digitalHumanRunning || draft.renderMode !== 'runninghub' || !digitalHumanConfigured || !checks.slice(0, 5).every(([ready]) => ready);
-   $('#generate-state').textContent = draft.renderMode === 'runninghub' ? 'RunningHub 按片段生成' : '图片占位可用';
-  $('#generate-state').classList.toggle('blocked', draft.renderMode === 'runninghub' && !checks.slice(0, 5).every(([ready]) => ready));
+  $('#run-digital-human').disabled = digitalHumanRunning || !realMode || !digitalHumanConfigured || !checks.slice(0, 5).every(([ready]) => ready);
+  $('#generate-state').textContent = combinedMode ? 'RunningHub 一次生成' : realMode ? 'RunningHub 按片段生成' : '图片占位可用';
+  $('#generate-state').classList.toggle('blocked', realMode && !checks.slice(0, 5).every(([ready]) => ready));
   const readiness = $('#readiness');
   readiness.replaceChildren();
   const heading = document.createElement('h2');
@@ -556,7 +570,7 @@ async function showDigitalHumanResult(runId) {
   const video = $('#digital-human-video');
   box.hidden = false;
   $('#digital-human-meta').textContent = report.status === 'SUCCESS'
-    ? `${Number(report.durationSeconds || 0).toFixed(1)} 秒成片 · 已生成 ${report.units?.length || 0} 个数字人片段 · 完整成片预览`
+    ? `${Number(report.durationSeconds || 0).toFixed(1)} 秒成片 · ${report.generationMode === 'combined' ? '一次生成并切回' : '分别生成'} ${report.units?.length || 0} 个数字人片段 · 完整成片预览`
     : `状态：${report.status || '未知'}${report.error ? ` · ${report.error}` : ''}`;
   if (report.status === 'SUCCESS') {
     video.src = `/api/b-mode/digital-human/final-video?id=${encodeURIComponent(runId)}`;
@@ -585,6 +599,7 @@ async function runDigitalHuman() {
     form.set('voiceMode', selectedVoiceMode());
     if (draft.voiceMode !== 'standard') form.set('speakerId', selectedSpeakerId());
     form.set('voice', draft.voice);
+    form.set('generationMode', draft.renderMode === 'runninghub-combined' ? 'combined' : 'segments');
     form.set('prompt', '人物自然说话，身体保持稳定，配合轻微自然手势');
     form.set('scenes', JSON.stringify(draft.scenes.map(scene => ({text:scene.text, subject:scene.subject}))));
     for (const file of roleFiles.length ? roleFiles : [roleFile]) form.append('avatar', file);
@@ -603,7 +618,7 @@ async function runDigitalHuman() {
         if (task.exitCode !== 0) throw new Error((task.logs || []).slice(-1)[0]?.trim() || 'RunningHub 数字人任务失败');
         status.textContent = '真实数字人任务已完成';
         go('results');
-        notify('RunningHub 数字人片段已保存到隔离运行目录');
+        notify('RunningHub 数字人成片已保存到隔离运行目录');
         return;
       }
     }
@@ -889,6 +904,7 @@ function exportDraft() {
     schema: 'shotcraft-b-interaction-draft-v1',
     status: 'local_design_only',
     input: {characterImageName: roleFile?.name || null, script: draft.script.trim(), voiceMode: draft.voiceMode, voice: draft.voiceMode === 'standard' ? draft.voice : null, speakerId: draft.voiceMode === 'standard' ? null : selectedSpeakerId(), cloneSampleName: draft.voiceMode === 'clone' ? cloneFile?.name || null : null, background: draft.background, backgroundVideoPath:draft.backgroundVideoPath},
+    renderMode: draft.renderMode,
     storyboard: {sourceText: draft.planSource, approved: draft.approved, scenes: draft.scenes, personUnits: personUnits(), timing: 'pending_tts'},
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(output, null, 2)], {type: 'application/json'}));
@@ -1105,7 +1121,13 @@ $('#voice-select').onchange = (event) => { draft.voice = event.target.value; dra
 $('#clone-speaker-id').oninput = (event) => { draft.speakerId = event.target.value.trim(); draft.approved = false; saveDraft(); renderReview(); };
 $('#tts2-speaker-id').oninput = (event) => { draft.tts2SpeakerId = event.target.value.trim(); draft.approved = false; saveDraft(); renderReview(); };
 $('#background-select').onchange = (event) => { draft.background = event.target.value; saveDraft(); };
-$('#render-mode').onchange = (event) => { draft.renderMode = event.target.value === 'runninghub' ? 'runninghub' : 'placeholder'; draft.approved = false; saveDraft(); renderReview(); };
+function selectRenderMode(value) {
+  draft.renderMode = ['runninghub', 'runninghub-combined'].includes(value) ? value : 'placeholder';
+  saveDraft();
+  renderReview();
+}
+$('#render-mode').onchange = (event) => selectRenderMode(event.target.value);
+$('#generate-render-mode').onchange = (event) => selectRenderMode(event.target.value);
 $('#background-library-toggle').onclick = () => {
   const picker = $('#background-library-picker');
   picker.hidden = !picker.hidden;

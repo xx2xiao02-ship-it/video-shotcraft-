@@ -142,7 +142,7 @@ async function readBModeInput(req, {maxBytes = 8 * 1024 * 1024} = {}) {
   const avatar = avatars[0] || null;
   const cloneAudio = form.get("cloneAudio") || form.get("audio");
   return {
-    fields: Object.fromEntries(["text", "voice", "voiceMode", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat"].map(key => [key, form.get(key)])),
+    fields: Object.fromEntries(["text", "voice", "voiceMode", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat", "generationMode"].map(key => [key, form.get(key)])),
     avatar: avatar && typeof avatar.arrayBuffer === "function" && avatar.size ? avatar : null,
     avatars,
     cloneAudio: cloneAudio && typeof cloneAudio.arrayBuffer === "function" && cloneAudio.size ? cloneAudio : null,
@@ -493,6 +493,8 @@ const apis = {
       return sendJson(res, {ok:false, error:'服务端尚未配置 INFINITETALK_API_KEY，未创建 RunningHub 任务'});
     }
     const {fields, avatar, avatars = []} = await readBModeInput(req, {maxBytes:32 * 1024 * 1024});
+    const generationMode = fields.generationMode || 'segments';
+    if (!['segments', 'combined'].includes(generationMode)) return sendJson(res, {ok:false, error:'数字人生成模式无效'});
     const text = typeof fields.text === 'string' ? fields.text.replace(/\r\n/g, '\n').trim() : '';
     if (!text || text.length > 1200) return sendJson(res, {ok:false, error:'真实验证文案需为 1–1200 字'});
     if (!avatars.length || avatars.some(file => file.size > 7 * 1024 * 1024) || avatars.length > 8) return sendJson(res, {ok:false, error:'请上传 1–8 张、每张不超过 7 MB 的角色图'});
@@ -525,14 +527,15 @@ const apis = {
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || '角色图片无法读取，请换一张图片')}); }
     fs.writeFileSync(path.join(runDir, 'input.txt'), text, 'utf8');
     fs.writeFileSync(path.join(runDir, 'digital-human-settings.json'), JSON.stringify({
-      text, voice, voiceMode, speakerId, avatarFiles, scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject})),
+      text, voice, voiceMode, speakerId, avatarFiles, generationMode,
+      scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject})),
       prompt:String(fields.prompt || '人物自然说话，身体保持稳定，配合轻微自然手势'),
       maxSide:String(fields.maxSide || '1080'), intensity:String(fields.intensity || '0'), scale:String(fields.scale || '1.05'),
       instanceType:String(fields.instanceType || 'plus'),
     }, null, 2), 'utf8');
     const id = startTask('b-digital-human', 'node director/b-mode-digital-human.mjs ' + runId, ROOT);
     tasks.get(id).runId = runId;
-    return sendJson(res, {ok:true, id, runId, mode:'runninghub', billable:true});
+    return sendJson(res, {ok:true, id, runId, mode:'runninghub', generationMode, billable:true});
   },
   "GET /api/b-mode/digital-human/report": (req, res, url) => {
     const runId = url.searchParams.get('id') || '';

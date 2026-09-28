@@ -7,6 +7,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {RunningHubInfiniteTalkTransport} from './runninghub-infinitetalk.mjs';
 import {planDigitalHumanUnits} from './b-mode-digital-human-plan.mjs';
+import {planCombinedDigitalHumanAudio, createCombinedDigitalHumanAudio, splitCombinedDigitalHumanVideo} from './b-mode-digital-human-batch.mjs';
 import {renderDigitalHumanComposition} from './b-mode-digital-human-composition.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
 import {runningHubRuntimeConfig} from './api-center.mjs';
@@ -31,6 +32,8 @@ const readJson = file => JSON.parse(readFileSync(file, 'utf8'));
 
 if (!existsSync(settingsFile)) throw new Error('数字人输入不完整');
 const settings = readJson(settingsFile);
+const generationMode = settings.generationMode || 'segments';
+if (!['segments', 'combined'].includes(generationMode)) throw new Error('数字人生成模式无效');
 const text = String(settings.text || '').trim();
 if (!text || !Array.isArray(settings.scenes) || !settings.scenes.some(scene => scene.subject === 'person')) {
   throw new Error('数字人生成需要完整文案和至少一个 person 分镜');
@@ -46,9 +49,12 @@ const stableChoice = (seed, size) => {
 };
 
 mkdirSync(publicDir, {recursive: true});
-const report = {runId, mode: 'B', kind: 'runninghub-digital-human-segments', isDigitalHuman: true, runningHubCalled: false,
+const report = {runId, mode: 'B', generationMode,
+  kind: generationMode === 'combined' ? 'runninghub-digital-human-combined' : 'runninghub-digital-human-segments',
+  isDigitalHuman: true, runningHubCalled: false,
   status: 'starting', provider: 'runninghub', appId: runningHub.appId,
-  input: {avatars: avatarFiles, audio: 'digital-human-input.wav', audioNormalization: 'pcm_s16le_48000_stereo'},
+  input: {avatars: avatarFiles, audio: generationMode === 'combined' ? 'digital-human-combined.wav' : 'digital-human-input.wav',
+    audioNormalization: 'pcm_s16le_48000_stereo'},
   output: null, taskId: null, taskIds: [], outputUrlAvailable: false, units: []};
 writeJson(reportFile, report);
 
@@ -69,16 +75,21 @@ console.log('Digital human stage 1b: normalize audio to WAV');
 run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-i', inputMp3, '-vn', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', inputWav]);
 const timing = readJson(timingFile);
 const plan = planDigitalHumanUnits(text, settings.scenes, timing);
+const combinedSegments = generationMode === 'combined' ? planCombinedDigitalHumanAudio(plan.units) : null;
+const combinedAvatarIndex = generationMode === 'combined' ? stableChoice(runId, avatarPaths.length) : null;
 report.timingMethod = timing.timingMethod;
 report.totalFrames = timing.totalFrames;
+if (combinedSegments) report.combined = {segments:combinedSegments,
+  totalFrames:combinedSegments.at(-1).fromFrame + combinedSegments.at(-1).durationInFrames,
+  avatarIndex:combinedAvatarIndex};
 report.units = plan.units.map((unit, index) => ({
   index,
   sceneIndexes: unit.sceneIndexes,
   fromFrame: unit.fromFrame,
   durationInFrames: unit.durationInFrames,
   durationSeconds: unit.durationInFrames / 30,
-  avatarIndex: stableChoice(`${runId}:${index}`, avatarPaths.length),
-  avatar: path.basename(avatarPaths[stableChoice(`${runId}:${index}`, avatarPaths.length)]),
+  avatarIndex: combinedSegments ? combinedAvatarIndex : stableChoice(`${runId}:${index}`, avatarPaths.length),
+  avatar: path.basename(avatarPaths[combinedSegments ? combinedAvatarIndex : stableChoice(`${runId}:${index}`, avatarPaths.length)]),
   status: 'pending',
   output: path.join(runDir, `digital-human-person-${String(index + 1).padStart(2, '0')}.mp4`),
 }));
@@ -94,17 +105,26 @@ const transport = new RunningHubInfiniteTalkTransport({
 const temporaryParts = new Set();
 try {
   const taskRecords = [];
+  const combinedAudioFile = path.join(publicDir, 'digital-human-combined.wav');
+  if (combinedSegments) createCombinedDigitalHumanAudio(inputWav, combinedAudioFile, combinedSegments);
+  if (combinedSegments) {
+    for (const [index, unit] of plan.units.entries()) {
+      run('ffmpeg', ['-y','-hide_banner','-loglevel','error','-ss',String(unit.fromFrame / 30),'-i',inputWav,
+        '-t',String(unit.durationInFrames / 30),'-ar','48000','-ac','2','-c:a','pcm_s16le',
+        path.join(publicDir, `digital-human-person-${String(index + 1).padStart(2, '0')}.wav`)]);
+    }
+  }
   for (const [index, unit] of plan.units.entries()) {
     const unitReport = report.units[index];
     const audioFile = path.join(publicDir, `digital-human-person-${String(index + 1).padStart(2, '0')}.wav`);
     const startSeconds = unit.fromFrame / 30;
     const durationSeconds = unit.durationInFrames / 30;
-    run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-ss', String(startSeconds), '-i', inputWav,
+    if (!combinedSegments) run('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-ss', String(startSeconds), '-i', inputWav,
       '-t', String(durationSeconds), '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', audioFile]);
-    const audioBytes = readFileSync(audioFile);
+    const audioBytes = readFileSync(combinedSegments ? combinedAudioFile : audioFile);
     const imageBytes = readFileSync(avatarPaths[unitReport.avatarIndex]);
     const created = await transport.create({
-      imageBytes, audioBytes, imageName: 'image.png', audioName: `audio-person-${String(index + 1).padStart(2, '0')}.wav`,
+      imageBytes, audioBytes, imageName: 'image.png', audioName: combinedSegments ? 'audio-combined.wav' : `audio-person-${String(index + 1).padStart(2, '0')}.wav`,
       imageMime: 'image/png', audioMime: 'audio/wav',
       maxSide: settings.maxSide || '1080', prompt: settings.prompt || '人物自然说话，身体保持稳定，配合轻微自然手势',
       intensity: settings.intensity || '0', scale: settings.scale || '1.05', instanceType: settings.instanceType || 'plus',
@@ -115,6 +135,7 @@ try {
     report.taskIds.push(created.taskId);
     unitReport.taskId = created.taskId;
     unitReport.status = created.status || 'QUEUED';
+    if (combinedSegments) report.units.forEach(item => { item.taskId = created.taskId; item.status = unitReport.status; });
     taskRecords.push({index, taskId: created.taskId, createdAt: new Date().toISOString(), appId: report.appId});
     writeJson(taskFile, taskRecords);
     writeJson(reportFile, report);
@@ -122,17 +143,34 @@ try {
     const result = await transport.waitForResult(created.taskId, {onUpdate: update => {
       report.status = update.status;
       unitReport.status = update.status;
+      if (combinedSegments) report.units.forEach(item => { item.status = update.status; });
       writeJson(reportFile, report);
       console.log(`Digital human stage 3: person unit ${index + 1}/${plan.units.length} ${update.status}`);
     }});
     const bytes = await transport.download(result.outputUrl);
-    const outputPart = `${unitReport.output}.part`;
+    const combinedOutput = path.join(runDir, 'digital-human-combined.mp4');
+    const outputPart = `${combinedSegments ? combinedOutput : unitReport.output}.part`;
     temporaryParts.add(outputPart);
     writeFileSync(outputPart, bytes);
     const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration:stream=codec_type,codec_name', '-of', 'json', outputPart], {encoding: 'utf8'}));
     if (!probe.streams?.some(stream => stream.codec_type === 'video')) throw new Error(`RunningHub 第 ${index + 1} 个片段没有视频轨`);
-    renameSync(outputPart, unitReport.output);
+    renameSync(outputPart, combinedSegments ? combinedOutput : unitReport.output);
     temporaryParts.delete(outputPart);
+    if (combinedSegments) {
+      const split = splitCombinedDigitalHumanVideo(combinedOutput, report.units.map(item => item.output), combinedSegments);
+      report.units.forEach((item, unitIndex) => {
+        item.status = 'SUCCESS';
+        item.durationSeconds = split[unitIndex].durationSeconds;
+        item.streams = [{type:'video', codec:'h264'}];
+        item.usage = result.usage || {};
+      });
+      report.combined.output = combinedOutput;
+      report.combined.durationSeconds = Number(probe.format?.duration || 0);
+      report.combined.taskId = created.taskId;
+      report.usage = result.usage || {};
+      writeJson(reportFile, report);
+      break;
+    }
     unitReport.status = 'SUCCESS';
     unitReport.durationSeconds = Number(probe.format?.duration || 0);
     unitReport.streams = probe.streams.map(stream => ({type: stream.codec_type, codec: stream.codec_name}));

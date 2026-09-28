@@ -45,7 +45,7 @@
             <summary class="internal-data-summary"><span>角色、音色与背景</span><small>需要时展开</small></summary>
             <div class="settings-column">
             <section class="settings-section" aria-labelledby="role-title">
-              <div class="section-line"><h2 id="role-title">角色图</h2><span class="section-meta">最多 8 张，按数字人片段随机选择</span></div>
+              <div class="section-line"><h2 id="role-title">角色图</h2><span class="section-meta">最多 8 张，按所选生成方式随机选择</span></div>
               <div class="role-preview" id="role-preview"><img id="role-image" alt="已选角色图" hidden><div class="role-empty" id="role-empty"><span class="role-glyph" aria-hidden="true"></span><span>尚未选择角色图</span></div></div>
               <input id="role-file" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
               <div class="file-actions"><button type="button" class="button secondary" id="choose-role">选择角色图</button><button type="button" class="button quiet" id="remove-role" hidden>移除</button></div>
@@ -72,7 +72,7 @@
               <div class="background-selected" id="background-selected" hidden><img id="background-thumb" alt="所选背景视频缩略图"><div><strong id="background-name"></strong><small id="background-details"></small></div><button type="button" class="button quiet" id="background-remove">移除</button></div>
               <p class="field-note">仅供未单独选择视频的人物镜头使用；静态角色图本身尚未抠像。</p>
             </section>
-            <section class="settings-section" aria-labelledby="render-mode-title"><div class="section-line"><h2 id="render-mode-title">人物生成方式</h2><span class="section-meta">图片占位是安全回退</span></div><label class="minor-label" for="render-mode">选择数字人镜头的下游实现</label><select id="render-mode"><option value="placeholder">图片占位（不产生外部费用）</option><option value="runninghub">RunningHub 真实数字人（按片段调用）</option></select><p class="field-note">真实模式只为已标记为 person 的连续片段调用 RunningHub；图解和素材片段不会生成数字人。</p></section>
+            <section class="settings-section" aria-labelledby="render-mode-title"><div class="section-line"><h2 id="render-mode-title">人物生成方式</h2><span class="section-meta">图片占位是安全回退</span></div><label class="minor-label" for="render-mode">选择数字人镜头的下游实现</label><select id="render-mode"><option value="placeholder">图片占位（不产生外部费用）</option><option value="runninghub">RunningHub 按连续片段生成</option><option value="runninghub-combined">RunningHub 合并音频一次生成</option></select><p class="field-note" id="render-mode-note">真实模式只处理数字人镜头；图解和素材镜头不会生成数字人。</p></section>
             </div>
           </details>
         </div>
@@ -88,7 +88,8 @@
 
       <section class="panel" id="panel-generate" aria-labelledby="generate-title" hidden>
         <div class="panel-heading"><div><p class="eyebrow">03 / REVIEW</p><h1 id="generate-title">生成前检查</h1></div><span class="panel-state" id="generate-state">图片占位可用</span></div>
-        <div class="review-layout"><div><div class="review-rows" id="review-rows"></div><div class="notice hold"><strong>生成方式由上方变量控制</strong><p>图片占位继续作为回退路径；选择 RunningHub 后，服务端先生成整段 TTS 主时间轴，再仅为 person 连续片段裁剪音频并逐片创建真实数字人任务。真实调用可能产生费用，成功或失败记录均保留。</p></div><div class="placeholder-progress" id="placeholder-progress" hidden role="status"><span class="status-dot waiting"></span><span id="placeholder-progress-text">准备中…</span></div><div class="panel-actions"><button type="button" class="button quiet" data-go="plan">返回分镜</button><button type="button" class="button secondary" id="export-draft">导出方案 JSON</button><button type="button" class="button secondary" id="run-placeholder" disabled>生成图片占位样片</button><button type="button" class="button primary" id="run-digital-human" disabled>生成真实数字人</button></div><div class="digital-human-result" id="digital-human-result" hidden><strong>RunningHub 结果</strong><p id="digital-human-meta"></p><video id="digital-human-video" controls preload="metadata"></video></div></div><aside class="readiness" id="readiness"></aside></div>
+        <div class="generation-mode-picker"><label for="generate-render-mode">人物生成方式</label><select id="generate-render-mode"><option value="placeholder">图片占位（不产生外部费用）</option><option value="runninghub">RunningHub 按连续片段生成</option><option value="runninghub-combined">RunningHub 合并音频一次生成</option></select></div>
+        <div class="review-layout"><div><div class="review-rows" id="review-rows"></div><div class="notice hold"><strong>生成方式</strong><p id="generation-mode-description"></p></div><div class="placeholder-progress" id="placeholder-progress" hidden role="status"><span class="status-dot waiting"></span><span id="placeholder-progress-text">准备中…</span></div><div class="panel-actions"><button type="button" class="button quiet" data-go="plan">返回分镜</button><button type="button" class="button secondary" id="export-draft">导出方案 JSON</button><button type="button" class="button secondary" id="run-placeholder" disabled>生成图片占位样片</button><button type="button" class="button primary" id="run-digital-human" disabled>生成真实数字人</button></div><div class="digital-human-result" id="digital-human-result" hidden><strong>RunningHub 结果</strong><p id="digital-human-meta"></p><video id="digital-human-video" controls preload="metadata"></video></div></div><aside class="readiness" id="readiness"></aside></div>
       </section>
 
       <section class="panel" id="panel-results" aria-labelledby="results-title" hidden>
