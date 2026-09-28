@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Version Guard"
+  short_description: "审计 Git 状态并安全创建本地 checkpoint"
+  default_prompt: "使用 $git-version-guard 审计当前仓库，验证修改范围，并在安全时创建精确文件 checkpoint。"
