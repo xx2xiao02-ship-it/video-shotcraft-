@@ -10,6 +10,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@remotion/motion-blur": "^4.0.526"
+    "@remotion/motion-blur": "^4.0.526",
+    "ws": "8.21.0"
   }
 }

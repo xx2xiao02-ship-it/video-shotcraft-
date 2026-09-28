@@ -4,25 +4,46 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {createSubtitleSnapshot, readSubtitleSettings, subtitleSettingsPath} from './subtitle-v1.mjs';
+import {stageBackgroundMusic} from './background-music.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const CHROME = 'C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe';
+const outputConfigPath = path.join(ROOT, '.shotcraft-output.json');
+let outputDir = process.env.SHOTCRAFT_OUTPUT_DIR || path.join(ROOT, 'template', 'out');
+try {
+  if (!process.env.SHOTCRAFT_OUTPUT_DIR) {
+    const config = JSON.parse(fs.readFileSync(outputConfigPath, 'utf8'));
+    if (typeof config.path === 'string' && config.path.trim()) outputDir = path.resolve(config.path.trim());
+  }
+} catch {}
+fs.mkdirSync(outputDir, { recursive: true });
 
 // 读分镜 JSON
-const storyboardPath = path.join(ROOT, 'director', 'storyboard.json');
+const storyboardPath = process.env.SHOTCRAFT_STORYBOARD_PATH || path.join(ROOT, 'director', 'storyboard.json');
 const storyboard = JSON.parse(fs.readFileSync(storyboardPath, 'utf8'));
+if (fs.existsSync(subtitleSettingsPath(ROOT))) {
+  const settings = readSubtitleSettings(ROOT);
+  const timingPath = path.join(ROOT, 'director', 'timing.json');
+  if (settings.horizontal.enabled && !fs.existsSync(timingPath)) throw new Error('缺少字幕时间数据 timing.json');
+  const timing = settings.horizontal.enabled ? JSON.parse(fs.readFileSync(timingPath, 'utf8')) : null;
+  storyboard.subtitleV1 = createSubtitleSnapshot(settings, timing, storyboard);
+}
 
 // 算总帧数
 const totalFrames = storyboard.shots.reduce((sum, s) => sum + s.durationInFrames, 0);
 console.log(`分镜总时长：${totalFrames} 帧 = ${(totalFrames / 30).toFixed(1)} 秒`);
 
 // 写 props JSON（Remotion 读文件而不是内联参数，避免 Windows shell 转义问题）
-const propsPath = path.join(ROOT, 'director', 'props.json');
-fs.writeFileSync(propsPath, JSON.stringify({ storyboard }, null, 2), 'utf8');
+const propsPath = process.env.SHOTCRAFT_PROPS_PATH || path.join(ROOT, 'director', 'props.json');
+const bgmSelection = process.env.SHOTCRAFT_BGM_SELECTION_JSON
+  ? JSON.parse(process.env.SHOTCRAFT_BGM_SELECTION_JSON) : undefined;
+const bgm = stageBackgroundMusic(ROOT, 'A', path.join(ROOT, 'template', 'public'), bgmSelection);
+fs.writeFileSync(propsPath, JSON.stringify({ storyboard, bgm }, null, 2), 'utf8');
 
 // 渲染
-const outFile = path.join(ROOT, 'template', 'out', 'dynamic.mp4');
+const outFile = path.join(outputDir, 'dynamic.mp4');
 // 兼容性：Remotion 输出（yuvj420p 全范围）内置浏览器解码挂起 → 渲染后用 ffmpeg 重编码（libx264/yuv420p 有限范围 + faststart）
 // 注意：不要给 Remotion 传 --pixel-format=yuv420p（实测会损坏输出，重编码后仍不可播）
 const cmd = `npx remotion render src/index.ts DynamicVideo "${outFile}" --props="${propsPath}" --browser-executable="${CHROME}" --concurrency=1`;

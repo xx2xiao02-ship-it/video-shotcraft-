@@ -1,5 +1,6 @@
 import React from 'react';
 import { translateShot, splitToWords, hasContract } from './TemplateAdapter';
+import {CaptionV1Track, type CaptionV1Settings, type TimedCaption} from './captions/CaptionV1Track';
 import {
   AbsoluteFill,
   useCurrentFrame,
@@ -549,6 +550,7 @@ export type Storyboard = {
   base?: string;
   theme?: Theme;
   shots: Shot[];
+  subtitleV1?: {settings: CaptionV1Settings; captions: TimedCaption[]; wordTimed: boolean; warnings: string[]};
 };
 
 // ---------- 字幕样式预设 ----------
@@ -636,8 +638,8 @@ const TranslatedShot: React.FC<{
 
 // ---------- 单镜头：模板组件 + 字幕浮层 ----------
 const ShotView: React.FC<{
-  shot: Shot; style: Storyboard['style']; index: number; total: number;
-}> = ({ shot, style, index, total }) => {
+  shot: Shot; style: Storyboard['style']; index: number; total: number; showLegacyCaption: boolean;
+}> = ({ shot, style, index, total, showLegacyCaption }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const d = shot.durationInFrames;
@@ -732,8 +734,8 @@ const ShotView: React.FC<{
       )}
 
 
-      {/* 字幕层（独立浮层，永远在底部） */}
-      <div style={{
+      {/* 旧工程没有字幕配置时保留原字幕浮层。 */}
+      {showLegacyCaption && <div style={{
         position: 'absolute', bottom: 70, left: 0, right: 0,
         display: 'flex', justifyContent: 'center',
         padding: '0 120px',
@@ -742,7 +744,7 @@ const ShotView: React.FC<{
         <div style={{ ...preset.wrapper, maxWidth: 1400 }}>
           <div style={{ ...preset.text, fontFamily: capFont, fontSize: capSize, fontWeight: capWeight, color: capColor }}>{shot.text}</div>
         </div>
-      </div>
+      </div>}
 
       {/* 顶部进度条 */}
       <div style={{
@@ -757,7 +759,7 @@ const ShotView: React.FC<{
 };
 
 // ---------- 主组件 ----------
-export const DynamicVideo: React.FC<{ storyboard: Storyboard }> = ({ storyboard }) => {
+export const DynamicVideo: React.FC<{ storyboard: Storyboard; bgm?: {src: string; volume: number} | null }> = ({ storyboard, bgm }) => {
   let currentFrom = 0;
   const t = storyboard.theme || { bg: '#0d0f14', surface: '#1a1d24', text: '#e8e6e1', textDim: '#8a8680', accent: '#d4a853', accent2: '#4ecdc4', danger: '#ff6b6b' };
   return (
@@ -775,18 +777,21 @@ export const DynamicVideo: React.FC<{ storyboard: Storyboard }> = ({ storyboard 
       {storyboard.audio && (
         <Audio src={staticFile(storyboard.audio)} volume={0.9} />
       )}
+      {bgm && <Audio src={staticFile(bgm.src)} loop volume={(frame) =>
+        bgm.volume * Math.max(0, Math.min(1, frame / 30, (getTotalDuration(storyboard) - frame - 1) / 15))} />}
       {storyboard.shots.map((shot, i) => {
         const from = currentFrom;
         currentFrom += shot.durationInFrames;
         return (
           <Sequence key={i} from={from} durationInFrames={shot.durationInFrames}>
-            <ShotView shot={shot} style={storyboard.style} index={i} total={storyboard.shots.length} />
+            <ShotView shot={shot} style={storyboard.style} index={i} total={storyboard.shots.length} showLegacyCaption={!storyboard.subtitleV1} />
             {shot.audio && (
               <Audio src={staticFile(shot.audio.src)} volume={shot.audio.volume ?? 0.3} />
             )}
           </Sequence>
         );
       })}
+      {storyboard.subtitleV1 && <CaptionV1Track {...storyboard.subtitleV1} />}
     </AbsoluteFill>
   );
 };
