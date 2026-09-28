@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "scriptFile": "b-mode-acceptance-script.txt",
+  "subjects": [
+    "person",
+    "graphics",
+    "material",
+    "person",
+    "graphics",
+    "material",
+    "person",
+    "graphics",
+    "graphics",
+    "material",
+    "person",
+    "graphics",
+    "person",
+    "graphics",
+    "graphics",
+    "graphics",
+    "person",
+    "person",
+    "person"
+  ],
+  "subtitles": [
+    "收藏不等于成长",
+    "被误认的进步",
+    "点下收藏的瞬间",
+    "收藏之后",
+    "收藏夹的幻觉",
+    "三年后的变化",
+    "问题来了",
+    "能力来自行动",
+    "认知卸载",
+    "研究发现",
+    "怎么办",
+    "行动才是关键",
+    "从三步开始",
+    "第一步 · 写下来",
+    "第二步 · 做一次",
+    "第三步 · 讲给别人",
+    "收藏只是起点",
+    "从今天开始",
+    "用起来才有力量"
+  ],
+  "visualTextOverrides": {
+    "4": "真相是，\n那条视频大概率不会打开第二次"
+  }
+}

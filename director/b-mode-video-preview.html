@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图片占位样片预览 | Video ShotCraft</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #101719; color: #edf4ef; font: 14px/1.5 "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+    .shell { max-width: 1320px; margin: 0 auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; gap: 15px; align-items: center; margin-bottom: 14px; }
+    h1 { margin: 0; font-size: 17px; font-weight: 700; }
+    .meta { color: #b1c6ba; font-size: 12px; }
+    .stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #172b2b; overflow: hidden; border: 1px solid #40534a; border-radius: 6px; }
+    #frame, #poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    #frame { display: block; cursor: pointer; }
+    #poster { background: #172b2b; }
+    #source-video { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .controls { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 95px auto auto; gap: 12px; align-items: center; padding: 11px 2px 0; }
+    button, a { border: 1px solid #6f8c7b; background: #1c302b; color: #edf4ef; border-radius: 5px; padding: 7px 12px; font: inherit; font-size: 12px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+    button:hover, a:hover { border-color: #a6d9ba; }
+    button:focus-visible, a:focus-visible, input:focus-visible, #frame:focus-visible { outline: 2px solid #7bcba4; outline-offset: 2px; }
+    input[type="range"] { width: 100%; accent-color: #7bcba4; cursor: pointer; }
+    #time { font-variant-numeric: tabular-nums; font-size: 12px; color: #d6e6da; white-space: nowrap; }
+    .status { min-height: 18px; color: #c2d4c6; font-size: 11px; margin: 9px 0 0; }
+    [hidden] { display: none !important; }
+    .embedded body { min-height: 0; }
+    .embedded .shell { padding: 0; }
+    .embedded header, .embedded .status { display: none; }
+    .embedded .stage { border: 0; border-radius: 5px; }
+    @media (max-width: 620px) { .shell { padding: 10px; } header { align-items: flex-start; flex-direction: column; } .controls { gap: 7px; grid-template-columns: auto minmax(0,1fr) auto; } .controls #volume, .controls a { grid-row: 2; } button, a { padding: 6px 8px; } }
+  </style>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') document.documentElement.classList.add('embedded');
+  </script>
+  <script src="/director/b-mode-video-preview.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header><h1>图片占位样片</h1><span class="meta" id="meta">静态角色图 · 非数字人 · 无口型</span></header>
+    <div class="stage"><video id="source-video" preload="metadata" playsinline></video><canvas id="frame" width="1280" height="720" role="button" tabindex="0" aria-label="播放或暂停视频"></canvas><img id="poster" alt="样片封面"></div>
+    <div class="controls"><button id="play" type="button">播放</button><input id="progress" type="range" min="0" max="1000" value="0" aria-label="播放进度"><span id="time">0:00 / 0:00</span><input id="volume" type="range" min="0" max="180" value="150" aria-label="音量"><a id="audio-download" download="b-mode-voice.mp3">下载配音</a><a id="download" download="b-mode-talkcraft.mp4">下载 TalkCraft MP4</a></div>
+    <p class="status" id="status" role="status">正在载入视频…</p>
+  </main>
+</body>
+</html>
