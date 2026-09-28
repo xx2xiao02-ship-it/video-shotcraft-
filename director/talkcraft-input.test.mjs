@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync, mkdirSync, readFileSync, rmSync} from 'node:fs';
+import path from 'node:path';
+import {test} from 'node:test';
+import {createTalkcraftInput, splitTalkcraftSentences} from './talkcraft-input.mjs';
+
+const workspace = path.resolve('tmp');
+
+test('new TalkCraft input stays isolated and preserves sentence order', () => {
+  mkdirSync(workspace, {recursive:true});
+  const root = mkdtempSync(path.join(workspace, 'talkcraft-input-test-'));
+  try {
+    const avatarBytes = readFileSync(path.resolve('gallery/og-image.jpg'));
+    const created = createTalkcraftInput(root, {text:'先收藏。再行动！',
+      voice:'zh-CN-YunxiNeural', avatarBytes});
+    assert.equal(created.sentences, 2);
+    assert.deepEqual(splitTalkcraftSentences('先收藏。\n再行动！'), ['先收藏。','再行动！']);
+    assert.deepEqual(JSON.parse(readFileSync(path.join(created.project, 'script.json'))).sentences,
+      ['先收藏。','再行动！']);
+    const sourceRun = JSON.parse(readFileSync(path.join(created.project, 'source-run.json')));
+    assert.equal(sourceRun.isDigitalHuman, false);
+    assert.equal(sourceRun.visualTextLocale, 'zh-CN');
+    const tts2 = createTalkcraftInput(root, {text:'测试新版合成。', voiceMode:'volcengine-tts2',
+      speakerId:'zh_female_vv_uranus_bigtts', avatarBytes});
+    const tts2Source = JSON.parse(readFileSync(path.join(tts2.project, 'source-run.json')));
+    assert.equal(tts2Source.voiceMode, 'volcengine-tts2');
+    assert.equal(tts2Source.speakerId, 'zh_female_vv_uranus_bigtts');
+    assert.throws(() => createTalkcraftInput(root, {text:'测试。', voiceMode:'volcengine-tts2',
+      speakerId:'invalid voice', avatarBytes}), /音色 ID/);
+    assert.throws(() => createTalkcraftInput(root, {text:'x',voice:'unknown',avatarBytes}), /音色/);
+  } finally {
+    if (!root.startsWith(workspace + path.sep)) throw new Error('Test cleanup escaped workspace');
+    rmSync(root, {recursive:true, force:true});
+  }
+});
