@@ -3,7 +3,9 @@
   "private": true,
   "description": "Unit tests for assets/lib/helpers pure functions",
   "scripts": {
-    "test": "vitest run",
+    "test": "npm run test:vitest && npm run test:node",
+    "test:vitest": "vitest run",
+    "test:node": "node --test director/*.test.mjs console-music.test.mjs",
     "test:watch": "vitest"
   },
   "devDependencies": {
