@@ -1,0 +1,28 @@
+{
+  "schema": "mode-c-sources-v1",
+  "skills": [
+    {
+      "name": "veo",
+      "repository": "https://github.com/jlouage/Veo-Claude-Skills",
+      "commit": "5f2270a673fc9909fa6e790485be04a1bb893528",
+      "sourcePath": ".claude/skills/veo",
+      "installedPath": "director/mode-c/skills/veo",
+      "license": "MIT"
+    },
+    {
+      "name": "codex-image2",
+      "repository": "https://github.com/fengfengzhidao/codex-image2-skill",
+      "commit": "b5eba238888dba5c7772195eebc58899801bbe00",
+      "sourcePath": "codex-image2",
+      "installedPath": "director/mode-c/skills/image2",
+      "license": "MIT",
+      "platform": "windows-x64"
+    }
+  ],
+  "excludedCandidates": [
+    {
+      "repository": "https://github.com/IntMeGroup/Omni2",
+      "reason": "研究模型代码，不是当前可直接接入的生产 Skill"
+    }
+  ]
+}

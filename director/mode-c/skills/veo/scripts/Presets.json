@@ -1,0 +1,31 @@
+{
+  "cinematic": {
+    "negativePrompt": "text, watermark, blur, distortion, shaky cam",
+    "fps": 24,
+    "resolution": "720p",
+    "promptPrefix": "Cinematic film quality. ",
+    "promptSuffix": ". Professional cinematography, shallow depth of field, subtle film grain."
+  },
+  "vertical-social": {
+    "aspectRatio": "9:16",
+    "negativePrompt": "text, watermark, blur, letterboxing",
+    "fps": 30,
+    "resolution": "720p",
+    "promptPrefix": "Vertical mobile-optimized video. ",
+    "promptSuffix": ". Punchy, attention-grabbing, social media style."
+  },
+  "product-demo": {
+    "negativePrompt": "text, watermark, distraction, busy background",
+    "fps": 24,
+    "resolution": "720p",
+    "promptPrefix": "Clean product shot. ",
+    "promptSuffix": ". Professional studio lighting, pristine presentation."
+  },
+  "documentary": {
+    "negativePrompt": "text, watermark, artifacts, humans",
+    "fps": 24,
+    "resolution": "720p",
+    "promptPrefix": "Nature documentary style. ",
+    "promptSuffix": ". National Geographic quality, observational cinematography."
+  }
+}

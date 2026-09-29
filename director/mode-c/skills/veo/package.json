@@ -1,0 +1,10 @@
+{
+  "name": "video-skill",
+  "version": "1.0.0",
+  "description": "Claude Code skill for video generation using Google Veo 3.1 API",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "tsx": "^4.0.0"
+  }
+}

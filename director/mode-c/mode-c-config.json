@@ -1,0 +1,31 @@
+{
+  "schema": "mode-c-config-v1",
+  "mode": "C",
+  "visualMode": "C",
+  "enabled": true,
+  "dryRun": true,
+  "fallbackOnly": true,
+  "fps": 30,
+  "aspectRatio": "16:9",
+  "image": {
+    "provider": "codex-image2",
+    "model": "gpt-image-2",
+    "skillPath": "skills/image2",
+    "binary": "bin/codex-image2-windows-amd64.exe",
+    "defaultSize": "1024x1024",
+    "quality": "auto"
+  },
+  "video": {
+    "provider": "veo",
+    "model": "veo-3.1",
+    "skillPath": "skills/veo",
+    "durationSeconds": 8,
+    "audioPolicy": "strip",
+    "resolution": "720p"
+  },
+  "paidGenerationRequiresApproval": true,
+  "requirePaidGenerationApproval": true,
+  "supportedStates": ["pending_generation", "generating", "generated", "verifying", "verified", "generation_failed", "blocked", "card_rematch"],
+  "realEvidenceKinds": ["截图", "evidence", "真实页面"],
+  "generationKinds": ["图片", "视频", "B-roll", "多图"]
+}

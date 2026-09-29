@@ -25,6 +25,7 @@ import {packagingHandle, PACKAGING_PREFIX} from "./director/packaging-routes.mjs
 import {readSubtitleSettings, writeSubtitleSettings} from "./director/subtitle-v1.mjs";
 import {normalizeMusicSelection, readMusicSelection, writeMusicSelection, writeTalkcraftMusicSnapshot} from "./director/background-music.mjs";
 import {audioFile, indexAudioFile, listAudioLibrary, recommendBackgroundMusic, updateAudioMetadata, uploadAudio} from "./director/audio-library.mjs";
+import {assertModeCRun, runModeCStage} from "./director/mode-c/mode-c-dispatcher.mjs";
 
 const ROOT = process.env.SHOTCRAFT_ROOT || "E:\\video-shotcraft";
 const PORT = Number(process.env.PORT || 8765);
@@ -142,7 +143,7 @@ async function readBModeInput(req, {maxBytes = 8 * 1024 * 1024} = {}) {
   const avatar = avatars[0] || null;
   const cloneAudio = form.get("cloneAudio") || form.get("audio");
   return {
-    fields: Object.fromEntries(["text", "voice", "voiceMode", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat", "generationMode"].map(key => [key, form.get(key)])),
+    fields: Object.fromEntries(["text", "voice", "voiceMode", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat", "generationMode", "visualMode"].map(key => [key, form.get(key)])),
     avatar: avatar && typeof avatar.arrayBuffer === "function" && avatar.size ? avatar : null,
     avatars,
     cloneAudio: cloneAudio && typeof cloneAudio.arrayBuffer === "function" && cloneAudio.size ? cloneAudio : null,
@@ -164,6 +165,19 @@ function readVoiceSelection(fields) {
 function withTalkcraftWorkbench(run) {
   return {...run, workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
     failureReport:latestTalkcraftFailureReport(ROOT, run.runId)};
+}
+
+async function createModeCRun(fields, avatars) {
+  if (!avatars.length) throw new Error('模式 C 至少需要一张参考图');
+  const selection = readVoiceSelection(fields);
+  const created = createTalkcraftInput(ROOT, {text:fields.text, ...selection,
+    avatarBytes:await Promise.all(avatars.map(async file => Buffer.from(await file.arrayBuffer()))), generationMode:null});
+  const sourceFile = path.join(created.project, 'source-run.json');
+  const source = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+  fs.writeFileSync(sourceFile, JSON.stringify({...source, visualMode:'C', modeCConfig:'director/mode-c/mode-c-config.json'}, null, 2), 'utf8');
+  const id = startTask('mode-c-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
+  tasks.get(id).runId = created.runId;
+  return {created, id};
 }
 
 const apis = {
@@ -288,6 +302,10 @@ const apis = {
   "POST /api/talkcraft/create": async (req, res) => {
     try {
       const {fields, avatars} = await readBModeInput(req, {maxBytes:60 * 1024 * 1024});
+      if (String(fields.visualMode || '').toUpperCase() === 'C') {
+        const {created, id} = await createModeCRun(fields, avatars);
+        return sendJson(res, {ok:true, id, runId:created.runId, mode:'C', dryRun:true, sentences:created.sentences});
+      }
       if (!avatars.length) throw new Error('请先选择角色图');
       const selection = readVoiceSelection(fields);
       const created = createTalkcraftInput(ROOT, {text:fields.text, ...selection,
@@ -296,6 +314,52 @@ const apis = {
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
       return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/mode-c/config": (_req, res) => {
+    try { return sendJson(res, {ok:true, mode:'C', config:JSON.parse(fs.readFileSync(path.join(ROOT, 'director', 'mode-c', 'mode-c-config.json'), 'utf8')), sources:JSON.parse(fs.readFileSync(path.join(ROOT, 'director', 'mode-c', 'mode-c-sources.json'), 'utf8'))}); }
+    catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/create": async (req, res) => {
+    try {
+      const {fields, avatars} = await readBModeInput(req, {maxBytes:60 * 1024 * 1024});
+      const {created, id} = await createModeCRun(fields, avatars);
+      return sendJson(res, {ok:true, id, runId:created.runId, mode:'C', dryRun:true, sentences:created.sentences});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/dry-run": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const project = assertModeCRun(ROOT, String(body.runId || ''));
+      return sendJson(res, {ok:true, ...runModeCStage('dry-run', project)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/mock": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const project = assertModeCRun(ROOT, String(body.runId || ''));
+      return sendJson(res, {ok:true, ...runModeCStage('mock', project)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/verify": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const project = assertModeCRun(ROOT, String(body.runId || ''));
+      return sendJson(res, {ok:true, ...runModeCStage('verify', project)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/rematch-plan": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const project = assertModeCRun(ROOT, String(body.runId || ''));
+      return sendJson(res, {ok:true, ...runModeCStage('rematch-plan', project)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/mode-c/rematch": async (req, res) => {
+    try {
+      const body = await readBody(req);
+      const project = assertModeCRun(ROOT, String(body.runId || ''));
+      return sendJson(res, {ok:true, ...runModeCStage('rematch', project)});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/stage": async (req, res) => {

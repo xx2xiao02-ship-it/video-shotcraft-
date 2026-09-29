@@ -393,6 +393,19 @@
   }
   .theme-thumb .sw { width: 18px; height: 18px; border-radius: 4px; }
   .theme-thumb .tname { font-size: 11px; font-weight: 600; }
+  .theme-strategy {
+    grid-column: 1 / -1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-top: 2px;
+  }
+  .theme-strategy-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .theme-strategy-title { font-size:12px; font-weight:700; color:var(--ink); }
+  .theme-strategy-status { font-size:10px; color:var(--mid); }
+  .theme-strategy-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .theme-strategy select { min-width:150px; background:var(--bg2); border:1px solid var(--border); color:var(--ink); border-radius:6px; padding:6px 8px; font-size:11px; }
+  .theme-category-chips { display:flex; gap:5px; flex-wrap:wrap; }
+  .theme-category-chip { padding:4px 8px; border-radius:999px; border:1px solid var(--border); color:var(--mid); font-size:10px; }
+  .theme-category-chip.primary { color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
+  .theme-strategy-note { margin-top:8px; color:var(--mid); font-size:10px; line-height:1.45; }
 
   .color-slots {
     display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
@@ -730,11 +743,12 @@
         <div style="font-size:14px;font-weight:600">开始生成视频</div>
         <div style="font-size:11px;opacity:0.9;margin-top:2px">B 模式 · 数字人口播主导<br>素材补充</div>
       </button>
-      <button class="brief-submit" id="b-mode-c" style="background:var(--border2);margin-top:0;opacity:0.5;cursor:not-allowed" title="待开发">
+      <button class="brief-submit" id="b-mode-c" type="button" style="background:linear-gradient(135deg,#7c3aed,#2563eb);margin-top:0" title="选择 C 模式；默认只生成 AIGC 素材 dry-run 计划，不调用 Veo 或 Image2">
         <div style="font-size:14px;font-weight:600">C 模式</div>
-        <div style="font-size:11px;opacity:0.9;margin-top:2px">AIGC 素材主导<br>补充说明</div>
+        <div style="font-size:11px;opacity:0.9;margin-top:2px">AIGC 素材补足<br>dry-run 默认</div>
       </button>
     </div>
+    <div id="mode-c-selection-note" class="b-save-note" hidden>已选择 C 模式：只补足缺失图片、视频或多图素材；截图、真实页面和证据仍必须使用真实素材。点击“开始生成视频”后进入 C 的 dry-run 分发。</div>
   </div>
 
   <!-- 风格中心（并入编导台：主题是编导输入，生成分镜时注入 C3） -->
@@ -787,6 +801,24 @@
       <!-- 右侧：参数区 -->
       <div class="style-params-right">
         <div class="theme-grid" id="theme-grid"></div>
+        <div class="theme-strategy" id="theme-strategy">
+          <div class="theme-strategy-head">
+            <div class="theme-strategy-title">🧭 主题策略</div>
+            <div class="theme-strategy-status" id="theme-strategy-status">跟随当前主题</div>
+          </div>
+          <div class="theme-strategy-row">
+            <label for="video-theme-profile" style="font-size:11px;color:var(--mid)">视频类型</label>
+            <select id="video-theme-profile">
+              <option value="product-promo">产品宣传</option>
+              <option value="knowledge-explainer">知识科普</option>
+              <option value="news-analysis">新闻解读</option>
+              <option value="tutorial">教程演示</option>
+              <option value="data-report">数据报告</option>
+            </select>
+            <div class="theme-category-chips" id="theme-category-chips"></div>
+          </div>
+          <div class="theme-strategy-note" id="theme-strategy-note">选择视频类型后，分镜规划会优先从对应分类匹配镜头卡。</div>
+        </div>
         <details class="style-details" id="style-details">
           <summary>主题详细设置</summary>
         <div class="style-params-title">🎨 色彩参数</div>
@@ -1024,7 +1056,7 @@
   </div>
 
   <div class="view internal-only" data-view="bmode" hidden>
-    <div class="view-title">校对 <small>文案与分镜</small></div>
+    <div class="view-title bmode-view-title"><span>校对 <small>文案与分镜</small></span><button type="button" class="button secondary" id="b-exit-director">退出编导台</button></div>
     <iframe class="b-mode-frame" id="b-mode-frame" title="数字人口播流程" data-src="/director/b-mode-console.html?embed=1"></iframe>
   </div>
 
@@ -1395,8 +1427,9 @@ const state = { tasks: [], logs: {}, lastFetched: {} };
 // 本次会话内最新一次渲染/生成启动时刻（Infinity = 尚未启动过）——历史任务不得触发成片预览
 let sessionRenderStart = Infinity;
 const initialRoute = new URLSearchParams(location.search);
-let activeProductionMode = initialRoute.get("mode") === "B" || sessionStorage.getItem("sc-production-mode") === "B" ? "B" : "A";
-if (initialRoute.get("mode") === "B") sessionStorage.setItem("sc-production-mode", "B");
+let activeProductionMode = ["A", "B", "C"].includes(initialRoute.get("mode")) ? initialRoute.get("mode") :
+  (["A", "B", "C"].includes(sessionStorage.getItem("sc-production-mode")) ? sessionStorage.getItem("sc-production-mode") : "A");
+if (["A", "B", "C"].includes(initialRoute.get("mode"))) sessionStorage.setItem("sc-production-mode", activeProductionMode);
 
 const $ = (s) => document.querySelector(s);
 const toast = $("#toast");
@@ -1416,6 +1449,13 @@ function applyUiAppearance(mode, persist = true) {
   if (persist) {
     try { localStorage.setItem(UI_APPEARANCE_KEY, next); } catch {}
   }
+}
+
+// 主台的视频主题是编导台和成片共用的视觉来源；内嵌编导台通过同源消息即时接收。
+function postVideoThemeToDirector() {
+  const frame = document.getElementById("b-mode-frame");
+  if (!frame?.contentWindow || !currentTheme) return;
+  try { frame.contentWindow.postMessage({ type: "shotcraft-video-theme", theme: currentTheme }, location.origin); } catch {}
 }
 document.querySelectorAll("[data-ui-choice]").forEach((button) => {
   button.addEventListener("click", () => applyUiAppearance(button.dataset.uiChoice));
@@ -1514,6 +1554,7 @@ function bindButtons() {
     if (!text) { showToast("请先粘贴口播文案"); return; }
     activeProductionMode = "A";
     sessionStorage.setItem("sc-production-mode", "A");
+    $("#mode-c-selection-note").hidden = true;
     $("#gen-progress-card").style.display = "";
     switchView("produce");
     let genProg = 5; setGenProgress(genProg, "TTS 语音合成中…");
@@ -1550,7 +1591,25 @@ function bindButtons() {
     refresh();
   };
 
-  $("#b-mode-b").onclick = () => switchView("bmode");
+  $("#b-mode-b").onclick = () => {
+    activeProductionMode = "B";
+    sessionStorage.setItem("sc-production-mode", "B");
+    $("#mode-c-selection-note").hidden = true;
+    switchView("bmode");
+  };
+  $("#b-mode-c").onclick = async () => {
+    const text = $("#b-fulltext").value.trim();
+    if (!text) { showToast("请先粘贴口播文案"); return; }
+    try {
+      const config = await apiFetch("/api/mode-c/config");
+      if (!config.ok) throw new Error(config.error || "模式 C 配置不可用");
+      activeProductionMode = "C";
+      sessionStorage.setItem("sc-production-mode", "C");
+      $("#mode-c-selection-note").hidden = false;
+      showToast("已选择 C 模式；默认 dry-run，不会调用 Veo / Image2");
+      switchView("produce");
+    } catch (error) { showToast(String(error.message || error)); }
+  };
   function setGenProgress(pct, status) {
     $("#gen-progress-bar").style.width = pct + "%";
     $("#gen-pct").textContent = Math.round(pct) + "%";
@@ -1994,7 +2053,7 @@ async function loadGalleryHistory() {
 }
 
 async function loadPreview() {
-  if (activeProductionMode === "B") {
+  if (activeProductionMode === "B" || activeProductionMode === "C") {
     $("#preview-card").style.display = "none";
     $("#preview-video").removeAttribute("src");
     return;
@@ -2532,6 +2591,35 @@ let THEMES = [
 
 let currentTheme = THEMES[0];
 
+const VIDEO_THEME_PROFILES = {
+  "product-promo": { label: "产品宣传", categories: ["界面展示", "交互演示", "数据信息", "转场结构"], ids: ["ui-entrance", "interaction", "data", "transition"], cards: ["spotlight-hero-card", "grid-to-hero", "source-converge"], note: "突出产品能力、界面状态和关键卖点，转场强度可偏高。", digitalHuman: "可选" },
+  "knowledge-explainer": { label: "知识科普", categories: ["字幕花字", "数据信息", "素材呈现", "强调标注"], ids: ["typography", "data", "interaction", "effects"], cards: ["number-counter", "source-converge", "highlighter-sweep"], note: "优先保证信息可读和证据清晰，减少无意义炫技。", digitalHuman: "可选" },
+  "news-analysis": { label: "新闻解读", categories: ["素材呈现", "数据信息", "强调标注", "转场结构"], ids: ["interaction", "data", "effects", "transition"], cards: ["doc-park-left-pill-deal", "timeline-photo-strip", "callout-line-label"], note: "优先证据、时间线和重点标注，保持严肃节奏。", digitalHuman: "可选" },
+  "tutorial": { label: "教程演示", categories: ["界面展示", "流程步骤", "强调标注", "字幕花字"], ids: ["ui-entrance", "interaction", "effects", "typography"], cards: ["ui-flow-theater", "step-timeline-vertical", "scanline-annotate"], note: "围绕操作顺序组织镜头，步骤和指示必须跟随旁白。", digitalHuman: "可选" },
+  "data-report": { label: "数据报告", categories: ["数据信息", "素材呈现", "字幕花字", "转场结构"], ids: ["data", "interaction", "typography", "transition"], cards: ["chart-grow", "metric-with-sparkline", "unit-grid-proportion"], note: "以数字、图表和结论为主，控制装饰性运动。", digitalHuman: "不启用" },
+};
+
+function renderThemeStrategy(theme) {
+  const profile = theme?.videoProfile || {};
+  const id = profile.id && VIDEO_THEME_PROFILES[profile.id] ? profile.id : "knowledge-explainer";
+  const config = VIDEO_THEME_PROFILES[id];
+  const select = $("#video-theme-profile");
+  if (!select) return;
+  select.value = id;
+  $("#theme-strategy-status").textContent = `${config.label} · 数字人${config.digitalHuman}`;
+  $("#theme-category-chips").innerHTML = config.categories.map((label, index) => `<span class="theme-category-chip${index < 2 ? " primary" : ""}">${label}</span>`).join("");
+  $("#theme-strategy-note").textContent = `${config.note} 推荐：${config.cards.join(" · ")}`;
+}
+
+function applyVideoThemeProfile(id, persist = true) {
+  const config = VIDEO_THEME_PROFILES[id] || VIDEO_THEME_PROFILES["knowledge-explainer"];
+  currentTheme.videoProfile = { id, allowedCategories: [...config.ids], preferredCards: [...config.cards], rhythm: "standard", digitalHumanPolicy: config.digitalHuman === "主导" ? "required" : config.digitalHuman === "不启用" ? "disabled" : "optional" };
+  renderThemeStrategy(currentTheme);
+  if (persist) {
+    try { apiFetch("/api/theme/current", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(currentTheme) }); } catch (e) {}
+  }
+}
+
 function renderThemeGrid() {
   const grid = $("#theme-grid");
   grid.innerHTML = "";
@@ -2564,6 +2652,8 @@ function applyTheme(t) {
   // P2：当前生效主题 → 成片风格权威（current-theme.json，供 build-storyboard 生成 Remotion 色调）
   try { apiFetch("/api/theme/current", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(t) }); } catch (e) {}
   currentTheme = t;
+  postVideoThemeToDirector();
+  renderThemeStrategy(currentTheme);
   const sbEl = document.getElementById("sb-theme");
   if (sbEl && !document.querySelector('.view[data-view="bmode"]').classList.contains("active")) sbEl.textContent = t.name;
   setSlot("bg", t.bg);
@@ -2783,6 +2873,7 @@ $("#save-theme").onclick = async () => {
     materialOpacity: (currentTheme && currentTheme.materialOpacity) || 0.6,
     fallbackSize: (currentTheme && currentTheme.fallbackSize) || 96,
     fallbackAlpha: (currentTheme && currentTheme.fallbackAlpha) || 0.14,
+    videoProfile: currentTheme && currentTheme.videoProfile ? {...currentTheme.videoProfile} : undefined,
   };
   const saved = JSON.parse(localStorage.getItem("sc-themes") || "[]");
   saved.push(custom);
@@ -2811,7 +2902,10 @@ $("#reset-theme").onclick = () => applyTheme(currentTheme);
 
 // 初始化风格模块
 renderThemeGrid();
+renderThemeStrategy(currentTheme);
 updatePreview();
+
+$("#video-theme-profile").onchange = (event) => applyVideoThemeProfile(event.target.value);
 
 // P1：从 C4（theme-pack.json）加载真实主题，合并本地自定义
 function rgbaToHex(rgba) {
@@ -4032,6 +4126,68 @@ async function restoreBWorkflowState() {
     await renderBProductionAudit(runId, run);
   } catch {}
 }
+async function startCMode() {
+  if (bModeBusy) { showToast("模式 C 任务正在运行"); return; }
+  const text = pendingBModeText ?? $("#b-fulltext").value.trim();
+  if (!text) { showToast("请先粘贴口播文案"); return; }
+  if (!bRoleFile) {
+    $("#b-user-settings").scrollIntoView({behavior:"smooth", block:"center"});
+    showToast("请先选择角色图作为 TalkCraft 工程入口");
+    $("#b-role-file").click();
+    return;
+  }
+  if ($("#b-voice-mode").value === "volcengine-clone" && !/^[A-Za-z0-9_-]{2,128}$/.test($("#b-speaker-id").value.trim())) {
+    showToast("请先填写有效的火山 speaker_id"); return;
+  }
+  if ($("#b-voice-mode").value === "volcengine-tts2" && !/^[A-Za-z0-9_-]{2,256}$/.test(bSelectedSpeakerId())) {
+    showToast("请先填写有效的火山合成 2.0 音色 ID"); return;
+  }
+  pendingBModeText = null;
+  bModeBusy = true;
+  activeProductionMode = "C";
+  sessionStorage.setItem("sc-production-mode", "C");
+  switchView("produce");
+  setBProgress(5, "准备 C 模式 TalkCraft 工程…");
+  let startedRunId = null;
+  try {
+    const form = new FormData();
+    form.set("text", text);
+    form.set("voiceMode", $("#b-voice-mode").value);
+    if (bSelectedSpeakerId()) form.set("speakerId", bSelectedSpeakerId());
+    form.set("voice", $("#b-voice-select").value);
+    form.set("generationMode", $("#b-multi-shot").checked ? "segments" : "combined");
+    form.set("visualMode", "C");
+    for (const file of bRoleFiles) form.append("avatar", file);
+    const response = await fetch("/api/mode-c/create", {method:"POST", body:form});
+    const started = await response.json();
+    if (!response.ok || !started.ok) throw new Error(started.error || "C 模式无法启动");
+    startedRunId = started.runId;
+    localStorage.setItem("shotcraft-c-talkcraft-run", started.runId);
+    for (let attempt=0; attempt<600; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const taskResponse = await fetch(`/api/task?id=${started.id}&since=0`);
+      const task = await taskResponse.json();
+      if (!taskResponse.ok || task.error) throw new Error("C 模式任务状态暂时不可用");
+      if (task.done) {
+        if (task.exitCode !== 0) throw new Error("C 模式输入处理失败");
+        const dryResponse = await fetch("/api/mode-c/dry-run", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({runId:started.runId})});
+        const dry = await dryResponse.json();
+        if (!dryResponse.ok || !dry.ok) throw new Error(dry.error || "C 模式 dry-run 失败");
+        const counts = dry.counts || {};
+        setBProgress(50, `C dry-run 完成：图片 ${counts.image || 0}，视频 ${counts.video || 0}，阻断 ${counts.blocked || 0}`);
+        showToast("C 模式已生成素材任务清单；未调用 Veo / Image2");
+        return;
+      }
+      setBProgress(Math.min(44, 12 + attempt * 0.5), "C 模式配音与时间处理中…");
+    }
+    throw new Error("C 模式任务超过 15 分钟，仍可能在后台运行");
+  } catch (error) {
+    setBProgress(0, String(error.message || error));
+    if (startedRunId) showToast(`C 模式启动失败：${String(error.message || error)}`);
+    else showToast(String(error.message || error));
+  } finally { bModeBusy = false; }
+}
+
 async function startBMode() {
   if (bModeBusy) { showToast("B 模式任务正在运行"); return; }
   const text = pendingBModeText ?? $("#b-fulltext").value.trim();
@@ -4136,6 +4292,7 @@ function switchView(name) {
       bDirectorFrameReady = false;
       frame.src = frame.dataset.src;
     }
+    postVideoThemeToDirector();
     postPendingBDirectorPayload();
   }
   document.querySelectorAll(".view").forEach((v) => {
@@ -4148,9 +4305,10 @@ function switchView(name) {
     sessionStorage.setItem("sc-view", name);
     const sb = document.getElementById("sb-theme");
     const isB = name === "bmode" || activeProductionMode === "B";
-    $("#sb-theme-label").textContent = isB ? "B 视觉" : "视频主题";
-    if (sb) sb.textContent = isB ? "待接入主题中心" : (typeof currentTheme !== "undefined" && currentTheme ? currentTheme.name : "-");
-    $("#sb-mode").textContent = isB ? "B · 数字人口播" : "A · Remotion 主导";
+    const isC = activeProductionMode === "C";
+    $("#sb-theme-label").textContent = isB ? "B 视觉" : isC ? "C 素材补足" : "视频主题";
+    if (sb) sb.textContent = isB ? "待接入主题中心" : isC ? "AIGC 补足 · dry-run" : (typeof currentTheme !== "undefined" && currentTheme ? currentTheme.name : "-");
+    $("#sb-mode").textContent = isB ? "B · 数字人口播" : isC ? "C · AIGC 素材补足" : "A · Remotion 主导";
   } catch {}
   if (name === "bmode" || name === "director" || name === "produce") window.scrollTo({top: 0, behavior: "instant"});
 }
@@ -4165,13 +4323,15 @@ $("#b-mode-real").onclick = () => {
   const text = $("#b-fulltext").value.trim();
   if (!text) { showToast("请先粘贴口播文案"); return; }
   pendingBModeText = text;
-  startBMode();
+  if (activeProductionMode === "C") startCMode();
+  else startBMode();
 };
 window.addEventListener("message", (event) => {
   const frame = $("#b-mode-frame");
   if (event.origin !== location.origin || event.source !== frame.contentWindow) return;
   if (event.data?.type === "shotcraft-b-ready") {
     bDirectorFrameReady = true;
+    postVideoThemeToDirector();
     postPendingBDirectorPayload();
     return;
   }
