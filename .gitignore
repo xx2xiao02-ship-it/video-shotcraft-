@@ -26,6 +26,8 @@ PRODUCT.md
 # ===== 本地独立开发线（video-shotcraft-local）=====
 # 素材库：3396 镜头不进库
 materials/
+# 第15批卡片治理隔离工作区
+/.isolated/card-governance-batch-015-worktree/
 # 运行日志与临时文件
 *.log
 temp-screenshot.png
@@ -48,7 +50,9 @@ docs/_shots/
 
 # B 模式本地测试产物
 /director/b-mode-runs/
+/director/a-mode-runs/
 /template/public/b-mode/
+/template/public/audio/a-mode/
 /template/out/b-mode/
 
 # 视频外包装模块运行产物
