@@ -454,6 +454,7 @@ test('editorial semantic success cannot hide automatic preflight failure', () =>
     context.run={semanticPassed:true,candidatesReady:true,preflight:false,failureReport:failure};
     assert.equal(vm.runInContext('currentTalkcraftFailure(run)',context),failure);
     context.run.preflight=true;
+    context.run.preflightCompleted=true;
     assert.equal(vm.runInContext('currentTalkcraftFailure(run)',context),null);
   }
 });
