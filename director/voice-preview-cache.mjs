@@ -1,11 +1,13 @@
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {validateSpeechRate} from './voice-speed.mjs';
 
-export function voicePreviewFile(root, speakerId, text) {
+export function voicePreviewFile(root, speakerId, text, speechRate = 0) {
+  const rate = validateSpeechRate(speechRate);
   const speaker = String(speakerId || '').trim();
   if (!/^[A-Za-z0-9_-]{2,256}$/u.test(speaker)) throw new Error('音色 ID 无效');
-  const digest = createHash('sha256').update(`${speaker}\0${text}`).digest('hex').slice(0, 16);
+  const digest = createHash('sha256').update(`${speaker}\0${text}${rate ? `\0${rate}` : ''}`).digest('hex').slice(0, 16);
   return path.join(root, 'materials', '_voice-previews', `${speaker.slice(0, 48)}-${digest}.mp3`);
 }
 
@@ -23,14 +25,15 @@ function readPreview(file) {
 
 export function createVoicePreviewCache(root, text, synthesize) {
   const pending = new Map();
-  const read = speakerId => readPreview(voicePreviewFile(root, speakerId, text));
-  async function getOrCreate(speakerId) {
-    const file = voicePreviewFile(root, speakerId, text);
+  const read = (speakerId, speechRate = 0) => readPreview(voicePreviewFile(root, speakerId, text, speechRate));
+  async function getOrCreate(speakerId, speechRate = 0) {
+    speechRate = validateSpeechRate(speechRate);
+    const file = voicePreviewFile(root, speakerId, text, speechRate);
     const existing = readPreview(file);
     if (existing) return existing;
     if (pending.has(file)) return pending.get(file);
     const request = (async () => {
-      const audio = await synthesize({text, speakerId});
+      const audio = await synthesize({text, speakerId, speechRate});
       if (!Buffer.isBuffer(audio) || !validMp3(audio)) throw new Error('火山接口未返回有效试听音频');
       mkdirSync(path.dirname(file), {recursive:true});
       try { writeFileSync(file, audio, {flag:'wx'}); }

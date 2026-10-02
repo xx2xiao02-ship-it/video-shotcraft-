@@ -1,6 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {readFileSync, writeFileSync} from 'node:fs';
 import WebSocket from 'ws';
+import {validateSpeechRate} from './voice-speed.mjs';
 import {parseVolcengineTtsResponse, volcengineVoiceConfig} from './volcengine-voice.mjs';
 
 export const TTS2_URL = process.env.VOLCENGINE_TTS2_URL || 'wss://openspeech.bytedance.com/api/v3/tts/unidirectional/stream';
@@ -59,19 +60,19 @@ export function decodeTts2Frame(data) {
   return {type, event, errorCode, payload:frame.subarray(offset)};
 }
 
-export function tts2Request(text, speakerId) {
+export function tts2Request(text, speakerId, speechRate = 0) {
   const speaker = String(speakerId || '').trim();
   if (!/^[A-Za-z0-9_-]{2,256}$/u.test(speaker)) throw new Error('请填写火山语音合成 2.0 音色 ID');
   if (!String(text || '').trim()) throw new Error('合成文案不能为空');
   return {req_params:{text:String(text).trim(), speaker,
-    audio_params:{format:'mp3', sample_rate:24000, enable_subtitle:true}}};
+    audio_params:{format:'mp3', sample_rate:24000, enable_subtitle:true, speech_rate:validateSpeechRate(speechRate)}}};
 }
 
-export async function synthesizeVolcengineTts2({text, speakerId, outputFile, timingFile,
+export async function synthesizeVolcengineTts2({text, speakerId, speechRate = 0, outputFile, timingFile,
   fetchImpl = globalThis.fetch, url = TTS2_HTTP_URL, timeoutMs = Number(process.env.VOLCENGINE_TIMEOUT_MS || 120000)}) {
   const config = volcengineVoiceConfig();
   if (!config.apiKey) throw new Error('未配置火山 API Key，未调用语音合成 2.0');
-  const request = tts2Request(text, speakerId);
+  const request = tts2Request(text, speakerId, speechRate);
   const endpoint = new URL(url);
   if (endpoint.protocol !== 'https:' && !(endpoint.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(endpoint.hostname))) {
     throw new Error('火山语音合成只允许安全 HTTP 地址');
@@ -109,11 +110,11 @@ export async function synthesizeVolcengineTts2({text, speakerId, outputFile, tim
   }
 }
 
-export async function synthesizeVolcengineTts2WebSocket({text, speakerId, outputFile, timingFile,
+export async function synthesizeVolcengineTts2WebSocket({text, speakerId, speechRate = 0, outputFile, timingFile,
   WebSocketImpl = WebSocket, url = TTS2_URL, timeoutMs = Number(process.env.VOLCENGINE_TIMEOUT_MS || 120000)}) {
   const config = volcengineVoiceConfig();
   if (!config.apiKey) throw new Error('未配置火山 API Key，未调用语音合成 2.0');
-  const request = tts2Request(text, speakerId);
+  const request = tts2Request(text, speakerId, speechRate);
   const endpoint = new URL(url);
   if (endpoint.protocol !== 'wss:' && !(endpoint.protocol === 'ws:' && ['localhost', '127.0.0.1'].includes(endpoint.hostname))) {
     throw new Error('火山语音合成只允许安全 WebSocket 地址');
@@ -172,6 +173,6 @@ export async function synthesizeVolcengineTts2WebSocket({text, speakerId, output
 }
 
 if (process.argv[1]?.endsWith('volcengine-tts2.mjs') && process.argv[2] === 'synthesize') {
-  const [, inputFile, outputFile, timingFile, speakerId] = process.argv.slice(2);
-  await synthesizeVolcengineTts2({text:readFileSync(inputFile, 'utf8'), speakerId, outputFile, timingFile});
+  const [, inputFile, outputFile, timingFile, speakerId, speechRate = 0] = process.argv.slice(2);
+  await synthesizeVolcengineTts2({text:readFileSync(inputFile, 'utf8'), speakerId, speechRate, outputFile, timingFile});
 }

@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {talkcraftProject} from './talkcraft-status.mjs';
+import {assertTalkcraftCardCallsBound, readTalkcraftCardCalls} from './talkcraft-card-calls.mjs';
 
 const json = file => JSON.parse(readFileSync(file,'utf8'));
 
@@ -38,10 +39,14 @@ export function parseCueSource(source, ts) {
       values[name] = literal(property.initializer,ts);
     }
     if (!Number.isFinite(values.t) || typeof values.file !== 'string' ||
-        !Number.isFinite(values.volume) || values.volume < 0 || values.volume > 1) {
+        !Number.isFinite(values.volume) || values.volume < 0 || values.volume > 1 ||
+        (values.rate !== undefined && (!Number.isFinite(values.rate) || values.rate <= 0 || values.rate > 4)) ||
+        (values.clip !== undefined && (!Number.isFinite(values.clip) || values.clip <= 0))) {
       throw new Error('CUES 条目必须包含有效的 t、file、volume');
     }
-    return {t:values.t,file:values.file,volume:values.volume};
+    return {t:values.t,file:values.file,volume:values.volume,
+      ...(values.rate === undefined ? {} : {rate:values.rate}),
+      ...(values.clip === undefined ? {} : {clip:values.clip})};
   });
   return cues.sort((a,b) => a.t-b.t);
 }
@@ -93,18 +98,27 @@ function writeJson(file,data) {
   writeFileSync(file,JSON.stringify(data,null,2)+'\n','utf8');
 }
 
-export function writeTalkcraftQaManifests(root,runId) {
+export function writeTalkcraftQaManifests(root,runId,skillRootOverride) {
   const project = talkcraftProject(root,runId);
   const remotion = path.join(project,'remotion');
-  const skillRoot = resolveTalkcraftSkillRoot(root);
-  const require = createRequire(path.join(remotion,'package.json'));
+  const skillRoot = skillRootOverride || resolveTalkcraftSkillRoot(root);
+  const require = createRequire(path.join(skillRoot,'runtime','package.json'));
   const ts = require('typescript');
   const shots = json(path.join(remotion,'shots.json'));
-  const cards = parseCardsFromShotbook(readFileSync(path.join(project,'SHOTBOOK.md'),'utf8'),skillRoot);
-  const missingShotCards = shots.map(shot => shot.id).filter(id => !cards.byShot[id]?.length);
-  if (missingShotCards.length) throw new Error(`SHOTBOOK 没有选卡登记：${missingShotCards.join(', ')}`);
-  const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(remotion,'src','cards',`${slug}.tsx`)));
-  if (missingCopies.length) throw new Error(`工程未复制这些卡片源码：${missingCopies.join(', ')}`);
+  const savedCalls = readTalkcraftCardCalls(root,runId);
+  let cards;
+  if (savedCalls.present) {
+    const binding = assertTalkcraftCardCallsBound(root,skillRoot,runId);
+    const byShot = {};
+    for (const call of binding.record.calls) byShot[call.shotId] = [call.cardId];
+    cards = {slugs:[...new Set(binding.record.calls.map(call => call.cardId))],byShot};
+  } else {
+    cards = parseCardsFromShotbook(readFileSync(path.join(project,'SHOTBOOK.md'),'utf8'),skillRoot);
+    const missingShotCards = shots.map(shot => shot.id).filter(id => !cards.byShot[id]?.length);
+    if (missingShotCards.length) throw new Error(`SHOTBOOK 没有选卡登记：${missingShotCards.join(', ')}`);
+    const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(remotion,'src','cards',`${slug}.tsx`)));
+    if (missingCopies.length) throw new Error(`工程未复制这些卡片源码：${missingCopies.join(', ')}`);
+  }
 
   const cues = parseCueSource(readFileSync(path.join(remotion,'src','sfx.ts'),'utf8'),ts);
   for (const cue of cues) {

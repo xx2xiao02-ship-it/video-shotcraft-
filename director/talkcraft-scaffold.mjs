@@ -2,7 +2,7 @@ import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from '
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
-import {normalizeTheme, readCurrentTheme, themeAdapter} from './theme-contract.mjs';
+import {normalizeTheme, readCurrentTheme, themeAdapter, videoDimensions} from './theme-contract.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -29,6 +29,7 @@ export function scaffoldTalkcraftProject(root, skillRoot, runId) {
   }
   const theme = normalizeTheme(source.themeSnapshot || readCurrentTheme(root));
   const bTheme = themeAdapter(theme, 'B');
+  const {width, height} = videoDimensions(source.aspectRatio || source.themeSnapshot?.aspectRatio || '16:9');
   const upstream = path.join(skillRoot, 'template', 'motion-systems');
   const runtimePackage = JSON.parse(readFileSync(path.join(skillRoot, 'runtime', 'package.json'), 'utf8'));
   if (!existsSync(path.join(upstream, 'camera.tsx')) || !existsSync(path.join(upstream, 'params.ts'))) {
@@ -79,7 +80,7 @@ export const shotSequence = (shot: Shot, fps=FPS) => ({from:Math.round(shot.star
   duration:Math.round((shot.startSec+shot.durationSec)*fps)-Math.round(shot.startSec*fps)+shot.lead+shot.tail});
 export const darkAt = (_sec:number) => false;
 `, 'utf8');
-  writeFileSync(path.join(src, 'sfx.ts'), `export type SfxCue = {t:number; file:string; volume:number};
+  writeFileSync(path.join(src, 'sfx.ts'), `export type SfxCue = {t:number; file:string; volume:number; rate?:number; clip?:number};
 export const CUES: SfxCue[] = [];
 export const SFX_CUES = CUES;
 export const cues = CUES;
@@ -121,12 +122,15 @@ export const phrases = () => {
   }
   return out.map((phrase,index) => ({...phrase,end:out[index+1]?.start ?? timing.totalSec}));
 };
-export const SubtitleLine: React.FC<{text:string; dark?:boolean}> = ({text}) =>
-  <AbsoluteFill style={{justifyContent:'flex-end', alignItems:'center', pointerEvents:'none'}}>
-    <div style={{maxWidth:1480, marginBottom:75, padding:'8px 18px', textAlign:'center',
-      fontFamily:'var(--sc-font-family)', fontSize:text.length>24?38:44,
+export const SubtitleLine: React.FC<{text:string; dark?:boolean}> = ({text}) => {
+  const {width,height}=useVideoConfig(); const portrait=height>width;
+  return <AbsoluteFill style={{justifyContent:'flex-end', alignItems:'center', pointerEvents:'none'}}>
+    <div style={{maxWidth:portrait?'84%':1480, marginBottom:portrait?Math.round(height*0.22):75,
+      padding:'8px 18px', textAlign:'center', overflowWrap:'anywhere',
+      fontFamily:'var(--sc-font-family)', fontSize:portrait?42:(text.length>24?38:44),
       fontWeight:600, lineHeight:1.3, color:'var(--sc-caption-color, var(--sc-text))', background:'color-mix(in srgb, var(--sc-surface) 76%, transparent)'}}>{text}</div>
   </AbsoluteFill>;
+};
 export const Subtitles: React.FC = () => {
   const frame=useCurrentFrame(); const {fps}=useVideoConfig();
   const now=frame/fps; const line=phrases().find(p=>now>=p.start && now<p.end);
@@ -160,8 +164,9 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
   {!sfxSolo && <Audio src={staticFile('narration.mp3')} />}
   {!sfxSolo && bgm && <Audio src={staticFile(bgm.src)} loop volume={(frame) =>
     bgm.volume * Math.max(0, Math.min(1, frame / 30, (${source.totalFrames} - frame - 1) / 15))} />}
-  {CUES.map((cue,index) => <Sequence key={index} from={Math.round(cue.t*30)}>
-    <Audio src={staticFile('sfx/'+cue.file)} volume={cue.volume} />
+  {CUES.map((cue,index) => <Sequence key={index} from={Math.round(cue.t*30)}
+    {...(cue.clip ? {durationInFrames:Math.max(1,Math.ceil(cue.clip*30))} : {})}>
+    <Audio src={staticFile('sfx/'+cue.file)} volume={cue.volume} playbackRate={cue.rate ?? 1} />
   </Sequence>)}
 </AbsoluteFill>;
 `, 'utf8');
@@ -169,7 +174,7 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
 import {Composition} from 'remotion';
 import {Main} from './Main';
 export const Root: React.FC = () =>
-  <Composition id="Main" component={Main} durationInFrames={${source.totalFrames}} fps={30} width={1920} height={1080} defaultProps={{sfxSolo:false}} />;
+  <Composition id="Main" component={Main} durationInFrames={${source.totalFrames}} fps={30} width={${width}} height={${height}} defaultProps={{sfxSolo:false}} />;
 `, 'utf8');
   writeFileSync(path.join(src, 'index.ts'), `import {registerRoot} from 'remotion';
 import {Root} from './Root';

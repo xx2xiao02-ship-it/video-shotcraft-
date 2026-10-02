@@ -54,6 +54,12 @@ test('retains concrete preflight failures and gives stage-specific actions', () 
     assert.equal(report.failedChecks.length, 2);
     assert.match(report.cause, /2 项检查失败/u);
     assert.match(report.actions.join(' '), /SHOTBOOK/u);
+    for (const name of ['talkcraft-editorial','talkcraft-editorial-check']) {
+      const automatic = buildTalkcraftFailureReport(root,runId,{name,exitCode:1,
+        logs:['AUTO_PREFLIGHT_START：开始自动分镜预检',...report.failedChecks]});
+      assert.equal(automatic.code,'TALKCRAFT_PREFLIGHT_FAILED');
+      assert.equal(automatic.failedChecks.length,2);
+    }
   } finally {
     if (!root.startsWith(workspace + path.sep)) throw new Error('Test cleanup escaped workspace');
     rmSync(root, {recursive:true, force:true});

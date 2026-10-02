@@ -19,13 +19,16 @@ test('new TalkCraft input stays isolated and preserves sentence order', () => {
       ['先收藏。','再行动！']);
     const sourceRun = JSON.parse(readFileSync(path.join(created.project, 'source-run.json')));
     assert.equal(sourceRun.isDigitalHuman, false);
+    assert.equal(sourceRun.cardCallsRequired, true);
     assert.equal(sourceRun.digitalHumanMode, 'segments');
     assert.equal(sourceRun.visualTextLocale, 'zh-CN');
+    assert.equal(sourceRun.speechRate, 0);
     const tts2 = createTalkcraftInput(root, {text:'测试新版合成。', voiceMode:'volcengine-tts2',
-      speakerId:'zh_female_vv_uranus_bigtts', avatarBytes});
+      speakerId:'zh_female_vv_uranus_bigtts', speechRate:12, avatarBytes});
     const tts2Source = JSON.parse(readFileSync(path.join(tts2.project, 'source-run.json')));
     assert.equal(tts2Source.voiceMode, 'volcengine-tts2');
     assert.equal(tts2Source.speakerId, 'zh_female_vv_uranus_bigtts');
+    assert.equal(tts2Source.speechRate, 12);
     const combined = createTalkcraftInput(root, {text:'合并测试。',voice:'zh-CN-YunxiNeural',
       generationMode:'combined',avatarBytes:[avatarBytes, avatarBytes]});
     const combinedSource = JSON.parse(readFileSync(path.join(combined.project, 'source-run.json')));

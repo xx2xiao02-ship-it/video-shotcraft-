@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
+import {readNativeTiming, timingHealth} from './talkcraft-native-timing.mjs';
 
 const RUN_ID = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i;
 const digest = file => createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -34,6 +35,19 @@ function semanticInputs(project) {
   const names = ['semantics.json', 'audio/timestamps.json'];
   if (names.some(name => !existsSync(path.join(project, name)))) return null;
   return Object.fromEntries(names.map(name => [name, digest(path.join(project, name))]));
+}
+
+function firstCardCallFingerprint(project) {
+  const file = path.join(project, 'qa', 'card-calls.json');
+  if (!existsSync(file)) return null;
+  const record = json(file);
+  const call = record.calls?.find(item => item?.shotId === 's01');
+  if (!call) return null;
+  const scene = call.evidence?.find(item => item?.kind === 'scene-binding');
+  const candidate = call.evidence?.find(item => item?.kind === 'card-candidate');
+  return createHash('sha256').update(JSON.stringify({shotId:call.shotId, cardId:call.cardId,
+    implementationSha256:call.implementationSha256, props:call.props,
+    sceneSha256:scene?.sha256 || null, candidateSetSha256:candidate?.candidateSetSha256 || null})).digest('hex');
 }
 
 export function talkcraftSceneCoverage(project, shots) {
@@ -77,6 +91,10 @@ export function readTalkcraftStatus(root, runId) {
   const digitalHuman = readTalkcraftDigitalHumanStatus(project);
   const themeSnapshot = has('theme.json') ? json(path.join(project, 'theme.json')) : null;
   const timing = has('audio/timestamps.json') ? json(path.join(project, 'audio', 'timestamps.json')) : null;
+  let canRecoverTiming = false;
+  if (!timingHealth(timing).sentenceTimingReady) {
+    try { canRecoverTiming = !!readNativeTiming(project); } catch {}
+  }
   const shots = has('remotion/shots.json') ? json(path.join(project, 'remotion', 'shots.json')) : null;
   const sceneCoverage = talkcraftSceneCoverage(project, shots);
   const semantics = has('semantics.json') ? json(path.join(project, 'semantics.json')) : null;
@@ -91,8 +109,10 @@ export function readTalkcraftStatus(root, runId) {
   const sampleFile = path.join(project, 'remotion', 'out', 'preview', 's01.mp4');
   const sample = existsSync(sampleFile) && statSync(sampleFile).size > 0;
   const approval = has('sample-approved.json') ? json(path.join(project, 'sample-approved.json')) : null;
+  const firstCardCallSha256 = source.cardCallsRequired === true ? firstCardCallFingerprint(project) : null;
   const sampleApproved = sample && preflight && approval?.schema === 'talkcraft-sample-approval-v1' &&
-    approval.sampleSha256 === digest(sampleFile) && approval.shotbookSha256 === inputs['SHOTBOOK.md'];
+    approval.sampleSha256 === digest(sampleFile) && approval.shotbookSha256 === inputs['SHOTBOOK.md'] &&
+    (source.cardCallsRequired !== true || (!!firstCardCallSha256 && approval.firstCardCallSha256 === firstCardCallSha256));
   const finalFile = path.join(project, 'remotion', 'out', 'final.mp4');
   const final = existsSync(finalFile) && statSync(finalFile).size > 0;
   const qa = final && has('qa/passed.json') ? json(path.join(project, 'qa', 'passed.json')) : null;
@@ -107,17 +127,21 @@ export function readTalkcraftStatus(root, runId) {
   const candidatesReady = existsSync(candidatesFile) && statSync(candidatesFile).size > 0 &&
     existsSync(candidatesReport) && statSync(candidatesReport).size > 0;
   return {runId, sourceRunId:source.sourceRunId || null, voice:source.voice || null, digitalHuman,
+    ...timingHealth(timing), canRecoverTiming,
+    inputReady:timingHealth(timing).sentenceTimingReady && has('aligned-sentences.json') && !!semantics?.sentences?.length,
+    aspectRatio:source.aspectRatio || source.themeSnapshot?.aspectRatio || '16:9',
     themeSchema:themeSnapshot?.source?.schema || source.themeSchema || null,
     themeId:themeSnapshot?.themeId || source.themeId || null,
     themeHash:themeSnapshot?.themeHash || source.themeHash || null,
     visualTextLocale:source.visualTextLocale || 'zh-CN',
     audioSeconds:source.totalFrames ? source.totalFrames / source.fps : null,
     sentences:timing?.sentences?.length || 0,
-    minMatch:timing?.sentences?.length ? Math.min(...timing.sentences.map(sentence => sentence.match)) : null,
+    minMatch:timing?.timingSource !== 'tts-native' && timing?.sentences?.length ? Math.min(...timing.sentences.map(sentence => sentence.match)) : null,
     shots:shots?.length || 0,
     semanticReady:!!semantics?.sentences?.length && semantics.sentences.every(sentence =>
       sentence.shot && sentence.weight && Array.isArray(sentence.sem) && sentence.sem.length),
     semanticPassed, shotbook:has('SHOTBOOK.md'), preflight, workbenchReady:has('remotion/src/index.ts'),
+    cardCallsRequired:source.cardCallsRequired === true, cardCallsPresent:has('qa/card-calls.json'),
     candidatesReady, sample, sampleApproved, scenesImplemented:sceneCoverage.implemented,
     scenesMissing:sceneCoverage.missing, scenesReady:sceneCoverage.ready,
     final, qaPassed, reviewPassed,
@@ -136,6 +160,7 @@ export function approveTalkcraftSample(root, runId) {
   writeFileSync(file, JSON.stringify({schema:'talkcraft-sample-approval-v1',
     sampleSha256:digest(path.join(project, 'remotion', 'out', 'preview', 's01.mp4')),
     shotbookSha256:digest(path.join(project, 'SHOTBOOK.md')),
+    ...(status.cardCallsRequired ? {firstCardCallSha256:firstCardCallFingerprint(project)} : {}),
     approvedAt:new Date().toISOString()}, null, 2), 'utf8');
   return {runId, approved:true};
 }

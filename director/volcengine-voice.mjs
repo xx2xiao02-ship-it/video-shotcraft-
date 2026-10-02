@@ -2,6 +2,7 @@ import {randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {readStoredProviderConfig} from './provider-config.mjs';
+import {validateSpeechRate} from './voice-speed.mjs';
 
 const TTS_URL = process.env.VOLCENGINE_TTS_URL || 'https://openspeech.bytedance.com/api/v3/tts/unidirectional';
 export const CLONE_URL = process.env.VOLCENGINE_CLONE_URL || 'https://openspeech.bytedance.com/api/v3/tts/voice_clone';
@@ -92,7 +93,8 @@ export function parseVolcengineTtsResponse(text) {
   return {audioBytes:Buffer.concat(audioParts), words, records};
 }
 
-export async function synthesizeVolcengineVoice({text, speakerId, outputFile, timingFile}) {
+export async function synthesizeVolcengineVoice({text, speakerId, speechRate = 0, outputFile, timingFile}) {
+  speechRate = validateSpeechRate(speechRate);
   const config = volcengineVoiceConfig();
   if (!config.apiKey) throw new Error('未配置 VOLCENGINE_TTS_API_KEY，未调用火山语音服务');
   if (!speakerId) throw new Error('火山复刻音色缺少 speaker_id');
@@ -104,7 +106,7 @@ export async function synthesizeVolcengineVoice({text, speakerId, outputFile, ti
       headers:{'content-type':'application/json', 'X-Api-Key':config.apiKey,
         'X-Api-Resource-Id':config.ttsResourceId, 'X-Api-Request-Id':randomUUID()},
       body:JSON.stringify({req_params:{text:String(text).trim(), speaker:String(speakerId), model:config.model,
-        audio_params:{format:'mp3', sample_rate:24000}, additions:JSON.stringify({enable_subtitle:true, explicit_language:'zh-cn'})}}),
+        audio_params:{format:'mp3', sample_rate:24000, speech_rate:speechRate}, additions:JSON.stringify({enable_subtitle:true, explicit_language:'zh-cn'})}}),
       signal:controller.signal,
     });
     const body = await response.text();
@@ -151,10 +153,10 @@ export async function getVolcengineVoiceStatus() {
 }
 
 if (process.argv[1]?.endsWith('volcengine-voice.mjs')) {
-  const [command, inputFile, outputFile, timingFile, speakerId] = process.argv.slice(2);
+  const [command, inputFile, outputFile, timingFile, speakerId, speechRate = 0] = process.argv.slice(2);
   if (command === 'synthesize') {
     const text = readFileSync(inputFile, 'utf8');
-    await synthesizeVolcengineVoice({text, speakerId, outputFile, timingFile});
+    await synthesizeVolcengineVoice({text, speakerId, speechRate, outputFile, timingFile});
     console.log(JSON.stringify({ok:true, outputFile, timingFile}, null, 2));
   }
 }

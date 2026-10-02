@@ -2,6 +2,7 @@ import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from '
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {readCurrentTheme, themeAdapter} from './theme-contract.mjs';
+import {validateNativeTiming, timingHealth} from './talkcraft-native-timing.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RUN_ID = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i;
@@ -86,6 +87,8 @@ export function useAlignedTiming(root, runId) {
   const source = JSON.parse(readFileSync(path.join(projectDir, 'source-run.json'), 'utf8'));
   const script = JSON.parse(readFileSync(path.join(projectDir, 'script.json'), 'utf8'));
   const timing = JSON.parse(readFileSync(path.join(projectDir, 'audio', 'timestamps.json'), 'utf8'));
+  validateNativeTiming(projectDir, timing);
+  const native = timing.timingSource === 'tts-native';
   if (source.runId !== runId || !Array.isArray(timing.sentences) || timing.sentences.length !== script.sentences.length) {
     throw new Error('Aligned timestamps do not match the source run');
   }
@@ -98,14 +101,15 @@ export function useAlignedTiming(root, runId) {
     const start = index === 0 ? 0 : sentence.start;
     const end = next ? next.start : sourceSeconds;
     if (sentence.text.replace(/\s+/gu, '') !== script.sentences[index].replace(/\s+/gu, '') ||
-        sentence.match < 0.9 || !Array.isArray(sentence.words) || !sentence.words.length ||
+        (native ? !sentence.textMatched : !Number.isFinite(sentence.match) || sentence.match < 0.9 || !Array.isArray(sentence.words) || !sentence.words.length) ||
         !Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
       throw new Error(`Aligned sentence ${index + 1} failed the script, word, or timing contract`);
     }
     return {sentence:index, start, end, text:sentence.text};
   });
   writeFileSync(path.join(projectDir, 'aligned-sentences.json'), JSON.stringify(alignedSentences, null, 2), 'utf8');
-  return {projectDir, sentences:alignedSentences.length, minMatch:Math.min(...timing.sentences.map(sentence => sentence.match)),
+  return {projectDir, sentences:alignedSentences.length, minMatch:native ? null : Math.min(...timing.sentences.map(sentence => sentence.match)),
+    ...timingHealth(timing),
     sourceTiming:source.timingMethod, alignedSeconds:timing.total, audioSeconds:sourceSeconds};
 }
 

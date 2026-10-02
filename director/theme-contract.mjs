@@ -3,6 +3,15 @@ import {existsSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 
 export const THEME_SCHEMA = 'shotcraft-theme-v2';
+export const VIDEO_ASPECT_RATIOS = Object.freeze({
+  '16:9': Object.freeze({width: 1920, height: 1080}),
+  '9:16': Object.freeze({width: 1080, height: 1920}),
+});
+
+export function videoDimensions(aspectRatio = '16:9') {
+  if (!Object.hasOwn(VIDEO_ASPECT_RATIOS, aspectRatio)) throw new Error('视频画幅仅支持横版 16:9 或竖版 9:16');
+  return VIDEO_ASPECT_RATIOS[aspectRatio];
+}
 
 const DEFAULTS = {
   id: 'c4-0',
@@ -25,6 +34,14 @@ const DEFAULTS = {
   materialOpacity: 0.6,
   fallbackSize: 96,
   fallbackAlpha: 0.14,
+};
+
+const DEFAULT_VIDEO_PROFILE = {
+  id: 'knowledge-explainer',
+  allowedCategories: ['typography', 'data', 'interaction', 'effects'],
+  preferredCards: ['number-counter', 'source-converge', 'highlighter-sweep'],
+  rhythm: 'standard',
+  digitalHumanPolicy: 'optional',
 };
 
 function stable(value) {
@@ -89,6 +106,7 @@ export function normalizeTheme(input = {}) {
     id: raw.id || DEFAULTS.id,
     name: raw.name || DEFAULTS.name,
     compatibility: Array.isArray(raw.compatibility) && raw.compatibility.length ? [...raw.compatibility] : ['A', 'B'],
+    aspectRatio: raw.aspectRatio ?? '16:9',
     tokens,
     // v1 aliases: retained as a deliberate compatibility layer for A mode.
     bg: tokens.background,
@@ -109,7 +127,16 @@ export function normalizeTheme(input = {}) {
     materialOpacity: tokens.materialOpacity,
     fallbackSize: tokens.fallbackSize,
     fallbackAlpha: tokens.fallbackAlpha,
+    videoProfile: {
+      ...DEFAULT_VIDEO_PROFILE,
+      ...(raw.videoProfile && typeof raw.videoProfile === 'object' ? raw.videoProfile : {}),
+      allowedCategories: Array.isArray(raw.videoProfile?.allowedCategories) && raw.videoProfile.allowedCategories.length
+        ? [...raw.videoProfile.allowedCategories] : [...DEFAULT_VIDEO_PROFILE.allowedCategories],
+      preferredCards: Array.isArray(raw.videoProfile?.preferredCards)
+        ? [...raw.videoProfile.preferredCards] : [...DEFAULT_VIDEO_PROFILE.preferredCards],
+    },
   };
+  videoDimensions(normalized.aspectRatio);
   return {...normalized, themeHash: themeHash(normalized)};
 }
 
@@ -131,10 +158,12 @@ export function themeAdapter(themeInput, mode) {
   if (mode === 'A') {
     return {
       mode: 'A', schema: THEME_SCHEMA, themeId: theme.id, themeHash: theme.themeHash,
+      aspectRatio: theme.aspectRatio,
       style: {bg:theme.bg, text:theme.ink, accent:theme.accent, sub:theme.mid,
         fontFamily:theme.fontFamily, captionSize:theme.captionSize,
         captionWeight:theme.captionWeight, captionColor:theme.captionColor,
-        materialOpacity:theme.materialOpacity, fallbackSize:theme.fallbackSize,
+        materialOpacity:theme.materialOpacity, overlayAlpha:theme.overlayAlpha / 100,
+        fallbackSize:theme.fallbackSize,
         fallbackAlpha:theme.fallbackAlpha},
       theme: {bg:theme.bg, surface:theme.card, text:theme.ink, textDim:theme.mid,
         accent:theme.accent, accent2:theme.accent2, danger:'#ff6b6b'},
@@ -143,6 +172,7 @@ export function themeAdapter(themeInput, mode) {
   if (mode === 'B') {
     return {
       mode: 'B', schema: THEME_SCHEMA, themeId: theme.id, themeHash: theme.themeHash,
+      aspectRatio: theme.aspectRatio,
       tokens: {...theme.tokens},
       cssVars: {
         '--sc-bg':theme.tokens.background, '--sc-surface':theme.tokens.surface,

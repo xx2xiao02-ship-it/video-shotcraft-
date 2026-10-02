@@ -1,19 +1,20 @@
 {
   "schema": "shotcraft-theme-v2",
   "schemaVersion": 2,
-  "id": "c4-0",
-  "name": "黑金高级",
+  "id": "c4-7",
+  "name": "墨绿自然",
   "compatibility": [
     "A",
     "B"
   ],
+  "aspectRatio": "9:16",
   "tokens": {
-    "background": "#0d0f14",
-    "surface": "#1a1d24",
-    "text": "#e8e6e1",
-    "textMuted": "#8a8680",
-    "accentPrimary": "#d4a853",
-    "accentSecondary": "#b48020",
+    "background": "#0e1410",
+    "surface": "#141e18",
+    "text": "#e8f0e8",
+    "textMuted": "#7a8a7a",
+    "accentPrimary": "#7ec89a",
+    "accentSecondary": "#3a9a6a",
     "border": "#2a2e38",
     "overlay": "#000000",
     "overlayAlpha": 60,
@@ -27,12 +28,12 @@
     "fallbackSize": 96,
     "fallbackAlpha": 0.14
   },
-  "bg": "#0d0f14",
-  "ink": "#e8e6e1",
-  "mid": "#8a8680",
-  "accent": "#d4a853",
-  "accent2": "#b48020",
-  "card": "#1a1d24",
+  "bg": "#0e1410",
+  "ink": "#e8f0e8",
+  "mid": "#7a8a7a",
+  "accent": "#7ec89a",
+  "accent2": "#3a9a6a",
+  "card": "#141e18",
   "border": "#2a2e38",
   "overlay": "#000000",
   "overlayAlpha": 60,
@@ -45,5 +46,21 @@
   "materialOpacity": 0.6,
   "fallbackSize": 96,
   "fallbackAlpha": 0.14,
-  "themeHash": "962354b0fabd9956df1ac4c9682a9055b34cb13ad44604074ceaf74e4991231d"
+  "videoProfile": {
+    "id": "knowledge-explainer",
+    "allowedCategories": [
+      "typography",
+      "data",
+      "interaction",
+      "effects"
+    ],
+    "preferredCards": [
+      "number-counter",
+      "source-converge",
+      "highlighter-sweep"
+    ],
+    "rhythm": "standard",
+    "digitalHumanPolicy": "optional"
+  },
+  "themeHash": "ed12c940772fb4e770ab147bc4671cadd2257ad528eef7345ad5e60ca85d46f2"
 }

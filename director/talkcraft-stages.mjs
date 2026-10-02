@@ -4,6 +4,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {prepareTalkcraftProject, useAlignedTiming} from './talkcraft-project.mjs';
+import {readNativeTiming, writeNativeTiming, requireWordTiming} from './talkcraft-native-timing.mjs';
 import {applySemanticDecisions} from './talkcraft-semantic-decisions.mjs';
 import {scaffoldTalkcraftProject} from './talkcraft-scaffold.mjs';
 import {recordPreflightPass, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
@@ -12,6 +13,9 @@ import {writeTalkcraftQaManifests} from './talkcraft-qa-manifests.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
 import {talkcraftMusicProps} from './background-music.mjs';
 import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
+import {writeTalkcraftTemplateUsage} from './talkcraft-template-usage.mjs';
+import {assertTalkcraftCardCallsBound, assertTalkcraftCardCallsQaEvidence,
+  talkcraftCardCallsQaEvidence} from './talkcraft-card-calls.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -34,6 +38,15 @@ function run(command, args, cwd) {
 function requireFiles(project, names) {
   const missing = names.filter(name => !existsSync(path.join(project, name)));
   if (missing.length) throw new Error(`TalkCraft artifacts are missing: ${missing.join(', ')}`);
+}
+
+function verifyTalkcraftCardCalls(project, runId, {sample = false, complete = false} = {}) {
+  const source = JSON.parse(readFileSync(path.join(project, 'source-run.json'), 'utf8'));
+  return assertTalkcraftCardCallsBound(ROOT, SKILL, runId, {
+    requireCardCalls:source.cardCallsRequired === true,
+    requiredShotIds:source.cardCallsRequired === true && sample ? ['s01'] : [],
+    requireCompleteCoverage:source.cardCallsRequired === true && complete,
+  });
 }
 
 const sha256 = file => createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -69,13 +82,25 @@ export function runTalkcraftStage(stage, runId) {
     runTalkcraftStage('align', runId);
     return runTalkcraftStage('semantic-init', runId);
   }
+  if (stage === 'recover-timing') {
+    requireFiles(project, ['audio/full.mp3', 'audio/voice-timing.json']);
+    if (!readNativeTiming(project)) throw new Error('没有可复用的 TTS 原始时间戳；已保留配音');
+    runTalkcraftStage('align', runId);
+    return runTalkcraftStage('semantic-init', runId);
+  }
 
   if (stage === 'align') {
     if (existsSync(path.join(project, 'audio', 'timestamps.json'))) throw new Error('Existing timestamps were preserved');
-    run(PYTHON, [script('timestamps_cpu.py'), 'audio/full.mp3', 'script.json', 'audio/timestamps.json',
-      '--backend', process.env.TALKCRAFT_ASR_BACKEND || 'whisper',
-      '--model', process.env.TALKCRAFT_ASR_MODEL || 'small'], project);
-    run(PYTHON, [script('make_timing.py'), 'audio/timestamps.json', 'remotion/timing.json'], project);
+    const native = writeNativeTiming(project);
+    if (!native) {
+      console.log('TTS 未提供可用原始时间戳，使用本地识别补齐。');
+      run(PYTHON, [script('timestamps_cpu.py'), 'audio/full.mp3', 'script.json', 'audio/timestamps.json',
+        '--backend', process.env.TALKCRAFT_ASR_BACKEND || 'whisper',
+        '--model', process.env.TALKCRAFT_ASR_MODEL || 'small'], project);
+    } else console.log(`Using native TTS timing (${native.provider}, ${native.timingGranularity}); ASR skipped.`);
+    if (!native || native.timingGranularity === 'word') {
+      run(PYTHON, [script('make_timing.py'), 'audio/timestamps.json', 'remotion/timing.json'], project);
+    }
     return useAlignedTiming(ROOT, runId);
   }
   if (stage === 'synthesize') {
@@ -86,13 +111,13 @@ export function runTalkcraftStage(stage, runId) {
       if (!source.speakerId) throw new Error('火山语音音色缺少 ID');
       const scriptName = source.voiceMode === 'volcengine-tts2' ? 'volcengine-tts2.mjs' : 'volcengine-voice.mjs';
       run(process.execPath, [path.join(ROOT, 'director', scriptName), 'synthesize',
-        'input.txt', 'audio/full.mp3', 'audio/voice-timing.json', source.speakerId], project);
+        'input.txt', 'audio/full.mp3', 'audio/voice-timing.json', source.speakerId, String(source.speechRate ?? 0)], project);
       const timingPath = path.join(project, 'audio', 'voice-timing.json');
       completeVolcengineTiming({timingFile:timingPath, audioFile:path.join(project, 'audio', 'full.mp3'), text:readFileSync(path.join(project, 'input.txt'), 'utf8')});
     } else {
       run(PYTHON, [path.join(ROOT, 'director', 'b-mode-tts.py'), 'input.txt',
         'audio/full.mp3', 'audio/voice-timing.json', '--voice', source.voice || 'zh-CN-YunxiNeural',
-        '--rate', '0', '--max-chars', '1200', '--preserve-sentences'], project);
+        '--rate', String(source.speechRate ?? 0), '--max-chars', '1200', '--preserve-sentences'], project);
     }
     const timing = JSON.parse(readFileSync(path.join(project, 'audio', 'voice-timing.json'), 'utf8'));
     writeFileSync(sourceFile, JSON.stringify({...source, totalFrames:timing.totalFrames,
@@ -119,6 +144,7 @@ export function runTalkcraftStage(stage, runId) {
     return {project, artifact:'qa/card-candidates.md'};
   }
   if (stage === 'preflight') {
+    runTalkcraftStage('candidates', runId);
     run(PYTHON, [script('preflight.py'), '--project', project, '--shotbook', 'SHOTBOOK.md',
       '--shots', 'remotion/shots.json', '--semantics', 'semantics.json',
       '--script', 'script.txt', '--voice', 'audio/full.mp3', '--fps', '30'], project);
@@ -126,6 +152,7 @@ export function runTalkcraftStage(stage, runId) {
     return {project, status:'official_preflight_passed'};
   }
   if (stage === 'beat-lint') {
+    requireWordTiming(project);
     run(PYTHON, [script('beat_lint.py'), 'remotion/beats.json', 'audio/timestamps.json',
       '--shots', 'remotion/shots.json'], project);
     return {project, status:'beat_lint_passed'};
@@ -135,6 +162,7 @@ export function runTalkcraftStage(stage, runId) {
     return {project, status:'workbench_contract_passed'};
   }
   if (stage === 'scaffold') {
+    requireWordTiming(project);
     return scaffoldTalkcraftProject(ROOT, SKILL, runId);
   }
   if (stage === 'sfx-dump') {
@@ -151,8 +179,8 @@ export function runTalkcraftStage(stage, runId) {
       throw new Error('Existing first-shot sample was preserved');
     }
     runTalkcraftStage('semantic-check', runId);
-    runTalkcraftStage('candidates', runId);
     runTalkcraftStage('preflight', runId);
+    verifyTalkcraftCardCalls(project, runId, {sample:true});
     runTalkcraftStage('beat-lint', runId);
     const digitalHuman = readTalkcraftDigitalHumanStatus(project);
     if (digitalHuman.required && !digitalHuman.ready) {
@@ -176,8 +204,8 @@ export function runTalkcraftStage(stage, runId) {
       throw new Error(`Remaining shots are not implemented: ${status.scenesMissing.join(', ')}`);
     }
     runTalkcraftStage('semantic-check', runId);
-    runTalkcraftStage('candidates', runId);
     runTalkcraftStage('preflight', runId);
+    verifyTalkcraftCardCalls(project, runId, {complete:true});
     runTalkcraftStage('beat-lint', runId);
     runTalkcraftStage('workbench-contract', runId);
     const digitalHuman = readTalkcraftDigitalHumanStatus(project);
@@ -192,6 +220,7 @@ export function runTalkcraftStage(stage, runId) {
         : ['--all', '--seg-dir', 'out/segments-final-v1']),
       '--parallel', '1', '--concat', 'out/assembled.mp4',
       '--audio', 'out/full-mix.wav', '--mux', 'out/final.mp4', '--props', bgmProps], path.join(project, 'remotion'));
+    writeTalkcraftTemplateUsage(project, SKILL, path.join(project, 'remotion', 'out', 'final.mp4'));
     return {project, artifact:'remotion/out/final.mp4', status:'awaiting_three_gate_qa'};
   }
   if (stage === 'render-sfx-solo') {
@@ -227,8 +256,10 @@ export function runTalkcraftStage(stage, runId) {
       'qa/frames', '540', 'remotion/anchors.json'], project);
     run(PYTHON, [script('contact_sheet.py'), 'qa/frames', 'qa/contact-sheets'], project);
     const finalHash = sha256(path.join(remotion, 'out', 'final.mp4'));
+    const cardCallsEvidence = talkcraftCardCallsQaEvidence(ROOT, SKILL, runId);
     writeFileSync(path.join(project, 'qa', 'passed.json'), JSON.stringify({schema:'talkcraft-qa-pass-v1',
-      finalSha256:finalHash, cards:cards.slugs.length, checkedAt:new Date().toISOString()}, null, 2), 'utf8');
+      finalSha256:finalHash, cards:cards.slugs.length, cardCallsEvidence,
+      checkedAt:new Date().toISOString()}, null, 2), 'utf8');
     return {project, status:'awaiting_independent_review', finalSha256:finalHash};
   }
   if (stage === 'deliver') {
@@ -242,6 +273,7 @@ export function runTalkcraftStage(stage, runId) {
     const approval = JSON.parse(readFileSync(path.join(project, 'review', 'approval.json'), 'utf8'));
     const review = readFileSync(path.join(project, 'review', 'REVIEW.md'), 'utf8');
     const shots = JSON.parse(readFileSync(path.join(project, 'remotion', 'shots.json'), 'utf8'));
+    assertTalkcraftCardCallsQaEvidence(ROOT, SKILL, runId, qa.cardCallsEvidence);
     if (qa.finalSha256 !== finalSha256 || approval.finalSha256 !== finalSha256 ||
         approval.reviewedShots !== shots.length || approval.openP0 !== 0 || approval.openP1 !== 0 ||
         !review.includes(`## 评审完成 · 已看 ${shots.length}/${shots.length} 镜`)) {
@@ -259,6 +291,7 @@ export function runTalkcraftStage(stage, runId) {
       `:offset=${m.target_offset}:linear=true`;
     run('ffmpeg', ['-hide_banner', '-i', finalFile, '-c:v', 'copy', '-af', measured,
       '-ar', '48000', '-c:a', 'aac', '-b:a', '192k', outputFile], project);
+    writeTalkcraftTemplateUsage(project, SKILL, outputFile);
     return {project, artifact:'remotion/out/delivery.mp4', status:'pending_user_listening_acceptance'};
   }
   throw new Error(`Unknown TalkCraft stage: ${stage}`);

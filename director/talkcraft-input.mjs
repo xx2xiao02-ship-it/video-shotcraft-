@@ -2,6 +2,8 @@ import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {copyFileSync, mkdirSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {normalizeTheme} from './theme-contract.mjs';
+import {validateSpeechRate} from './voice-speed.mjs';
 
 const VOICES = new Set(['zh-CN-YunxiNeural', 'zh-CN-XiaoxiaoNeural']);
 const VOICE_MODES = new Set(['standard', 'volcengine-clone', 'volcengine-tts2']);
@@ -11,7 +13,9 @@ export function splitTalkcraftSentences(text) {
     .map(sentence => sentence.trim()).filter(Boolean);
 }
 
-export function createTalkcraftInput(root, {text, voice, voiceMode = 'standard', speakerId = '', avatarBytes, generationMode = 'segments'}) {
+export function createTalkcraftInput(root, {text, voice, voiceMode = 'standard', speakerId = '', speechRate = 0, avatarBytes, generationMode = 'segments', themeSnapshot}) {
+  speechRate = validateSpeechRate(speechRate);
+  const theme = normalizeTheme(themeSnapshot);
   const script = typeof text === 'string' ? text.replace(/\r\n/gu, '\n').trim() : '';
   const sentences = splitTalkcraftSentences(script);
   if (!script || script.length > 1200 || !sentences.length) throw new Error('TalkCraft 文案需为 1–1200 字');
@@ -52,8 +56,9 @@ export function createTalkcraftInput(root, {text, voice, voiceMode = 'standard',
   writeFileSync(path.join(project,'script.txt'), sentences.join('\n')+'\n','utf8');
   writeFileSync(path.join(project,'script.json'), JSON.stringify({sentences},null,2),'utf8');
   writeFileSync(path.join(project,'source-run.json'), JSON.stringify({schema:'talkcraft-input-v1',
-    runId, fps:30, totalFrames:null, voice, voiceMode, speakerId:voiceMode === 'standard' ? null : String(speakerId), isDigitalHuman:false,
-    digitalHumanMode:generationMode, avatarFiles,
+    runId, fps:30, totalFrames:null, voice, voiceMode, speechRate, speakerId:voiceMode === 'standard' ? null : String(speakerId), isDigitalHuman:false,
+    digitalHumanMode:generationMode, avatarFiles, aspectRatio:theme.aspectRatio, themeSnapshot:theme,
+    cardCallsRequired:true,
     visualTextLocale:'zh-CN'},null,2),'utf8');
   writeFileSync(path.join(project,'sources.md'), '# 素材来源\n\n- 角色图：本次用户输入；数字人生成前用作静态占位。\n- 其余素材：待语义标注后逐镜采集并登记。\n','utf8');
   return {runId, project, sentences:sentences.length, characters:script.length};

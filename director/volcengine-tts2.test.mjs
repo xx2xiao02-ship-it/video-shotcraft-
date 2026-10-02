@@ -72,11 +72,12 @@ test('WebSocket synthesis accumulates audio and writes only after SessionFinishe
   }
   try {
     const result = await synthesizeVolcengineTts2WebSocket({text:'你好', speakerId:'zh_female_vv_uranus_bigtts',
-      outputFile, timingFile, WebSocketImpl:FakeSocket});
+      outputFile, timingFile, speechRate:12, WebSocketImpl:FakeSocket});
     assert.equal(socket.headers['X-Api-Key'], 'test-key');
     assert.equal(socket.headers['X-Api-Resource-Id'], 'seed-tts-2.0');
     assert.equal(socket.request.req_params.model, undefined);
     assert.equal(socket.request.req_params.speaker, 'zh_female_vv_uranus_bigtts');
+    assert.equal(socket.request.req_params.audio_params.speech_rate, 12);
     assert.equal(result.audioBytes.toString(), 'firstsecond');
     assert.equal(readFileSync(outputFile).toString(), 'firstsecond');
     assert.equal(JSON.parse(readFileSync(timingFile)).words[0].word, '你');
@@ -173,7 +174,7 @@ test('HTTP Chunked synthesis uses new API key and preserves word timestamps', as
       JSON.stringify({code:20000000, message:'OK'}),
     ].join('\n');
     const result = await synthesizeVolcengineTts2({text:'你好', speakerId:'zh_female_xiaohe_uranus_bigtts',
-      outputFile, timingFile, fetchImpl:async (url, options) => {
+      outputFile, timingFile, speechRate:-10, fetchImpl:async (url, options) => {
         request = {url, options};
         return new Response(new ReadableStream({start(controller) {
           controller.enqueue(Buffer.from(lines.slice(0, 23)));
@@ -188,6 +189,7 @@ test('HTTP Chunked synthesis uses new API key and preserves word timestamps', as
     assert.equal(request.options.headers['X-Api-Request-Id'].length, 36);
     assert.equal(JSON.parse(request.options.body).req_params.model, undefined);
     assert.equal(JSON.parse(request.options.body).req_params.speaker, 'zh_female_xiaohe_uranus_bigtts');
+    assert.equal(JSON.parse(request.options.body).req_params.audio_params.speech_rate, -10);
     assert.equal(result.audioBytes.toString(), 'firstsecond');
     assert.equal(readFileSync(outputFile).toString(), 'firstsecond');
     assert.equal(JSON.parse(readFileSync(timingFile)).words[0].word, '你');
