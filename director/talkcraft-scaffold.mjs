@@ -164,9 +164,9 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
   {!sfxSolo && <Audio src={staticFile('narration.mp3')} />}
   {!sfxSolo && bgm && <Audio src={staticFile(bgm.src)} loop volume={(frame) =>
     bgm.volume * Math.max(0, Math.min(1, frame / 30, (${source.totalFrames} - frame - 1) / 15))} />}
-  {CUES.map((cue,index) => <Sequence key={index} from={Math.round(cue.t*30)}
-    {...(cue.clip ? {durationInFrames:Math.max(1,Math.ceil(cue.clip*30))} : {})}>
-    <Audio src={staticFile('sfx/'+cue.file)} volume={cue.volume} playbackRate={cue.rate ?? 1} />
+  {CUES.map((cue,index) => <Sequence key={index} from={Math.round(cue.t*30)}>
+    <Audio src={staticFile('sfx/'+cue.file)} volume={cue.volume} playbackRate={cue.rate ?? 1}
+      trimAfter={cue.clip === undefined ? undefined : Math.max(1, Math.round(cue.clip*30))} />
   </Sequence>)}
 </AbsoluteFill>;
 `, 'utf8');

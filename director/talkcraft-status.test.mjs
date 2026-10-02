@@ -3,9 +3,9 @@ import {createHash} from 'node:crypto';
 import {mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {test} from 'node:test';
-import {approveTalkcraftSample, latestTalkcraftRun, readTalkcraftStatus, recordPreflightPass, recordSemanticPass} from './talkcraft-status.mjs';
+import {approveTalkcraftSample, approveTalkcraftStoryboard, latestTalkcraftRun, readTalkcraftStatus, recordPreflightResult, recordSemanticPass} from './talkcraft-status.mjs';
 
-const workspace = path.resolve('tmp');
+const workspace = path.resolve(process.env.TALKCRAFT_TEST_TEMP_ROOT || 'tmp');
 const id = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
 test('preflight and sample approval are invalidated when their inputs change', () => {
@@ -34,8 +34,9 @@ test('preflight and sample approval are invalidated when their inputs change', (
     assert.equal(readTalkcraftStatus(root, id).candidatesReady, false);
     writeFileSync(path.join(project, 'qa', 'card-candidates.md'), '# candidates');
     assert.equal(readTalkcraftStatus(root, id).candidatesReady, true);
-    recordPreflightPass(root, id);
+    recordPreflightResult(root, id, {passed:true});
     assert.equal(readTalkcraftStatus(root, id).preflight, true);
+    approveTalkcraftStoryboard(root, id, 'test fixture');
     writeFileSync(path.join(project, 'remotion', 'out', 'preview', 's01.mp4'), 'sample-one');
     assert.equal(approveTalkcraftSample(root, id).approved, true);
     assert.equal(readTalkcraftStatus(root, id).sampleApproved, true);
@@ -55,7 +56,7 @@ test('preflight and sample approval are invalidated when their inputs change', (
     writeFileSync(path.join(project, 'SHOTBOOK.md'), 'changed plan');
     assert.equal(readTalkcraftStatus(root, id).preflight, false);
     assert.equal(readTalkcraftStatus(root, id).sampleApproved, false);
-    assert.throws(() => approveTalkcraftSample(root, id), /preflighted sample/);
+    assert.throws(() => approveTalkcraftSample(root, id), /需先完成自动调节和分镜审核/);
     assert.equal(readFileSync(path.join(project, 'sample-approved.json'), 'utf8').includes('sampleSha256'), true);
   } finally {
     if (!root.startsWith(workspace + path.sep)) throw new Error('Test cleanup escaped workspace');

@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {talkcraftProject} from './talkcraft-status.mjs';
-import {assertTalkcraftCardCallsBound, readTalkcraftCardCalls} from './talkcraft-card-calls.mjs';
+import {assertTalkcraftCardCallsBound} from './talkcraft-card-calls.mjs';
 
 const json = file => JSON.parse(readFileSync(file,'utf8'));
 
@@ -105,10 +105,13 @@ export function writeTalkcraftQaManifests(root,runId,skillRootOverride) {
   const require = createRequire(path.join(skillRoot,'runtime','package.json'));
   const ts = require('typescript');
   const shots = json(path.join(remotion,'shots.json'));
-  const savedCalls = readTalkcraftCardCalls(root,runId);
+  const sourceRun = json(path.join(project,'source-run.json'));
+  const binding = assertTalkcraftCardCallsBound(root,skillRoot,runId, {
+    requireCardCalls:sourceRun.cardCallsRequired === true,
+    requireCompleteCoverage:sourceRun.cardCallsRequired === true,
+  });
   let cards;
-  if (savedCalls.present) {
-    const binding = assertTalkcraftCardCallsBound(root,skillRoot,runId);
+  if (binding.present) {
     const byShot = {};
     for (const call of binding.record.calls) byShot[call.shotId] = [call.cardId];
     cards = {slugs:[...new Set(binding.record.calls.map(call => call.cardId))],byShot};
@@ -116,7 +119,14 @@ export function writeTalkcraftQaManifests(root,runId,skillRootOverride) {
     cards = parseCardsFromShotbook(readFileSync(path.join(project,'SHOTBOOK.md'),'utf8'),skillRoot);
     const missingShotCards = shots.map(shot => shot.id).filter(id => !cards.byShot[id]?.length);
     if (missingShotCards.length) throw new Error(`SHOTBOOK 没有选卡登记：${missingShotCards.join(', ')}`);
-    const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(remotion,'src','cards',`${slug}.tsx`)));
+    const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(remotion,'src','cards',`${slug}.tsx`)) &&
+      !existsSync(path.join(remotion,'src','cards','gen',`${slug}.tsx`)));
+    if (missingCopies.length) throw new Error(`工程未复制这些卡片源码：${missingCopies.join(', ')}`);
+  }
+  const cardRoot = binding.present ? path.join(remotion,'src','talkcraft-cards') : path.join(remotion,'src','cards');
+  if (binding.present) {
+    const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(cardRoot,`${slug}.tsx`)) &&
+      !existsSync(path.join(cardRoot,'gen',`${slug}.tsx`)));
     if (missingCopies.length) throw new Error(`工程未复制这些卡片源码：${missingCopies.join(', ')}`);
   }
 

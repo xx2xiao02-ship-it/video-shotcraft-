@@ -31,6 +31,26 @@ function preflightInputs(project) {
   return Object.fromEntries(names.map(name => [name, digest(path.join(project, name))]));
 }
 
+function storyboardInputs(project) {
+  const names = ['semantics.json', 'SHOTBOOK.md', 'remotion/shots.json'];
+  if (names.some(name => !existsSync(path.join(project, name)))) return null;
+  return Object.fromEntries(names.map(name => [name, digest(path.join(project, name))]));
+}
+
+function latestPreflightIssues(project) {
+  const directory = path.join(project, 'qa', 'failures');
+  if (!existsSync(directory)) return [];
+  const files = readdirSync(directory).filter(name => name.endsWith('.json'))
+    .sort((a,b) => statSync(path.join(directory,b)).mtimeMs - statSync(path.join(directory,a)).mtimeMs);
+  for (const name of files) {
+    try {
+      const report = json(path.join(directory, name));
+      if (Array.isArray(report.failedChecks) && report.failedChecks.length) return report.failedChecks;
+    } catch {}
+  }
+  return [];
+}
+
 function semanticInputs(project) {
   const names = ['semantics.json', 'audio/timestamps.json'];
   if (names.some(name => !existsSync(path.join(project, name)))) return null;
@@ -84,6 +104,18 @@ export function recordPreflightPass(root, runId) {
   return {project, file};
 }
 
+export function recordPreflightResult(root, runId, {passed, issues = [], adjustments = []} = {}) {
+  const project = talkcraftProject(root, runId);
+  const inputs = preflightInputs(project);
+  if (!inputs) throw new Error('Preflight inputs are incomplete');
+  const file = path.join(project, 'qa', 'preflight-result.json');
+  mkdirSync(path.dirname(file), {recursive:true});
+  writeFileSync(file, JSON.stringify({schema:'talkcraft-preflight-result-v1', inputs,
+    passed:passed === true, issues, adjustments, completedAt:new Date().toISOString()}, null, 2), 'utf8');
+  if (passed === true) recordPreflightPass(root, runId);
+  return {project, file, passed:passed === true};
+}
+
 export function readTalkcraftStatus(root, runId) {
   const project = talkcraftProject(root, runId);
   const has = name => existsSync(path.join(project, name));
@@ -106,11 +138,19 @@ export function readTalkcraftStatus(root, runId) {
   const gate = has('qa/preflight-passed.json') ? json(path.join(project, 'qa', 'preflight-passed.json')) : null;
   const preflight = !!inputs && gate?.schema === 'talkcraft-preflight-pass-v1' &&
     Object.keys(inputs).every(name => gate.inputs?.[name] === inputs[name]);
+  const preflightResult = has('qa/preflight-result.json') ? json(path.join(project, 'qa', 'preflight-result.json')) : null;
+  const preflightCompleted = !!inputs && preflightResult?.schema === 'talkcraft-preflight-result-v1' &&
+    Object.keys(inputs).every(name => preflightResult.inputs?.[name] === inputs[name]);
+  const preflightPassed = preflight || (preflightCompleted && preflightResult.passed === true);
+  const storyboardGate = has('qa/storyboard-approved.json') ? json(path.join(project, 'qa/storyboard-approved.json')) : null;
+  const storyboardApprovalInputs = storyboardInputs(project);
+  const storyboardApproved = !!storyboardApprovalInputs && storyboardGate?.schema === 'talkcraft-storyboard-approval-v1' &&
+    Object.keys(storyboardApprovalInputs).every(name => storyboardGate.inputs?.[name] === storyboardApprovalInputs[name]);
   const sampleFile = path.join(project, 'remotion', 'out', 'preview', 's01.mp4');
   const sample = existsSync(sampleFile) && statSync(sampleFile).size > 0;
   const approval = has('sample-approved.json') ? json(path.join(project, 'sample-approved.json')) : null;
   const firstCardCallSha256 = source.cardCallsRequired === true ? firstCardCallFingerprint(project) : null;
-  const sampleApproved = sample && preflight && approval?.schema === 'talkcraft-sample-approval-v1' &&
+  const sampleApproved = sample && preflightCompleted && storyboardApproved && approval?.schema === 'talkcraft-sample-approval-v1' &&
     approval.sampleSha256 === digest(sampleFile) && approval.shotbookSha256 === inputs['SHOTBOOK.md'] &&
     (source.cardCallsRequired !== true || (!!firstCardCallSha256 && approval.firstCardCallSha256 === firstCardCallSha256));
   const finalFile = path.join(project, 'remotion', 'out', 'final.mp4');
@@ -140,7 +180,12 @@ export function readTalkcraftStatus(root, runId) {
     shots:shots?.length || 0,
     semanticReady:!!semantics?.sentences?.length && semantics.sentences.every(sentence =>
       sentence.shot && sentence.weight && Array.isArray(sentence.sem) && sentence.sem.length),
-    semanticPassed, shotbook:has('SHOTBOOK.md'), preflight, workbenchReady:has('remotion/src/index.ts'),
+    semanticPassed, shotbook:has('SHOTBOOK.md'), preflight, preflightPassed, preflightCompleted,
+    preflightIssues:preflightCompleted && Array.isArray(preflightResult.issues) && preflightResult.issues.length
+      ? preflightResult.issues : (!preflightResult?.passed ? latestPreflightIssues(project) : []),
+    preflightAdjustments:preflightCompleted && Array.isArray(preflightResult.adjustments) ? preflightResult.adjustments : [],
+    storyboardApproved,
+    workbenchReady:has('remotion/src/index.ts'),
     cardCallsRequired:source.cardCallsRequired === true, cardCallsPresent:has('qa/card-calls.json'),
     candidatesReady, sample, sampleApproved, scenesImplemented:sceneCoverage.implemented,
     scenesMissing:sceneCoverage.missing, scenesReady:sceneCoverage.ready,
@@ -150,7 +195,7 @@ export function readTalkcraftStatus(root, runId) {
 
 export function approveTalkcraftSample(root, runId) {
   const status = readTalkcraftStatus(root, runId);
-  if (!status.preflight || !status.sample) throw new Error('A preflighted sample is required');
+  if (!status.preflightCompleted || !status.storyboardApproved || !status.sample) throw new Error('需先完成自动调节和分镜审核');
   const project = talkcraftProject(root, runId);
   const file = path.join(project, 'sample-approved.json');
   if (existsSync(file)) {
@@ -161,6 +206,23 @@ export function approveTalkcraftSample(root, runId) {
     sampleSha256:digest(path.join(project, 'remotion', 'out', 'preview', 's01.mp4')),
     shotbookSha256:digest(path.join(project, 'SHOTBOOK.md')),
     ...(status.cardCallsRequired ? {firstCardCallSha256:firstCardCallFingerprint(project)} : {}),
+    approvedAt:new Date().toISOString()}, null, 2), 'utf8');
+  return {runId, approved:true};
+}
+
+export function approveTalkcraftStoryboard(root, runId, note = '') {
+  const project = talkcraftProject(root, runId);
+  const inputs = storyboardInputs(project);
+  if (!inputs) throw new Error('分镜脚本、语义或镜头数据不完整，暂不能审核');
+  const file = path.join(project, 'qa', 'storyboard-approved.json');
+  const current = existsSync(file) ? json(file) : null;
+  if (current?.schema === 'talkcraft-storyboard-approval-v1' &&
+      Object.keys(inputs).every(name => current.inputs?.[name] === inputs[name])) return {runId, approved:true};
+  mkdirSync(path.dirname(file), {recursive:true});
+  const status = readTalkcraftStatus(root, runId);
+  writeFileSync(file, JSON.stringify({schema:'talkcraft-storyboard-approval-v1', runId, inputs,
+    governanceNote:String(note || '').trim(), preflightPassed:status.preflightPassed,
+    preflightIssues:status.preflightIssues, adjustments:status.preflightAdjustments,
     approvedAt:new Date().toISOString()}, null, 2), 'utf8');
   return {runId, approved:true};
 }

@@ -53,7 +53,7 @@ test('retains concrete preflight failures and gives stage-specific actions', () 
     assert.equal(report.code, 'TALKCRAFT_PREFLIGHT_FAILED');
     assert.equal(report.failedChecks.length, 2);
     assert.match(report.cause, /2 项检查失败/u);
-    assert.match(report.actions.join(' '), /SHOTBOOK/u);
+    assert.match(report.actions.join(' '), /分镜脚本|脚本审核/u);
     for (const name of ['talkcraft-editorial','talkcraft-editorial-check']) {
       const automatic = buildTalkcraftFailureReport(root,runId,{name,exitCode:1,
         logs:['AUTO_PREFLIGHT_START：开始自动分镜预检',...report.failedChecks]});

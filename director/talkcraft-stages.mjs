@@ -7,7 +7,7 @@ import {prepareTalkcraftProject, useAlignedTiming} from './talkcraft-project.mjs
 import {readNativeTiming, writeNativeTiming, requireWordTiming} from './talkcraft-native-timing.mjs';
 import {applySemanticDecisions} from './talkcraft-semantic-decisions.mjs';
 import {scaffoldTalkcraftProject} from './talkcraft-scaffold.mjs';
-import {recordPreflightPass, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
+import {recordPreflightPass, recordPreflightResult, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {writeTalkcraftQaManifests} from './talkcraft-qa-manifests.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
@@ -38,6 +38,39 @@ function run(command, args, cwd) {
 function requireFiles(project, names) {
   const missing = names.filter(name => !existsSync(path.join(project, name)));
   if (missing.length) throw new Error(`TalkCraft artifacts are missing: ${missing.join(', ')}`);
+}
+
+function autoAdjustShotbook(project) {
+  const file = path.join(project, 'SHOTBOOK.md');
+  if (!existsSync(file)) return [];
+  const original = readFileSync(file, 'utf8');
+  const lines = original.split(/\r?\n/);
+  const adjustments = [];
+  let inShot = false;
+  let hasMedia = false;
+  let hasSkin = false;
+  const out = [];
+  const flush = () => {
+    if (!inShot) return;
+    if (!hasMedia) { out.push('- 素材：待人工审核'); adjustments.push('为缺少素材行的镜头补充“待人工审核”占位'); }
+    if (!hasSkin) { out.push('- 蒙皮：待人工审核'); adjustments.push('为缺少蒙皮行的镜头补充“待人工审核”占位'); }
+  };
+  for (const line of lines) {
+    if (/^#{2,4}\s+[SsVv]\d+[A-Za-z0-9_']*\b/.test(line)) {
+      flush(); inShot = true; hasMedia = false; hasSkin = false;
+    }
+    if (inShot && /^\s*[-*]?\s*\**素材\**\s*[:：]/.test(line)) hasMedia = true;
+    if (inShot && /^\s*[-*]?\s*\**蒙皮\**\s*[:：]/.test(line)) hasSkin = true;
+    if (inShot && /^#{1,6}\s/.test(line) && !/^#{2,4}\s+[SsVv]\d+/.test(line)) flush(), inShot = false;
+    out.push(line);
+  }
+  flush();
+  if (!out.some(line => /^#{2,4}\s+.*未完成/.test(line))) {
+    out.push('', '## 未完成 / 未采集清单', '', '- 待人工审核自动调节结果、真实素材、语义承载和选卡。');
+    adjustments.push('补充未完成 / 未采集清单');
+  }
+  if (adjustments.length) writeFileSync(file, out.join('\n'), 'utf8');
+  return adjustments;
 }
 
 function verifyTalkcraftCardCalls(project, runId, {sample = false, complete = false} = {}) {
@@ -145,11 +178,17 @@ export function runTalkcraftStage(stage, runId) {
   }
   if (stage === 'preflight') {
     runTalkcraftStage('candidates', runId);
-    run(PYTHON, [script('preflight.py'), '--project', project, '--shotbook', 'SHOTBOOK.md',
+    const adjustments = autoAdjustShotbook(project);
+    const check = spawnSync(PYTHON, [script('preflight.py'), '--project', project, '--shotbook', 'SHOTBOOK.md',
       '--shots', 'remotion/shots.json', '--semantics', 'semantics.json',
-      '--script', 'script.txt', '--voice', 'audio/full.mp3', '--fps', '30'], project);
-    recordPreflightPass(ROOT, runId);
-    return {project, status:'official_preflight_passed'};
+      '--script', 'script.txt', '--voice', 'audio/full.mp3', '--fps', '30'],
+      {cwd:project, encoding:'utf8', env:{...process.env, PYTHONIOENCODING:'utf-8', PYTHONUTF8:'1'}});
+    const output = `${check.stdout || ''}${check.stderr || ''}`;
+    if (output) process.stdout.write(output);
+    const issues = output.split(/\r?\n/).map(line => line.trim()).filter(line => /^\[[^\]]+\]\s+FAIL:/.test(line));
+    if (check.error) issues.push(`自动调节执行失败：${String(check.error.message || check.error)}`);
+    recordPreflightResult(ROOT, runId, {passed:check.status === 0, issues, adjustments});
+    return {project, status:'automatic_adjustment_complete', passed:check.status === 0, issues, adjustments};
   }
   if (stage === 'beat-lint') {
     requireWordTiming(project);
