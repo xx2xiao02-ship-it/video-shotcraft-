@@ -19,6 +19,15 @@ test('console inline script parses', () => {
   assert.doesNotMatch(html, /id="music-mode-[ab]"/);
 });
 
+test('A-mode TTS task keeps Windows output UTF-8 safe', () => {
+  const server = fs.readFileSync(new URL('./console-server.mjs', import.meta.url), 'utf8');
+  const tts = fs.readFileSync(new URL('./director/tts.py', import.meta.url), 'utf8');
+  assert.match(server, /spawn\(cmd, \{ cwd, shell: true, env: \{\.\.\.process\.env, PYTHONIOENCODING: "utf-8"/);
+  assert.match(tts, /\[OK\] 语音合成完成/);
+  assert.match(tts, /\[OK\] 时间轴生成/);
+  assert.doesNotMatch(tts, /print\([^\n]*[✓→]/u);
+});
+
 test('music library lists, uploads, preserves names and streams audio', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shotcraft-music-'));
   const port = 20000 + Math.floor(Math.random() * 20000);
