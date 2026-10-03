@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const VALUE_STAGGER_GRADIENT_DURATION = 150; // 5000ms @30fps
 
@@ -24,17 +25,17 @@ const BARS = Array.from({ length: N }, (_, i) => ({
   distC: Math.abs(i - C) / C,
 }));
 
-export const ValueStaggerGradient: React.FC = () => {
+export const ValueStaggerGradient: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
   return (
-    <DesignStage bg="#0d0f14">
+    <DesignStage bg={skin?.bg || '#0d0f14'}>
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          background: '#0d0f14',
+          ...(words ? {left:0,top:'50%',width:480,height:270,transform:'translateY(-50%)'} : {inset:0}),
+          background: skin?.bg || '#0d0f14',
           overflow: 'hidden',
-          fontFamily: '"SF Mono",Menlo,monospace',
+          fontFamily: skin?.fontFamily || '"SF Mono",Menlo,monospace',
         }}
       >
         {BARS.map(({ i, hue, hMax, distC }) => {
@@ -52,7 +53,7 @@ export const ValueStaggerGradient: React.FC = () => {
               <div
                 style={{
                   position: 'absolute',
-                  bottom: '22%',
+                  bottom: words ? '27%' : '22%',
                   left: `${8 + i * 5.4}%`,
                   width: '3.4%',
                   height: hMax,
@@ -68,7 +69,7 @@ export const ValueStaggerGradient: React.FC = () => {
               <div
                 style={{
                   position: 'absolute',
-                  bottom: '17%',
+                  bottom: words ? '22%' : '17%',
                   left: `${8 + i * 5.4 + 1.2}%`,
                   width: 4,
                   height: 4,
@@ -86,14 +87,14 @@ export const ValueStaggerGradient: React.FC = () => {
             left: '50%',
             top: '9%',
             transform: 'translateX(-50%)',
-            color: '#5b6480',
-            fontSize: 10,
-            letterSpacing: '1.5px',
+            color: skin?.text || '#5b6480',
+            fontSize: words ? 18 : 10,
+            letterSpacing: words ? 0 : '1.5px',
             whiteSpace: 'nowrap',
             opacity: 0.5 + 0.5 * seg(t, 0.04, 0.12),
           }}
         >
-          {t < 0.52
+          {words ? words[t < 0.52 ? 0 : 1] : t < 0.52
             ? 'scale: stagger([1, 0.35])  hue: stagger([200, 320])'
             : "pulse: stagger([.06, .42], { from: 'center' })"}
         </div>
