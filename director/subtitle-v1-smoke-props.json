@@ -1,0 +1,14 @@
+{
+  "storyboard": {
+    "title": "字幕验收帧",
+    "style": {"bg": "#182932", "text": "#ffffff", "accent": "#ffd34d", "sub": "#aebec6", "captionStyle": "pill"},
+    "fps": 30,
+    "shots": [{"type": "hook", "text": "字幕位置与字号验收", "shotCard": "typography/cel-flash-stomp", "durationInFrames": 90}],
+    "subtitleV1": {
+      "settings": {"enabled": true, "templateId": "notice", "position": "top", "fontSize": 80, "textColor": "#ffffff", "activeColor": "#ffd34d", "panelColor": "#07101e", "maxChars": 22, "fontId": "wenkai", "panelOpacity": 60, "highlightScale": 1.4},
+      "captions": [{"text": "字幕位置与字号验收", "startMs": 0, "endMs": 3000}],
+      "wordTimed": false,
+      "warnings": []
+    }
+  }
+}

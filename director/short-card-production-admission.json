@@ -1,0 +1,657 @@
+{
+  "schema": "short-card-acceptance-v1",
+  "fps": 30,
+  "localVisualReview": "passed",
+  "userVisualReview": "pending",
+  "scope": "Chinese short-shot business fixtures; local technical review, user acceptance pending",
+  "sourceHashes": {
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/TemplateAdapter.tsx": "93e13d2cc9bdc2472b005c27b39af8a62215e3fcd745aed76b655614b2ee1769",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx": "9413f6c440b22b42281ef7c3c94da2e1f2846d2b85257127412cd5f9074516c2",
+    "demos/typography/paper-title-card/PaperTitleCard.tsx": "0166d3b3077132e76954a0b8ee0e6490f9174789b9bec5113cff69ddb6ad90d7",
+    "demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx": "c947aa214dce258935be731396d8610eebb1e645c95201dacec3da1302b6ef95",
+    "demos/data/hatch-depth/HatchDepth.tsx": "9529bff18cfd4d4fb200afe1f24c65805d75479848560912b7ed3b26f2247e65",
+    "demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx": "1af70144aefb9f514f9e5d7ce83f668ce5e9fb081ef091080f6340b987cccc1c",
+    "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9"
+  },
+  "acceptanceReport": "template/out/short-card-acceptance-v2/acceptance.json",
+  "acceptanceSha256": "260d2bd4fe9107ce66ab86e23ed1f5902d5e9a082ff38a86e1022b286e692545",
+  "frameEvidence": [
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-30-landscape.mp4",
+      "sha256": "7bc634eb716c7f7f7c664ce5a0d608bf312b41e17cdc23222cd03360f5cd4340",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-30-portrait.mp4",
+      "sha256": "c017fb57a0f895b4e0f19f752ee84631f0b468b98dee764ad2374548a7073676",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-45-landscape.mp4",
+      "sha256": "c8ed49726894b2af31374aa16b1e19a618dce2103a59376516d20221f068bfa7",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-45-portrait.mp4",
+      "sha256": "5f87af0b5cf456d1d80e380c53365c80382dfe3144076ce2224ea963e438dcfa",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-60-landscape.mp4",
+      "sha256": "73be572e206e9b42d907390aa0ee07b91b9a25c0c10c004665008050f8e8ebb2",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/marker-underline-title-60-portrait.mp4",
+      "sha256": "b42c6bb3ee521af6282c83348b2ab39bcd65d55c496e988a156b40b673845cd9",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-30-landscape.mp4",
+      "sha256": "6a90be3fde1a132521b598339d5fcf2d1d7bb7994a89c5c673643feaef503edb",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-30-portrait.mp4",
+      "sha256": "d8c16886b338b03db4acfcb28ba35ccc68d9ff3ade8f0a0c8f71a3974c3cc370",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-45-landscape.mp4",
+      "sha256": "319cb3018c7849588e745da9d45db964aa79cf26c970751bca8b211a9acef590",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-45-portrait.mp4",
+      "sha256": "9698651b6fb088f78fe3884d2151208959969574153e5b40017f1ca0796e8783",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-60-landscape.mp4",
+      "sha256": "ca805f3fe0f6fcbb7b13ad2c1b2ec790fec2910011befc864afb73796ad4199a",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/paper-title-card-60-portrait.mp4",
+      "sha256": "92683f87793c15e1b77aca46c3f9aabfc3d35724b4ec268be7b11d23e75d4a2e",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-30-landscape.mp4",
+      "sha256": "e60f20e1b8b1a58c9ad3acc9c1bbc91a26a301f485df8f192cd42e32225fc521",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-30-portrait.mp4",
+      "sha256": "d0c6364e0e12b395f88b33077c3ebc6becd86e2cd1fef7355b548bb422a8ce37",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-45-landscape.mp4",
+      "sha256": "ccf424f7bbb23922b2e20b16a666675d2559358e45064983e7c63958d2d608b3",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-45-portrait.mp4",
+      "sha256": "238d1edeeff0edc44d8a57cf54e17838d2cce073428ed8b933c258a2e8074bb8",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-60-landscape.mp4",
+      "sha256": "13035c635943aa304300a2862e57fc45974b6362f9800488a2223d1600c73ab4",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-60-portrait.mp4",
+      "sha256": "f44f14078cccd18013191e62fa8c2ee4389bc992d420c5ec8a4f5a01f0000911",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-graphic-acceptance-v1/bezier-source-converge-merge-landscape.mp4",
+      "sha256": "12623d14fc0f5a4d7acad672580cad74cd6a1120074a01340cb46b94e2b01b58",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-graphic-acceptance-v1/bezier-source-converge-merge-portrait.mp4",
+      "sha256": "9850914d34c97391fc49d28a8cb96abf5225ebfa0040919509233f9e4e639f39",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-graphic-acceptance-v1/hatch-depth-landscape.mp4",
+      "sha256": "7b6828480db9e35d1b7cf0b60879756dc0216c5230f0076f31838a548e40e281",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-graphic-acceptance-v1/hatch-depth-portrait.mp4",
+      "sha256": "f54ea530f021f446d2ecaf0dcdffb1f86d19756905eda80717d35eef536e57e5",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-30-landscape.mp4",
+      "sha256": "d2d0b8aca0d103d398ad12e3bd9835bb915d2138b1617453466ebe4f9a84b140",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-30-portrait.mp4",
+      "sha256": "49047469902ef445ca18a4abd9cbf34daa422c75a598237861018b553d1f245b",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-45-landscape.mp4",
+      "sha256": "c8ed49726894b2af31374aa16b1e19a618dce2103a59376516d20221f068bfa7",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-45-portrait.mp4",
+      "sha256": "5f87af0b5cf456d1d80e380c53365c80382dfe3144076ce2224ea963e438dcfa",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-60-landscape.mp4",
+      "sha256": "73e666c4f7581b46a65296937af84dd982133a17ec4cbd86eb06eb208ac285b3",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/marker-underline-title-60-portrait.mp4",
+      "sha256": "544503e55823c47adf6fe96cf9751f5be92d9d98d4b4417b208ed1638b63c3c3",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-30-landscape.mp4",
+      "sha256": "0d14545644fea2b39eeb6a8caef6e29e5f56e822b606b92d332ac3d882405fa3",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-30-portrait.mp4",
+      "sha256": "7295561059b5d187f5a603afbbd6d5c1dd95e8837f615630aa03cadfa66ca565",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-45-landscape.mp4",
+      "sha256": "319cb3018c7849588e745da9d45db964aa79cf26c970751bca8b211a9acef590",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-45-portrait.mp4",
+      "sha256": "9698651b6fb088f78fe3884d2151208959969574153e5b40017f1ca0796e8783",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-60-landscape.mp4",
+      "sha256": "ca805f3fe0f6fcbb7b13ad2c1b2ec790fec2910011befc864afb73796ad4199a",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/paper-title-card-60-portrait.mp4",
+      "sha256": "92683f87793c15e1b77aca46c3f9aabfc3d35724b4ec268be7b11d23e75d4a2e",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-30-landscape.mp4",
+      "sha256": "42744962f85a5721f4a6fbb4e4c0636968f722ab86daecb102ed09947011ccc4",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-30-portrait.mp4",
+      "sha256": "6121470f54d6bea8dabc2ded1f91f85ab1dbac158020c8a12ab13ad9ea7a3011",
+      "frames": 30,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-45-landscape.mp4",
+      "sha256": "ea23b0e114189e27282b8a50864352cb26fe86c6a16e657af8dceee6b89be86b",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-45-portrait.mp4",
+      "sha256": "7dc85880b47b2d13e7b1ee10d6d648baf908976addbe29d371d33818ff5118dd",
+      "frames": 45,
+      "fps": 30,
+      "aspect": "9:16"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-60-landscape.mp4",
+      "sha256": "452e4f9d7bd016d9de80d4df5adb09832d141f8078fca2698e61f52157dbdd9d",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "16:9"
+    },
+    {
+      "file": "template/out/short-card-acceptance-v2/countdown-arc-scatter-60-portrait.mp4",
+      "sha256": "6a84915b7be1cd68ca4c036102289aab51163e7e4b0852835c6d90aa9443bf84",
+      "frames": 60,
+      "fps": 30,
+      "aspect": "9:16"
+    }
+  ],
+  "cards": [
+    {
+      "id": "ui-entrance/bezier-source-converge-merge",
+      "status": "accepted",
+      "acceptedFrames": [
+        60
+      ],
+      "completionFrame": 42,
+      "holdFrames": 18,
+      "exitFrames": 0,
+      "maxLines": 1,
+      "maxChars": 6,
+      "fps": 30,
+      "kind": "graphic",
+      "graphicLimits": {
+        "maxSources": 3,
+        "maxSourceChars": 2,
+        "maxTargetChars": 4
+      }
+    },
+    {
+      "id": "data/hatch-depth",
+      "status": "accepted",
+      "acceptedFrames": [
+        60
+      ],
+      "completionFrame": 30,
+      "holdFrames": 30,
+      "exitFrames": 0,
+      "maxLines": 1,
+      "maxChars": 6,
+      "fps": 30,
+      "kind": "graphic",
+      "graphicLimits": {
+        "maxRows": 2,
+        "maxLabelChars": 4,
+        "maxUnitChars": 2
+      }
+    },
+    {
+      "id": "typography/marker-underline-title",
+      "status": "accepted",
+      "acceptedFrames": [
+        60
+      ],
+      "completionFrame": 42,
+      "holdFrames": 18,
+      "exitFrames": 0,
+      "maxLines": 2,
+      "maxChars": 6,
+      "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
+      "fps": 30
+    },
+    {
+      "id": "typography/paper-title-card",
+      "status": "accepted",
+      "acceptedFrames": [
+        60
+      ],
+      "completionFrame": 34,
+      "holdFrames": 18,
+      "exitFrames": 8,
+      "maxLines": 2,
+      "maxChars": 6,
+      "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
+      "fps": 30
+    },
+    {
+      "id": "typography/countdown-arc-scatter",
+      "status": "not-accepted",
+      "acceptedFrames": [],
+      "completionRatio": 0.98,
+      "holdFrames": 18,
+      "exitFrames": 0,
+      "maxLines": 2,
+      "maxChars": 2,
+      "reason": "固定数字5、白底且缺少阅读停留，不符合通用中文透底镜头契约；当前样帧发现 NaN 文本，保留失败，不开放",
+      "fps": 30
+    }
+  ],
+  "graphicAcceptanceReport": "template/out/short-graphic-acceptance-v1/acceptance.json",
+  "graphicAcceptanceSha256": "6e4bbb9b6640f7d373ee304e3f4589d980012f1d85dd265512271e883c4447e7",
+  "compatibility": {
+    "report": "template/out/card-governance-batch-002-integration/evidence.json",
+    "sha256": "5a4f0c38284afb2e71ea851bf873e986efbe5de4b86b2aba05c76162c6e7350e",
+    "review": "passed",
+    "oldGraphicSamples": 12,
+    "shortVideos": 8,
+    "oldNumericVideos": 4,
+    "newNumericVideos": 8,
+    "snapshot": {
+      "file": ".isolated/card-governance-batch-002-integration/manifest.json",
+      "sha256": "ffc700f577201de85a1d153dad7c16195978ac27379320c1199bdcbee1b547b2"
+    },
+    "reviewer": "Codex actual DynamicVideo sample review and same-environment frozen-source pixel comparison"
+  },
+  "history": [
+    {
+      "recordType": "superseded-short-admission",
+      "supersededAt": "2026-10-02T23:07:28.962Z",
+      "acceptanceReport": "template/out/short-card-acceptance-v1/acceptance.json",
+      "acceptanceSha256": "8e4b5ab3010e1641c3236e2535da3145e3ad218bf6e222ed1fc54facfc7114c8",
+      "graphicAcceptanceReport": "template/out/short-graphic-acceptance-v1/acceptance.json",
+      "graphicAcceptanceSha256": "6e4bbb9b6640f7d373ee304e3f4589d980012f1d85dd265512271e883c4447e7",
+      "sourceHashes": {
+        "template/src/DynamicVideo.tsx": "a01a115a913a7553331a16b0d8e3f00d68005033296246e7149871f0e7b75aac",
+        "template/src/TemplateAdapter.tsx": "b03fffa585f523f4d2fa9b667adfa43517fdafef2a63972b5bd96c88e2e5ace0",
+        "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+        "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+        "demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx": "9413f6c440b22b42281ef7c3c94da2e1f2846d2b85257127412cd5f9074516c2",
+        "demos/typography/paper-title-card/PaperTitleCard.tsx": "0166d3b3077132e76954a0b8ee0e6490f9174789b9bec5113cff69ddb6ad90d7",
+        "demos/typography/countdown-arc-scatter/CountdownArcScatter.tsx": "df74c73c2fa78c9b176c0da5de2fc042dee5f952c0c4686096472ce9d3ddbc88",
+        "demos/data/hatch-depth/HatchDepth.tsx": "9529bff18cfd4d4fb200afe1f24c65805d75479848560912b7ed3b26f2247e65",
+        "demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx": "1af70144aefb9f514f9e5d7ce83f668ce5e9fb081ef091080f6340b987cccc1c",
+        "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9"
+      },
+      "frameEvidence": [
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-30-landscape.mp4",
+          "sha256": "7bc634eb716c7f7f7c664ce5a0d608bf312b41e17cdc23222cd03360f5cd4340",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-30-portrait.mp4",
+          "sha256": "c017fb57a0f895b4e0f19f752ee84631f0b468b98dee764ad2374548a7073676",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-45-landscape.mp4",
+          "sha256": "c8ed49726894b2af31374aa16b1e19a618dce2103a59376516d20221f068bfa7",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-45-portrait.mp4",
+          "sha256": "5f87af0b5cf456d1d80e380c53365c80382dfe3144076ce2224ea963e438dcfa",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-60-landscape.mp4",
+          "sha256": "73be572e206e9b42d907390aa0ee07b91b9a25c0c10c004665008050f8e8ebb2",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/marker-underline-title-60-portrait.mp4",
+          "sha256": "b42c6bb3ee521af6282c83348b2ab39bcd65d55c496e988a156b40b673845cd9",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-30-landscape.mp4",
+          "sha256": "6a90be3fde1a132521b598339d5fcf2d1d7bb7994a89c5c673643feaef503edb",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-30-portrait.mp4",
+          "sha256": "d8c16886b338b03db4acfcb28ba35ccc68d9ff3ade8f0a0c8f71a3974c3cc370",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-45-landscape.mp4",
+          "sha256": "319cb3018c7849588e745da9d45db964aa79cf26c970751bca8b211a9acef590",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-45-portrait.mp4",
+          "sha256": "9698651b6fb088f78fe3884d2151208959969574153e5b40017f1ca0796e8783",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-60-landscape.mp4",
+          "sha256": "ca805f3fe0f6fcbb7b13ad2c1b2ec790fec2910011befc864afb73796ad4199a",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/paper-title-card-60-portrait.mp4",
+          "sha256": "92683f87793c15e1b77aca46c3f9aabfc3d35724b4ec268be7b11d23e75d4a2e",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-30-landscape.mp4",
+          "sha256": "e60f20e1b8b1a58c9ad3acc9c1bbc91a26a301f485df8f192cd42e32225fc521",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-30-portrait.mp4",
+          "sha256": "d0c6364e0e12b395f88b33077c3ebc6becd86e2cd1fef7355b548bb422a8ce37",
+          "frames": 30,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-45-landscape.mp4",
+          "sha256": "ccf424f7bbb23922b2e20b16a666675d2559358e45064983e7c63958d2d608b3",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-45-portrait.mp4",
+          "sha256": "238d1edeeff0edc44d8a57cf54e17838d2cce073428ed8b933c258a2e8074bb8",
+          "frames": 45,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-60-landscape.mp4",
+          "sha256": "13035c635943aa304300a2862e57fc45974b6362f9800488a2223d1600c73ab4",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-card-acceptance-v1/countdown-arc-scatter-60-portrait.mp4",
+          "sha256": "f44f14078cccd18013191e62fa8c2ee4389bc992d420c5ec8a4f5a01f0000911",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-graphic-acceptance-v1/bezier-source-converge-merge-landscape.mp4",
+          "sha256": "12623d14fc0f5a4d7acad672580cad74cd6a1120074a01340cb46b94e2b01b58",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-graphic-acceptance-v1/bezier-source-converge-merge-portrait.mp4",
+          "sha256": "9850914d34c97391fc49d28a8cb96abf5225ebfa0040919509233f9e4e639f39",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "9:16"
+        },
+        {
+          "file": "template/out/short-graphic-acceptance-v1/hatch-depth-landscape.mp4",
+          "sha256": "7b6828480db9e35d1b7cf0b60879756dc0216c5230f0076f31838a548e40e281",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "16:9"
+        },
+        {
+          "file": "template/out/short-graphic-acceptance-v1/hatch-depth-portrait.mp4",
+          "sha256": "f54ea530f021f446d2ecaf0dcdffb1f86d19756905eda80717d35eef536e57e5",
+          "frames": 60,
+          "fps": 30,
+          "aspect": "9:16"
+        }
+      ],
+      "cards": [
+        {
+          "id": "typography/marker-underline-title",
+          "status": "accepted",
+          "acceptedFrames": [
+            60
+          ],
+          "completionFrame": 42,
+          "holdFrames": 18,
+          "exitFrames": 0,
+          "maxLines": 2,
+          "maxChars": 6,
+          "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
+          "fps": 30
+        },
+        {
+          "id": "typography/paper-title-card",
+          "status": "accepted",
+          "acceptedFrames": [
+            60
+          ],
+          "completionFrame": 34,
+          "holdFrames": 18,
+          "exitFrames": 8,
+          "maxLines": 2,
+          "maxChars": 6,
+          "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
+          "fps": 30
+        },
+        {
+          "id": "typography/countdown-arc-scatter",
+          "status": "not-accepted",
+          "acceptedFrames": [],
+          "completionRatio": 0.98,
+          "holdFrames": 18,
+          "exitFrames": 0,
+          "maxLines": 2,
+          "maxChars": 2,
+          "reason": "固定数字5、白底且缺少阅读停留，不符合通用中文透底镜头契约",
+          "fps": 30
+        },
+        {
+          "id": "ui-entrance/bezier-source-converge-merge",
+          "status": "accepted",
+          "acceptedFrames": [
+            60
+          ],
+          "completionFrame": 42,
+          "holdFrames": 18,
+          "exitFrames": 0,
+          "maxLines": 1,
+          "maxChars": 6,
+          "fps": 30,
+          "kind": "graphic",
+          "graphicLimits": {
+            "maxSources": 3,
+            "maxSourceChars": 2,
+            "maxTargetChars": 4
+          }
+        },
+        {
+          "id": "data/hatch-depth",
+          "status": "accepted",
+          "acceptedFrames": [
+            60
+          ],
+          "completionFrame": 30,
+          "holdFrames": 30,
+          "exitFrames": 0,
+          "maxLines": 1,
+          "maxChars": 6,
+          "fps": 30,
+          "kind": "graphic",
+          "graphicLimits": {
+            "maxRows": 2,
+            "maxLabelChars": 4,
+            "maxUnitChars": 2
+          }
+        }
+      ]
+    }
+  ]
+}

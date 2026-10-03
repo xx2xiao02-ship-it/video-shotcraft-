@@ -1,0 +1,28 @@
+{
+  "horizontal": {
+    "enabled": true,
+    "templateId": "creator",
+    "position": "bottom",
+    "fontSize": 52,
+    "textColor": "#ffffff",
+    "activeColor": "#ffd34d",
+    "panelColor": "#07101e",
+    "maxChars": 22,
+    "fontId": "serif",
+    "panelOpacity": 16,
+    "highlightScale": 1.2
+  },
+  "vertical": {
+    "enabled": true,
+    "templateId": "pill",
+    "position": "bottom",
+    "fontSize": 41,
+    "textColor": "#ffffff",
+    "activeColor": "#8de7ff",
+    "panelColor": "#07101e",
+    "maxChars": 14,
+    "fontId": "serif",
+    "panelOpacity": 85,
+    "highlightScale": 1.2
+  }
+}

@@ -1,0 +1,946 @@
+{
+  "title": "口播视频",
+  "style": {
+    "bg": "#0a1420",
+    "text": "#e0f0ff",
+    "accent": "#4ecdc4",
+    "sub": "#6a8a9a",
+    "captionStyle": "pill",
+    "fontFamily": "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+    "captionSize": 36,
+    "captionWeight": 600,
+    "captionColor": "#ffffff",
+    "materialOpacity": 0.6,
+    "fallbackSize": 96,
+    "fallbackAlpha": 0.14
+  },
+  "theme": {
+    "bg": "#0a1420",
+    "surface": "#142838",
+    "text": "#e0f0ff",
+    "textDim": "#6a8a9a",
+    "accent": "#4ecdc4",
+    "accent2": "#2a9a9a",
+    "danger": "#ff6b6b"
+  },
+  "fps": 30,
+  "audio": "audio/voiceover.mp3",
+  "shots": [
+    {
+      "type": "hook",
+      "l2": "question",
+      "shotCard": "director/statement",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人01-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "你有没有发现，这两年手里留现金，远比想象中更有用。",
+      "durationInFrames": 156,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人01-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "status",
+      "shotCard": "director/number",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\50 商业谈判数据分析业务合作会议讨论视频素材-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "网上有个直观感受：现在 50 万现金，能买到的东西，和前几年完全不是一个量级。",
+      "durationInFrames": 244,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\50 商业谈判数据分析业务合作会议讨论视频素材-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "anxiety",
+      "shotCard": "director/context",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\18 高端商业商务人士展望未来实拍视频素材-Scene-022.mp4"
+        },
+        "position": "element"
+      },
+      "text": "不是制造焦虑，看房、买车的人都能感受到，我们过去的财富逻辑正在转变。",
+      "durationInFrames": 213,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\18 高端商业商务人士展望未来实拍视频素材-Scene-022.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/context",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "AI科技未来横屏230款\\AI科技未来77-Scene-002.mp4"
+        },
+        "position": "element"
+      },
+      "text": "过去二十年大家都信奉：现金会贬值，要尽快换成房产、商铺这类资产。",
+      "durationInFrames": 200,
+      "material": "AI科技未来横屏230款\\AI科技未来77-Scene-002.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/context",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-002.mp4"
+        },
+        "position": "element"
+      },
+      "text": "那时候经济上行，资产普涨，加杠杆买房的人吃到红利，这套逻辑当时确实可行。",
+      "durationInFrames": 226,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-002.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "status",
+      "shotCard": "director/context",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人44-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "但环境已经变了，资产波动变大，现金的选择权越来越珍贵。",
+      "durationInFrames": 169,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人44-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/risk",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-030.mp4"
+        },
+        "position": "element"
+      },
+      "text": "如果还盲目加杠杆投资、超前消费，多年积蓄很容易悄悄缩水。",
+      "durationInFrames": 175,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-030.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "status",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\09-Scene-003.mp4"
+        },
+        "position": "element"
+      },
+      "text": "二线城市三居室从前 300 万要抢，如今 200 万出头就能慢慢挑选；",
+      "durationInFrames": 219,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\09-Scene-003.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "status",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-142.mp4"
+        },
+        "position": "element"
+      },
+      "text": "曾经落地 20 万的新能源车，现在 13 万左右就能开走。",
+      "durationInFrames": 182,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\11-Scene-142.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "compare",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\50 商业谈判数据分析业务合作会议讨论视频素材-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "前几年不冲动追高，把 50 万留在手里，如今面对降价的资产，选择空间反而更大。",
+      "durationInFrames": 244,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\50 商业谈判数据分析业务合作会议讨论视频素材-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "ui-entrance/list-reveal",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-046.mp4"
+        },
+        "position": "element"
+      },
+      "text": "行情回调阶段，保住本金不折腾，本身就是收益。",
+      "durationInFrames": 138,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\07-Scene-046.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "compare",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "手握现金不是一动不动，而是价格波动时，你始终拥有主动权。",
+      "durationInFrames": 175,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/example",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "就像那个装修老板：行情好的时候同行借钱扩张，只有他坚持留存现金。",
+      "durationInFrames": 200,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/risk",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-002.mp4"
+        },
+        "position": "element"
+      },
+      "text": "行业下行后，不少同行资金链紧张，他不仅安稳度过，还趁建材降价翻新门店。",
+      "durationInFrames": 219,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活30-Scene-002.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "typography/typewriter-moves/terminal-typewriter",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "027-4k商务\\高端商务1 (3)-Scene-004.mp4"
+        },
+        "position": "background"
+      },
+      "text": "行情恐慌的时候，手里有余钱，才有底气。",
+      "durationInFrames": 119,
+      "material": "027-4k商务\\高端商务1 (3)-Scene-004.mp4",
+      "params": {
+        "textAs": "raw",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/pop.mp3",
+        "volume": 0.32
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "insight",
+      "shotCard": "typography/typewriter-moves/typewriter-error-retype",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-002.mp4"
+        },
+        "position": "background"
+      },
+      "text": "更关键的是，现在赚钱难度大幅上升。",
+      "durationInFrames": 106,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\75 格调高端品味一家人意向时间时光深沉视频素材下载-Scene-002.mp4",
+      "params": {
+        "textAs": "raw",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/sparkle.mp3",
+        "volume": 0.32
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "typography/type-assembly-moves/text-on-path",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\46 商务会议办公讲座讨团队合作工程师视频素材-Scene-023.mp4"
+        },
+        "position": "background"
+      },
+      "text": "过去各行各业扩张，涨薪、创业机会多；",
+      "durationInFrames": 113,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\46 商务会议办公讲座讨团队合作工程师视频素材-Scene-023.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "pain",
+      "l2": "anxiety",
+      "shotCard": "director/number",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\63 商务人士WIFI智能化办公高清视频素材-Scene-008.mp4"
+        },
+        "position": "element"
+      },
+      "text": "如今企业收缩，想稳定赚到一万块，付出的成本和风险远高于从前。",
+      "durationInFrames": 188,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\63 商务人士WIFI智能化办公高清视频素材-Scene-008.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/statement",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-009.mp4"
+        },
+        "position": "element"
+      },
+      "text": "每一笔开销，都是辛苦劳动换来的，花钱更要谨慎。",
+      "durationInFrames": 144,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-009.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人36-Scene-005.mp4"
+        },
+        "position": "element"
+      },
+      "text": "还有一类人看着资产几百万，卡里却拿不出 10 万活钱。",
+      "durationInFrames": 169,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人36-Scene-005.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/risk",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-094.mp4"
+        },
+        "position": "element"
+      },
+      "text": "房产、股票只是账面资产，急用钱时很难快速变现。",
+      "durationInFrames": 144,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\24-Scene-094.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/compare",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人01-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "看病、日常消费认的是现金，不是房产证和股票持仓。",
+      "durationInFrames": 150,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人01-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "ui-entrance/list-stack-press",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市高楼大厦交通车流高清视频素材\\197款城市高楼大厦\\城市42-Scene-004.mp4"
+        },
+        "position": "element"
+      },
+      "text": "普通人做好三件事，就能避开大部分坑：",
+      "durationInFrames": 113,
+      "material": "城市高楼大厦交通车流高清视频素材\\197款城市高楼大厦\\城市42-Scene-004.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "typography/scramble",
+      "slot": "text-hero",
+      "materialRole": "background",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "027-4k商务\\高端商务1 (1)-Scene-011.mp4"
+        },
+        "position": "background"
+      },
+      "text": "第一，砍掉面子消费。",
+      "durationInFrames": 62,
+      "material": "027-4k商务\\高端商务1 (1)-Scene-011.mp4",
+      "params": {
+        "textAs": "raw",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/click-camera.mp3",
+        "volume": 0.32
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/statement",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\23-Scene-033.mp4"
+        },
+        "position": "element"
+      },
+      "text": "不盲目换车、买奢侈品，减少可花可不花的开销，存款才是底气。",
+      "durationInFrames": 182,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\最新5月更新\\23-Scene-033.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "ui-entrance/bezier-source-converge-merge",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\电子科技-Scene-013.mp4"
+        },
+        "position": "element"
+      },
+      "text": "第二，敬畏杠杆，优先还清高息负债。",
+      "durationInFrames": 106,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\2017.3.2更新\\电子科技-Scene-013.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/action",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-023.mp4"
+        },
+        "position": "element"
+      },
+      "text": "找不到稳妥投资渠道，就提前结清网贷、信用卡、车贷，无高息负债就已经赢过很多人。",
+      "durationInFrames": 244,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\10-Scene-023.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "ui-entrance/neon-frame-forerun",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\01-Scene-030.mp4"
+        },
+        "position": "element"
+      },
+      "text": "第三，守住本金，放弃暴富幻想。",
+      "durationInFrames": 94,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\01-Scene-030.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/action",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\18 高端商业商务人士展望未来实拍视频素材-Scene-012.mp4"
+        },
+        "position": "element"
+      },
+      "text": "看不懂的理财、高收益项目不要碰，绝不借钱炒股。",
+      "durationInFrames": 144,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\18 高端商业商务人士展望未来实拍视频素材-Scene-012.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/cause",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-012.mp4"
+        },
+        "position": "element"
+      },
+      "text": "把钱存在正规银行，哪怕利息低，本金安全就是最大优势。",
+      "durationInFrames": 163,
+      "material": "商务合作共赢洽谈公司开会企业团队成功人士签字握手宣传视频素材\\商务合作共赢洽谈团队公司视频素材\\30 科技商务成功人士合作共赢实拍视频-Scene-012.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "ui-entrance/list-reveal",
+      "slot": "process-show",
+      "materialRole": "split",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\12-Scene-006.mp4"
+        },
+        "position": "element"
+      },
+      "text": "顺境里钱用来改善生活；",
+      "durationInFrames": 69,
+      "material": "城市通讯电子商务科技信息网络移动互联网生活高清视频宣传片素材\\14SPSC互联网科技\\12-Scene-006.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/cause",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活31-Scene-004.mp4"
+        },
+        "position": "element"
+      },
+      "text": "周期下行时，现金就是全家的安全垫。",
+      "durationInFrames": 106,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\幸福生活31-Scene-004.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/transition-snap.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "proof",
+      "l2": "example",
+      "shotCard": "director/statement",
+      "slot": "case-show",
+      "materialRole": "inline-element",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "video-local",
+          "path": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人14-Scene-001.mp4"
+        },
+        "position": "element"
+      },
+      "text": "是家人生病不用四处求人、遇到糟心工作敢于转身的底气。",
+      "durationInFrames": 163,
+      "material": "孩子老年人家庭幸福快乐生活笑脸健康美好房地产高清视频素材\\老年人14-Scene-001.mp4",
+      "params": {
+        "textAs": "words",
+        "mediaType": "material"
+      },
+      "audio": {
+        "src": "audio/swoosh-quick.mp3",
+        "volume": 0.16
+      }
+    },
+    {
+      "type": "cta",
+      "l2": "action",
+      "shotCard": "director/cause",
+      "slot": "case-show",
+      "materialRole": "none",
+      "pit": {
+        "mode": "A",
+        "subject": "remotion",
+        "content": {
+          "type": "text"
+        },
+        "position": "element"
+      },
+      "text": "不用觉得谈钱俗气，管好收入，留存现金，一点一滴攒下的存款，就是抵御生活变数最坚实的防护",
+      "durationInFrames": 270,
+      "params": {
+        "textAs": "words",
+        "mediaType": "none"
+      },
+      "audio": {
+        "src": "audio/transition-soft.mp3",
+        "volume": 0.16
+      }
+    }
+  ]
+}
