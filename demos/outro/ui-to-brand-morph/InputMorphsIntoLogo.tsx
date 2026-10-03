@@ -11,6 +11,7 @@ import {
   spring,
   Easing,
 } from 'remotion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 const BG = '#3d1f47'; // 深梅紫
 const CX = 960;
@@ -26,17 +27,23 @@ const FINAL = {
   smallDot: { x: CX + 150, y: CY - 226, d: 76 },                // 竖胶囊顶上的小圆
 };
 
-export const InputMorphsIntoLogo: React.FC<{ word?: string }> = ({ word }) => {
+export const InputMorphsIntoLogo: React.FC<{ word?: string; durationInFrames?: number; skin?: TemplateSkin }> = ({ word, durationInFrames, skin }) => {
   const f = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames: compositionDuration, width, height } = useVideoConfig();
+  const portrait = height > width;
+  const canvasScale = portrait ? Math.min(0.82, (width - 120) / 1200) : 1;
+  const canvasLeft = portrait ? (width - 1920 * canvasScale) / 2 : 0;
+  const canvasTop = portrait ? (height - 1080 * canvasScale) / 2 : 0;
+  const total = Math.max(1, durationInFrames || compositionDuration);
+  const k = (value: number) => Math.round(value * total / 120);
   const WORD = word || DEFAULT_WORD;
 
   // —— 时间轴 ——
-  const CLICK = 22;      // 光标按下发送
-  const FLY = 26;        // 文字飞走
-  const MORPH = 34;      // 输入框开始收缩变形
-  const DROPS = [56, 70, 84]; // 大圆 / 竖胶囊 / 小圆 依次落下
-  const SETTLE = 108;    // 全部落定，开始呼吸
+  const CLICK = k(22);      // 光标按下发送
+  const FLY = k(26);        // 文字飞走
+  const MORPH = k(34);      // 输入框开始收缩变形
+  const DROPS = [k(56), k(70), k(84)]; // 大圆 / 竖胶囊 / 小圆 依次落下
+  const SETTLE = k(108);    // 全部落定，开始呼吸
 
   // 输入框初始几何
   const box0 = { x: CX - 430, y: CY - 60, w: 860, h: 120, r: 26 };
@@ -83,11 +90,13 @@ export const InputMorphsIntoLogo: React.FC<{ word?: string }> = ({ word }) => {
   const s1 = dropSpring(1);
   const s2 = dropSpring(2);
 
-  const WHITE = '#fdf6ee';
+  const WHITE = skin?.text || '#fdf6ee';
 
   return (
-    <AbsoluteFill style={{ background: BG, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
-      <AbsoluteFill style={{ transform: `scale(${breathe})`, transformOrigin: `${CX}px ${CY - 40}px` }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, BG), overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: canvasLeft, top: canvasTop, width: 1920, height: 1080, transform: `scale(${canvasScale})`, transformOrigin: '0 0' }}>
+        <AbsoluteFill style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
+          <AbsoluteFill style={{ transform: `scale(${breathe})`, transformOrigin: `${CX}px ${CY - 40}px` }}>
         {/* 主体：输入框 → 主胶囊 */}
         <div
           style={{
@@ -190,27 +199,29 @@ export const InputMorphsIntoLogo: React.FC<{ word?: string }> = ({ word }) => {
             }}
           />
         )}
-      </AbsoluteFill>
+          </AbsoluteFill>
 
-      {/* 光标 */}
-      <div
-        style={{
-          position: 'absolute',
-          left: cursorX,
-          top: cursorY,
-          opacity: cursorGone,
-          transform: `scale(${press})`,
-          zIndex: 50,
-        }}
-      >
-        <svg width={40} height={44} viewBox="0 0 40 44">
-          <path
-            d="M4 2 L4 34 L13 26 L19 40 L26 37 L20 23 L32 22 Z"
-            fill="#ffffff"
-            stroke={BG}
-            strokeWidth={2}
-          />
-        </svg>
+          {/* 光标 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: cursorX,
+              top: cursorY,
+              opacity: cursorGone,
+              transform: `scale(${press})`,
+              zIndex: 50,
+            }}
+          >
+            <svg width={40} height={44} viewBox="0 0 40 44">
+              <path
+                d="M4 2 L4 34 L13 26 L19 40 L26 37 L20 23 L32 22 Z"
+                fill="#ffffff"
+                stroke={BG}
+                strokeWidth={2}
+              />
+            </svg>
+          </div>
+        </AbsoluteFill>
       </div>
     </AbsoluteFill>
   );

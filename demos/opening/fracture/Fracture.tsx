@@ -4,6 +4,8 @@
 // 正放=开场、倒放=转场。设计坐标 480×270（DesignStage 等比放大），参数以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, rand, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const FRACTURE_DURATION = 156; // 5200ms @30fps
 
@@ -38,11 +40,10 @@ const TILES = Array.from({ length: N * N }, (_, seed) => {
   };
 });
 
-export const Fracture: React.FC = () => {
+export const Fracture: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
-  return (
-    <DesignStage bg="#0b0b10">
-      <div style={{ position: 'absolute', inset: 0, perspective: 900, overflow: 'hidden' }}>
+  const scene=(
+      <div style={{ position: 'absolute', inset: 0, perspective: 900, overflow: 'hidden',background:skin ? skinBackground(skin,skin.bg) : undefined,fontFamily:skin?.fontFamily }}>
         <div
           style={{
             position: 'absolute',
@@ -69,7 +70,7 @@ export const Fracture: React.FC = () => {
                   width: '19.2%',
                   height: '19%',
                   borderRadius: 3,
-                  background: tl.background,
+                  background: skin ? `linear-gradient(${135+Math.floor(i/N)*20}deg, ${skin.surface}, ${skin.accent})` : tl.background,
                   transform: `translate3d(${tl.dx * inv + tl.exX * tout}px,${tl.dy * inv + tl.exY * tout}px,${tl.dz * inv}px)
           rotateX(${tl.rx * inv}deg) rotateY(${tl.ry * inv}deg) rotateZ(${tl.rz * inv + tl.exR * tout}deg)`,
                   opacity: Math.min(1, tin * 2.5), // 退场不淡出，实体飞出画面
@@ -84,17 +85,17 @@ export const Fracture: React.FC = () => {
             left: '50%',
             top: '50%',
             transform: 'translate(-50%,-50%)',
-            color: 'var(--text)',
+            color: skin?.text || 'var(--text)',
             fontWeight: 800,
             fontSize: 26,
-            letterSpacing: 8,
+            letterSpacing: skin ? 0 : 8,
             opacity: seg(t, 0.42, 0.52) - seg(t, 0.7, 0.78),
             textShadow: '0 2px 30px rgba(0,0,0,.8)',
           }}
         >
-          REASSEMBLE
+          {skin ? words?.[0] : 'REASSEMBLE'}
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg="#0b0b10">{scene}</DesignStage>;
 };

@@ -22,6 +22,12 @@ const SEGS: Array<[number, number, number, number, number]> = [
 ];
 const TOTAL = 3980;
 
+export type LineCarryTransitionProps = {
+  sourceTitle?: string;
+  targetTitle?: string;
+  targetLabel?: string;
+};
+
 // 笔头坐标：按已画长度沿折线取点
 const tipAt = (drawn: number): [number, number] => {
   let d = Math.max(0, Math.min(drawn, TOTAL));
@@ -35,7 +41,7 @@ const tipAt = (drawn: number): [number, number] => {
   return [2600, 705];
 };
 
-export const LineCarryTransition: React.FC = () => {
+export const LineCarryTransition: React.FC<LineCarryTransitionProps> = ({ sourceTitle = 'Scene A', targetTitle = 'Scene B', targetLabel = 'Ready' }) => {
   const frame = useCurrentFrame();
 
   // 镜头：34–94f 左移 1920px，inOut cubic
@@ -97,7 +103,7 @@ export const LineCarryTransition: React.FC = () => {
 
         {/* 场景 A：标题 + 卡 + 进度条轨道（ink 填充即 path 本体） */}
         <div style={{ position: 'absolute', left: 400, top: 250 }}>
-          <TitleBlock text="Scene A" size={56} />
+          <TitleBlock text={sourceTitle} size={56} />
         </div>
         <Card w={560} h={330} seed={2} style={{ position: 'absolute', left: 400, top: 350 }} />
         <div style={{ position: 'absolute', left: 400, top: 702, width: 560, height: 6, borderRadius: 3, background: G.line }} />
@@ -133,7 +139,7 @@ export const LineCarryTransition: React.FC = () => {
             opacity: contentOpacity,
           }}
         >
-          <div style={{ height: 18, width: '58%', background: G.bar, borderRadius: 9 }} />
+          <div style={{ height: 18, width: '58%', background: G.bar, borderRadius: 9, color: G.ink, fontSize: 20, fontWeight: 700, paddingLeft: 10, boxSizing: 'border-box' }}>{targetLabel}</div>
           <div style={{ height: 11, width: '86%', background: G.line, borderRadius: 5 }} />
           <div style={{ height: 11, width: '72%', background: G.line, borderRadius: 5 }} />
           <div style={{ height: 11, width: '64%', background: G.line, borderRadius: 5 }} />
@@ -143,7 +149,7 @@ export const LineCarryTransition: React.FC = () => {
           </div>
         </div>
         <div style={{ position: 'absolute', left: 2600, top: 275, opacity: contentOpacity }}>
-          <TitleBlock text="Scene B" size={56} />
+          <TitleBlock text={targetTitle} size={56} />
         </div>
       </div>
     </AbsoluteFill>

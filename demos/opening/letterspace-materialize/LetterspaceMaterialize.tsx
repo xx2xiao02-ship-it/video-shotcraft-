@@ -5,6 +5,8 @@
 //    pathLength 归一保证不同笔画长度的字母在同一帧齐收（截图 2/3 的全行并行半截态）。
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 78x64 视框内的方正略宽细骨架字形（子笔画顺序=描画顺序）
 const GLYPHS: Record<string, string> = {
@@ -23,8 +25,10 @@ const WORD = 'SUPERHUMAN';
 const START = 16;   // 全字符统一起画帧（无错峰）
 const DUR = 52;     // 全字符统一画完帧数（pathLength 归一→同帧齐收）
 
-export const LetterspaceMaterialize: React.FC = () => {
+export const LetterspaceMaterialize: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
+  const word=skin ? words?.[0] || '' : WORD;
+  if(skin && (!word || word.length>10 || [...word].some(ch=>!GLYPHS[ch]))) throw new Error('Letterspace supports 1-10 uppercase letters from S U P E R H M A N');
 
   // 全字符共享同一进度：同时开始、同时完成
   const p = interpolate(frame, [START, START + DUR], [0, 1], {
@@ -38,14 +42,14 @@ export const LetterspaceMaterialize: React.FC = () => {
   });
   const glowAmt = p >= 1 ? doneGlow : p > 0.7 ? (p - 0.7) / 0.3 : 0;
 
-  const letters = WORD.split('').map((ch, li) => (
+  const letters = word.split('').map((ch, li) => (
     <svg key={li} width={78} height={64} viewBox="0 0 78 64"
       style={{ overflow: 'visible', display: 'block' }}>
       {p > 0 && (
         <path
           d={GLYPHS[ch]}
           fill="none"
-          stroke="#f4f2f8"
+          stroke={skin?.text || '#f4f2f8'}
           strokeWidth={5.5}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -60,26 +64,27 @@ export const LetterspaceMaterialize: React.FC = () => {
     </svg>
   ));
 
-  return (
+  const scene=(
     <AbsoluteFill style={{
-      background: 'linear-gradient(178deg, #2c2a55 0%, #3d3465 30%, #241f40 58%, #0e0c1e 100%)',
+      background: skinBackground(skin,'linear-gradient(178deg, #2c2a55 0%, #3d3465 30%, #241f40 58%, #0e0c1e 100%)'),
       alignItems: 'center', justifyContent: 'center',
     }}>
       {/* 暮色地平线光带（山影/晚霞近似） */}
-      <div style={{
+      {!skin && <div style={{
         position: 'absolute', left: 0, right: 0, top: 470, height: 170,
         background: 'linear-gradient(180deg, rgba(232,150,170,0) 0%, rgba(226,140,165,0.20) 45%, rgba(120,100,170,0.12) 75%, rgba(0,0,0,0) 100%)',
         filter: 'blur(20px)',
-      }} />
-      <div style={{
+      }} />}
+      {!skin && <div style={{
         position: 'absolute', right: 130, top: 330, width: 560, height: 200,
         background: 'radial-gradient(ellipse at center, rgba(216,120,160,0.16) 0%, rgba(0,0,0,0) 70%)',
         filter: 'blur(26px)',
-      }} />
+      }} />}
       {/* 大字距字标：全字符并行连续描画 */}
       <div style={{ display: 'flex', gap: 34, alignItems: 'center' }}>
         {letters}
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

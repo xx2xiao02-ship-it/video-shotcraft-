@@ -4,6 +4,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const BLUR_SLIDE_DURATION = 114; // 3800ms @30fps
 
@@ -52,12 +53,12 @@ const Line: React.FC<{
   </div>
 );
 
-export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?: string[] }> = ({ text, headline, subhead }) => {
+export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?: string[]; skin?: TemplateSkin }> = ({ text, headline, subhead, skin }) => {
   const H1_WORDS = headline ?? (text ? splitWords(text) : DEFAULT_H1_WORDS);
   const H2_WORDS = subhead ?? DEFAULT_H2_WORDS;
   const t = useT();
   return (
-    <DesignStage bg="#0a0b10">
+    <DesignStage bg={skinBackground(skin, '#0a0b10')}>
       <div
         style={{
           position: 'absolute',
@@ -80,8 +81,8 @@ export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?:
             fontWeight: 800,
             fontSize: 34,
             lineHeight: 1.15,
-            fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-            color: '#eef1fa',
+            fontFamily: skin?.fontFamily || '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            color: skin?.text || '#eef1fa',
             letterSpacing: '-0.5px',
           }}
         />
@@ -94,8 +95,8 @@ export const BlurSlide: React.FC<{ text?: string; headline?: string[]; subhead?:
             fontWeight: 400,
             fontSize: 14,
             lineHeight: 1.4,
-            fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-            color: '#7d86a3',
+            fontFamily: skin?.fontFamily || '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            color: skin?.muted || '#7d86a3',
           }}
         />
       </div>

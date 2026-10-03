@@ -7,6 +7,9 @@
 // 设计坐标 480×270（DesignStage 等比放大），SVG viewBox 640×360 铺满全幅。
 import React, { useId } from 'react';
 import { E, DesignStage, seg, useT } from '../../_fixtures/Motion';
+import {useCurrentFrame,useVideoConfig} from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const GRAIN_DISSOLVE_DURATION = 60; // 2000ms @30fps
 
@@ -41,8 +44,11 @@ const Corner: React.FC<{ x: number; y: number; sx: number; sy: number }> = ({ x,
   </>
 );
 
-export const GrainDissolve: React.FC = () => {
+export const GrainDissolve: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const frame=useCurrentFrame();
+  const {durationInFrames,fps}=useVideoConfig();
+  if(skin && (!words?.[1] || !words[0]?.includes(words[1]))) throw new Error('Grain dissolve sentence must include its final wordmark');
   // 滤镜/clipPath ID 按实例生成，同一 Composition 放多个实例时互不串引
   // （useId 的 «:» 在 CSS url() 里非法，清洗成纯字母数字）
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -54,11 +60,10 @@ export const GrainDissolve: React.FC = () => {
   const settle = seg(t, 0.88, 1, E.outCubic); // 辉光回落
   // 白色辉光：砂化期轻微，凝聚时冲高，凝固后回落到柔光
   const glow = burst * 0.3 + cond * 0.7 - settle * 0.45;
-  return (
-    <DesignStage bg="#0d0f14">
+  const scene=(<>
       <svg
         viewBox="0 0 640 360"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#0d0f14' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: skin?.surface || '#0d0f14' }}
       >
         <defs>
           <filter id={fid} x="-40%" y="-150%" width="180%" height="400%">
@@ -66,7 +71,7 @@ export const GrainDissolve: React.FC = () => {
               type="fractalNoise"
               baseFrequency={0.9 + burst * 0.4}
               numOctaves={2}
-              seed={Math.floor(t * 46)}
+              seed={skin ? Math.floor(Math.min(frame,Math.round(.9*(durationInFrames-1))) * 23/fps) : Math.floor(t * 46)}
               result="n"
             />
             <feDisplacementMap
@@ -117,12 +122,12 @@ export const GrainDissolve: React.FC = () => {
             textAnchor="middle"
             opacity={1 - cond}
             style={{
-              fill: '#eceef2',
-              font: "500 33px Inter,'Helvetica Neue',system-ui,sans-serif",
-              letterSpacing: '2.5px',
+              fill: skin?.text || '#eceef2',
+              font: skin ? `500 33px ${skin.fontFamily}` : "500 33px Inter,'Helvetica Neue',system-ui,sans-serif",
+              letterSpacing: skin ? 0 : '2.5px',
             }}
           >
-            {'{ ACME. Now Live }'}
+            {skin ? words?.[0] : '{ ACME. Now Live }'}
           </text>
           <text
             x={320}
@@ -130,15 +135,16 @@ export const GrainDissolve: React.FC = () => {
             textAnchor="middle"
             opacity={cond}
             style={{
-              fill: '#fff',
-              font: "800 54px Inter,'Helvetica Neue',system-ui,sans-serif",
-              letterSpacing: '4px',
+              fill: skin?.text || '#fff',
+              font: skin ? `800 54px ${skin.fontFamily}` : "800 54px Inter,'Helvetica Neue',system-ui,sans-serif",
+              letterSpacing: skin ? 0 : '4px',
             }}
           >
-            ACME
+            {skin ? words?.[1] : 'ACME'}
           </text>
         </g>
       </svg>
-    </DesignStage>
+    </>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg="#0d0f14">{scene}</DesignStage>;
 };

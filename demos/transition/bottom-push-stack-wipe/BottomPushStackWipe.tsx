@@ -10,11 +10,16 @@ const H = 1080;
 
 // 章节定义：底色 + 卡片种子。第 0 章是起始灰阶场景。
 const CHAPTERS = [
-  { color: G.bg, label: 0 },
-  { color: '#2bac76', label: 1 }, // 绿
-  { color: '#36c5f0', label: 2 }, // 蓝
-  { color: '#e01e5a', label: 3 }, // 粉红
+  { color: G.bg, label: 'Overview', seed: 2 },
+  { color: '#2bac76', label: 'Connect', seed: 3 },
+  { color: '#36c5f0', label: 'Analyze', seed: 4 },
+  { color: '#e01e5a', label: 'Ship', seed: 5 },
 ];
+
+export type BottomPushStackWipeProps = {
+  chapters?: Array<{ color: string; label: string; seed?: number }>;
+  durationInFrames?: number;
+};
 
 // 每章推入的起始帧；约 32 帧完成一次推入，随后 hold
 const PUSH_STARTS = [18, 55, 92];
@@ -22,8 +27,8 @@ const PUSH_DUR = 30;
 
 const heavyEaseOut = Easing.bezier(0.12, 0.9, 0.2, 1); // 快进慢停
 
-const ChapterScene: React.FC<{ chapter: number }> = ({ chapter }) => {
-  const c = CHAPTERS[chapter];
+const ChapterScene: React.FC<{ chapter: number; chapters: typeof CHAPTERS }> = ({ chapter, chapters }) => {
+  const c = chapters[chapter];
   return (
     <AbsoluteFill style={{ background: c.color, justifyContent: 'center', alignItems: 'center' }}>
       {/* 底色上的淡装饰条，让"底色也在动"更可读 */}
@@ -42,13 +47,15 @@ const ChapterScene: React.FC<{ chapter: number }> = ({ chapter }) => {
           ))}
           <div style={{ marginLeft: 18, height: 14, width: 220, background: G.bar, borderRadius: 7 }} />
         </div>
-        <Card w={860} h={430} seed={chapter + 2} style={{ borderRadius: '0 0 18px 18px', padding: 34 }} />
+          <Card w={860} h={430} seed={c.seed ?? chapter + 2} style={{ borderRadius: '0 0 18px 18px', padding: 34 }} />
+          <div style={{ position: 'absolute', left: 36, bottom: 30, color: '#ffffff', fontSize: 30, fontWeight: 800 }}>{c.label}</div>
       </div>
     </AbsoluteFill>
   );
 };
 
-export const BottomPushStackWipe: React.FC = () => {
+export const BottomPushStackWipe: React.FC<BottomPushStackWipeProps> = ({ chapters: inputChapters }) => {
+  const chapters = inputChapters?.length === 4 ? inputChapters : CHAPTERS;
   const frame = useCurrentFrame();
   // 每章的推入进度
   const progress = PUSH_STARTS.map((s) =>
@@ -58,7 +65,7 @@ export const BottomPushStackWipe: React.FC = () => {
   );
   return (
     <AbsoluteFill style={{ overflow: 'hidden', background: G.bg }}>
-      {CHAPTERS.map((_, i) => {
+      {chapters.map((_, i) => {
         // 第 i 章的位移 = 自己被推入的进度 + 被后续章顶出的进度
         const pushedIn = i === 0 ? 1 : progress[i - 1]; // 自己进入
         const pushedOut = i < CHAPTERS.length - 1 ? progress[i] : 0; // 被下一章顶出
@@ -66,7 +73,7 @@ export const BottomPushStackWipe: React.FC = () => {
         if (y <= -H || y >= H) return null;
         return (
           <AbsoluteFill key={i} style={{ transform: `translateY(${y}px)` }}>
-            <ChapterScene chapter={i} />
+            <ChapterScene chapter={i} chapters={chapters} />
             {/* 推入时上缘接缝阴影，强化"顶出"的物理感 */}
             {i > 0 && (
               <div style={{ position: 'absolute', top: -40, left: 0, right: 0, height: 40, background: 'linear-gradient(to top, rgba(0,0,0,0.30), rgba(0,0,0,0))', opacity: pushedIn < 1 ? 1 : 0 }} />

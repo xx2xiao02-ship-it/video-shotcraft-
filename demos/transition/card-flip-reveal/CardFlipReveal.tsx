@@ -23,6 +23,11 @@ const OVERSHOOT = 12; // 末端过冲角度（原案 8°，肉眼存疑加码到
 
 const RESULTS = ['4.9×', '−38%', '99.9%'];
 
+export type CardFlipRevealProps = {
+  results?: string[];
+  title?: string;
+};
+
 // 卡 i 在帧 f 的翻转角：0 → 192（先加速后减速）→ 180（弹性落定），帧确定
 const angleAt = (f: number, i: number): number => {
   const s = FLIP_START + i * STAGGER;
@@ -62,7 +67,7 @@ const Sheen: React.FC<{ angle: number }> = ({ angle }) => {
   );
 };
 
-const FlipCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
+const FlipCard: React.FC<{ i: number; frame: number; results: string[] }> = ({ i, frame, results }) => {
   const angle = angleAt(frame, i);
   return (
     <div
@@ -115,7 +120,7 @@ const FlipCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
               letterSpacing: -2,
             }}
           >
-            {RESULTS[i]}
+            {results[i]}
           </span>
           <Sheen angle={angle} />
         </div>
@@ -124,15 +129,16 @@ const FlipCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
   );
 };
 
-export const CardFlipReveal: React.FC = () => {
+export const CardFlipReveal: React.FC<CardFlipRevealProps> = ({ results: inputResults, title = 'CARD FLIP REVEAL' }) => {
   const frame = useCurrentFrame();
+  const results = inputResults?.length === 3 ? inputResults : RESULTS;
   return (
     <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="CARD FLIP REVEAL" size={54} />
+        <TitleBlock text={title} size={54} />
       </div>
       {[0, 1, 2].map((i) => (
-        <FlipCard key={i} i={i} frame={frame} />
+        <FlipCard key={i} i={i} frame={frame} results={results} />
       ))}
     </div>
   );

@@ -4,6 +4,8 @@
 // 三行明暗轮流脉冲（一行亮时其余压暗），结尾整组淡出。
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = '"Arial Black", "Helvetica Neue", Arial, sans-serif';
 
@@ -17,9 +19,10 @@ const MarqueeRow: React.FC<{
   y: number;
   fontSize: number;
   brightness: number; // 0..1 脉冲亮度
-}> = ({ word, color, dir, speed, frame, y, fontSize, brightness }) => {
+  skin?:TemplateSkin;
+}> = ({ word, color, dir, speed, frame, y, fontSize, brightness,skin }) => {
   // 逐字符估宽（上限估计），保证槽位 >= 实际文本宽，副本不重叠
-  const est = word.length * fontSize * 0.92;
+  const est = [...word].length * fontSize * (skin ? 1.1 : .92);
   const unitW = est + fontSize * 1.3; // 词间空隙（含分隔点）
   const copies = Math.ceil(1920 / unitW) + 3;
   const offsetRaw = (frame * speed) % unitW;
@@ -37,10 +40,10 @@ const MarqueeRow: React.FC<{
         height: fontSize * 1.1,
         overflow: 'visible',
         transform: `translateX(${offset}px)`,
-        fontFamily: FONT,
+        fontFamily: skin?.fontFamily || FONT,
         fontWeight: 900,
         fontSize,
-        letterSpacing: 4,
+        letterSpacing: skin ? 0 : 4,
         lineHeight: 1,
         color: 'transparent',
         WebkitTextStroke: `${strokeW}px ${color}`,
@@ -65,7 +68,7 @@ const MarqueeRow: React.FC<{
   );
 };
 
-export const NeonTripleMarquee: React.FC = () => {
+export const NeonTripleMarquee: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin,durationInFrames=150}) => {
   const f = useCurrentFrame();
 
   // 三行轮流脉冲：周期 45 帧，每行占 1/3 相位，余弦软脉冲
@@ -78,19 +81,19 @@ export const NeonTripleMarquee: React.FC = () => {
   };
 
   // 入场淡入 + 结尾整组淡出
-  const groupOpacity = interpolate(f, [0, 10, 128, 148], [0, 1, 1, 0], {
+  const groupOpacity = interpolate(f, skin ? [0,10,durationInFrames-22,durationInFrames-2] : [0, 10, 128, 148], [0, 1, 1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
   const rows: { word: string; color: string; dir: 1 | -1; speed: number }[] = [
-    { word: 'BETTER', color: '#4d9fff', dir: 1, speed: 14 },
-    { word: 'FASTER', color: '#ff4dd2', dir: -1, speed: 17 },
-    { word: 'STRONGER', color: '#ffb347', dir: 1, speed: 14 },
+    { word: skin ? words?.[0] || '' : 'BETTER', color: skin?.accent || '#4d9fff', dir: 1, speed: 14 },
+    { word: skin ? words?.[1] || '' : 'FASTER', color: skin?.text || '#ff4dd2', dir: -1, speed: 17 },
+    { word: skin ? words?.[2] || '' : 'STRONGER', color: skin?.muted || '#ffb347', dir: 1, speed: 14 },
   ];
 
-  return (
-    <AbsoluteFill style={{ background: '#050308', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skin ? skin.surface : skinBackground(skin,'#050308'), overflow: 'hidden' }}>
       <div style={{ opacity: groupOpacity, position: 'absolute', inset: 0 }}>
         {rows.map((r, i) => (
           <MarqueeRow
@@ -100,12 +103,14 @@ export const NeonTripleMarquee: React.FC = () => {
             dir={r.dir}
             speed={r.speed}
             frame={f}
-            y={40 + i * 350}
-            fontSize={300}
+            y={skin ? 60+i*250 : 40 + i * 350}
+            fontSize={skin ? 160 : 300}
             brightness={pulse(i)}
+            skin={skin}
           />
         ))}
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

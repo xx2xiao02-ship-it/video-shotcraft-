@@ -4,6 +4,8 @@
 // 一拍之内"行、色、场"三通道同步跳变，~0.6s 一拍。
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const ROW_H = 150;
@@ -28,7 +30,8 @@ const snap = (t: number) => interpolate(t, [0, 1], [0, 1], {
   extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
 });
 
-export const BeatStepListThemeCycle: React.FC = () => {
+export const BeatStepListThemeCycle: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && (words.length!==5 || words.some(word=>!word.trim()||[...word].length>6))) throw new Error('BeatStepListThemeCycle requires five short business terms');
   const frame = useCurrentFrame();
 
   // 当前拍序号与拍内进度（跳变只占拍头 6 帧）
@@ -61,8 +64,9 @@ export const BeatStepListThemeCycle: React.FC = () => {
   // 选中行文字反白判定：胶囊固定在视口中央行，选中词 = WORDS[beat]
   const selectedIdx = beat;
 
-  return (
-    <AbsoluteFill style={{ background: bgColor, fontFamily: FONT, justifyContent: 'center' }}>
+  const scene = (
+    <AbsoluteFill style={{ background: bgColor, fontFamily: skin?.fontFamily || FONT, justifyContent: 'center' }}>
+      <div style={{position:'absolute',inset:0,...(words ? {clipPath:'inset(260px 0 260px 0)',maskImage:'linear-gradient(to bottom,transparent 260px,black 335px,black 745px,transparent 820px)'} : {})}}>
       {/* 中央固定胶囊（列表在其下滚动，视觉上"胶囊跳到下一行"） */}
       <div style={{
         position: 'absolute', left: '50%', top: 540 - ROW_H / 2 + 10,
@@ -75,15 +79,15 @@ export const BeatStepListThemeCycle: React.FC = () => {
         position: 'absolute', left: 0, right: 0, top: 540 - ROW_H / 2,
         transform: `translateY(${listY}px)`,
       }}>
-        {WORDS.map((w, i) => {
+        {(words || WORDS).map((w, i) => {
           const isSel = i === selectedIdx;
           return (
             <div key={w} style={{
               height: ROW_H, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <span style={{
-                fontSize: 92, fontWeight: 800, letterSpacing: -1.5,
-                color: isSel ? (beat === 0 ? '#2a2018' : '#ffffff') : 'rgba(255,255,255,0.34)',
+                fontSize: 92, fontWeight: 800, letterSpacing: words ? 0 : -1.5,
+                color: isSel ? (words ? themeNow.ink : beat === 0 ? '#2a2018' : '#ffffff') : 'rgba(255,255,255,0.34)',
                 position: 'relative', zIndex: 2,
               }}>{w}</span>
             </div>
@@ -93,6 +97,8 @@ export const BeatStepListThemeCycle: React.FC = () => {
       {/* 视口上下羽化 */}
       <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 300, background: `linear-gradient(${bgColor}, transparent)`, zIndex: 3 }} />
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 300, background: `linear-gradient(transparent, ${bgColor})`, zIndex: 3 }} />
+      </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

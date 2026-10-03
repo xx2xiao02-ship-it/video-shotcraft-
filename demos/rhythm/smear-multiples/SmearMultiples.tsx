@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const X0 = 240; // 左槽卡片左边缘
 const X1 = 1140; // 右槽卡片左边缘（横移 900px）
@@ -27,7 +29,7 @@ const posAt = (f: number): number =>
         easing: Easing.out(Easing.cubic),
       });
 
-const Slot: React.FC<{ x: number }> = ({ x }) => (
+const Slot: React.FC<{ x: number;skin?:TemplateSkin }> = ({ x,skin }) => (
   <div
     style={{
       position: 'absolute',
@@ -35,14 +37,15 @@ const Slot: React.FC<{ x: number }> = ({ x }) => (
       top: Y - 20,
       width: 520,
       height: 360,
-      border: `3px dashed ${G.bar}`,
+      border: `3px dashed ${skin?.muted || G.bar}`,
       borderRadius: 20,
       boxSizing: 'border-box',
     }}
   />
 );
 
-export const SmearMultiples: React.FC = () => {
+export const SmearMultiples: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && (words.length!==4 || !skin || words.some(word=>!word.trim()||[...word].length>6))) throw new Error('SmearMultiples requires four business labels of at most six characters');
   const frame = useCurrentFrame();
   const bodyX = posAt(frame);
   // 本体速度 = 相邻帧位置差；>25px/f 才渲染分身
@@ -60,14 +63,20 @@ export const SmearMultiples: React.FC = () => {
   const convergeFade = frame >= 35 ? 1 - cv : 0;
 
   const ghostOps = [0.45, 0.3, 0.18, 0.09];
+  const card = words ? <div style={{width:480,height:320,boxSizing:'border-box',padding:40,background:skin?.surface,color:skin?.text,border:`2px solid ${skin?.accent}`,borderRadius:8,fontFamily:skin?.fontFamily,display:'flex',flexDirection:'column',justifyContent:'center',gap:18}}>
+    <div style={{fontSize:52,fontWeight:800}}>{words[1]}</div>
+    <div style={{fontSize:38,lineHeight:1.4}}>{words[2]}</div>
+    <div style={{fontSize:38,lineHeight:1.4}}>{words[3]}</div>
+  </div> : <Card w={480} h={320} seed={5} />;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene = (
+    <div style={{ width: 1920, height: 1080, background: skin?.bg || G.bg, position: 'relative', overflow: 'hidden' }}>
+      <div style={words ? {position:'absolute',inset:0,transform:'scale(0.8)',transformOrigin:'50% 50%'} : {position:'absolute',inset:0}}>
       <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="SMEAR MULTIPLES" size={54} />
+        {words ? <div style={{fontSize:54,fontWeight:800,fontFamily:skin?.fontFamily,color:skin?.text}}>{words[0]}</div> : <TitleBlock text="SMEAR MULTIPLES" size={54} />}
       </div>
-      <Slot x={X0} />
-      <Slot x={X1} />
+      <Slot x={X0} skin={skin} />
+      <Slot x={X1} skin={skin} />
       {/* 4 个分身：第 k 个取 frame - k*2 帧时刻的位置；合拢期延迟×(1-cv) 收缩到 0 */}
       {ghostOps.map((baseOp, i) => {
         const k = i + 1;
@@ -76,13 +85,15 @@ export const SmearMultiples: React.FC = () => {
         if (op <= 0.001) return null;
         return (
           <div key={k} style={{ position: 'absolute', left: gx, top: Y, opacity: op }}>
-            <Card w={480} h={320} seed={5} />
+            {card}
           </div>
         );
       })}
       <div style={{ position: 'absolute', left: bodyX, top: Y }}>
-        <Card w={480} h={320} seed={5} />
+        {card}
+      </div>
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };
