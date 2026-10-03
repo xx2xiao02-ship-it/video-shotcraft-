@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const SVG_SHAPE_MORPH_DURATION = 156; // 5200ms @30fps
 
@@ -37,7 +38,7 @@ const build = (m: number) => {
   return d + 'Z';
 };
 
-export const SvgShapeMorph: React.FC = () => {
+export const SvgShapeMorph: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
   const m1 = seg(t, 0.08, 0.42, E.inOutCubic); // A → B
   const m2 = seg(t, 0.58, 0.92, E.inOutCubic); // B → A
@@ -48,12 +49,12 @@ export const SvgShapeMorph: React.FC = () => {
   const breath = 1 + 0.045 * (Math.sin(m1 * Math.PI) + Math.sin(m2 * Math.PI));
   const rot = Math.sin(t * Math.PI * 2) * 4;
   return (
-    <DesignStage bg="#0d0f14">
+    <DesignStage bg={skin?.bg || '#0d0f14'}>
       <svg
         viewBox="0 0 480 270"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#0d0f14' }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: skin?.bg || '#0d0f14' }}
       >
-        <g transform={`translate(${CX},${CY}) scale(${breath}) rotate(${rot}) translate(${-CX},${-CY})`}>
+        <g transform={`translate(${CX},${words ? CY-18 : CY}) scale(${breath*(words ? 0.8 : 1)}) rotate(${rot}) translate(${-CX},${-CY})`}>
           <path d={d} fill={`hsla(${hue},80%,58%,.14)`} />
           <path
             d={d}
@@ -66,13 +67,13 @@ export const SvgShapeMorph: React.FC = () => {
         </g>
         <text
           x={CX}
-          y={252}
+          y={words ? 28 : 252}
           textAnchor="middle"
-          fill="#5b6480"
+          fill={skin?.text || '#5b6480'}
           opacity={0.4 + 0.6 * Math.abs(m - 0.5) * 2}
-          style={{ font: '10px "SF Mono",Menlo,monospace', letterSpacing: '2px' }}
+          style={{ font: words ? `600 18px ${skin?.fontFamily || 'sans-serif'}` : '10px "SF Mono",Menlo,monospace', letterSpacing: words ? 0 : '2px' }}
         >
-          {m > 0.5 ? 'morphTo(shapeB)' : 'morphTo(shapeA)'}
+          {words ? words[m > 0.5 ? 1 : 0] : m > 0.5 ? 'morphTo(shapeB)' : 'morphTo(shapeA)'}
         </text>
       </svg>
     </DesignStage>
