@@ -90,6 +90,7 @@ export const ClipCard: React.FC<{
   muted?: boolean;
   captionSize?: number; // default 17 — raise on small/far cards to keep ≥32px on-screen text
   startFrom?: number; // trim: play the clip from this frame
+  playbackRate?: number; // single-pass media speed; does not retime the card animation
   style?: React.CSSProperties;
   loopDurationInFrames?: number; // playable clip length in comp frames → enables crossfade loop
   loopCrossfadeInFrames?: number; // default 8
@@ -102,6 +103,7 @@ export const ClipCard: React.FC<{
   radius = 20,
   muted = true,
   startFrom = 0,
+  playbackRate = 1,
   style,
   captionSize = 17,
   loopDurationInFrames,
@@ -152,9 +154,10 @@ export const ClipCard: React.FC<{
   } else {
     video = (
       <OffthreadVideo
-        src={staticFile(src)}
+        src={src.startsWith('http') ? src : staticFile(src)}
         muted={muted}
         startFrom={startFrom}
+        playbackRate={playbackRate}
         style={{
           width: size,
           height: size,
