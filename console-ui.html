@@ -5324,6 +5324,11 @@ async function restoreBWorkflowState() {
   if (activeProductionMode !== "B" || bModeBusy) return;
   const requestedRunId = initialRoute.get("runId");
   const selectRequestedRun = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(requestedRunId || "");
+  if (selectRequestedRun) {
+    $("#b-production-audit").hidden = false;
+    $("#b-production-audit-state").textContent = "正在恢复运行记录…";
+    setBProgress(2, "正在恢复运行记录…");
+  }
   if (bFreshInput && !selectRequestedRun) {
     setBProgress(0, "新文案待生成");
     setProductionStartState("ready");
@@ -5368,7 +5373,13 @@ async function restoreBWorkflowState() {
       setBProgress(progress[0],progress[1]);
     }
     await renderBProductionAudit(runId, run);
-  } catch {}
+  } catch (error) {
+    if (selectRequestedRun) {
+      $("#b-production-audit").hidden = false;
+      $("#b-production-audit-state").textContent = `运行记录恢复失败：${String(error.message || error)}`;
+      setBProgress(0, "运行记录恢复失败");
+    }
+  }
 }
 async function startBAutoEditorial(runId) {
   const statusResponse = await fetch('/api/talkcraft/status?id=' + encodeURIComponent(runId));
