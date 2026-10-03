@@ -1,0 +1,54 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "asOf": "2026-10-03",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "ui-entrance/card-stack",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：8个真实业务主题直接进入原卡面，叠加背景会遮挡标签。"},
+      "narration": "收入成本现金增长风险团队客户结果，先把八类经营信号按优先级摊开。",
+      "lines": ["经营信号"],
+      "templateParams": {"labels": ["收入", "成本", "现金", "增长", "风险", "团队", "客户", "结果"]},
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "ui-entrance/carousel-3d",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：8个真实业务主题随环形卡片旋转，叠加背景会削弱标签可读性。"},
+      "narration": "收入成本现金增长风险团队客户结果，八个经营主题围绕同一个决策中心轮换。",
+      "lines": ["经营主题"],
+      "templateParams": {"labels": ["收入", "成本", "现金", "增长", "风险", "团队", "客户", "结果"]},
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "ui-entrance/research-card-stack-scroll",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：8个真实研究标题就是叠卡主体，外部素材会引入无关语义。"},
+      "narration": "Sparse Attention Mechanisms for Long-Context Reasoning 是本轮研究标题，随后滚过七个相关结论。",
+      "lines": ["研究结论"],
+      "templateParams": {"titles": [
+        "Sparse Attention Mechanisms for Long-Context Reasoning",
+        "Retrieval Drift in Multi-Hop Agent Pipelines",
+        "Latent Caching Reduces Tool-Call Latency",
+        "Calibration of Preference Reward Models",
+        "Grid-Aligned Motion Priors for UI Animation",
+        "Cheap Verifiers Beat Expensive Samplers",
+        "Structured Decoding Without Grammar Loss",
+        "Deterministic Replay of Motion"
+      ]},
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "ui-entrance/floating-glossy-label-pills",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：4个真实功能标签由原组件胶囊轨道承载，外部视频会压住标签。"},
+      "narration": "采集分析协作发布四个真实功能标签沿胶囊轨道依次交接。",
+      "lines": ["功能巡礼"],
+      "templateParams": {"labels": ["采集", "分析", "协作", "发布"]},
+      "inspectFrames": [20, 76, 124, 179]
+    }
+  ]
+}

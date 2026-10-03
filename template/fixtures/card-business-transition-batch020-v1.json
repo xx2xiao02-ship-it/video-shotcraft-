@@ -1,0 +1,72 @@
+{
+  "schema": "card-business-transition-batch020-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "transition/bottom-push-stack-wipe",
+      "lines": ["PLAN", "SHIP"],
+      "narration": "从规划到交付，四个业务阶段连续推进。",
+      "templateParams": {"chapters": [{"color": "#111827", "label": "Plan", "seed": 2}, {"color": "#167c5a", "label": "Build", "seed": 3}, {"color": "#167ca8", "label": "Review", "seed": 4}, {"color": "#b52d50", "label": "Ship", "seed": 5}]},
+      "expectedProps": {"chapters": [{"color": "#111827", "label": "Plan", "seed": 2}, {"color": "#167c5a", "label": "Build", "seed": 3}, {"color": "#167ca8", "label": "Review", "seed": 4}, {"color": "#b52d50", "label": "Ship", "seed": 5}]},
+      "inspectFrames": [30, 90, 150]
+    },
+    {
+      "id": "transition/bubble-swarm-takeover",
+      "lines": ["LEGACY", "READY"],
+      "narration": "旧流程切换为新流程，状态与结果同时交接。",
+      "templateParams": {"capsules": ["Queued", "Running", "Ready"], "sourceLabel": "Legacy workflow", "targetLabel": "Current workflow"},
+      "expectedProps": {"capsules": ["Queued", "Running", "Ready"], "sourceLabel": "Legacy workflow", "targetLabel": "Current workflow"},
+      "inspectFrames": [40, 75, 120]
+    },
+    {
+      "id": "transition/card-flip-reveal",
+      "lines": ["OUTCOMES", "3项指标"],
+      "narration": "功能翻面揭示结果，真实业务指标逐张出现。",
+      "templateParams": {"results": ["4.9x", "-38%", "99.9%"], "title": "BUSINESS OUTCOMES"},
+      "expectedProps": {"results": ["4.9x", "-38%", "99.9%"], "title": "BUSINESS OUTCOMES"},
+      "inspectFrames": [20, 50, 120]
+    },
+    {
+      "id": "transition/card-flock-tumble",
+      "lines": ["INTAKE", "SHIP"],
+      "narration": "三页能力收束成一句话，从过程到结果保持连续。",
+      "templateParams": {"titles": ["Intake", "Review", "Publish"], "finale": "SHIP SMARTER"},
+      "expectedProps": {"titles": ["Intake", "Review", "Publish"], "finale": "SHIP SMARTER"},
+      "inspectFrames": [30, 70, 120]
+    },
+    {
+      "id": "transition/circle-match-iris",
+      "lines": ["86%", "MATCH"],
+      "narration": "圆形入口连接到结果指标，匹配完成率持续更新。",
+      "templateParams": {"value": 86, "metricLabel": "MATCHED"},
+      "expectedProps": {"value": 86, "metricLabel": "MATCHED"},
+      "inspectFrames": [30, 75, 120]
+    },
+    {
+      "id": "transition/color-block-step-wipe",
+      "lines": ["SYNCED", "WORKSPACE"],
+      "narration": "离散步骤交接工作区，每一步都对应明确状态。",
+      "templateParams": {"badgeText": "SYNCED", "pageLabel": "Reviewed workspace"},
+      "expectedProps": {"badgeText": "SYNCED", "pageLabel": "Reviewed workspace"},
+      "inspectFrames": [40, 80, 120]
+    },
+    {
+      "id": "transition/gradient-transition",
+      "lines": ["PLAN", "REPORT"],
+      "narration": "背景阶段随章节变化，每段都有清晰业务语义。",
+      "templateParams": {"labels": ["PLAN", "EXECUTE", "REPORT"]},
+      "expectedProps": {"labels": ["PLAN", "EXECUTE", "REPORT"]},
+      "inspectFrames": [30, 90, 150]
+    },
+    {
+      "id": "transition/line-carry-transition",
+      "lines": ["INTAKE", "DELIVERY"],
+      "narration": "进度线连接前后页面，完成后进入可交付状态。",
+      "templateParams": {"sourceTitle": "Intake", "targetTitle": "Delivery", "targetLabel": "Ready to ship"},
+      "expectedProps": {"sourceTitle": "Intake", "targetTitle": "Delivery", "targetLabel": "Ready to ship"},
+      "inspectFrames": [30, 100, 140]
+    }
+  ]
+}

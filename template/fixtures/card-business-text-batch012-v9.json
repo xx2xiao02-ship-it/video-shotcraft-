@@ -1,0 +1,12 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 257,
+  "aspects": ["16:9", "9:16"],
+  "cards": [{
+    "id": "data/cycle-glass-node-morph",
+    "lines": ["收入变化", "家庭收支", "复盘循环", "记录", "核对", "调整"],
+    "narration": "面对收入变化，家庭收支需要持续复盘。先记录收支，再核对必要支出，最后调整安排；这三个步骤构成循环，不表示系统已经自动执行操作。",
+    "inspectFrames": [30, 110, 170, 198, 222, 256]
+  }]
+}

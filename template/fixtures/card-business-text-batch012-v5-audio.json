@@ -1,0 +1,44 @@
+{
+  "status": "source-waveform-verified-awaiting-encoded-av-review",
+  "file": "template/public/audio/card-batch012-font-weight-v1.wav",
+  "sha256": "091902fa4dc7baff2524d3c58e0e4ebaf5f51ead3a867bc2c9f70d97c831c8ca",
+  "source": "assets/audio/sfx/impact/bass-hit-short.mp3",
+  "sourceSha256": "8bd0c7fd63fbb8a4442ffe1176aa41b260d1fafbcf728e3c63648eb5bcd4e16b",
+  "sourceUrl": "https://assets.mixkit.co/active_storage/sfx/2299/2299-preview.mp3",
+  "sampleRate": 48000,
+  "durationSamples": 288000,
+  "sourceTrimStartSample": 2859,
+  "beats": [
+    {
+      "frame": 30,
+      "sample": 48000,
+      "gain": 0.5,
+      "peak": 0.6829833984375
+    },
+    {
+      "frame": 50,
+      "sample": 80000,
+      "gain": 0.5,
+      "peak": 0.6829833984375
+    },
+    {
+      "frame": 70,
+      "sample": 112000,
+      "gain": 0.65,
+      "peak": 0.887847900390625
+    },
+    {
+      "frame": 90,
+      "sample": 144000,
+      "gain": 0.5,
+      "peak": 0.6829833984375
+    },
+    {
+      "frame": 110,
+      "sample": 176000,
+      "gain": 0.65,
+      "peak": 0.887847900390625
+    }
+  ],
+  "filters": "[0:a]aresample=48000,aformat=channel_layouts=mono,atrim=start_sample=2859:end_sample=17259,asetpts=N/SR/TB,afade=t=out:st=0.24:d=0.06,asplit=5[s0][s1][s2][s3][s4];[s0]volume=0.5,adelay=48000S[d0];[s1]volume=0.5,adelay=80000S[d1];[s2]volume=0.65,adelay=112000S[d2];[s3]volume=0.5,adelay=144000S[d3];[s4]volume=0.65,adelay=176000S[d4];[d0][d1][d2][d3][d4]amix=inputs=5:normalize=0,asetpts=N/SR/TB,apad=whole_len=288000,atrim=end_sample=288000[out]"
+}

@@ -1,0 +1,10 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "fps":30,"durationInFrames":180,"aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"data/ring-diagram-annotation-reveal","lines":["复盘","收支","记录","核对","归类","储备","先留足应急储备","每周复盘"],"narration":"复盘收支，按记录、核对、归类、储备四项理解，先留足应急储备，再每周复盘；图形是人工说明示例。","inspectFrames":[30,90,140,179]},
+    {"id":"data/timeline-travel","lines":["复盘步骤","记录","保留依据","核对","查漏补缺","归类","区分必要","储备","留足应急"],"narration":"复盘步骤依次为记录并保留依据，核对并查漏补缺，归类并区分必要，最后安排储备留足应急；刻度表示步骤，不虚构历史日期。","inspectFrames":[12,50,80,179]},
+    {"id":"rhythm/beat-step-list-theme-cycle","lines":["先记录","再核对","分必要","留储备","每周复盘"],"narration":"从先记录到再核对，再分必要，最后留储备；每周复盘是相邻待选项。本轮只检查文字与三通道动作，音轨对拍尚未验收。","inspectFrames":[30,48,66,179]},
+    {"id":"effects/riso-print-hits/riso-beat-pump","lines":["复盘重点","记录","保留依据","核对","查漏补缺","储备","留足应急"],"narration":"复盘重点包括记录保留依据、核对查漏补缺、储备留足应急；四拍刻度只表示动作拍点，不表示统计值，音轨对拍尚未验收。","inspectFrames":[30,54,102,179]}
+  ]
+}

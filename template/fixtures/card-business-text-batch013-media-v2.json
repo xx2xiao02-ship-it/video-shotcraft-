@@ -1,0 +1,239 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "mediaSource": "template/out/card-business-media-batch013-v6/capture.json",
+  "mediaSourceSha256": "9183633e48fa5dc476dc41fe6038be21148f50db65d777e3b24f4930c9f78f3c",
+  "mediaSources": [
+    "template/public/card-media/batch013-all-91a3eed02611.png",
+    "template/public/card-media/batch013-gaps-13d39eed73ca.png",
+    "template/public/card-media/batch013-phone-de7462728224.png",
+    "template/public/card-media/batch013-list-detail-4ccc6d76a299.png",
+    "template/public/card-media/batch013-all-portrait-b2edee41939c.png",
+    "template/public/card-media/batch013-gaps-portrait-9d2c36540a0f.png"
+  ],
+  "cards": [
+    {
+      "id": "effects/fui-hud-moves/reticle-lock-on",
+      "lines": [
+        "尚未准入"
+      ],
+      "templateParams": {
+        "screen": {
+          "src": "card-media/batch013-all-91a3eed02611.png",
+          "kind": "image",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+        },
+        "targetRect": {
+          "x": 1417.203125,
+          "y": 238.6875,
+          "width": 242.796875,
+          "height": 173.734375
+        }
+      },
+      "inspectFrames": [
+        20,
+        46,
+        56,
+        100,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "effects/brand-frame-snap",
+      "lines": [
+        "全部卡片",
+        "仅看缺口"
+      ],
+      "templateParams": {
+        "screens": [
+          {
+            "src": "card-media/batch013-all-91a3eed02611.png",
+            "kind": "image",
+            "width": 1920,
+            "height": 1080,
+            "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+          },
+          {
+            "src": "card-media/batch013-gaps-13d39eed73ca.png",
+            "kind": "image",
+            "width": 1920,
+            "height": 1080,
+            "sha256": "13d39eed73cae044d9d0dfc371798924ac7d7ff540150d8871f2db18c48c8cd9"
+          }
+        ],
+        "portraitScreens": [
+          {
+            "src": "card-media/batch013-all-portrait-b2edee41939c.png",
+            "kind": "image",
+            "width": 900,
+            "height": 1568,
+            "sha256": "b2edee41939c8250a27feaf29fcdccfcc0ce0fbc1db2a19e6597ca8d3fedbde9"
+          },
+          {
+            "src": "card-media/batch013-gaps-portrait-9d2c36540a0f.png",
+            "kind": "image",
+            "width": 900,
+            "height": 1568,
+            "sha256": "9d2c36540a0f239fc471688a7c3a602209b5c0c8c76ea342a52c58a87f205d78"
+          }
+        ]
+      },
+      "inspectFrames": [
+        40,
+        77,
+        78,
+        100,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "effects/spotlight-sweep-moves/glow-wake-sleep-panel",
+      "lines": [
+        "镜头卡清单"
+      ],
+      "templateParams": {
+        "screen": {
+          "src": "card-media/batch013-all-91a3eed02611.png",
+          "kind": "image",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+        }
+      },
+      "inspectFrames": [
+        20,
+        60,
+        100,
+        132,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "effects/spotlight-sweep-moves/slide-spotlight-pan",
+      "lines": [
+        "镜头卡清单"
+      ],
+      "templateParams": {
+        "screen": {
+          "src": "card-media/batch013-all-91a3eed02611.png",
+          "kind": "image",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+        }
+      },
+      "inspectFrames": [
+        20,
+        60,
+        100,
+        132,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "effects/spotlight-sweep-moves/corner-spotlight-reveal",
+      "lines": [
+        "镜头卡清单"
+      ],
+      "templateParams": {
+        "screen": {
+          "src": "card-media/batch013-all-91a3eed02611.png",
+          "kind": "image",
+          "width": 1920,
+          "height": 1080,
+          "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+        }
+      },
+      "inspectFrames": [
+        20,
+        60,
+        100,
+        132,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "effects/radial-ripple-phone-chips",
+      "lines": [
+        "卡片检索",
+        "缺口筛选"
+      ],
+      "templateParams": {
+        "screen": {
+          "src": "card-media/batch013-phone-de7462728224.png",
+          "kind": "image",
+          "width": 540,
+          "height": 2000,
+          "sha256": "de746272822434b1716f6cf43328c1a60122e31dc549f5a752023a8fdafd37e5"
+        }
+      },
+      "inspectFrames": [
+        0,
+        40,
+        80,
+        140,
+        179
+      ],
+      "skin": {
+        "bg": "#f4f7f8",
+        "surface": "#ffffff",
+        "text": "#18272b",
+        "muted": "#cad5d7",
+        "accent": "#116e79",
+        "fontFamily": "Microsoft YaHei",
+        "transparentBackground": true
+      },
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    },
+    {
+      "id": "outro/edit-hook-moves/logo-sting-button",
+      "lines": [
+        "镜头卡治理"
+      ],
+      "templateParams": {
+        "screens": [
+          {
+            "src": "card-media/batch013-all-91a3eed02611.png",
+            "kind": "image",
+            "width": 1920,
+            "height": 1080,
+            "sha256": "91a3eed026114175b04a0c2234b6504643009f9ad9891101250f5b8fdeb38e8d"
+          },
+          {
+            "src": "card-media/batch013-list-detail-4ccc6d76a299.png",
+            "kind": "image",
+            "width": 1920,
+            "height": 1080,
+            "sha256": "4ccc6d76a29955bd22320b6fcbda9af8ef71fe2143e19b6ca9a8cba5a950fa58"
+          }
+        ],
+        "targetRect": {
+          "x": 1404.25,
+          "y": 697.6875,
+          "width": 255.75,
+          "height": 173.734375
+        }
+      },
+      "inspectFrames": [
+        10,
+        40,
+        74,
+        82,
+        179
+      ],
+      "narration": "这是实际镜头卡治理页面，逐项核对本地准入和缺口。模型实测、生产加载及用户验收仍需独立完成。"
+    }
+  ]
+}

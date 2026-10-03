@@ -1,0 +1,11 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "baselineFixture": "template/fixtures/card-business-text-batch012-v7-baseline.json",
+  "cards": []
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "typography/type-rhythm-sync/font-weight-pump",
+      "lines": ["留足应急储备"],
+      "narration": "收入变化时，留足应急储备。五次本地鼓点强调同一个观点，第三和第五拍加重，不表示金额或收益。",
+      "audio": {"src": "audio/card-batch012-font-weight-v1.wav", "volume": 0.7},
+      "inspectFrames": [30, 70, 110, 179]
+    },
+    {
+      "id": "rhythm/smear-multiples",
+      "lines": ["整理收支", "复盘清单", "先核对记录", "再留应急储备"],
+      "narration": "整理收支，复盘清单先核对记录，再留应急储备。四个残像是同一清单移动时的动画副本，不代表新增记录。",
+      "inspectFrames": [0, 32, 37, 179]
+    },
+    {
+      "id": "rhythm/sakuga-timing-shift",
+      "lines": ["整理节奏", "收支复盘", "逐项核对", "留足储备", "逐步核对", "集中整理"],
+      "narration": "收支复盘先逐项核对，再留足储备。逐步核对转为集中整理是本次演示的两阶段标签，不代表真实操作已执行。",
+      "inspectFrames": [30, 48, 54, 179]
+    }
+  ]
+}

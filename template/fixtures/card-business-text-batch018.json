@@ -1,0 +1,81 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "asOf": "2026-10-03",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "typography/countdown-arc-scatter",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：原卡的倒计时与动作字样是本镜主体，外部素材会削弱承诺数字。"},
+      "narration": "3秒锁定现金流，先看清再行动。",
+      "lines": ["3", "秒", "行动"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/flying-words",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实经营关键词组成原卡纵深词云，外部素材会覆盖词群。"},
+      "narration": "收入 现金 成本 增长 风险 团队 客户 结果",
+      "lines": ["收入 现金 成本", "增长 风险 团队 客户", "结果"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/glitch-cycle",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：三条真实经营状态由原卡逐条解码，外部素材会干扰状态切换。"},
+      "narration": "现金紧张，现金可控，现金充足。",
+      "lines": ["现金紧张", "现金可控", "现金充足"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/gradient-word-sweep",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实经营关键词由原卡充能扫过，外部素材会冲淡渐变重点。"},
+      "narration": "现金流决定选择权，先稳住再增长。",
+      "lines": ["现金流", "决定选择权", "先稳住再增长"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/marker-underline-title",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实标题与强调词由原卡下划线显影，外部素材会降低阅读对比。"},
+      "narration": "先保留应急储备，再扩大投入。",
+      "lines": ["先保留", "应急储备", "再扩大投入"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/paper-title-card",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实业务标题压印在原卡纸面，外部素材会破坏纸面层次。"},
+      "narration": "把现金流写进每周经营复盘。",
+      "lines": ["现金流", "每周经营复盘"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/pill-chip-slot-cycle-handled",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实业务胶囊词在原卡轨道中轮换，外部素材会遮挡胶囊。"},
+      "narration": "经营重点：现金、成本、客户、增长；现在先看现金。",
+      "lines": ["经营重点", "现金", "成本", "客户", "增长", "先看现金"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    },
+    {
+      "id": "typography/pill-slot-cycle",
+      "kind": "business",
+      "backgroundPolicy": {"role": "none", "reason": "特殊强调免背景：真实业务轮换项由原卡胶囊槽承载，外部素材会覆盖收束短语。"},
+      "narration": "优先处理现金，再看成本、客户与增长。",
+      "lines": ["优先处理", "现金", "成本", "客户", "增长", "保持节奏"],
+      "templateParams": null,
+      "inspectFrames": [20, 76, 124, 179]
+    }
+  ]
+}

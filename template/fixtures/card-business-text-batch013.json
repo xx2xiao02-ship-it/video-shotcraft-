@@ -1,0 +1,485 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "dataSource": "template/fixtures/card-business-text-batch013-list-source.json",
+  "dataSourceSha256": "0bcc5c4e3e138a27b95801ef534c3e63bf51d2cfa7169e4f29102821713ba8a1",
+  "cards": [
+    {
+      "id": "data/scroll-brake-moves/changelog-scroll-brake",
+      "lines": [
+        "本地验证清单"
+      ],
+      "narration": "逐项核对镜头卡的本地验证结果，定位这条已经通过验证的记录。",
+      "templateParams": {
+        "rows": [
+          {
+            "id": "effects/assemble-then-type-flyin",
+            "title": "assemble-then-type-flyin",
+            "detail": "本地验证",
+            "tag": "1"
+          },
+          {
+            "id": "effects/aurora-bloom-bg-flip",
+            "title": "aurora-bloom-bg-flip",
+            "detail": "本地验证",
+            "tag": "2"
+          },
+          {
+            "id": "interaction/autolayout-gap-dial",
+            "title": "autolayout-gap-dial",
+            "detail": "本地验证",
+            "tag": "3"
+          },
+          {
+            "id": "rhythm/beat-step-list-theme-cycle",
+            "title": "beat-step-list-theme-cycle",
+            "detail": "本地验证",
+            "tag": "4"
+          },
+          {
+            "id": "typography/blur-slide",
+            "title": "blur-slide",
+            "detail": "本地验证",
+            "tag": "5"
+          },
+          {
+            "id": "typography/brace-expand",
+            "title": "brace-expand",
+            "detail": "本地验证",
+            "tag": "6"
+          },
+          {
+            "id": "opening/brand-ink-open",
+            "title": "brand-ink-open",
+            "detail": "本地验证",
+            "tag": "7"
+          },
+          {
+            "id": "interaction/canvas-materialize-moves/panel-to-canvas-materialize",
+            "title": "panel-to-canvas 行倒卡",
+            "detail": "本地验证",
+            "tag": "8"
+          },
+          {
+            "id": "interaction/canvas-materialize-moves/diagram-cascade-build",
+            "title": "diagram-cascade 级联生成树",
+            "detail": "本地验证",
+            "tag": "9"
+          },
+          {
+            "id": "typography/cel-flash-stomp",
+            "title": "cel-flash-stomp",
+            "detail": "本地验证",
+            "tag": "10"
+          },
+          {
+            "id": "interaction/chip-grid-single-select-blackout",
+            "title": "chip-grid-single-select-blackout",
+            "detail": "本地验证",
+            "tag": "11"
+          },
+          {
+            "id": "interaction/chip-lift-to-user-pill",
+            "title": "chip-lift-to-user-pill",
+            "detail": "本地验证",
+            "tag": "12"
+          },
+          {
+            "id": "ui-entrance/cloner-depth-echo",
+            "title": "cloner-depth-echo",
+            "detail": "本地验证",
+            "tag": "13"
+          },
+          {
+            "id": "interaction/collab-cursor-moves/cursor-dialogue-duet",
+            "title": "dialogue-duet",
+            "detail": "本地验证",
+            "tag": "14"
+          },
+          {
+            "id": "interaction/collab-cursor-moves/cursor-cast-ensemble",
+            "title": "cast-ensemble",
+            "detail": "本地验证",
+            "tag": "15"
+          },
+          {
+            "id": "interaction/command-palette-summon",
+            "title": "command-palette-summon",
+            "detail": "本地验证",
+            "tag": "16"
+          },
+          {
+            "id": "typography/countdown-arc-scatter",
+            "title": "countdown-arc-scatter",
+            "detail": "本地验证",
+            "tag": "17"
+          },
+          {
+            "id": "data/cycle-glass-node-morph",
+            "title": "cycle-glass-node-morph",
+            "detail": "本地验证",
+            "tag": "18"
+          },
+          {
+            "id": "ui-entrance/draw-svg-trace",
+            "title": "draw-svg-trace",
+            "detail": "本地验证",
+            "tag": "19"
+          },
+          {
+            "id": "ui-entrance/element-body-moves/axial-stretch",
+            "title": "axial-stretch",
+            "detail": "本地验证",
+            "tag": "20"
+          },
+          {
+            "id": "ui-entrance/element-body-moves/contact-shadow-lift",
+            "title": "contact-shadow-lift",
+            "detail": "本地验证",
+            "tag": "21"
+          },
+          {
+            "id": "typography/flying-words",
+            "title": "flying-words",
+            "detail": "本地验证",
+            "tag": "22"
+          },
+          {
+            "id": "opening/fracture",
+            "title": "fracture",
+            "detail": "本地验证",
+            "tag": "23"
+          },
+          {
+            "id": "effects/fui-hud-moves/line-unfold-panel",
+            "title": "line-unfold-panel",
+            "detail": "本地验证",
+            "tag": "24"
+          },
+          {
+            "id": "interaction/glass-pill-dictation-typing",
+            "title": "glass-pill-dictation-typing",
+            "detail": "本地验证",
+            "tag": "25"
+          },
+          {
+            "id": "typography/glitch-cycle",
+            "title": "glitch-cycle",
+            "detail": "本地验证",
+            "tag": "26"
+          },
+          {
+            "id": "effects/glow-flyline-moves/glow-orb-ambient",
+            "title": "glow-orb-ambient",
+            "detail": "本地验证",
+            "tag": "27"
+          },
+          {
+            "id": "effects/glow-flyline-moves/flyline-arc",
+            "title": "flyline-arc",
+            "detail": "本地验证",
+            "tag": "28"
+          },
+          {
+            "id": "effects/glow-flyline-moves/orb-flyline-relay",
+            "title": "orb-flyline-relay",
+            "detail": "本地验证",
+            "tag": "29"
+          },
+          {
+            "id": "typography/gradient-word-sweep",
+            "title": "gradient-word-sweep",
+            "detail": "本地验证",
+            "tag": "30"
+          },
+          {
+            "id": "outro/grain-dissolve",
+            "title": "grain-dissolve",
+            "detail": "本地验证",
+            "tag": "31"
+          },
+          {
+            "id": "interaction/hashtag-to-pill-materialize",
+            "title": "hashtag-to-pill-materialize",
+            "detail": "本地验证",
+            "tag": "32"
+          },
+          {
+            "id": "effects/icon-performance-moves/pop-burst-confirm",
+            "title": "pop-burst-confirm",
+            "detail": "本地验证",
+            "tag": "33"
+          },
+          {
+            "id": "effects/icon-performance-moves/attention-bounce",
+            "title": "attention-bounce",
+            "detail": "本地验证",
+            "tag": "34"
+          }
+        ],
+        "targetId": "effects/glow-flyline-moves/orb-flyline-relay",
+        "focusLabel": "本地有效"
+      },
+      "inspectFrames": [
+        0,
+        64,
+        82,
+        100,
+        179
+      ]
+    },
+    {
+      "id": "data/scroll-brake-moves/brake-reticle-lock",
+      "lines": [
+        "本地验证清单"
+      ],
+      "narration": "逐项核对镜头卡的本地验证结果，定位这条已经通过验证的记录。",
+      "templateParams": {
+        "rows": [
+          {
+            "id": "effects/assemble-then-type-flyin",
+            "title": "assemble-then-type-flyin",
+            "detail": "本地验证",
+            "tag": "1"
+          },
+          {
+            "id": "effects/aurora-bloom-bg-flip",
+            "title": "aurora-bloom-bg-flip",
+            "detail": "本地验证",
+            "tag": "2"
+          },
+          {
+            "id": "interaction/autolayout-gap-dial",
+            "title": "autolayout-gap-dial",
+            "detail": "本地验证",
+            "tag": "3"
+          },
+          {
+            "id": "rhythm/beat-step-list-theme-cycle",
+            "title": "beat-step-list-theme-cycle",
+            "detail": "本地验证",
+            "tag": "4"
+          },
+          {
+            "id": "typography/blur-slide",
+            "title": "blur-slide",
+            "detail": "本地验证",
+            "tag": "5"
+          },
+          {
+            "id": "typography/brace-expand",
+            "title": "brace-expand",
+            "detail": "本地验证",
+            "tag": "6"
+          },
+          {
+            "id": "opening/brand-ink-open",
+            "title": "brand-ink-open",
+            "detail": "本地验证",
+            "tag": "7"
+          },
+          {
+            "id": "interaction/canvas-materialize-moves/panel-to-canvas-materialize",
+            "title": "panel-to-canvas 行倒卡",
+            "detail": "本地验证",
+            "tag": "8"
+          },
+          {
+            "id": "interaction/canvas-materialize-moves/diagram-cascade-build",
+            "title": "diagram-cascade 级联生成树",
+            "detail": "本地验证",
+            "tag": "9"
+          },
+          {
+            "id": "typography/cel-flash-stomp",
+            "title": "cel-flash-stomp",
+            "detail": "本地验证",
+            "tag": "10"
+          },
+          {
+            "id": "interaction/chip-grid-single-select-blackout",
+            "title": "chip-grid-single-select-blackout",
+            "detail": "本地验证",
+            "tag": "11"
+          },
+          {
+            "id": "interaction/chip-lift-to-user-pill",
+            "title": "chip-lift-to-user-pill",
+            "detail": "本地验证",
+            "tag": "12"
+          },
+          {
+            "id": "ui-entrance/cloner-depth-echo",
+            "title": "cloner-depth-echo",
+            "detail": "本地验证",
+            "tag": "13"
+          },
+          {
+            "id": "interaction/collab-cursor-moves/cursor-dialogue-duet",
+            "title": "dialogue-duet",
+            "detail": "本地验证",
+            "tag": "14"
+          },
+          {
+            "id": "interaction/collab-cursor-moves/cursor-cast-ensemble",
+            "title": "cast-ensemble",
+            "detail": "本地验证",
+            "tag": "15"
+          },
+          {
+            "id": "interaction/command-palette-summon",
+            "title": "command-palette-summon",
+            "detail": "本地验证",
+            "tag": "16"
+          },
+          {
+            "id": "typography/countdown-arc-scatter",
+            "title": "countdown-arc-scatter",
+            "detail": "本地验证",
+            "tag": "17"
+          },
+          {
+            "id": "data/cycle-glass-node-morph",
+            "title": "cycle-glass-node-morph",
+            "detail": "本地验证",
+            "tag": "18"
+          },
+          {
+            "id": "ui-entrance/draw-svg-trace",
+            "title": "draw-svg-trace",
+            "detail": "本地验证",
+            "tag": "19"
+          },
+          {
+            "id": "ui-entrance/element-body-moves/axial-stretch",
+            "title": "axial-stretch",
+            "detail": "本地验证",
+            "tag": "20"
+          },
+          {
+            "id": "ui-entrance/element-body-moves/contact-shadow-lift",
+            "title": "contact-shadow-lift",
+            "detail": "本地验证",
+            "tag": "21"
+          },
+          {
+            "id": "typography/flying-words",
+            "title": "flying-words",
+            "detail": "本地验证",
+            "tag": "22"
+          },
+          {
+            "id": "opening/fracture",
+            "title": "fracture",
+            "detail": "本地验证",
+            "tag": "23"
+          },
+          {
+            "id": "effects/fui-hud-moves/line-unfold-panel",
+            "title": "line-unfold-panel",
+            "detail": "本地验证",
+            "tag": "24"
+          },
+          {
+            "id": "interaction/glass-pill-dictation-typing",
+            "title": "glass-pill-dictation-typing",
+            "detail": "本地验证",
+            "tag": "25"
+          },
+          {
+            "id": "typography/glitch-cycle",
+            "title": "glitch-cycle",
+            "detail": "本地验证",
+            "tag": "26"
+          },
+          {
+            "id": "effects/glow-flyline-moves/glow-orb-ambient",
+            "title": "glow-orb-ambient",
+            "detail": "本地验证",
+            "tag": "27"
+          },
+          {
+            "id": "effects/glow-flyline-moves/flyline-arc",
+            "title": "flyline-arc",
+            "detail": "本地验证",
+            "tag": "28"
+          },
+          {
+            "id": "effects/glow-flyline-moves/orb-flyline-relay",
+            "title": "orb-flyline-relay",
+            "detail": "本地验证",
+            "tag": "29"
+          },
+          {
+            "id": "typography/gradient-word-sweep",
+            "title": "gradient-word-sweep",
+            "detail": "本地验证",
+            "tag": "30"
+          },
+          {
+            "id": "outro/grain-dissolve",
+            "title": "grain-dissolve",
+            "detail": "本地验证",
+            "tag": "31"
+          },
+          {
+            "id": "interaction/hashtag-to-pill-materialize",
+            "title": "hashtag-to-pill-materialize",
+            "detail": "本地验证",
+            "tag": "32"
+          },
+          {
+            "id": "effects/icon-performance-moves/pop-burst-confirm",
+            "title": "pop-burst-confirm",
+            "detail": "本地验证",
+            "tag": "33"
+          },
+          {
+            "id": "effects/icon-performance-moves/attention-bounce",
+            "title": "attention-bounce",
+            "detail": "本地验证",
+            "tag": "34"
+          },
+          {
+            "id": "typography/lead-word-zoom-assemble",
+            "title": "lead-word-zoom-assemble",
+            "detail": "本地验证",
+            "tag": "35"
+          },
+          {
+            "id": "opening/letterspace-materialize",
+            "title": "letterspace-materialize",
+            "detail": "本地验证",
+            "tag": "36"
+          },
+          {
+            "id": "effects/light-play-moves/spotlight-sweep-reveal",
+            "title": "spotlight-sweep",
+            "detail": "本地验证",
+            "tag": "37"
+          },
+          {
+            "id": "effects/light-play-moves/sheen-sweep-retry",
+            "title": "sheen-sweep",
+            "detail": "本地验证",
+            "tag": "38"
+          }
+        ],
+        "targetId": "outro/grain-dissolve",
+        "focusLabel": "本地有效"
+      },
+      "inspectFrames": [
+        0,
+        59,
+        68,
+        100,
+        179
+      ]
+    }
+  ]
+}

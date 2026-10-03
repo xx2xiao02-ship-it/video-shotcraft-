@@ -1,0 +1,14 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "data/timeline-travel",
+      "lines": ["复盘步骤", "记录", "保留依据", "核对", "查漏补缺", "归类", "区分必要", "储备", "留足应急"],
+      "narration": "复盘步骤依次为记录并保留依据，核对并查漏补缺，归类并区分必要，最后安排储备留足应急；刻度表示步骤，不虚构历史日期。",
+      "inspectFrames": [30, 60, 84, 179]
+    }
+  ]
+}

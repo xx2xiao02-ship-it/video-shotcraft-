@@ -1,0 +1,702 @@
+{
+  "schema": "frozen-local-admission-list-v1",
+  "origin": "template/out/card-governance-progress/progress.json",
+  "originSha256": "3db1ed1e6078262bdcbc144b9ee15c83dbf2228e9b01fc6d071c43e44bcf0fe0",
+  "counts": {
+    "cards": 157,
+    "variants": 214,
+    "sourceResolved": 212,
+    "adapterDeclared": 92,
+    "currentLocallyAdmitted": 85,
+    "longFormLocallyAdmitted": 85,
+    "shortFormLocallyAdmitted": 0,
+    "fullyLocallyAdmittedCards": 68,
+    "remainingCards": 89,
+    "pendingSourceReconciliation": [
+      "crash-zoom-punch",
+      "flash-cut"
+    ]
+  },
+  "records": [
+    {
+      "id": "effects/assemble-then-type-flyin",
+      "title": "assemble-then-type-flyin",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/assemble-then-type-flyin",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/aurora-bloom-bg-flip",
+      "title": "aurora-bloom-bg-flip",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/aurora-bloom-bg-flip",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/autolayout-gap-dial",
+      "title": "autolayout-gap-dial",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/autolayout-gap-dial",
+      "locallyTested": true
+    },
+    {
+      "id": "rhythm/beat-step-list-theme-cycle",
+      "title": "beat-step-list-theme-cycle",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "rhythm/beat-step-list-theme-cycle",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/blur-slide",
+      "title": "blur-slide",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/blur-slide",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/brace-expand",
+      "title": "brace-expand",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/brace-expand",
+      "locallyTested": true
+    },
+    {
+      "id": "opening/brand-ink-open",
+      "title": "brand-ink-open",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "opening/brand-ink-open",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/canvas-materialize-moves/panel-to-canvas-materialize",
+      "title": "panel-to-canvas 行倒卡",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/canvas-materialize-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/canvas-materialize-moves/diagram-cascade-build",
+      "title": "diagram-cascade 级联生成树",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/canvas-materialize-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/cel-flash-stomp",
+      "title": "cel-flash-stomp",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/cel-flash-stomp",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/chip-grid-single-select-blackout",
+      "title": "chip-grid-single-select-blackout",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/chip-grid-single-select-blackout",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/chip-lift-to-user-pill",
+      "title": "chip-lift-to-user-pill",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/chip-lift-to-user-pill",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/cloner-depth-echo",
+      "title": "cloner-depth-echo",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/cloner-depth-echo",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/collab-cursor-moves/cursor-dialogue-duet",
+      "title": "dialogue-duet",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/collab-cursor-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/collab-cursor-moves/cursor-cast-ensemble",
+      "title": "cast-ensemble",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/collab-cursor-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/command-palette-summon",
+      "title": "command-palette-summon",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/command-palette-summon",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/countdown-arc-scatter",
+      "title": "countdown-arc-scatter",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/countdown-arc-scatter",
+      "locallyTested": true
+    },
+    {
+      "id": "data/cycle-glass-node-morph",
+      "title": "cycle-glass-node-morph",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "data/cycle-glass-node-morph",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/draw-svg-trace",
+      "title": "draw-svg-trace",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/draw-svg-trace",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/element-body-moves/axial-stretch",
+      "title": "axial-stretch",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/element-body-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/element-body-moves/contact-shadow-lift",
+      "title": "contact-shadow-lift",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/element-body-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/flying-words",
+      "title": "flying-words",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/flying-words",
+      "locallyTested": true
+    },
+    {
+      "id": "opening/fracture",
+      "title": "fracture",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "opening/fracture",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/fui-hud-moves/line-unfold-panel",
+      "title": "line-unfold-panel",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/fui-hud-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/glass-pill-dictation-typing",
+      "title": "glass-pill-dictation-typing",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/glass-pill-dictation-typing",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/glitch-cycle",
+      "title": "glitch-cycle",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/glitch-cycle",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/glow-flyline-moves/glow-orb-ambient",
+      "title": "glow-orb-ambient",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/glow-flyline-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/glow-flyline-moves/flyline-arc",
+      "title": "flyline-arc",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/glow-flyline-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/glow-flyline-moves/orb-flyline-relay",
+      "title": "orb-flyline-relay",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/glow-flyline-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/gradient-word-sweep",
+      "title": "gradient-word-sweep",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/gradient-word-sweep",
+      "locallyTested": true
+    },
+    {
+      "id": "outro/grain-dissolve",
+      "title": "grain-dissolve",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "outro/grain-dissolve",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/hashtag-to-pill-materialize",
+      "title": "hashtag-to-pill-materialize",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/hashtag-to-pill-materialize",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/icon-performance-moves/pop-burst-confirm",
+      "title": "pop-burst-confirm",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/icon-performance-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/icon-performance-moves/attention-bounce",
+      "title": "attention-bounce",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/icon-performance-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/lead-word-zoom-assemble",
+      "title": "lead-word-zoom-assemble",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/lead-word-zoom-assemble",
+      "locallyTested": true
+    },
+    {
+      "id": "opening/letterspace-materialize",
+      "title": "letterspace-materialize",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "opening/letterspace-materialize",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/light-play-moves/spotlight-sweep-reveal",
+      "title": "spotlight-sweep",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/light-play-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/light-play-moves/sheen-sweep-retry",
+      "title": "sheen-sweep",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/light-play-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/light-play-moves/halation-bloom",
+      "title": "halation-bloom",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/light-play-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/line-boil",
+      "title": "line-boil",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/line-boil",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/list-reveal",
+      "title": "list-reveal",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/list-reveal",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/list-stack-press",
+      "title": "list-stack-press",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/list-stack-press",
+      "locallyTested": true
+    },
+    {
+      "id": "outro/logo-shrink-wordmark-lockup",
+      "title": "logo-shrink-wordmark-lockup",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "outro/logo-shrink-wordmark-lockup",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/marker-underline-title",
+      "title": "marker-underline-title",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/marker-underline-title",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/morph-from-primitive",
+      "title": "morph-from-primitive",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/morph-from-primitive",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/neon-frame-forerun",
+      "title": "neon-frame-forerun",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/neon-frame-forerun",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/neon-frame-orbit-drop",
+      "title": "neon-frame-orbit-drop",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/neon-frame-orbit-drop",
+      "locallyTested": true
+    },
+    {
+      "id": "outro/neon-triple-marquee",
+      "title": "neon-triple-marquee",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "outro/neon-triple-marquee",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/outline-word-fill",
+      "title": "outline-word-fill",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/outline-word-fill",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/paper-craft-moves/masking-tape-slap",
+      "title": "masking-tape-slap",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/paper-craft-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/paper-title-card",
+      "title": "paper-title-card",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/paper-title-card",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/picker-carousel-feature-cycle",
+      "title": "picker-carousel-feature-cycle",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/picker-carousel-feature-cycle",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/pill-chip-slot-cycle-handled",
+      "title": "pill-chip-slot-cycle-handled",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/pill-chip-slot-cycle-handled",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/pill-slot-cycle",
+      "title": "pill-slot-cycle",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/pill-slot-cycle",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/platform-hinge-rise",
+      "title": "platform-hinge-rise",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/platform-hinge-rise",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/radial-wave",
+      "title": "radial-wave",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/radial-wave",
+      "locallyTested": true
+    },
+    {
+      "id": "data/ring-diagram-annotation-reveal",
+      "title": "ring-diagram-annotation-reveal",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "data/ring-diagram-annotation-reveal",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/riso-print-hits/riso-misregistration-hit",
+      "title": "misregistration-hit 单发",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/riso-print-hits",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/riso-print-hits/riso-beat-pump",
+      "title": "beat-pump 节拍泵",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/riso-print-hits",
+      "locallyTested": true
+    },
+    {
+      "id": "rhythm/sakuga-timing-shift",
+      "title": "sakuga-timing-shift",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "rhythm/sakuga-timing-shift",
+      "locallyTested": true
+    },
+    {
+      "id": "effects/scan-bracket-sweep",
+      "title": "scan-bracket-sweep",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "effects/scan-bracket-sweep",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/scramble",
+      "title": "scramble",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/scramble",
+      "locallyTested": true
+    },
+    {
+      "id": "interaction/segmented-thumb-hero",
+      "title": "segmented-thumb-hero",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "interaction/segmented-thumb-hero",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/skeleton-reveal",
+      "title": "skeleton-reveal",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/skeleton-reveal",
+      "locallyTested": true
+    },
+    {
+      "id": "rhythm/smear-multiples",
+      "title": "smear-multiples",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "rhythm/smear-multiples",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/split-flap-title",
+      "title": "split-flap-title",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/split-flap-title",
+      "locallyTested": true
+    },
+    {
+      "id": "opening/stroke-segment-build",
+      "title": "stroke-segment-build",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "opening/stroke-segment-build",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/svg-shape-morph",
+      "title": "svg-shape-morph",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/svg-shape-morph",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/text-column-converge",
+      "title": "text-column-converge",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/text-column-converge",
+      "locallyTested": true
+    },
+    {
+      "id": "data/timeline-travel",
+      "title": "timeline-travel",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "data/timeline-travel",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/title-demote-to-label",
+      "title": "title-demote-to-label",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/title-demote-to-label",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-assembly-moves/split-text-stagger",
+      "title": "split-text-stagger 裂升",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-assembly-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-assembly-moves/letterform-drift-assembly",
+      "title": "drift-assembly 漂移合拢",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-assembly-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-assembly-moves/tracking-expand-reveal",
+      "title": "tracking-expand 字距呼吸",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-assembly-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-assembly-moves/text-on-path",
+      "title": "text-on-path 沿线流入",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-assembly-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-entrance-moves/scramble-decode",
+      "title": "scramble-decode 乱码解码",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-entrance-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-entrance-moves/letter-drop-physics",
+      "title": "letter-drop-physics 字符坠落",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-entrance-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-rhythm-sync/font-weight-pump",
+      "title": "font-weight-pump 字重脉冲",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-rhythm-sync",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/type-rhythm-sync/karaoke-fill-sync",
+      "title": "karaoke-fill-sync 填色随读",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/type-rhythm-sync",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/typewriter-moves/terminal-typewriter",
+      "title": "terminal-typewriter",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/typewriter-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/typewriter-moves/typewriter-error-retype",
+      "title": "error-retype",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/typewriter-moves",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/typing-code-block",
+      "title": "typing-code-block",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/typing-code-block",
+      "locallyTested": true
+    },
+    {
+      "id": "ui-entrance/value-stagger-gradient",
+      "title": "value-stagger-gradient",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "ui-entrance/value-stagger-gradient",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/vertical-word-roll-blur-cycle",
+      "title": "vertical-word-roll-blur-cycle",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/vertical-word-roll-blur-cycle",
+      "locallyTested": true
+    },
+    {
+      "id": "typography/word-relay-geometry",
+      "title": "word-relay-geometry",
+      "detail": "本地验证",
+      "tag": "",
+      "cardId": "typography/word-relay-geometry",
+      "locallyTested": true
+    }
+  ]
+}
