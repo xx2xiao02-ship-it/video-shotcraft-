@@ -7,6 +7,8 @@
 //     原片没有"胶囊飞入下方滑入卡片"的段落（批次 8 的飞行段为杜撰，已砍）
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = "Futura, 'Century Gothic', 'Avenir Next', 'Trebuchet MS', sans-serif";
 
@@ -76,22 +78,25 @@ const NoteIcon: React.FC<{ size: number; color: string }> = ({ size, color }) =>
 );
 
 // 胶囊（大字号绘制，整体 transform 缩放，保证实体化前后文字原位等大）
-const Pill: React.FC<{ bg: string; iconColor: string; textColor: string }> = ({ bg, iconColor, textColor }) => (
+const Pill: React.FC<{ bg: string; iconColor: string; textColor: string; tag?:string;skin?:TemplateSkin }> = ({ bg, iconColor, textColor,tag,skin }) => (
   <div style={{
     width: PILL_W, height: PILL_H, borderRadius: PILL_H / 2, background: bg,
     display: 'flex', alignItems: 'center', paddingLeft: 96, boxSizing: 'border-box', gap: 66,
   }}>
-    <NoteIcon size={104} color={iconColor} />
-    <span style={{ fontSize: FS, fontWeight: 500, color: textColor, letterSpacing: 2 }}>music</span>
+    {skin ? <span style={{fontSize:104,color:iconColor}}>#</span> : <NoteIcon size={104} color={iconColor} />}
+    <span style={{ fontSize: skin ? 100 : FS, fontWeight: 500, color: textColor, letterSpacing: skin ? 0 : 2 }}>{tag || 'music'}</span>
   </div>
 );
 
-export const HashtagToPillMaterialize: React.FC = () => {
+export const HashtagToPillMaterialize: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
+  if(skin && (!words || words.length!==4 || [...words[0]].length>4 || [...words[1]].length>8)) throw new Error('Hashtag requires four slots: tag up to four characters and title up to eight');
+  const text=skin ? `#${words?.[0] || ''}` : TEXT;
+  const typeAt=skin ? (()=>{const random=mulberry32(20260717);let f=TYPE_START;return [...text].map(()=>{const at=f;f+=4+Math.floor(random()*3);return at;});})() : TYPE_AT;
 
   // ---- 打字 ----
-  const typedCount = TYPE_AT.filter((t) => frame >= t).length;
-  const typed = TEXT.slice(0, typedCount);
+  const typedCount = typeAt.filter((t) => frame >= t).length;
+  const typed = [...text].slice(0, typedCount).join('');
 
   // ---- 缩小左移 ----
   const moveT = interpolate(frame, [MOVE_START, MOVE_END], [0, 1], {
@@ -108,24 +113,24 @@ export const HashtagToPillMaterialize: React.FC = () => {
 
   const revealed = frame >= REVEAL;
 
-  return (
-    <AbsoluteFill style={{ background: revealed ? C.bgCream : C.bgWhite, fontFamily: FONT }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,revealed ? C.bgCream : C.bgWhite), fontFamily: skin?.fontFamily || FONT }}>
       {/* 成品页（硬切揭示，之后全静） */}
       {revealed && (
         <>
           <div style={{
             position: 'absolute', left: 160, top: 168,
-            fontSize: 122, fontWeight: 700, color: C.titleGreen, letterSpacing: 0.5,
+            fontSize: 122, fontWeight: 700, color: skin?.text || C.titleGreen, letterSpacing: skin ? 0 : 0.5,
           }}>
-            My favorite bands
+            {skin ? words?.[1] : 'My favorite bands'}
           </div>
           <div style={{
             position: 'absolute', left: 152, top: 618,
-            fontSize: 70, fontWeight: 500, color: C.body, lineHeight: 1.33, letterSpacing: 0.3,
+            fontSize: 70, fontWeight: 500, color: skin?.text || C.body, lineHeight: 1.33, letterSpacing: skin ? 0 : 0.3,
           }}>
-            I want to share a few of my favorite bands<br />
+            {skin ? <>{words?.[2]}<br />{words?.[3]}</> : <>I want to share a few of my favorite bands<br />
             and the song that I always listen when driving<br />
-            to home. Welcome. Bring headphones.
+            to home. Welcome. Bring headphones.</>}
           </div>
         </>
       )}
@@ -134,12 +139,12 @@ export const HashtagToPillMaterialize: React.FC = () => {
       {frame < MORPH && (
         <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: FS, fontWeight: 500, color: C.ink, letterSpacing: 2, whiteSpace: 'pre' }}>
+            <span style={{ fontSize: skin ? 100 : FS, fontWeight: 500, color: skin?.text || C.ink, letterSpacing: skin ? 0 : 2, whiteSpace: 'pre' }}>
               {typed}
             </span>
             <span style={{
               display: 'inline-block', width: 7, height: 150,
-              background: C.cursor, marginLeft: 8, borderRadius: 2,
+              background: skin?.accent || C.cursor, marginLeft: 8, borderRadius: 2,
             }} />
           </div>
         </AbsoluteFill>
@@ -156,11 +161,12 @@ export const HashtagToPillMaterialize: React.FC = () => {
         }}>
           <div style={{ transform: 'translate(-50%, -50%)' }}>
             {revealed
-              ? <Pill bg={C.pillSage} iconColor={C.iconSage} textColor={C.pillSageText} />
-              : <Pill bg={C.pillGray} iconColor={C.iconGray} textColor={C.pillTextGray} />}
+              ? <Pill bg={skin?.surface || C.pillSage} iconColor={skin?.accent || C.iconSage} textColor={skin?.text || C.pillSageText} tag={skin ? words?.[0] : undefined} skin={skin} />
+              : <Pill bg={skin?.surface || C.pillGray} iconColor={skin?.accent || C.iconGray} textColor={skin?.text || C.pillTextGray} tag={skin ? words?.[0] : undefined} skin={skin} />}
           </div>
         </div>
       )}
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:1920,height:1080,left:192,top:0,transform:'scale(.8)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : scene;
 };

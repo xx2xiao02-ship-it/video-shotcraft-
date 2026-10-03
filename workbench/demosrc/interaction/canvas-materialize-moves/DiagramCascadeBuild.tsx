@@ -4,6 +4,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const PROMPT = 'Generate an entity-relationship diagram';
 const TYPE_START = 6;
@@ -51,13 +53,14 @@ const edgeLen = (p: (typeof NODES)[number], c: (typeof NODES)[number]) => {
   return Math.abs(y2 - y1) + Math.abs(c.x - p.x);
 };
 
-export const DiagramCascadeBuild: React.FC = () => {
+export const DiagramCascadeBuild: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const typed = Math.min(PROMPT.length, Math.max(0, Math.floor((frame - TYPE_START) * TYPE_CPS)));
+  const prompt = words?.[0] || PROMPT;
+  const typed = Math.min(prompt.length, Math.max(0, Math.floor((frame - TYPE_START) * TYPE_CPS)));
   const caretOn = Math.floor(frame / 8) % 2 === 0;
-  const promptDone = typed >= PROMPT.length;
+  const promptDone = typed >= prompt.length;
 
   // 成树后整体呼吸一拍
   const lastStart = nodeStart(NODES[NODES.length - 1]);
@@ -67,11 +70,12 @@ export const DiagramCascadeBuild: React.FC = () => {
     easing: Easing.inOut(Easing.sin),
   });
 
-  return (
-    <AbsoluteFill style={{ background: G.bg, overflow: 'hidden' }}>
+  const scene = (
+    <AbsoluteFill style={{ background: skin?.bg || G.bg, overflow: 'hidden' }}>
+    <div style={{position:'absolute',width:words ? 1920 : '100%',height:words ? 1080 : '100%',left:words ? 192 : 0,top:0,transform:words ? 'scale(0.8)' : undefined,transformOrigin:'top left'}}>
       <AbsoluteFill
         style={{
-          backgroundImage: `radial-gradient(${G.line} 3px, transparent 3px)`,
+          backgroundImage: `radial-gradient(${skin?.muted || G.line} 3px, transparent 3px)`,
           backgroundSize: '52px 52px',
         }}
       />
@@ -84,23 +88,23 @@ export const DiagramCascadeBuild: React.FC = () => {
           top: 88,
           width: 1000,
           height: 84,
-          background: G.card,
-          border: `3px solid ${promptDone ? G.ink : G.border}`,
+          background: skin?.surface || G.card,
+          border: `3px solid ${skin ? promptDone ? skin.accent : skin.muted : promptDone ? G.ink : G.border}`,
           borderRadius: 42,
           display: 'flex',
           alignItems: 'center',
           padding: '0 36px',
           boxSizing: 'border-box',
           boxShadow: '0 6px 24px rgba(0,0,0,0.08)',
-          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-          fontSize: 30,
+          fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontSize: words ? 42 : 30,
           fontWeight: 600,
-          color: G.ink,
+          color: skin?.text || G.ink,
         }}
       >
-        <div style={{ width: 30, height: 30, borderRadius: 15, background: G.mid, marginRight: 20, flexShrink: 0 }} />
+        <div style={{ width: 30, height: 30, borderRadius: 15, background: skin?.accent || G.mid, marginRight: 20, flexShrink: 0 }} />
         <span>
-          {PROMPT.slice(0, typed)}
+          {prompt.slice(0, typed)}
           <span style={{ opacity: caretOn ? 1 : 0, fontWeight: 400 }}>|</span>
         </span>
       </div>
@@ -123,7 +127,7 @@ export const DiagramCascadeBuild: React.FC = () => {
               <path
                 key={n.id}
                 d={edgePath(p, n)}
-                stroke={G.mid}
+                stroke={skin?.muted || G.mid}
                 strokeWidth={5}
                 fill="none"
                 strokeLinejoin="round"
@@ -148,8 +152,8 @@ export const DiagramCascadeBuild: React.FC = () => {
                 top: n.y - NODE_H / 2,
                 width: NODE_W,
                 height: NODE_H,
-                background: n.level === 0 ? G.side : G.card,
-                border: `3px solid ${n.level === 0 ? G.side : G.border}`,
+                background: skin ? skin.surface : n.level === 0 ? G.side : G.card,
+                border: `3px solid ${skin ? n.level === 0 ? skin.accent : skin.muted : n.level === 0 ? G.side : G.border}`,
                 borderRadius: 16,
                 boxSizing: 'border-box',
                 boxShadow: '0 6px 20px rgba(0,0,0,0.10)',
@@ -161,12 +165,16 @@ export const DiagramCascadeBuild: React.FC = () => {
                 padding: '0 24px',
               }}
             >
+              {words ? <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:42,fontWeight:700,lineHeight:1.2,textAlign:'center'}}>{words[n.id+1]}</div> : <>
               <div style={{ height: 16, width: `${44 + (n.id * 17) % 34}%`, background: n.level === 0 ? '#8a8680' : G.bar, borderRadius: 8 }} />
               <div style={{ height: 10, width: `${70 - (n.id * 13) % 26}%`, background: n.level === 0 ? G.sideBar : G.line, borderRadius: 5 }} />
+              </>}
             </div>
           );
         })}
       </div>
+      </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

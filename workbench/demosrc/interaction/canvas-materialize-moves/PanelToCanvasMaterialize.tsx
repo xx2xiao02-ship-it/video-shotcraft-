@@ -4,6 +4,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const PANEL_X = 1210;
 const PANEL_Y = 90;
@@ -24,7 +26,7 @@ const CHECK_FRAMES = [12, 22, 32]; // 三个复选框打勾时刻
 const BUTTON_FRAME = 46; // 按钮按下
 const FLY_START = [54, 60, 66]; // 三行错峰起飞
 
-export const PanelToCanvasMaterialize: React.FC = () => {
+export const PanelToCanvasMaterialize: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -33,12 +35,13 @@ export const PanelToCanvasMaterialize: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <AbsoluteFill style={{ background: G.bg, overflow: 'hidden' }}>
+  const scene = (
+    <AbsoluteFill style={{ background: skin?.bg || G.bg, overflow: 'hidden' }}>
+    <div style={{position:'absolute',width:words ? 1920 : '100%',height:words ? 1080 : '100%',left:words ? 192 : 0,top:0,transform:words ? 'scale(0.8)' : undefined,transformOrigin:'top left'}}>
       {/* 画布点阵底 */}
       <AbsoluteFill
         style={{
-          backgroundImage: `radial-gradient(${G.line} 3px, transparent 3px)`,
+          backgroundImage: `radial-gradient(${skin?.muted || G.line} 3px, transparent 3px)`,
           backgroundSize: '52px 52px',
         }}
       />
@@ -51,8 +54,8 @@ export const PanelToCanvasMaterialize: React.FC = () => {
           top: PANEL_Y,
           width: PANEL_W,
           height: 900,
-          background: G.panel,
-          border: `2px solid ${G.border}`,
+          background: skin?.surface || G.panel,
+          border: `2px solid ${skin?.muted || G.border}`,
           borderRadius: 20,
           boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
           boxSizing: 'border-box',
@@ -60,13 +63,18 @@ export const PanelToCanvasMaterialize: React.FC = () => {
         }}
       >
         {/* 面板标题 */}
+        {words ? <>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:36,fontWeight:700,height:44}}>{words[0]}</div>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:26,height:34,marginTop:6}}>{words[1]}</div>
+        </> : <>
         <div style={{ height: 20, width: 260, background: G.bar, borderRadius: 10, marginBottom: 14 }} />
         <div style={{ height: 12, width: 380, background: G.line, borderRadius: 6, marginBottom: 26 }} />
         {/* 表头 */}
         <div style={{ height: 34, background: G.line, borderRadius: 8, marginBottom: 12, opacity: 0.6 }} />
+        </>}
         {/* 行槽位（行飞走后留白） */}
         {[0, 1, 2].map((i) => (
-          <RowSlot key={i} idx={i} frame={frame} fps={fps} />
+          <RowSlot key={i} idx={i} frame={frame} fps={fps} words={words} skin={skin} />
         ))}
         {/* 面板底部按钮 */}
         <div
@@ -77,32 +85,34 @@ export const PanelToCanvasMaterialize: React.FC = () => {
             right: 28,
             height: 64,
             borderRadius: 14,
-            background: btnPress > 0 ? G.ink : G.side,
+            background: skin?.accent || (btnPress > 0 ? G.ink : G.side),
             transform: `scale(${1 - btnPress * 0.06})`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 22, color: '#1a1d24', letterSpacing: 0.5 }}>
-            Add all to canvas
+          <div style={{ fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: words ? 32 : 22, color: skin?.bg || '#1a1d24', letterSpacing: words ? 0 : 0.5 }}>
+            {words?.[8] || 'Add all to canvas'}
           </div>
         </div>
       </div>
 
       {/* 飞行中/落位的三张卡（行→卡形态插值） */}
       {[0, 1, 2].map((i) => (
-        <FlyingCard key={i} idx={i} frame={frame} fps={fps} />
+        <FlyingCard key={i} idx={i} frame={frame} fps={fps} words={words} skin={skin} />
       ))}
 
       {/* 光标 */}
-      <Cursor frame={frame} />
+      <Cursor frame={frame} business={Boolean(words)} />
+      </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };
 
 // 面板内的一行：复选框自动打勾；起飞后槽位塌陷成虚线留白
-const RowSlot: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, frame, fps }) => {
+const RowSlot: React.FC<{ idx: number; frame: number; fps: number;words?:string[];skin?:TemplateSkin }> = ({ idx, frame, fps, words, skin }) => {
   const checkF = CHECK_FRAMES[idx];
   const flyF = FLY_START[idx];
   const checked = frame >= checkF;
@@ -112,11 +122,12 @@ const RowSlot: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, f
   return (
     <div
       style={{
+        ...(words ? {position:'absolute' as const,left:28,top:ROWS_TOP-PANEL_Y-2+idx*ROW_H,width:PANEL_W-60} : {}),
         height: ROW_H - 12,
         marginBottom: 12,
         borderRadius: 10,
-        border: flown ? `2px dashed ${G.line}` : `2px solid ${G.border}`,
-        background: flown ? 'transparent' : G.card,
+        border: flown ? `2px dashed ${skin?.muted || G.line}` : `2px solid ${skin?.muted || G.border}`,
+        background: flown ? 'transparent' : skin?.bg || G.card,
         boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
@@ -133,8 +144,8 @@ const RowSlot: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, f
               width: 30,
               height: 30,
               borderRadius: 8,
-              border: `3px solid ${checked ? G.ink : G.bar}`,
-              background: checked ? G.ink : 'transparent',
+              border: `3px solid ${skin?.accent || (checked ? G.ink : G.bar)}`,
+              background: checked ? skin?.accent || G.ink : 'transparent',
               boxSizing: 'border-box',
               transform: checked ? `scale(${0.8 + 0.2 * checkPop})` : 'scale(1)',
               display: 'flex',
@@ -148,8 +159,13 @@ const RowSlot: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, f
               </svg>
             )}
           </div>
+          {words ? <>
+            <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:32,fontWeight:700}}>{words[2+idx*2]}</div>
+            <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:24,marginLeft:'auto'}}>{words[3+idx*2]}</div>
+          </> : <>
           <div style={{ height: 14, width: 180 + idx * 40, background: G.bar, borderRadius: 7 }} />
           <div style={{ marginLeft: 'auto', height: 12, width: 90, background: G.line, borderRadius: 6 }} />
+          </>}
         </>
       )}
     </div>
@@ -157,7 +173,7 @@ const RowSlot: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, f
 };
 
 // 行→卡：位置沿贝塞尔弧线飞、尺寸/圆角/内容布局同步插值
-const FlyingCard: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx, frame, fps }) => {
+const FlyingCard: React.FC<{ idx: number; frame: number; fps: number;words?:string[];skin?:TemplateSkin }> = ({ idx, frame, fps, words, skin }) => {
   const flyF = FLY_START[idx];
   if (frame < flyF) return null;
 
@@ -183,8 +199,8 @@ const FlyingCard: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx
   const radius = 10 + 8 * u;
   const shadow = interpolate(u, [0, 1], [0.08, 0.16]);
   // 行内容(单行水平) → 卡内容(标题+行+footer) 交叉淡化
-  const rowOp = Math.max(0, 1 - u * 2.2);
-  const cardOp = Math.max(0, (u - 0.45) / 0.55);
+  const rowOp = Math.min(1, Math.max(0, 1 - u * 2.2));
+  const cardOp = Math.min(1, Math.max(0, (u - 0.45) / 0.55));
 
   return (
     <div
@@ -194,8 +210,8 @@ const FlyingCard: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx
         top: y,
         width: w,
         height: h,
-        background: G.card,
-        border: `2px solid ${G.border}`,
+        background: skin?.bg || G.card,
+        border: `2px solid ${skin?.muted || G.border}`,
         borderRadius: radius,
         boxShadow: `0 ${10 + 14 * u}px ${24 + 20 * u}px rgba(0,0,0,${shadow})`,
         transform: `rotate(${rot}deg)`,
@@ -206,11 +222,20 @@ const FlyingCard: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx
     >
       {/* 行形态内容 */}
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', gap: 18, padding: '0 20px', opacity: rowOp }}>
-        <div style={{ width: 30, height: 30, borderRadius: 8, background: G.ink }} />
+        <div style={{ width: 30, height: 30, borderRadius: 8, background: skin?.accent || G.ink, flexShrink:0 }} />
+        {words ? <>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:32,fontWeight:700}}>{words[2+idx*2]}</div>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:24,marginLeft:'auto'}}>{words[3+idx*2]}</div>
+        </> :
         <div style={{ height: 14, width: 180 + idx * 40, background: G.bar, borderRadius: 7 }} />
+        }
       </div>
       {/* 卡形态内容 */}
       <div style={{ position: 'absolute', inset: 0, padding: 24, display: 'flex', flexDirection: 'column', gap: 12, opacity: cardOp, boxSizing: 'border-box' }}>
+        {words ? <>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:42,fontWeight:700,lineHeight:1.25}}>{words[2+idx*2]}</div>
+          <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:32,lineHeight:1.4,marginTop:24}}>{words[3+idx*2]}</div>
+        </> : <>
         <div style={{ height: 18, width: `${52 + idx * 12}%`, background: G.bar, borderRadius: 9 }} />
         <div style={{ height: 11, width: '84%', background: G.line, borderRadius: 5 }} />
         <div style={{ height: 11, width: '66%', background: G.line, borderRadius: 5 }} />
@@ -218,14 +243,15 @@ const FlyingCard: React.FC<{ idx: number; frame: number; fps: number }> = ({ idx
           <div style={{ width: 28, height: 28, borderRadius: 14, background: G.mid }} />
           <div style={{ height: 11, width: 70, background: G.line, borderRadius: 5 }} />
         </div>
+        </>}
       </div>
     </div>
   );
 };
 
-const Cursor: React.FC<{ frame: number }> = ({ frame }) => {
+const Cursor: React.FC<{ frame: number;business?:boolean }> = ({ frame, business }) => {
   // 光标：从画面中部移到按钮上并停留按下
-  const bx = PANEL_X + PANEL_W / 2;
+  const bx = business ? PANEL_X + PANEL_W - 100 : PANEL_X + PANEL_W / 2;
   const by = PANEL_Y + 900 - 60;
   const x = interpolate(frame, [8, BUTTON_FRAME - 4], [900, bx], {
     extrapolateLeft: 'clamp',

@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），440×240 定尺画布居中排版。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const CHIP_LIFT_TO_USER_PILL_DURATION = 150; // 5000ms @30fps
 
@@ -38,6 +39,7 @@ const OTHERS = Array.from({ length: ROWS * COLS }, (_, i) => {
     x: GX0 + c * (CW + GX),
     y: GY0 + r * (CH + GY),
     label: LABELS[i],
+    inputIndex: i,
     dist: Math.abs(c - TC) + Math.abs(r - TR),
     isT: c === TC && r === TR,
   };
@@ -55,8 +57,26 @@ const CAP_WIN = CAP_ST * 1.5;
 const BADGE_SIZE = 26;
 const BADGE_SVG = Number((BADGE_SIZE * 0.52).toFixed(1)); // 13.5
 
-export const ChipLiftToUserPill: React.FC = () => {
+export const ChipLiftToUserPill: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  if (words && (words.length !== 14 || words.slice(0, 12).some(word => !word.trim() || [...word].length > 2) ||
+    !words[12]?.trim() || [...words[12]].length > 10 || !words[13]?.trim() || [...words[13]].length > 8 ||
+    !words[12].startsWith(words[TR * COLS + TC]))) {
+    throw new Error('ChipLift requires twelve labels, a name beginning with the selected label, and a closing phrase');
+  }
+  const bg = skin?.bg || BG;
+  const text = skin?.text || TXT;
+  const dim = skin?.muted || DIM;
+  const font = skin?.fontFamily || SANS;
+  const chipBg = skin?.accent || '#ffffff';
+  const selectedBg = skin?.surface || INK;
+  const nameChars = words ? [...words[12]] : NAME_CHARS;
+  const capWords = words ? [...words[13]] : CAP_WORDS;
+  const capStep = words ? 0.78 / capWords.length : CAP_ST;
+  const capWindow = words ? capStep * 1.5 : CAP_WIN;
+  const colorMix = (p:number, a:string, b:string) => skin
+    ? `color-mix(in srgb, ${a} ${(1-clamp01(p))*100}%, ${b})`
+    : mix(p,a,b);
 
   // A 反色硬切（3 帧感）：进度台阶化到 0 / 0.5 / 1 → 硬切质感
   const a = seg(t, 0.04, 0.085, E.linear);
@@ -74,15 +94,15 @@ export const ChipLiftToUserPill: React.FC = () => {
   const capInn = seg(t, 0.6, 0.92);
 
   return (
-    <DesignStage bg={BG}>
+    <DesignStage bg={bg}>
       {/* 页面 + 440×240 定尺画布（居中） */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: BG,
+          background: bg,
           overflow: 'hidden',
-          fontFamily: SANS,
+          fontFamily: font,
           WebkitFontSmoothing: 'antialiased',
         }}
       >
@@ -101,8 +121,8 @@ export const ChipLiftToUserPill: React.FC = () => {
                   width: CW,
                   height: CH,
                   borderRadius: CH / 2,
-                  background: '#fff',
-                  border: `1px solid ${LINE}`,
+                  background: chipBg,
+                  border: `1px solid ${skin?.muted || LINE}`,
                   display: 'flex',
                   alignItems: 'center',
                   boxSizing: 'border-box',
@@ -122,12 +142,12 @@ export const ChipLiftToUserPill: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    font: `600 10.5px/1 ${SANS}`,
-                    letterSpacing: '.6px',
-                    color: TXT,
+                    font: `600 10.5px/1 ${font}`,
+                    letterSpacing: words ? 0 : '.6px',
+                    color: skin?.bg || text,
                   }}
                 >
-                  {o.label}
+                  {words ? words[o.inputIndex] : o.label}
                 </div>
               </div>
             );
@@ -142,8 +162,8 @@ export const ChipLiftToUserPill: React.FC = () => {
               width: w,
               height: CH,
               borderRadius: CH / 2,
-              background: mix(aq, '#ffffff', INK),
-              border: `1px solid ${mix(aq, LINE, INK)}`,
+              background: colorMix(aq, chipBg, selectedBg),
+              border: `1px solid ${colorMix(aq, skin?.muted || LINE, selectedBg)}`,
               display: 'flex',
               alignItems: 'center',
               boxSizing: 'border-box',
@@ -162,13 +182,13 @@ export const ChipLiftToUserPill: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                font: `600 10.5px/1 ${SANS}`,
-                letterSpacing: '.6px',
-                color: mix(aq, TXT, '#ffffff'),
+                font: `600 10.5px/1 ${font}`,
+                letterSpacing: words ? 0 : '.6px',
+                color: colorMix(aq, skin?.bg || text, skin?.text || '#ffffff'),
                 opacity: 1 - clamp01(g * 5),
               }}
             >
-              CD
+              {words ? words[TR * COLS + TC] : 'CD'}
             </div>
             {/* 人名逐字打出（stagger 跑在生长进度 g 上） */}
             <div
@@ -182,17 +202,17 @@ export const ChipLiftToUserPill: React.FC = () => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {NAME_CHARS.map((ch, i) => {
+              {nameChars.map((ch, i) => {
                 const p = seg(g, 0.18 + i * 0.062, 0.18 + i * 0.062 + 0.05, E.outQuad);
                 return (
                   <span
                     key={i}
                     style={{
-                      font: `600 11px/1 ${SANS}`,
-                      color: 'var(--text)',
+                      font: `600 11px/1 ${font}`,
+                      color: skin?.text || 'var(--text)',
                       opacity: p,
                       whiteSpace: 'pre',
-                      letterSpacing: '.2px',
+                      letterSpacing: words ? 0 : '.2px',
                       transform: `translateY(${lerp(p, 2, 0)}px)`,
                       display: 'inline-block',
                     }}
@@ -227,7 +247,7 @@ export const ChipLiftToUserPill: React.FC = () => {
               top: TY + CH / 2,
               height: 1,
               width: `${(cw * 90).toFixed(1)}px`,
-              background: TXT,
+              background: text,
             }}
           />
 
@@ -238,8 +258,8 @@ export const ChipLiftToUserPill: React.FC = () => {
               width: BADGE_SIZE,
               height: BADGE_SIZE,
               borderRadius: '50%',
-              background: '#fff',
-              border: `1px solid ${LINE}`,
+              background: chipBg,
+              border: `1px solid ${skin?.muted || LINE}`,
               boxSizing: 'border-box',
               boxShadow: '0 2px 10px rgba(0,0,0,.07)',
               display: 'flex',
@@ -252,7 +272,7 @@ export const ChipLiftToUserPill: React.FC = () => {
             }}
           >
             <svg width={BADGE_SVG} height={BADGE_SVG} viewBox="0 0 24 24">
-              <path d="M12 0.8 L14.3 9.7 L23.2 12 L14.3 14.3 L12 23.2 L9.7 14.3 L0.8 12 L9.7 9.7 Z" fill={TXT} />
+              <path d="M12 0.8 L14.3 9.7 L23.2 12 L14.3 14.3 L12 23.2 L9.7 14.3 L0.8 12 L9.7 9.7 Z" fill={text} />
             </svg>
           </div>
 
@@ -268,16 +288,16 @@ export const ChipLiftToUserPill: React.FC = () => {
               opacity: capShow,
             }}
           >
-            {CAP_WORDS.map((wd, i) => {
-              const q = clamp01((capInn - i * CAP_ST) / CAP_WIN);
+            {capWords.map((wd, i) => {
+              const q = clamp01((capInn - i * capStep) / capWindow);
               return (
                 <span
                   key={i}
                   style={{
-                    font: `600 13px/1.25 ${SANS}`,
-                    color: mix(q, DIM, TXT),
-                    letterSpacing: (-0.03 * (1 - q)).toFixed(4) + 'em',
-                    marginRight: i === CAP_WORDS.length - 1 ? 0 : 4.5,
+                    font: `600 13px/1.25 ${font}`,
+                    color: colorMix(q, dim, text),
+                    letterSpacing: words ? 0 : (-0.03 * (1 - q)).toFixed(4) + 'em',
+                    marginRight: words || i === capWords.length - 1 ? 0 : 4.5,
                   }}
                 >
                   {wd}

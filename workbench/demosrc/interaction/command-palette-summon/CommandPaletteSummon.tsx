@@ -5,6 +5,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, FakeDashboard } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const CL = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
@@ -34,8 +36,9 @@ const ROWS = [
   { titleW: 56, exitAt: 1 },
 ];
 
-const PaletteRow: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
-  const { titleW, exitAt } = ROWS[i];
+const PaletteRow: React.FC<{ i: number; frame: number;label?:string;query?:string;selected?:number;skin?:TemplateSkin }> = ({ i, frame,label,query,selected,skin }) => {
+  const { titleW } = ROWS[i];
+  const exitAt=skin ? !label?.includes(query?.slice(0,1) || '') ? 1 : !label?.includes(query || '') ? 2 : 0 : ROWS[i].exitAt;
   const inStart = ROWS_START + i * 4;
   const exitStart = exitAt === 1 ? KEY1 + 3 : exitAt === 2 ? KEY2 + 3 : null;
 
@@ -55,7 +58,7 @@ const PaletteRow: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
         });
 
   // 高亮首条
-  const hl = i === 0 ? interpolate(frame, [HL, HL + 10], [0, 1], CL) : 0;
+  const hl = i === (skin ? selected : 0) ? interpolate(frame, [HL, HL + 10], [0, 1], CL) : 0;
 
   return (
     <div
@@ -69,8 +72,8 @@ const PaletteRow: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
         style={{
           height: ROW_H,
           borderRadius: 12,
-          background: hl > 0 ? `rgba(228,228,226,${hl})` : 'transparent',
-          boxShadow: hl > 0 ? `inset 4px 0 0 rgba(47,47,47,${hl})` : 'none',
+          background: hl > 0 ? skin ? `color-mix(in srgb, ${skin.accent} ${hl*20}%, transparent)` : `rgba(228,228,226,${hl})` : 'transparent',
+          boxShadow: hl > 0 ? skin ? `inset 4px 0 0 ${skin.accent}` : `inset 4px 0 0 rgba(47,47,47,${hl})` : 'none',
           display: 'flex',
           alignItems: 'center',
           gap: 20,
@@ -79,16 +82,21 @@ const PaletteRow: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
           transform: `translateY(${inY}px)`,
         }}
       >
-        <div style={{ width: 36, height: 36, borderRadius: 9, background: G.mid }} />
-        <div style={{ height: 14, width: `${titleW}%`, background: G.bar, borderRadius: 7 }} />
-        <div style={{ marginLeft: 'auto', width: 58, height: 24, borderRadius: 6, background: G.line }} />
+        <div style={{ width: 36, height: 36, borderRadius: 9, background: skin?.accent || G.mid }} />
+        {skin ? <div style={{font:`600 34px ${skin.fontFamily}`,color:skin.text}}>{label}</div> : <div style={{ height: 14, width: `${titleW}%`, background: G.bar, borderRadius: 7 }} />}
+        {!skin&&<div style={{ marginLeft: 'auto', width: 58, height: 24, borderRadius: 6, background: G.line }} />}
       </div>
     </div>
   );
 };
 
-export const CommandPaletteSummon: React.FC = () => {
+export const CommandPaletteSummon: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
+  const query=skin ? words?.[0] || '' : '';
+  if(skin && [...query].length!==2) throw new Error('Command palette requires a two-character query');
+  const labels=skin ? words?.slice(1) || [] : [];
+  const selected=labels.findIndex(label=>label.includes(query));
+  if(skin && (labels.length!==5 || selected<0)) throw new Error('Command palette requires five candidates and a complete query match');
 
   // 背景压暗 + blur
   const dim = interpolate(frame, [DIM0, DIM1], [0, 0.45], CL);
@@ -112,10 +120,12 @@ export const CommandPaletteSummon: React.FC = () => {
   // 光标闪烁（周期 16f），BLINK_END 后常亮保证收尾静止
   const cursorOn = frame >= BLINK_END ? true : (frame - PANEL_IN) % 16 < 8;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ filter: frame < DIM0 ? undefined : `blur(${blur}px)` }}>
-        <FakeDashboard variant="A" />
+        {skin ? <div style={{position:'absolute',left:160,top:80,width:1600,color:skin.text,fontFamily:skin.fontFamily}}>
+          <h2 style={{fontSize:56}}>功能目录</h2><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:40}}>{labels.map((label,i)=><div key={i} style={{padding:40,fontSize:42,background:skin.surface,border:`2px solid ${skin.muted}`,borderRadius:8}}>{label}</div>)}</div>
+        </div> : <FakeDashboard variant="A" />}
       </div>
       <div style={{ position: 'absolute', inset: 0, background: `rgba(20,20,20,${dim})` }} />
 
@@ -128,9 +138,9 @@ export const CommandPaletteSummon: React.FC = () => {
             width: PANEL_W,
             transform: `translateY(${panelY}px)`,
             opacity: panelOp,
-            background: G.card,
+            background: skin?.surface || G.card,
             borderRadius: 18,
-            border: `2px solid ${G.border}`,
+            border: `2px solid ${skin?.muted || G.border}`,
             boxShadow: '0 28px 90px rgba(0,0,0,0.4)',
             padding: 20,
             boxSizing: 'border-box',
@@ -140,7 +150,7 @@ export const CommandPaletteSummon: React.FC = () => {
           <div
             style={{
               height: 76,
-              borderBottom: `2px solid ${G.line}`,
+              borderBottom: `2px solid ${skin?.muted || G.line}`,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
@@ -148,26 +158,27 @@ export const CommandPaletteSummon: React.FC = () => {
               boxSizing: 'border-box',
             }}
           >
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: G.bar }} />
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: skin?.accent || G.bar }} />
             {/* 已敲入的字符灰块 */}
-            {Array.from({ length: typed }).map((_, c) => (
+            {skin ? <span style={{font:`500 40px ${skin.fontFamily}`,color:skin.text}}>{[...query].slice(0,typed).join('')}</span> : Array.from({ length: typed }).map((_, c) => (
               <div key={c} style={{ width: 28, height: 38, borderRadius: 6, background: '#3a3a3a' }} />
             ))}
             {/* 光标 */}
-            {cursorOn && <div style={{ width: 4, height: 42, background: G.ink, borderRadius: 2 }} />}
+            {cursorOn && <div style={{ width: 4, height: 42, background: skin?.text || G.ink, borderRadius: 2 }} />}
             {/* 占位提示条：敲第一个字母时卸载 */}
             {typed === 0 && (
-              <div style={{ width: 260, height: 14, borderRadius: 7, background: G.line, opacity: 0.8 }} />
+              skin ? <span style={{font:`400 32px ${skin.fontFamily}`,color:skin.muted}}>查找功能</span> : <div style={{ width: 260, height: 14, borderRadius: 7, background: G.line, opacity: 0.8 }} />
             )}
           </div>
           {/* 候选行 */}
           <div style={{ paddingTop: 14 }}>
             {ROWS.map((_, i) => (
-              <PaletteRow key={i} i={i} frame={frame} />
+              <PaletteRow key={i} i={i} frame={frame} label={labels[i]} query={query} selected={selected} skin={skin} />
             ))}
           </div>
         </div>
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

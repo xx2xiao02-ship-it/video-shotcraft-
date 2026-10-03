@@ -6,6 +6,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const GLASS_PILL_DICTATION_TYPING_DURATION = 50; // 1650ms @30fps
 
@@ -17,32 +19,34 @@ const ICON = 30; // 右端声波图标方块尺寸
 const BASE = [13, 7, 10, 6, 9]; // 竖条基准高度（左高右低的听写图标）
 const TEXT = 'Speak or type here'; // 占位句，长度贴近原片（19→18 字符），打字节奏不变
 
-export const GlassPillDictationTyping: React.FC = () => {
+export const GlassPillDictationTyping: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const inputText=skin ? words?.[0] || '' : TEXT;
+  const font=skin?.fontFamily || UI;
+  const glow=(alpha:number)=>skin ? `color-mix(in srgb, ${skin.accent} ${Math.max(0,Math.min(100,alpha*100))}%, transparent)` : `rgba(${ACCENT_RGB},${alpha})`;
 
   // 定宽：原片胶囊宽度约为整句文本宽度的 2 倍，不随词伸缩——挂载时实测一次整句宽度
   const measRef = useRef<HTMLDivElement>(null);
   const [textW, setTextW] = useState(180); // 兜底估算值，useLayoutEffect 实测后覆盖（先于首帧绘制）
   useLayoutEffect(() => {
     if (measRef.current) setTextW(measRef.current.offsetWidth);
-  }, []);
+  }, [inputText,font]);
   const PW = Math.round(textW + 168);
 
   // 出场：整体略大（~1.25x）快速浮现，约 0.45s 内缓落到位
   const s = lerp(seg(t, 0, 0.22, E.outCubic), 1.25, 1);
   // 打字：caret 先行（~t0.03），字符 t0.06→0.73 匀速铺完，尾段保持
-  const n = Math.floor(seg(t, 0.06, 0.73) * TEXT.length + 1e-6);
+  const n = Math.floor(seg(t, 0.06, 0.73) * [...inputText].length + 1e-6);
   const caretO = seg(t, 0.025, 0.045) * (1 - seg(t, 0.75, 0.8));
   // 强调色光随打字进度渐熄；同步收掉描边亮度的一点富余
   const g = 1 - seg(t, 0.08, 0.76, E.inOutQuad);
 
-  return (
-    <DesignStage bg="#000">
+  const content=(
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: '#000',
+          background: skinBackground(skin,'#000'),
           overflow: 'hidden',
           // 暗部校色：原样片 x264 把外泛光的暗尾（1~2 级灰）压成纯 0，本渲染的
           // 泛光尾巴因此比样片亮一档、拖得更远。contrast(1.008) 等价于黑端减 ~1 级
@@ -65,11 +69,11 @@ export const GlassPillDictationTyping: React.FC = () => {
             alignItems: 'center',
             padding: '0 8px 0 16px',
             overflow: 'hidden',
-            background: '#0d0d13',
+            background: skin?.surface || '#0d0d13',
             willChange: 'transform,opacity',
             opacity: seg(t, 0, 0.025),
             transform: `translateX(${(480 - PW) / 2}px) scale(${s})`,
-            boxShadow: `inset 0 0 0 1px rgba(255,255,255,${0.16 + 0.1 * g}), inset 0 14px 22px rgba(255,255,255,${0.03 + 0.04 * g}), 0 0 ${26 * g}px rgba(${ACCENT_RGB},${0.28 * g})`,
+            boxShadow: `inset 0 0 0 1px rgba(255,255,255,${0.16 + 0.1 * g}), inset 0 14px 22px rgba(255,255,255,${0.03 + 0.04 * g}), 0 0 ${26 * g}px ${glow(0.28*g)}`,
           }}
         >
           {/* 内嵌强调色光：左暗右亮的渐层，随打字进度熄灭（原片光在胶囊内部，无外部光晕） */}
@@ -79,20 +83,20 @@ export const GlassPillDictationTyping: React.FC = () => {
               inset: 0,
               pointerEvents: 'none',
               opacity: g,
-              background: `linear-gradient(90deg,rgba(${ACCENT_RGB},0) 0%,rgba(${ACCENT_RGB},.35) 42%,rgba(${ACCENT_RGB},.95) 100%)`,
+              background: `linear-gradient(90deg,${glow(0)} 0%,${glow(0.35)} 42%,${glow(0.95)} 100%)`,
             }}
           />
           <div
             style={{
               position: 'relative',
-              font: `400 21px ${UI}`,
-              color: '#f4f4f5',
+              font: `400 21px ${font}`,
+              color: skin?.text || '#f4f4f5',
               whiteSpace: 'pre',
               letterSpacing: 0.3,
               flex: 'none',
             }}
           >
-            {TEXT.slice(0, n)}
+            {[...inputText].slice(0,n).join('')}
           </div>
           <div
             style={{
@@ -100,7 +104,7 @@ export const GlassPillDictationTyping: React.FC = () => {
               width: 2,
               height: 23,
               borderRadius: 1,
-              background: '#eaeaec',
+              background: skin?.text || '#eaeaec',
               marginLeft: 2,
               flex: 'none',
               opacity: caretO,
@@ -130,7 +134,7 @@ export const GlassPillDictationTyping: React.FC = () => {
                   style={{
                     width: 1.5,
                     borderRadius: 1.5,
-                    background: '#ececee',
+                    background: skin?.text || '#ececee',
                     height: h + 1.6 * Math.sin(t * 18 + i * 1.7),
                   }}
                 />
@@ -145,14 +149,14 @@ export const GlassPillDictationTyping: React.FC = () => {
             position: 'absolute',
             visibility: 'hidden',
             whiteSpace: 'pre',
-            font: `400 21px ${UI}`,
+            font: `400 21px ${font}`,
             letterSpacing: 0.3,
             top: -999,
           }}
         >
-          {TEXT}
+          {inputText}
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'relative',width:480,height:270,transform:'scale(4)',transformOrigin:'top left'}}>{content}</div></BusinessTextStage> : <DesignStage bg="#000">{content}</DesignStage>;
 };

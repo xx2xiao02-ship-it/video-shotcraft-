@@ -3,6 +3,8 @@
 // 照到的区域显影、照不到的沉黑，最终全屏亮起。光即转场。
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import {BusinessScreen,BusinessScreenStage,assertScreenCardInput,type BusinessScreenSource} from '../../_fixtures/BusinessScreen';
+import {skinBackground,type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = '"Avenir Next", "Helvetica Neue", Helvetica, sans-serif';
 
@@ -58,8 +60,10 @@ const InboxPanel: React.FC = () => (
   </div>
 );
 
-export const CornerSpotlightReveal: React.FC = () => {
+export const CornerSpotlightReveal: React.FC<{screen?:BusinessScreenSource;words?:string[];skin?:TemplateSkin;
+  durationInFrames?:number}>=({screen,words,skin}) => {
   const frame = useCurrentFrame();
+  assertScreenCardInput(screen,words,skin);
 
   // 聚光半径扩张：全程匀速（用户裁决"整个过程要匀速"——严格 linear，无缓动）
   // r+feather=1.85r 是光前沿；1.85*1300≈2400 恰在片尾盖满全屏对角，
@@ -77,7 +81,7 @@ export const CornerSpotlightReveal: React.FC = () => {
   const feather = r * 0.85;
 
   // UI 轻微透视漂移（原片相机贴着界面缓推）
-  const drift = interpolate(frame, [0, 100], [0, 1]);
+  const drift = interpolate(frame, [0, 100], [0, 1],screen ? {extrapolateRight:'clamp'} : undefined);
   const scale = 1.75 - 0.28 * drift;
   const tx = -40 + 70 * drift;
   const ty = -30 + 50 * drift;
@@ -87,8 +91,8 @@ export const CornerSpotlightReveal: React.FC = () => {
     ((r - feather * 0.25) / (r + feather)) * 100,
   )}%, rgba(255,255,255,0) 100%)`;
 
-  return (
-    <AbsoluteFill style={{ background: '#000' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,'#000') }}>
       <AbsoluteFill
         style={{
           WebkitMaskImage: mask,
@@ -97,7 +101,7 @@ export const CornerSpotlightReveal: React.FC = () => {
           transformOrigin: '18% 12%',
         }}
       >
-        <InboxPanel />
+        {screen ? <BusinessScreen screen={screen} width={1920} height={1080}/> : <InboxPanel />}
       </AbsoluteFill>
       {/* 聚光自身的白热光晕（叠在界面上方，光心最亮） */}
       <div
@@ -118,4 +122,5 @@ export const CornerSpotlightReveal: React.FC = () => {
       />
     </AbsoluteFill>
   );
+  return skin ? <BusinessScreenStage skin={skin} label={words?.[0]}>{scene}</BusinessScreenStage> : scene;
 };

@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const HIT = 28; // 撞停命中帧
 const SNAP = 72; // 套准合一帧
@@ -16,7 +18,7 @@ const OMEGA = (2 * Math.PI) / 18; // 震荡周期 18f，44f 内抖两下半
 const TAU = 60; // 缓衰减：帧 72 前仍余 ~14px 总分离，被"啪地"硬切归零
 
 // 与 TitleBlock 同字形的可调色标题（错位印版需要单色副本）
-const Plate: React.FC<{ color: string; dx: number; dy: number }> = ({ color, dx, dy }) => (
+const Plate: React.FC<{ color: string; dx: number; dy: number;word?:string;skin?:TemplateSkin }> = ({ color, dx, dy,word,skin }) => (
   <div
     style={{
       position: 'absolute',
@@ -30,20 +32,20 @@ const Plate: React.FC<{ color: string; dx: number; dy: number }> = ({ color, dx,
   >
     <div
       style={{
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontWeight: 800,
-        fontSize: 200,
+        fontSize: skin ? 170 : 200,
         color,
-        letterSpacing: -1,
+        letterSpacing: skin ? 0 : -1,
         whiteSpace: 'nowrap',
       }}
     >
-      IMPACT
+      {skin ? word : 'IMPACT'}
     </div>
   </div>
 );
 
-export const RisoMisregistrationHit: React.FC = () => {
+export const RisoMisregistrationHit: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // 阶段判定
@@ -68,12 +70,12 @@ export const RisoMisregistrationHit: React.FC = () => {
   const pulse =
     frame >= SNAP && frame < SNAP + 4 ? 1 + 0.03 * (1 - (frame - SNAP) / 4) : 1;
 
-  return (
+  const scene=(
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skin ? '#f4f6f2' : G.bg,
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -104,17 +106,18 @@ export const RisoMisregistrationHit: React.FC = () => {
             transformOrigin: 'center center',
           }}
         >
-          <TitleBlock text="IMPACT" size={200} />
+          {skin ? <div style={{fontFamily:skin.fontFamily,fontSize:170,fontWeight:800,color:skin.surface,whiteSpace:'nowrap'}}>{words?.[0]}</div> : <TitleBlock text="IMPACT" size={200} />}
         </div>
       )}
 
       {/* 双版错位：浅灰版与深墨版反向偏移，multiply 叠加出"重影套印" */}
       {split && (
         <>
-          <Plate color={G.mid} dx={-dx} dy={dy} />
-          <Plate color={G.ink} dx={dx} dy={-dy} />
+          <Plate color={skin?.accent || G.mid} dx={-dx} dy={dy} word={words?.[0]} skin={skin} />
+          <Plate color={skin?.surface || G.ink} dx={dx} dy={-dy} word={words?.[0]} skin={skin} />
         </>
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

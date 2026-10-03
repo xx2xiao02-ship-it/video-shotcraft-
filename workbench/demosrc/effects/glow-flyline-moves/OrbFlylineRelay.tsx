@@ -7,6 +7,8 @@
 // 全部动画 f120 前结束，末 35f 真静止。
 import React, { useId } from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 库内标准伪随机（帧确定）
 const h = (n: number) => {
@@ -150,7 +152,8 @@ const DarkCard: React.FC<{
   frame: number;
   litAt: number; // 亮起帧（Infinity = 一直半暗；A 用 8 表示开场自亮）
   x: number; y: number; seed: number;
-}> = ({ frame, litAt, x, y, seed }) => {
+  words?:string[];skin?:TemplateSkin;
+}> = ({ frame, litAt, x, y, seed,words,skin }) => {
   const lit = interpolate(frame, [litAt, litAt + 8], [0, 1], {
     easing: Easing.out(Easing.cubic),
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
@@ -175,12 +178,13 @@ const DarkCard: React.FC<{
     <div
       style={{
         position: 'absolute', left: x, top: y, width: CARD_W, height: CARD_H,
-        boxSizing: 'border-box', background: '#262624',
+        boxSizing: 'border-box', background: skin?.surface || '#262624',
         border: `1.5px solid ${borderCol}`, borderRadius: 14,
         boxShadow: glow, opacity: op,
-        padding: 24, display: 'flex', flexDirection: 'column', gap: 12,
+        padding: skin ? '156px 24px 8px' : 24, display: 'flex', flexDirection: 'column', gap: skin ? 8 : 12,
       }}
     >
+      {skin ? words?.map((word,i)=><div key={i} style={{fontFamily:skin.fontFamily,fontSize:i===0 ? 34 : 28,lineHeight:1.3,fontWeight:i===0 ? 800 : 500,color:skin.text}}>{word}</div>) : <>
       <div style={{ height: 15, width: `${titleW}%`, background: '#3a3a3a', borderRadius: 8 }} />
       <div style={{ height: 10, width: '80%', background: '#383836', borderRadius: 5 }} />
       <div style={{ height: 10, width: '62%', background: '#383836', borderRadius: 5 }} />
@@ -188,11 +192,12 @@ const DarkCard: React.FC<{
         <div style={{ width: 24, height: 24, borderRadius: 12, background: '#3a3a3a' }} />
         <div style={{ height: 10, width: 78, background: '#383836', borderRadius: 5 }} />
       </div>
+      </>}
     </div>
   );
 };
 
-export const OrbFlylineRelay: React.FC = () => {
+export const OrbFlylineRelay: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   // 渐变 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const haloId = `orbHeadHalo-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -221,8 +226,8 @@ export const OrbFlylineRelay: React.FC = () => {
   const L1 = { p0: cA, p1: { x: 820, y: 90 }, p2: { x: 1300, y: 180 }, p3: cB };
   const L2 = { p0: cB, p1: { x: 1620, y: 820 }, p2: { x: 1240, y: 1000 }, p3: cC };
 
-  return (
-    <AbsoluteFill style={{ background: '#1d1d1b', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skin?.bg || '#1d1d1b', overflow: 'hidden' }}>
       {/* 氛围层：两团大 blur 光斑，落点帧同帧涨亮（组合共振） */}
       {ORBS.map((o, i) => {
         const pos = orbPos(o, t);
@@ -238,18 +243,18 @@ export const OrbFlylineRelay: React.FC = () => {
               width: o.size,
               height: o.size,
               borderRadius: '50%',
-              background: `radial-gradient(circle, rgba(234,234,230,${a.toFixed(3)}) 0%, rgba(234,234,230,${(a * 0.5).toFixed(3)}) 42%, rgba(234,234,230,0) 70%)`,
+              background: skin ? `radial-gradient(circle, ${skin.accent} 0%, color-mix(in srgb, ${skin.accent} 50%, transparent) 42%, transparent 70%)` : `radial-gradient(circle, rgba(234,234,230,${a.toFixed(3)}) 0%, rgba(234,234,230,${(a * 0.5).toFixed(3)}) 42%, rgba(234,234,230,0) 70%)`,
               filter: 'blur(100px)',
-              opacity: fadeIn,
+              opacity: fadeIn * (skin ? Number(a.toFixed(3)) : 1),
             }}
           />
         );
       })}
 
       {/* 三张深色描边卡：A 开场自亮发起，B/C 随落点亮起 */}
-      <DarkCard frame={frame} litAt={8} x={CARDS.A.x} y={CARDS.A.y} seed={1} />
-      <DarkCard frame={frame} litAt={42} x={CARDS.B.x} y={CARDS.B.y} seed={2} />
-      <DarkCard frame={frame} litAt={76} x={CARDS.C.x} y={CARDS.C.y} seed={3} />
+      <DarkCard frame={frame} litAt={8} x={CARDS.A.x} y={CARDS.A.y} seed={1} skin={skin} words={words?.slice(0,2)} />
+      <DarkCard frame={frame} litAt={42} x={CARDS.B.x} y={CARDS.B.y} seed={2} skin={skin} words={words?.slice(2,4)} />
+      <DarkCard frame={frame} litAt={76} x={CARDS.C.x} y={CARDS.C.y} seed={3} skin={skin} words={words?.slice(4,6)} />
 
       {/* 飞线接力层 */}
       <svg
@@ -268,4 +273,5 @@ export const OrbFlylineRelay: React.FC = () => {
       </svg>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:192,top:0,width:1920,height:1080,transform:'scale(.8)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : scene;
 };

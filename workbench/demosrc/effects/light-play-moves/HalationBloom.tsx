@@ -5,6 +5,8 @@
 // 深底白字：白底上提亮不可见判例。收尾真静止 ≥40f。
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const BG = '#2a2e38';
 const WHITE = '#1a1d24';
@@ -19,23 +21,23 @@ const FALL_END = POP_END + 20; // 20f 线性回落 → f41
 const SETTLE_END = FALL_END + 15; // 15f 缓收 → f56，此后全静止
 // 总时长 145f → 静止 89f ≥ 40f
 
-const TextBlock: React.FC<{ color: string }> = ({ color }) => (
+const TextBlock: React.FC<{ color: string;word?:string;skin?:TemplateSkin }> = ({ color,word,skin }) => (
   <div
     style={{
-      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-      fontSize: 260,
+      fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+      fontSize: skin ? 180 : 260,
       fontWeight: 800,
       color,
-      letterSpacing: '-0.02em',
+      letterSpacing: skin ? 0 : '-0.02em',
       lineHeight: 1,
       whiteSpace: 'nowrap',
     }}
   >
-    10x
+    {skin ? word : '10x'}
   </div>
 );
 
-export const HalationBloom: React.FC = () => {
+export const HalationBloom: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // —— crash-zoom 入场：scale 2.4 → 0.94（7f in-quad 加速撞停）→ 1（2f 回弹）——
@@ -75,12 +77,12 @@ export const HalationBloom: React.FC = () => {
   });
   const bloomOpacity = frame < FALL_END ? bloomFall : bloomSettle;
 
-  return (
+  const scene=(
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: BG,
+        background: skin?.surface || BG,
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -92,14 +94,14 @@ export const HalationBloom: React.FC = () => {
           top: 110,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontSize: 30,
           fontWeight: 700,
-          letterSpacing: '0.35em',
-          color: MID,
+          letterSpacing: skin ? 0 : '0.35em',
+          color: skin?.muted || MID,
         }}
       >
-        HALATION BLOOM
+        {skin ? words?.[0] : 'HALATION BLOOM'}
       </div>
 
       {/* 晕层：文字复制底层，blur + 提亮，撞停帧起条件挂载 */}
@@ -116,7 +118,7 @@ export const HalationBloom: React.FC = () => {
             filter: 'blur(22px) brightness(1.8)',
           }}
         >
-          <TextBlock color={WHITE} />
+          <TextBlock color={skin?.text || WHITE} word={words?.[1]} skin={skin} />
         </div>
       )}
 
@@ -132,8 +134,9 @@ export const HalationBloom: React.FC = () => {
           opacity: textOpacity,
         }}
       >
-        <TextBlock color={WHITE} />
+        <TextBlock color={skin?.text || WHITE} word={words?.[1]} skin={skin} />
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

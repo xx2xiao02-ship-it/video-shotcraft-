@@ -3,6 +3,8 @@
 // 相互靠近 → 绕位交换 → 名牌一亮一暗交接 → 一枚放大成巨箭头当转场。
 import React from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const BLUE = '#4C8DF6';
 const GREEN = '#2FBF71';
@@ -30,7 +32,8 @@ const Cursor: React.FC<{
   x: number; y: number; scale: number; color: string; name: string;
   badgeLit: number; // 0 压暗 1 点亮
   badgeOpacity?: number;
-}> = ({ x, y, scale, color, name, badgeLit, badgeOpacity = 1 }) => (
+  skin?: TemplateSkin;
+}> = ({ x, y, scale, color, name, badgeLit, badgeOpacity = 1, skin }) => (
   <div style={{ position: 'absolute', left: x, top: y, transform: `scale(${scale})`, transformOrigin: '0 0' }}>
     <svg width={42} height={62} viewBox="0 0 13.5 20" style={{ display: 'block', overflow: 'visible' }}>
       <path
@@ -40,8 +43,8 @@ const Cursor: React.FC<{
     </svg>
     <div style={{
       position: 'absolute', left: 34, top: 56, whiteSpace: 'nowrap',
-      background: color, color: 'var(--text)', borderRadius: 8, padding: '5px 13px',
-      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 16,
+      background: color, color: skin?.bg || 'var(--text)', borderRadius: 8, padding: '5px 13px',
+      fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 16,
       opacity: badgeOpacity * (0.28 + 0.72 * badgeLit),
       filter: `saturate(${0.35 + 0.65 * badgeLit})`,
       boxShadow: badgeLit > 0.6 ? `0 0 ${22 * badgeLit}px ${color}` : 'none',
@@ -51,7 +54,7 @@ const Cursor: React.FC<{
   </div>
 );
 
-export const CursorDialogueDuet: React.FC = () => {
+export const CursorDialogueDuet: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
   const CX = 960; const CY = 520;
   const R = 270;
@@ -127,19 +130,20 @@ export const CursorDialogueDuet: React.FC = () => {
   // 对话"脉冲"——靠近对话时轻微缩放呼吸
   const dPulse = f > 26 && f < 60 ? 1 + Math.sin((f - 26) * 0.5) * 0.05 : 1;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: DARK, position: 'relative', overflow: 'hidden' }}>
+  const scene = (
+    <div style={{ width: 1920, height: 1080, background: skin?.bg || DARK, position: 'relative', overflow: 'hidden' }}>
       {/* 暗场微光晕，给纯黑一点空间感 */}
       <div style={{
         position: 'absolute', inset: 0,
         background: `radial-gradient(ellipse 1100px 700px at 50% 48%, rgba(255,255,255,0.045), transparent 70%)`,
       }} />
       {f <= 132 && (
-        <Cursor x={dx} y={dy} scale={2.8 * dPulse} color={BLUE} name="Designer"
+        <Cursor x={dx} y={dy} scale={2.8 * dPulse} color={BLUE} name={words?.[0] || 'Designer'} skin={skin}
           badgeLit={dLit} badgeOpacity={dBadgeIn * (f > 104 ? 1 - easeInCubic(clamp01((f - 104) / 18)) : 1)} />
       )}
-      <Cursor x={gx} y={gy} scale={gScale} color={GREEN} name="Developer"
+      <Cursor x={gx} y={gy} scale={gScale} color={GREEN} name={words?.[1] || 'Developer'} skin={skin}
         badgeLit={gLit} badgeOpacity={gBadgeIn * (1 - clamp01((f - 102) / 12))} />
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

@@ -8,6 +8,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const ICON = 400; // icon 边长（半屏级）
@@ -22,7 +24,7 @@ const JUMPS = [
   { start: 72, dur: 24, peak: 1.2 * ICON },
 ];
 
-export const AttentionBounce: React.FC = () => {
+export const AttentionBounce: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
 
   // 弹跳高度 + 落地挤压
@@ -84,8 +86,8 @@ export const AttentionBounce: React.FC = () => {
 
   const iconTop = GROUND - ICON - y;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       {/* 镜头层：整体向 icon 轻推 */}
       <div
         style={{
@@ -144,16 +146,16 @@ export const AttentionBounce: React.FC = () => {
             transformOrigin: '50% 100%',
           }}
         >
-          <rect x={14} y={14} width={392} height={392} rx={88} fill={G.card} stroke={G.ink} strokeWidth={18} />
+          <rect x={14} y={14} width={392} height={392} rx={88} fill={skin?.surface || G.card} stroke={skin?.text || G.ink} strokeWidth={18} />
           {/* 符号：简洁铃形 */}
           <path
             d="M 210 110 C 160 110 140 155 138 200 C 136 245 118 272 100 290 L 320 290 C 302 272 284 245 282 200 C 280 155 260 110 210 110 Z"
             fill="none"
-            stroke={G.ink}
+            stroke={skin?.text || G.ink}
             strokeWidth={22}
             strokeLinejoin="round"
           />
-          <circle cx={210} cy={322} r={22} fill={AMBER} />
+          <circle cx={210} cy={322} r={22} fill={skin?.accent || AMBER} />
         </svg>
 
         {/* 功能面板卡：落定后弹出 */}
@@ -168,7 +170,9 @@ export const AttentionBounce: React.FC = () => {
               opacity: Math.min(1, panelT * 1.5),
             }}
           >
-            <Card w={520} h={330} seed={4} />
+            {skin ? <div style={{width:520,height:330,boxSizing:'border-box',border:`2px solid ${skin.accent}`,borderRadius:14,background:skin.surface,padding:'64px 36px',fontFamily:skin.fontFamily,color:skin.text}}>
+              {words?.slice(1).map((word,i)=><div key={i} style={{fontSize:i===0 ? 48 : 32,lineHeight:1.25,marginBottom:20,fontWeight:i===0 ? 800 : 500}}>{word}</div>)}
+            </div> : <Card w={520} h={330} seed={4} />}
             <div
               style={{
                 position: 'absolute',
@@ -176,18 +180,19 @@ export const AttentionBounce: React.FC = () => {
                 left: 24,
                 padding: '10px 24px',
                 borderRadius: 24,
-                background: AMBER,
-                color: 'var(--text)',
-                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+                background: skin?.accent || AMBER,
+                color: skin?.surface || 'var(--text)',
+                fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
                 fontSize: 26,
               }}
             >
-              New
+              {skin ? words?.[0] : 'New'}
             </div>
           </div>
         )}
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:192,top:0,width:1920,height:1080,transform:'scale(.8)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : scene;
 };

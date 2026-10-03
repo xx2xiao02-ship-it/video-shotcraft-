@@ -5,6 +5,8 @@
 import React from 'react';
 import { useCurrentFrame, spring, interpolate } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const mulberry32 = (a: number) => () => {
   let t = (a += 0x6d2b79f5);
@@ -33,8 +35,8 @@ const ACTORS: Actor[] = [
 
 const TYPED = 'Our customers love it';
 
-const CursorActor: React.FC<{ x: number; y: number; a: Actor; badge: number; scale?: number }> = ({
-  x, y, a, badge, scale = 2.1,
+const CursorActor: React.FC<{ x: number; y: number; a: Actor; badge: number; scale?: number;skin?:TemplateSkin }> = ({
+  x, y, a, badge, scale = 2.1, skin,
 }) => (
   <div style={{ position: 'absolute', left: x, top: y, transform: `scale(${scale})`, transformOrigin: '0 0', zIndex: 10 }}>
     <svg width={30} height={44} viewBox="0 0 13.5 20" style={{ display: 'block', overflow: 'visible' }}>
@@ -43,8 +45,8 @@ const CursorActor: React.FC<{ x: number; y: number; a: Actor; badge: number; sca
     </svg>
     <div style={{
       position: 'absolute', left: 24, top: 40, whiteSpace: 'nowrap',
-      background: a.color, color: 'var(--text)', borderRadius: 7, padding: '4px 11px',
-      fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 14,
+      background: a.color, color: skin?.bg || 'var(--text)', borderRadius: 7, padding: '4px 11px',
+      fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 14,
       opacity: badge, transform: `translateY(${(1 - badge) * 10}px)`,
     }}>
       {a.name}
@@ -52,30 +54,35 @@ const CursorActor: React.FC<{ x: number; y: number; a: Actor; badge: number; sca
   </div>
 );
 
-export const CursorCastEnsemble: React.FC = () => {
+export const CursorCastEnsemble: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
+  if(words && (words.length!==11 || words.slice(0,5).some(word=>[...word].length>2) || [...words[5]].length>4 || [...words[6]].length>6 || words.slice(7).some(word=>[...word].length>3)))
+    throw new Error('CursorCast requires five short names, a title, a typed phrase and four notes');
+  const typed = words?.[6] || TYPED;
+  const actors = words ? ACTORS.map((actor,i)=>({...actor,name:words[i],home:i===4 ? [960,700] as [number,number] : actor.home})) : ACTORS;
   const rnd = mulberry32(88);
   // 便签的固定随机旋转
   const noteRots = Array.from({ length: 4 }).map(() => (rnd() - 0.5) * 8);
 
   // 聚拢时刻：90 帧后所有光标向中央便签聚拢
   const gatherT = easeInOut(clamp01((f - 92) / 26));
-  const GATHER: [number, number][] = [
+  const GATHER: [number, number][] = words ? [[600,330],[1240,330],[580,660],[1260,660],[950,680]] : [
     [770, 430], [1160, 420], [800, 640], [1130, 650], [960, 545],
   ];
 
   // 打字进度（Rita 落位后开始，60–130 帧）
-  const typedCount = Math.floor(interpolate(f, [58, 118], [0, TYPED.length], {
+  const typedCount = Math.floor(interpolate(f, [58, 118], [0, typed.length], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   }));
   const caretOn = Math.floor(f / 8) % 2 === 0;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene = (
+    <div style={{ width: 1920, height: 1080, background: skin?.bg || G.bg, position: 'relative', overflow: 'hidden' }}>
+    <div style={{position:'absolute',width:1920,height:1080,left:words ? 192 : 0,top:0,transform:words ? 'scale(0.8)' : undefined,transformOrigin:'top left'}}>
       {/* 点阵无限画布底 */}
       <div style={{
         position: 'absolute', inset: 0,
-        backgroundImage: `radial-gradient(${G.line} 2.4px, transparent 2.4px)`,
+        backgroundImage: `radial-gradient(${skin?.muted || G.line} 2.4px, transparent 2.4px)`,
         backgroundSize: '46px 46px',
       }} />
       {/* 灰阶便签环境道具 */}
@@ -85,37 +92,39 @@ export const CursorCastEnsemble: React.FC = () => {
       ].map((n, i) => (
         <div key={i} style={{
           position: 'absolute', left: n.x, top: n.y, width: 230, height: 210,
-          background: '#e6e6e2', border: `2px solid ${G.border}`, borderRadius: 6,
+          background: skin?.surface || '#e6e6e2', border: `2px solid ${skin?.muted || G.border}`, borderRadius: 6,
           boxShadow: '0 4px 14px rgba(0,0,0,0.10)', transform: `rotate(${noteRots[i]}deg)`,
           padding: 18, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 12,
         }}>
+          {words ? <div style={{fontFamily:skin?.fontFamily,fontSize:36,lineHeight:1.4,fontWeight:700,color:skin?.text,paddingTop:40}}>{words[7+i]}</div> : <>
           <div style={{ height: 12, width: '70%', background: G.bar, borderRadius: 6 }} />
           <div style={{ height: 10, width: '86%', background: G.line, borderRadius: 5 }} />
           <div style={{ height: 10, width: '58%', background: G.line, borderRadius: 5 }} />
+          </>}
         </div>
       ))}
       {/* 中央大便签：Rita 打字的舞台 */}
       <div style={{
         position: 'absolute', left: 660, top: 420, width: 600, height: 240,
-        background: '#ffffff', border: `2px solid ${G.border}`, borderRadius: 12,
+        background: skin?.surface || '#ffffff', border: `2px solid ${skin?.muted || G.border}`, borderRadius: 12,
         boxShadow: '0 6px 22px rgba(0,0,0,0.12)', padding: 30, boxSizing: 'border-box',
       }}>
-        <div style={{ height: 14, width: 180, background: G.bar, borderRadius: 7, marginBottom: 24 }} />
+        {words ? <div style={{height:50,marginBottom:24,fontSize:36,fontFamily:skin?.fontFamily,color:skin?.text,fontWeight:700}}>{words[5]}</div> : <div style={{ height: 14, width: 180, background: G.bar, borderRadius: 7, marginBottom: 24 }} />}
         <div style={{
-          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 44,
-          color: G.ink, letterSpacing: -0.5, minHeight: 56,
+          fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 44,
+          color: skin?.text || G.ink, letterSpacing: words ? 0 : -0.5, minHeight: 56,
         }}>
-          {TYPED.slice(0, typedCount)}
+          {typed.slice(0, typedCount)}
           <span style={{
             display: 'inline-block', width: 4, height: 44, background: '#2FBF71',
             marginLeft: 3, verticalAlign: 'middle',
-            opacity: f > 50 && typedCount < TYPED.length ? (caretOn ? 1 : 0.15) : 0,
+            opacity: f > 50 && typedCount < typed.length ? (caretOn ? 1 : 0.15) : 0,
           }} />
         </div>
       </div>
 
       {/* 五枚光标 */}
-      {ACTORS.map((a, i) => {
+      {actors.map((a, i) => {
         const s = spring({ frame: f - a.delay, fps: FPS, config: { damping: 15, stiffness: 90, mass: 0.9 } });
         let x = interpolate(s, [0, 1], [a.from[0], a.home[0]]);
         let y = interpolate(s, [0, 1], [a.from[1], a.home[1]]);
@@ -129,8 +138,10 @@ export const CursorCastEnsemble: React.FC = () => {
         x = interpolate(gatherT, [0, 1], [x, GATHER[i][0] + driftX * 0.25]);
         y = interpolate(gatherT, [0, 1], [y, GATHER[i][1] + driftY * 0.25]);
         const badge = clamp01((f - a.delay - 12) / 12);
-        return <CursorActor key={a.name} x={x} y={y} a={a} badge={badge} />;
+        return <CursorActor key={i} x={x} y={y} a={a} badge={badge} skin={skin} />;
       })}
     </div>
+    </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };
