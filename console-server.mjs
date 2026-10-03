@@ -14,7 +14,7 @@ import {createTimingRecovery, timingHealth} from './director/talkcraft-native-ti
 import {assertTalkcraftCardCallsBound, readTalkcraftCardCalls, readTalkcraftCardOptions,
   writeTalkcraftCardCalls} from "./director/talkcraft-card-calls.mjs";
 import {buildTalkcraftAuditSegments} from "./director/talkcraft-audit-segments.mjs";
-import {approveTalkcraftSample, approveTalkcraftStoryboard, latestTalkcraftRun, readTalkcraftStatus, talkcraftProject} from "./director/talkcraft-status.mjs";
+import {approveTalkcraftSample, approveTalkcraftStoryboard, latestTalkcraftRun, prepareTalkcraftStoryboardRevision, readTalkcraftStatus, requestTalkcraftStoryboardAdjustment, talkcraftProject} from "./director/talkcraft-status.mjs";
 import {readTalkcraftWorkbench, startTalkcraftWorkbench} from "./director/talkcraft-workbench.mjs";
 import {resolveTalkcraftSkillRoot} from "./director/talkcraft-skill-root.mjs";
 import {latestTalkcraftFailureReport, writeTalkcraftFailureReport} from "./director/talkcraft-failure-report.mjs";
@@ -703,6 +703,24 @@ const apis = {
     try {
       const {runId, governanceNote} = await readBody(req);
       return sendJson(res, {ok:true, ...approveTalkcraftStoryboard(ROOT, runId, governanceNote)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/storyboard-adjustment": async (req, res) => {
+    try {
+      const {runId, request} = await readBody(req);
+      return sendJson(res, {ok:true, ...requestTalkcraftStoryboardAdjustment(ROOT, runId, request)});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/storyboard-regenerate": async (req, res) => {
+    try {
+      const {runId} = await readBody(req);
+      const active = [...tasks.values()].find(task => task.runId === runId && ['starting','running'].includes(task.status));
+      if (active) throw new Error('本片已有任务运行中');
+      if (!aModeReadiness().configured) throw new Error('请先在服务 API 设置中配置火山方舟模型');
+      const prepared = prepareTalkcraftStoryboardRevision(ROOT, runId);
+      const id = startTask('talkcraft-editorial-revision', `node director/talkcraft-ark-editorial.mjs ${runId}`, ROOT);
+      tasks.get(id).runId = runId;
+      return sendJson(res, {ok:true, id, ...prepared, stage:'editorial-revision', billable:true});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/workbench": async (req, res) => {
