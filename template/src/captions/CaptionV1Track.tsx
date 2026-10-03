@@ -3,7 +3,7 @@ import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export type CaptionV1Settings = {
   enabled: boolean;
-  templateId: 'creator' | 'pill' | 'minimal' | 'notice' | 'impact';
+  templateId: 'creator' | 'pill' | 'minimal' | 'notice' | 'impact' | 'shadow';
   position: 'top' | 'center' | 'bottom';
   fontSize: number;
   textColor: string;
@@ -15,8 +15,8 @@ export type CaptionV1Settings = {
   highlightScale: number;
 };
 
-export type TimedCaption = {text: string; startMs: number; endMs: number};
-type Page = {text: string; startMs: number; endMs: number; tokens: TimedCaption[]};
+export type TimedCaption = {text: string; startMs: number; endMs: number; highlight?: string};
+type Page = {text: string; startMs: number; endMs: number; tokens: TimedCaption[]; highlight?: string};
 
 const fonts: Record<CaptionV1Settings['fontId'], string> = {
   sans: '"Noto Sans SC", "Microsoft YaHei", sans-serif',
@@ -25,22 +25,32 @@ const fonts: Record<CaptionV1Settings['fontId'], string> = {
   smiley: '"Smiley Sans", "Noto Sans SC", sans-serif',
 };
 
-const makePages = (captions: TimedCaption[], maxChars: number, wordTimed: boolean): Page[] => {
+export const makePages = (captions: TimedCaption[], maxChars: number, wordTimed: boolean): Page[] => {
   if (!wordTimed) return captions.flatMap((caption) => {
     const chars = Array.from(caption.text);
-    const count = Math.max(1, Math.ceil(chars.length / maxChars));
-    const perPage = Math.ceil(chars.length / count);
-    return Array.from({length: count}, (_, index) => {
-      const start = index * perPage;
-      const end = Math.min(chars.length, start + perPage);
+    const match = caption.highlight ? caption.text.indexOf(caption.highlight) : -1;
+    const highlightStart = match < 0 ? -1 : Array.from(caption.text.slice(0, match)).length;
+    const highlightEnd = highlightStart < 0 ? -1 : highlightStart + Array.from(caption.highlight!).length;
+    const pages: Page[] = [];
+    for (let start = 0; start < chars.length;) {
+      let end = Math.min(chars.length, start + maxChars);
+      if (end < chars.length) {
+        const lastPause = chars.slice(start + Math.ceil(maxChars / 2), end)
+          .findLastIndex(char => /[，。！？；、,:;!?]/u.test(char));
+        if (lastPause >= 0) end = start + Math.ceil(maxChars / 2) + lastPause + 1;
+      }
+      if (highlightStart < end && end < highlightEnd) end = highlightStart > start ? highlightStart : highlightEnd;
       const duration = caption.endMs - caption.startMs;
       const token = {
         text: chars.slice(start, end).join('').trim(),
         startMs: caption.startMs + duration * start / chars.length,
         endMs: caption.startMs + duration * end / chars.length,
       };
-      return {...token, tokens: [token]};
-    }).filter(page => page.text);
+      if (token.text) pages.push({...token, tokens: [token],
+        highlight: highlightStart >= start && highlightEnd <= end ? caption.highlight : undefined});
+      start = end;
+    }
+    return pages;
   });
 
   const pages: Page[] = [];
@@ -80,9 +90,10 @@ export const CaptionV1Track: React.FC<{
   const isHighlight = settings.templateId === 'creator' || settings.templateId === 'impact';
   const isNotice = settings.templateId === 'notice';
   const isMinimal = settings.templateId === 'minimal';
+  const isShadow = settings.templateId === 'shadow';
   const bottomPx = height * (width < height ? 0.25 : 0.09);
   const topPx = height * 0.09;
-  const background = isMinimal ? 'transparent'
+  const background = isMinimal || isShadow ? 'transparent'
     : settings.panelColor + Math.round(settings.panelOpacity * 255 / 100).toString(16).padStart(2, '0');
   const emphasize = (text: string, active: boolean, key: number) => (
     <span key={key} style={{
@@ -104,12 +115,12 @@ export const CaptionV1Track: React.FC<{
       fontFamily: fonts[settings.fontId], fontSize: settings.fontSize,
       fontWeight: settings.templateId === 'impact' ? 800 : 700, lineHeight: 1.45,
       letterSpacing: 1, color: settings.textColor, background,
-      textShadow: isMinimal ? '0 2px 8px #000' : undefined,
+      textShadow: isShadow ? '0 0.06em 0.12em rgba(0,0,0,0.95), 0 0.02em 0.04em rgba(0,0,0,0.9)' : isMinimal ? '0 2px 8px #000' : undefined,
     }}>
       {isHighlight && wordTimed
         ? page.tokens.map((token, index) => emphasize(token.text, nowMs >= token.startMs && nowMs < token.endMs, index))
-        : isHighlight
-          ? <>{emphasize(page.text.slice(0, 4), true, 0)}{page.text.slice(4)}</>
+        : isHighlight && page.highlight
+          ? <>{page.text.slice(0, page.text.indexOf(page.highlight))}{emphasize(page.highlight, true, 0)}{page.text.slice(page.text.indexOf(page.highlight) + page.highlight.length)}</>
           : page.text}
     </div>
   </AbsoluteFill>;

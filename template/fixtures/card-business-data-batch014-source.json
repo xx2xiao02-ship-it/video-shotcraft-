@@ -1,0 +1,21 @@
+{
+  "schema": "card-governance-progress-source-snapshot-v1",
+  "source": "template/out/card-governance-progress/progress.json",
+  "sourceSha256": "7ed47fa98e341510d5ee0b3b7922655d2fd960569b7ee92e71e2363e44dbc03c",
+  "asOf": "2026-10-02",
+  "counts": {
+    "cards": 157,
+    "variants": 214,
+    "sourceResolved": 212,
+    "adapterDeclared": 101,
+    "currentLocallyAdmitted": 94,
+    "longFormLocallyAdmitted": 94,
+    "shortFormLocallyAdmitted": 0,
+    "fullyLocallyAdmittedCards": 74,
+    "remainingCards": 83,
+    "pendingSourceReconciliation": [
+      "crash-zoom-punch",
+      "flash-cut"
+    ]
+  }
+}

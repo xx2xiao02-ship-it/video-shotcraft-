@@ -1,0 +1,21 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "baselineFixture":"template/fixtures/card-business-text-batch004.json",
+  "fps":30,
+  "durationInFrames":180,
+  "aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"typography/type-assembly-moves/split-text-stagger","lines":["先降低固定支出"],"narration":"先降低固定支出。","inspectFrames":[20,50,110,179]},
+    {"id":"typography/type-assembly-moves/letterform-drift-assembly","lines":["给未来留出余地"],"narration":"给未来留出余地。","inspectFrames":[20,65,100,179]},
+    {"id":"typography/type-assembly-moves/tracking-expand-reveal","lines":["慢下来再做决定"],"narration":"慢下来再做决定。","inspectFrames":[5,25,60,179]},
+    {"id":"typography/type-assembly-moves/text-on-path","lines":["积累带来选择权"],"narration":"积累带来选择权。","inspectFrames":[25,60,100,179]},
+    {"id":"typography/type-entrance-moves/letter-drop-physics","lines":["先站稳再向前"],"narration":"先站稳再向前。","inspectFrames":[25,60,115,179]},
+    {"id":"typography/type-entrance-moves/scramble-decode","lines":["看清现金流向"],"narration":"看清现金流向。","inspectFrames":[10,40,90,179]},
+    {"id":"typography/paper-title-card","lines":["留足储备","才有选择权"],"narration":"留足储备，才有选择权。","inspectFrames":[10,35,100,160]},
+    {"id":"typography/marker-underline-title","lines":["先保留","应急储备","再考虑投资"],"narration":"先保留应急储备，再考虑投资。","inspectFrames":[15,35,60,179]},
+    {"id":"typography/gradient-word-sweep","lines":["选择权","来自储备","先守住现金流"],"narration":"选择权来自储备，先守住现金流。","inspectFrames":[15,30,65,150]},
+    {"id":"typography/flying-words","lines":["储备 收入 支出","预算 现金 负债","风险 投资 退路"],"narration":"储备收入支出，预算现金负债，风险投资退路。","inspectFrames":[20,65,110,160]},
+    {"id":"typography/glitch-cycle","lines":["核对收入来源","清点固定支出","留下应急储备"],"narration":"核对收入来源，清点固定支出，留下应急储备。","inspectFrames":[35,95,155,179]},
+    {"id":"typography/vertical-word-roll-blur-cycle","lines":["先保留","应急资金","选择余地"],"narration":"先保留应急资金与选择余地。","inspectFrames":[10,40,100,179]}
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "metricsSource": {
+    "file": "template/fixtures/card-business-data-batch015-source.json",
+    "sha256": "83ec75ce35b3788db5ec32c0d1419ea7451c0f7a891dc7c9399b9ce8c5562f7a"
+  },
+  "asOf": "2026-10-02",
+  "cards": [
+    {
+      "id": "data/chart-live-moves/unit-dot-swarm-regroup",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：每个粒子对应一项真实准入变体，背景素材会稀释类别对比。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.admittedByKind.textVariants",
+        "templateParams.rows.1.value": "snapshot.admittedByKind.numericVariants",
+        "templateParams.rows.2.value": "snapshot.admittedByKind.graphicVariants"
+      },
+      "narration": "当前长版本地有效准入97个变体，其中文字卡94个变体、数值卡2个变体、图形卡1个变体。",
+      "lines": ["有效准入类别"],
+      "templateParams": {
+        "rows": [
+          {"label": "文字卡", "value": 94, "evidence": "文字卡94个变体"},
+          {"label": "数值卡", "value": 2, "evidence": "数值卡2个变体"},
+          {"label": "图形卡", "value": 1, "evidence": "图形卡1个变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [20, 72, 128, 179]
+    },
+    {
+      "id": "data/gauge-readout-moves/needle-sweep",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：三个治理计数及其相对量程构成表盘读数。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted",
+        "templateParams.rows.1.value": "snapshot.counts.sourceResolved",
+        "templateParams.rows.2.value": "snapshot.counts.variants"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个；源码关系已解析212个；审计总量214个运行变体。",
+      "lines": ["治理关键计数"],
+      "templateParams": {
+        "rows": [
+          {"label": "长版准入", "value": 97, "evidence": "长版本地有效准入97个"},
+          {"label": "源码已解析", "value": 212, "evidence": "源码关系已解析212个"},
+          {"label": "审计总量", "value": 214, "evidence": "审计总量214个运行变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [12, 60, 120, 179]
+    }
+  ]
+}

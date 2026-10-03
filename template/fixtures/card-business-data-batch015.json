@@ -1,0 +1,203 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "batch": 15,
+  "asOf": "2026-10-02",
+  "additionalSourceFiles": ["demos/_fixtures/BusinessDataStage.tsx"],
+  "fps": 30,
+  "durationInFrames": 180,
+  "metricsSource": {
+    "file": "template/fixtures/card-business-data-batch015-source.json",
+    "sha256": "83ec75ce35b3788db5ec32c0d1419ea7451c0f7a891dc7c9399b9ce8c5562f7a"
+  },
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {
+      "id": "data/chart-live-moves/axis-rescale-shock",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：当前准入与完整审计范围是画面主体，额外素材会引入无关语义。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted",
+        "templateParams.rows.1.value": "snapshot.counts.variants"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个变体；全量审计214个运行变体。原图表量程为100个，214个超过100个后重标。",
+      "lines": ["准入与审计范围"],
+      "templateParams": {
+        "rows": [
+          {"label": "当前准入", "value": 97, "evidence": "长版本地有效准入97个变体"},
+          {"label": "全量审计", "value": 214, "evidence": "全量审计214个运行变体"}
+        ],
+        "unit": "个",
+        "axisMax": 100
+      },
+      "inspectFrames": [20, 50, 100, 179]
+    },
+    {
+      "id": "data/chart-live-moves/oscilloscope-stream",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：逐批真实新增数量就是图表内容，额外素材会干扰趋势读取。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.recentBatchAdmissions.0.variants",
+        "templateParams.rows.1.value": "snapshot.recentBatchAdmissions.1.variants",
+        "templateParams.rows.2.value": "snapshot.recentBatchAdmissions.2.variants",
+        "templateParams.rows.3.value": "snapshot.recentBatchAdmissions.3.variants"
+      },
+      "narration": "第11批新增12个变体；第12批新增9个变体；第13批新增9个变体；第14批新增3个变体。最高新增量出现在第11批。",
+      "lines": ["各批新增变体"],
+      "templateParams": {
+        "rows": [
+          {"label": "第11批", "value": 12, "evidence": "第11批新增12个变体"},
+          {"label": "第12批", "value": 9, "evidence": "第12批新增9个变体"},
+          {"label": "第13批", "value": 9, "evidence": "第13批新增9个变体"},
+          {"label": "第14批", "value": 3, "evidence": "第14批新增3个变体"}
+        ],
+        "unit": "个",
+        "eventIndex": 0
+      },
+      "inspectFrames": [20, 60, 120, 179]
+    },
+    {
+      "id": "data/chart-live-moves/unit-dot-swarm-regroup",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：每个粒子对应一项真实准入变体，背景素材会稀释类别对比。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.admittedByKind.textVariants",
+        "templateParams.rows.1.value": "snapshot.admittedByKind.numericVariants",
+        "templateParams.rows.2.value": "snapshot.admittedByKind.graphicVariants"
+      },
+      "narration": "当前长版本地有效准入97个变体，其中文字卡94个变体、数值卡2个变体、图形卡1个变体。",
+      "lines": ["有效准入类别"],
+      "templateParams": {
+        "rows": [
+          {"label": "文字卡", "value": 94, "evidence": "文字卡94个变体"},
+          {"label": "数值卡", "value": 2, "evidence": "数值卡2个变体"},
+          {"label": "图形卡", "value": 1, "evidence": "图形卡1个变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [20, 72, 128, 179]
+    },
+    {
+      "id": "data/gauge-readout-moves/needle-sweep",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：三个治理计数及其相对量程构成表盘读数。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted",
+        "templateParams.rows.1.value": "snapshot.counts.sourceResolved",
+        "templateParams.rows.2.value": "snapshot.counts.variants"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个；源码关系已解析212个；审计总量214个运行变体。",
+      "lines": ["治理关键计数"],
+      "templateParams": {
+        "rows": [
+          {"label": "长版准入", "value": 97, "evidence": "长版本地有效准入97个"},
+          {"label": "源码已解析", "value": 212, "evidence": "源码关系已解析212个"},
+          {"label": "审计总量", "value": 214, "evidence": "审计总量214个运行变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [12, 60, 120, 179]
+    },
+    {
+      "id": "data/gauge-readout-moves/tape-scroll-fixed-pointer",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：两个日期的真实准入快照及全量刻度是画面主体。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "previous.counts.currentLocallyAdmitted",
+        "templateParams.rows.1.value": "snapshot.counts.longFormLocallyAdmitted"
+      },
+      "narration": "第十四批结束后，长版本地准入94个变体；第十五批开始前，长版本地准入97个变体；审计总量214个运行变体。",
+      "lines": ["准入前后对比"],
+      "templateParams": {
+        "rows": [
+          {"label": "第14批后", "value": 94, "evidence": "第十四批结束后，长版本地准入94个变体"},
+          {"label": "第15批前", "value": 97, "evidence": "第十五批开始前，长版本地准入97个变体"}
+        ],
+        "unit": "个",
+        "axisMax": 214
+      },
+      "inspectFrames": [20, 70, 120, 179]
+    },
+    {
+      "id": "data/particle-celebrate-hits/confetti-crossfire",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：庆祝对象是当前真实准入里程碑，额外素材会抢占主体。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个变体。",
+      "lines": ["长版准入里程碑"],
+      "templateParams": {
+        "rows": [
+          {"label": "长版有效", "value": 97, "evidence": "长版本地有效准入97个变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [8, 16, 60, 120, 179]
+    },
+    {
+      "id": "data/particle-celebrate-hits/counter-tick-sparks",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：计数动画必须对应真实长版本地准入值。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个变体；计数火花每10个变体触发一次。",
+      "lines": ["准入计数进度"],
+      "templateParams": {
+        "rows": [
+          {"label": "长版有效", "value": 97, "evidence": "长版本地有效准入97个变体"}
+        ],
+        "unit": "个",
+        "tickEvery": 10
+      },
+      "inspectFrames": [8, 30, 92, 145, 179]
+    },
+    {
+      "id": "data/particle-sand-fill",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：四项真实治理计数由粒子堆成可比较的柱形。"
+      },
+      "sourceBindings": {
+        "templateParams.rows.0.value": "snapshot.counts.longFormLocallyAdmitted",
+        "templateParams.rows.1.value": "snapshot.counts.adapterDeclared",
+        "templateParams.rows.2.value": "snapshot.counts.sourceResolved",
+        "templateParams.rows.3.value": "snapshot.counts.variants"
+      },
+      "narration": "截至2026年10月2日，长版本地有效准入97个；适配器已声明109个；源码关系已解析212个；审计总量214个运行变体。",
+      "lines": ["治理进度量级"],
+      "templateParams": {
+        "rows": [
+          {"label": "有效准入", "value": 97, "evidence": "长版本地有效准入97个"},
+          {"label": "适配器", "value": 109, "evidence": "适配器已声明109个"},
+          {"label": "源码解析", "value": 212, "evidence": "源码关系已解析212个"},
+          {"label": "审计总量", "value": 214, "evidence": "审计总量214个运行变体"}
+        ],
+        "unit": "个"
+      },
+      "inspectFrames": [20, 70, 120, 179]
+    }
+  ]
+}

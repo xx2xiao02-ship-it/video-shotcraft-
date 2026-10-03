@@ -1,0 +1,67 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "asOf": "2026-10-03",
+  "fps": 30,
+  "durationInFrames": 180,
+  "metricsSource": {
+    "file": "template/fixtures/card-business-data-batch019-source.json",
+    "sha256": "ff5461d1d7def9da4a303f4c894541a02aff7148eff0d1628bbad45512e1cb67"
+  },
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "cards": [
+    {
+      "id": "data/hatch-depth",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：当前治理指标、单位与逐项来源证据就是主体，外部素材会压住读数。"
+      },
+      "sourceBindings": {
+        "rows": [
+          "longFormLocallyAdmitted",
+          "adapterDeclared",
+          "sourceResolved",
+          "variants"
+        ]
+      },
+      "narration": "当前有效长版准入116个；当前源码适配器声明117个；当前已解析源码212个；当前纳入审计总量214个。",
+      "lines": [
+        "变体治理当前状态"
+      ],
+      "templateParams": {
+        "unit": "个",
+        "rows": [
+          {
+            "label": "长版有效",
+            "value": 116,
+            "evidence": "当前有效长版准入116个"
+          },
+          {
+            "label": "适配器声明",
+            "value": 117,
+            "evidence": "当前源码适配器声明117个"
+          },
+          {
+            "label": "源码已解析",
+            "value": 212,
+            "evidence": "当前已解析源码212个"
+          },
+          {
+            "label": "审计总量",
+            "value": 214,
+            "evidence": "当前纳入审计总量214个"
+          }
+        ]
+      },
+      "inspectFrames": [
+        30,
+        95,
+        140,
+        179
+      ]
+    }
+  ]
+}

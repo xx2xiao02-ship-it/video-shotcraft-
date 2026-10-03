@@ -1,5 +1,7 @@
 import React from 'react';
 import { translateShot, splitToWords, hasContract } from './TemplateAdapter';
+import type {TemplateSkin} from '../../demos/_fixtures/TemplateSkin';
+import {resolveRuntimeCardId} from '../../director/card-runtime-choice.mjs';
 import {CaptionV1Track, type CaptionV1Settings, type TimedCaption} from './captions/CaptionV1Track';
 import {
   AbsoluteFill,
@@ -45,6 +47,7 @@ import { WordRelayFilmstrip } from '../../demos/typography/word-relay-filmstrip/
 import { WordRelayGeometry } from '../../demos/typography/word-relay-geometry/WordRelayGeometry';
 import { BraceExpand } from '../../demos/typography/brace-expand/BraceExpand';
 import { BrandInkOpen } from '../../demos/typography/brand-ink-open/BrandInkOpen';
+import {PillChipSlotCycleHandled} from '../../demos/typography/pill-chip-slot-cycle-handled/PillChipSlotCycleHandled';
 import { GlitchCycle } from '../../demos/typography/glitch-cycle/GlitchCycle';
 
 // camera
@@ -252,7 +255,10 @@ import { GlowWakeSleepPanel } from '../../demos/effects/spotlight-sweep-moves/Gl
 import { SlideSpotlightPan } from '../../demos/effects/spotlight-sweep-moves/SlideSpotlightPan';
 
 // ---------- 注册表 ----------
-const COMPONENT_MAP: Record<string, React.ComponentType> = {
+export const COMPONENT_MAP: Record<string, React.ComponentType> = {
+  'typography/pill-chip-slot-cycle-handled': PillChipSlotCycleHandled,
+  'opening/brand-ink-open': BrandInkOpen,
+  'typography/document-typewriter-reveal': DocumentTypewriterReveal,
   // typography
   'typography/cel-flash-stomp': CelFlashStomp,
   'typography/blur-slide': BlurSlide,
@@ -489,17 +495,24 @@ const FallbackComponent: React.FC = () => (
   </AbsoluteFill>
 );
 
-export type ShotType = 'hook' | 'pain' | 'claim' | 'proof' | 'quote' | 'cta';
+export type ShotType = 'hook' | 'pain' | 'claim' | 'proof' | 'quote' | 'cta'
+  | 'narrative' | 'keypoint' | 'transition' | 'example' | 'content';
 
 export type Shot = {
   type: ShotType;
   l2?: string;
   shotCard?: string;
+  displayText?: string;
+  displayLines?: string[];
+  templateParams?: Record<string, unknown>;
   text: string;
   subText?: string;
   durationInFrames: number;
   base?: string;
   material?: string;
+  materialPlayback?: {durationSeconds: number; playbackRate: number};
+  mediaPlayback?: {durationSeconds: number; playbackRate: number};
+  materialRole?: 'background' | 'backdrop' | 'hero' | 'split' | 'inline-element' | 'none';
   materialOpacity?: number;
   media?: string;
   fallback?: {
@@ -528,6 +541,8 @@ export type Theme = {
 export type CaptionStyle = 'pill' | 'plain' | 'bold' | 'underline';
 
 export type Storyboard = {
+  mode?: string;
+  aspectRatio?: '16:9' | '9:16';
   title: string;
   style: {
     bg: string;
@@ -542,6 +557,7 @@ export type Storyboard = {
     captionColor?: string;
     // P2 媒体公共参数
     materialOpacity?: number;
+    overlayAlpha?: number;
     fallbackSize?: number;
     fallbackAlpha?: number;
   };
@@ -621,11 +637,13 @@ const TranslatedShot: React.FC<{
   shotCard?: string;
   shotData: {
     text: string;
+    lines?: string[];
     subText?: string;
     accent?: string;
     bg?: string;
     durationInFrames: number;
     media?: string;
+    skin?: TemplateSkin;
   };
   FallbackComponent: React.ComponentType;
 }> = ({ shotCard, shotData, FallbackComponent }) => {
@@ -636,10 +654,71 @@ const TranslatedShot: React.FC<{
   return <C {...injected} />;
 };
 
+const DirectorSemanticCard: React.FC<{shot: Shot; style: Storyboard['style']; materialApiBaseUrl: string}> = ({shot, style, materialApiBaseUrl}) => {
+  const frame = useCurrentFrame();
+  const kind = shot.shotCard?.split('/')[1] || 'statement';
+  const text = (shot.displayText || shot.text).trim();
+  const match = kind === 'number' ? text.match(/\d+(?:[.,]\d+)?\s*(?:万|亿|%|％|倍|元)?/) : null;
+  const hasMedia = Boolean(shot.material);
+  const textWidth = hasMedia ? 850 : 1450;
+  const fontSize = text.length > 44 ? 54 : text.length > 28 ? 64 : 76;
+  const accent = kind === 'risk' ? '#df756d' : style.accent;
+  const labels: Record<string, string> = {number: '数字', compare: '对比', steps: '步骤', action: '行动', risk: '风险', cause: '因果', example: '案例', context: '背景', statement: '观点'};
+  const label = labels[kind] || '观点';
+  const textTop = kind === 'number' && match ? 370 : kind === 'statement' ? 325 : 275;
+  const contrast = kind === 'compare' && !hasMedia
+    ? text.match(/^(.*?)(?:，|；)?(?:而是|如今|现在|却)(.*)$/)
+    : null;
+  const step = kind === 'steps' && !hasMedia ? text.match(/^(第[一二三四五六七八九十]+|首先|其次|最后)[，、：:]?\s*(.*)$/) : null;
+  const sweep = interpolate(frame, [0, Math.max(1, shot.durationInFrames - 1)], [-470, 470], {
+    extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
+  });
+  return <AbsoluteFill style={{background: style.bg, color: style.text, overflow: 'hidden'}}>
+    <div aria-hidden="true" style={{position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden'}}>
+      <div style={{position: 'absolute', left: 580, top: -470, width: 880, height: 1950,
+        transform: `translateX(${sweep}px) rotate(24deg)`,
+        background: `linear-gradient(90deg, transparent 0%, ${style.accent} 43%, #ffffff 50%, ${style.accent} 57%, transparent 100%)`,
+        opacity: hasMedia ? 0.055 : 0.09,
+        maskImage: 'linear-gradient(180deg, transparent, black 22%, black 78%, transparent)',
+      }} />
+      <div style={{position: 'absolute', left: 990, top: -320, width: 2, height: 1700,
+        transform: `translateX(${sweep * 0.55}px) rotate(24deg)`,
+        background: style.accent, opacity: hasMedia ? 0.09 : 0.15,
+      }} />
+    </div>
+    <div style={{position: 'absolute', top: 118, left: 126, width: kind === 'action' ? 180 : 74, height: 5, background: accent}} />
+    <div style={{position: 'absolute', top: 142, left: 126, fontSize: 28, color: accent, fontWeight: 700}}>{label}</div>
+    {kind === 'number' && match && <div style={{position: 'absolute', top: 202, left: 126, color: accent, fontSize: 112, lineHeight: 1, fontWeight: 800}}>{match[0]}</div>}
+    {kind === 'context' && <div style={{position: 'absolute', top: 245, left: 126, height: 500, width: 4, background: accent}} />}
+    {kind === 'example' && <div style={{position: 'absolute', top: 209, left: 126, fontSize: 86, lineHeight: 1, color: accent}}>“</div>}
+    {contrast && <div style={{position: 'absolute', top: 280, left: 126, right: 126, height: 490, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 100}}>
+      <div style={{fontSize: 64, lineHeight: 1.35, fontWeight: 650, overflowWrap: 'anywhere', alignSelf: 'center'}}>{contrast[1].trim()}</div>
+      <div style={{borderLeft: `5px solid ${accent}`, paddingLeft: 78, fontSize: 64, lineHeight: 1.35, fontWeight: 750, overflowWrap: 'anywhere', alignSelf: 'center'}}>{contrast[2].trim()}</div>
+    </div>}
+    {step && <div style={{position: 'absolute', top: 275, left: 126, right: 126, display: 'flex', alignItems: 'center', gap: 75}}>
+      <div style={{fontSize: 116, fontWeight: 800, color: accent, minWidth: 230}}>{step[1]}</div>
+      <div style={{fontSize: 70, lineHeight: 1.35, fontWeight: 700, overflowWrap: 'anywhere'}}>{step[2]}</div>
+    </div>}
+    {!contrast && !step && <div style={{position: 'absolute', top: textTop, left: kind === 'context' ? 166 : 126, width: kind === 'context' ? textWidth - 40 : textWidth,
+      fontSize, lineHeight: 1.35, fontWeight: kind === 'statement' ? 750 : 650,
+      overflowWrap: 'anywhere', maxHeight: 490, overflow: 'hidden'}}>{text}</div>}
+    {kind === 'compare' && <div style={{position: 'absolute', left: 126, top: 760, width: 690, height: 5, background: accent}} />}
+    {kind === 'cause' && <div style={{position: 'absolute', left: 126, top: 760, fontSize: 42, color: accent}}>→</div>}
+    {kind === 'risk' && <div style={{position: 'absolute', left: 126, top: 770, width: 150, height: 7, background: accent}} />}
+    {kind === 'action' && <div style={{position: 'absolute', left: 126, top: 770, width: 280, height: 7, background: accent}} />}
+    {hasMedia && <div style={{position: 'absolute', right: 104, top: 194, width: 760, height: 600,
+      border: `2px solid ${accent}`, borderRadius: 6, overflow: 'hidden', background: style.bg}}>
+      <OffthreadVideo src={materialApiBaseUrl + '/api/library/video?path=' + encodeURIComponent(shot.material!)}
+        playbackRate={shot.materialPlayback?.playbackRate ?? 1}
+        muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+    </div>}
+  </AbsoluteFill>;
+};
+
 // ---------- 单镜头：模板组件 + 字幕浮层 ----------
 const ShotView: React.FC<{
-  shot: Shot; style: Storyboard['style']; index: number; total: number; showLegacyCaption: boolean;
-}> = ({ shot, style, index, total, showLegacyCaption }) => {
+  shot: Shot; style: Storyboard['style']; theme?: Theme; mode?: string; index: number; total: number; showLegacyCaption: boolean; materialApiBaseUrl: string;
+}> = ({ shot, style, theme, mode, index, total, showLegacyCaption, materialApiBaseUrl }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const d = shot.durationInFrames;
@@ -658,21 +737,44 @@ const ShotView: React.FC<{
   const capSize = style.captionSize || preset.text.fontSize || 36;
   const capWeight = style.captionWeight || preset.text.fontWeight || 600;
   const capColor = style.captionColor || preset.text.color || '#fff';
+  // 默认把已有视频作为整镜背景；只有明确标记为 none/inline-element 时才不铺满。
+  const useBackgroundMaterial = Boolean(shot.material) && (mode === 'A'
+    ? shot.materialRole !== 'none' && shot.materialRole !== 'inline-element'
+    : !shot.shotCard || ['background', 'hero', 'backdrop'].includes(shot.materialRole || ''));
+  const backdrop = mode === 'A' && useBackgroundMaterial && Boolean(shot.shotCard);
+  const skin: TemplateSkin | undefined = mode === 'A' ? {
+    bg: style.bg, text: style.text, muted: style.sub, accent: style.accent,
+    surface: theme?.surface || style.bg, fontFamily: capFont, transparentBackground: backdrop,
+  } : undefined;
 
-  // 根据 shotCard 找组件（支持目录级：先精确，再按目录前缀匹配第一个组件）
-  const exactComponent = shot.shotCard ? COMPONENT_MAP[shot.shotCard] : undefined;
-  const dirComponent = shot.shotCard ? Object.entries(COMPONENT_MAP).find(([k]) => k.startsWith(shot.shotCard + '/'))?.[1] : undefined;
-  const ShotComponent = exactComponent || dirComponent || FallbackComponent;
+  // Business shots require exact IDs; historical non-A stories retain their compatibility choice.
+  const runtimeCardId=shot.shotCard?.startsWith('director/') ? null :
+    resolveRuntimeCardId(shot.shotCard,Object.keys(COMPONENT_MAP),{legacyDirectoryFallback:mode!=='A'});
+  const ShotComponent = runtimeCardId ? COMPONENT_MAP[runtimeCardId] : FallbackComponent;
 
   return (
     <AbsoluteFill style={{ fontFamily: capFont }}>
-      {/* 素材视频层（如果有匹配素材，放在模板下面做底） */}
-      {shot.material && (
+      {/* 默认素材铺满整镜；特殊观点镜头可用 materialRole=none 保留纯模板背景。 */}
+      {useBackgroundMaterial && (
         <OffthreadVideo
-          src={"http://127.0.0.1:8765/api/library/video?path=" + encodeURIComponent(shot.material)}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: shot.materialOpacity ?? style.materialOpacity ?? 0.6 }}
+          src={materialApiBaseUrl + "/api/library/video?path=" + encodeURIComponent(shot.material)}
+          playbackRate={shot.materialPlayback?.playbackRate ?? 1}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: backdrop ? 1 : shot.materialOpacity ?? style.materialOpacity ?? 0.6 }}
           muted
         />
+      )}
+      {backdrop && <AbsoluteFill style={{background: style.bg, opacity: style.overlayAlpha ?? 0.62}} />}
+
+      {shot.material && !shot.shotCard && shot.displayLines?.length && (
+        <div style={{position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 9%',
+          background:'linear-gradient(90deg, rgba(0,0,0,.68), rgba(0,0,0,.22) 72%, transparent)'}}>
+          <div style={{maxWidth:'72%', display:'flex', flexDirection:'column', gap:14,
+            fontFamily:capFont, fontSize:Math.min(82, 1050 / Math.max(...shot.displayLines.map(line => line.length), 1)),
+            fontWeight:800, lineHeight:1.2, color:'#fff', textShadow:'0 3px 16px rgba(0,0,0,.55)'}}>
+            {shot.displayLines.map((line, lineIndex) => <div key={lineIndex}
+              style={{color:lineIndex === 0 ? '#fff' : style.accent}}>{line}</div>)}
+          </div>
+        </div>
       )}
 
       {/* AIGC 镜头层（降级链③：无素材无模板 → AI 生成镜头，渲染期显示待生成占位） */}
@@ -713,16 +815,40 @@ const ShotView: React.FC<{
 
       {/* 模板组件层（全屏视觉）—— TemplateAdapter 转译注入文案
           素材主体镜头（shotCard 为空且 material 存在）：素材即视觉主体，跳过模板层避免遮挡 */}
-      {!(shot.shotCard == null && shot.material) && (
-        <div style={{position:'absolute',inset:0,opacity:shot.material ? 0.78 : 1}}>
+      {shot.shotCard?.startsWith('director/') ? (
+        <DirectorSemanticCard shot={shot} style={style} materialApiBaseUrl={materialApiBaseUrl} />
+      ) : !(shot.shotCard == null && shot.material) && (
+        <div style={{position:'absolute',inset:0,opacity:shot.material && !shot.media && !backdrop ? 0.78 : 1}}>
           <TranslatedShot shotCard={shot.shotCard} shotData={{
-            text: shot.text,
+            text: shot.displayText || shot.text,
+            lines: shot.displayLines,
+            templateParams: shot.templateParams,
+            narration: shot.text,
             subText: shot.subText,
             accent: style.accent,
             bg: style.bg,
             durationInFrames: shot.durationInFrames,
-            media: shot.media,
+            media: shot.media ? materialApiBaseUrl + '/api/library/video?path=' + encodeURIComponent(shot.media) : undefined,
+            mediaPlaybackRate: shot.mediaPlayback?.playbackRate ?? 1,
+            skin,
           }} FallbackComponent={ShotComponent} />
+        </div>
+      )}
+
+      {shot.shotCard === 'ui-entrance/clipcard-looping' && shot.displayText && (
+        <div style={{position:'absolute',left:150,right:150,top:105,zIndex:8,
+          textAlign:'center',whiteSpace:'pre-line',fontFamily:style.fontFamily,
+          fontSize:52,fontWeight:700,lineHeight:1.22,color:style.text,
+          textShadow:'0 2px 14px rgba(0,0,0,.65)'}}>{shot.displayText}</div>
+      )}
+
+      {shot.material && !shot.media && shot.shotCard && !shot.shotCard.startsWith('director/') &&
+        shot.materialRole === 'inline-element' && (
+        <div style={{position: 'absolute', right: 80, top: 250, width: 580, height: 440,
+          border: `2px solid ${style.accent}`, borderRadius: 6, overflow: 'hidden', zIndex: 4}}>
+          <OffthreadVideo src={materialApiBaseUrl + '/api/library/video?path=' + encodeURIComponent(shot.material)}
+            playbackRate={shot.materialPlayback?.playbackRate ?? 1}
+            muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         </div>
       )}
 
@@ -735,7 +861,7 @@ const ShotView: React.FC<{
 
 
       {/* 旧工程没有字幕配置时保留原字幕浮层。 */}
-      {showLegacyCaption && <div style={{
+      {showLegacyCaption && !shot.shotCard?.startsWith('director/') && <div style={{
         position: 'absolute', bottom: 70, left: 0, right: 0,
         display: 'flex', justifyContent: 'center',
         padding: '0 120px',
@@ -759,7 +885,10 @@ const ShotView: React.FC<{
 };
 
 // ---------- 主组件 ----------
-export const DynamicVideo: React.FC<{ storyboard: Storyboard; bgm?: {src: string; volume: number} | null }> = ({ storyboard, bgm }) => {
+export const DynamicVideo: React.FC<{ storyboard: Storyboard; bgm?: {src: string; volume: number} | null; materialApiBaseUrl?: string }> = ({ storyboard, bgm, materialApiBaseUrl }) => {
+  if (storyboard.shots.some((shot) => shot.material || shot.media) && !materialApiBaseUrl) {
+    throw new Error('分镜包含视频素材，但未指定 materialApiBaseUrl');
+  }
   let currentFrom = 0;
   const t = storyboard.theme || { bg: '#0d0f14', surface: '#1a1d24', text: '#e8e6e1', textDim: '#8a8680', accent: '#d4a853', accent2: '#4ecdc4', danger: '#ff6b6b' };
   return (
@@ -784,7 +913,7 @@ export const DynamicVideo: React.FC<{ storyboard: Storyboard; bgm?: {src: string
         currentFrom += shot.durationInFrames;
         return (
           <Sequence key={i} from={from} durationInFrames={shot.durationInFrames}>
-            <ShotView shot={shot} style={storyboard.style} index={i} total={storyboard.shots.length} showLegacyCaption={!storyboard.subtitleV1} />
+            <ShotView shot={shot} style={storyboard.style} theme={t} mode={storyboard.mode} index={i} total={storyboard.shots.length} showLegacyCaption={!storyboard.subtitleV1} materialApiBaseUrl={materialApiBaseUrl || ''} />
             {shot.audio && (
               <Audio src={staticFile(shot.audio.src)} volume={shot.audio.volume ?? 0.3} />
             )}

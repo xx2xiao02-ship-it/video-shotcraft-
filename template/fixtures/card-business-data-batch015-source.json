@@ -1,0 +1,79 @@
+{
+  "schema": "card-governance-progress-source-snapshot-v1",
+  "asOf": "2026-10-02",
+  "sources": {
+    "currentProgress": {
+      "file": "template/out/card-governance-progress/progress.json",
+      "sha256": "d721e523e85d559d7f8db9890dcae0039aa2dca84bb3cef2279a10c849002b12"
+    },
+    "previousProgressSnapshot": {
+      "file": "template/fixtures/card-business-data-batch014-source.json",
+      "sha256": "67c8223a042afeb780d57a37f82c863ae60ef56baf2b8e0c183b06abdd18f4b0"
+    },
+    "textAdmission": {
+      "file": "director/text-card-production-admission.json",
+      "sha256": "84924b9c8f66d873cf42308db4efaf48c54ac3b0f92dcb3595b3cfd645227d14"
+    },
+    "numericAdmission": {
+      "file": "director/numeric-card-production-admission.json",
+      "sha256": "4ac973c9281113fc2e88bccb70dab9d739fb3acc97a81d03ffa02e73dd8bb960"
+    },
+    "graphicAdmission": {
+      "file": "director/card-production-admission.json",
+      "sha256": "7cf822911fa7fafda80e73c3c57fe60c804a2bbf3b9dd91c786daf9d1973431b"
+    },
+    "theme": {
+      "file": "director/current-theme.json",
+      "sha256": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929"
+    },
+    "batch014Compatibility": {
+      "file": "template/out/card-business-data-batch014-runtime-compatibility-20261002/compatibility-reviewed.json",
+      "sha256": "b34a3a1e90bfbaef6adc7ba1113088d1385514a556e8919fc2cb17d30ffed8f3"
+    }
+  },
+  "counts": {
+    "cards": 157,
+    "variants": 214,
+    "sourceResolved": 212,
+    "adapterDeclared": 109,
+    "currentLocallyAdmitted": 97,
+    "longFormLocallyAdmitted": 97,
+    "shortFormLocallyAdmitted": 0,
+    "fullyLocallyAdmittedCards": 77,
+    "remainingCards": 80,
+    "pendingSourceReconciliation": [
+      "crash-zoom-punch",
+      "flash-cut"
+    ]
+  },
+  "admittedByKind": {
+    "textVariants": 94,
+    "numericVariants": 2,
+    "graphicVariants": 1
+  },
+  "recentBatchAdmissions": [
+    {
+      "batch": 11,
+      "variants": 12,
+      "evidence": "第十一批已准入12个变体"
+    },
+    {
+      "batch": 12,
+      "variants": 9,
+      "evidence": "第十二批已准入9个变体"
+    },
+    {
+      "batch": 13,
+      "variants": 9,
+      "evidence": "第十三批已准入9个变体"
+    },
+    {
+      "batch": 14,
+      "variants": 3,
+      "evidence": "第十四批兼容复核后增加3个当前有效变体"
+    }
+  ],
+  "units": {
+    "count": "个"
+  }
+}

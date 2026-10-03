@@ -1,0 +1,16 @@
+{
+  "schema": "card-governance-metrics-v2",
+  "asOf": "2026-10-03",
+  "counts": {
+    "longFormLocallyAdmitted": 116,
+    "adapterDeclared": 117,
+    "sourceResolved": 212,
+    "variants": 214
+  },
+  "evidence": {
+    "longFormLocallyAdmitted": "当前有效长版准入116个",
+    "adapterDeclared": "当前源码适配器声明117个",
+    "sourceResolved": "当前已解析源码212个",
+    "variants": "当前纳入审计总量214个"
+  }
+}

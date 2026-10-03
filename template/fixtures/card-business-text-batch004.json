@@ -1,0 +1,27 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "scope": "Synthetic business inputs for real component and DynamicVideo validation; no paid model or production task",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": ["16:9", "9:16"],
+  "cards": [
+    {"id":"typography/cel-flash-stomp","lines":["先存钱","再投资","留退路"],"narration":"先存钱，再投资，留退路。","inspectFrames":[15,45,85,150]},
+    {"id":"typography/blur-slide","lines":["资产不等于现金","先保留应急储备"],"narration":"资产不等于现金，先保留应急储备。","inspectFrames":[30,90,150,179]},
+    {"id":"typography/scramble","lines":["现金决定选择权"],"narration":"现金决定选择权。","inspectFrames":[20,85,165,179]},
+    {"id":"typography/outline-word-fill","lines":["保留选择权"],"narration":"保留选择权。","inspectFrames":[25,85,135,179]},
+    {"id":"typography/lead-word-zoom-assemble","lines":["现金 留住 选择权"],"narration":"现金留住选择权。","inspectFrames":[20,55,120,165]},
+    {"id":"typography/word-relay-geometry","lines":["储备","现金","选择权"],"narration":"储备现金，保留选择权。","inspectFrames":[30,90,145,170]},
+    {"id":"typography/brace-expand","lines":["资产不等于现金","留足应急储备"],"narration":"资产不等于现金，留足应急储备。","inspectFrames":[25,80,135,179]},
+    {"id":"ui-entrance/list-reveal","lines":["保留应急储备","降低固定支出","分散收入来源"],"narration":"保留应急储备，降低固定支出，分散收入来源。","inspectFrames":[30,90,140,179]}
+  ],
+  "acceptance": {
+    "nativeDefaultRequired": true,
+    "businessInputPreservationRequired": true,
+    "exactResolvedCompositionRequired": true,
+    "realBackdropRequired": true,
+    "fullVideoDecodeRequired": true,
+    "layoutAndReadingReview": "pending",
+    "directorConsumption": "pending",
+    "productionAdmission": "not-recorded"
+  }
+}

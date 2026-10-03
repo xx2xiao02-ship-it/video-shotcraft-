@@ -1,0 +1,42 @@
+{
+  "storyboard": {
+    "title": "画幅检查",
+    "aspectRatio": "9:16",
+    "fps": 30,
+    "style": {
+      "bg": "#0a1420",
+      "text": "#e0f0ff",
+      "accent": "#4ecdc4",
+      "sub": "#6a8a9a",
+      "fontFamily": "'Noto Sans SC', 'Microsoft YaHei', sans-serif"
+    },
+    "shots": [
+      {
+        "type": "claim",
+        "text": "真正重要的是信任。",
+        "displayText": "信任\n才是核心",
+        "displayLines": ["信任", "才是核心"],
+        "shotCard": "typography/blur-slide",
+        "durationInFrames": 90
+      }
+    ],
+    "subtitleV1": {
+      "settings": {
+        "enabled": true,
+        "templateId": "creator",
+        "position": "bottom",
+        "fontSize": 46,
+        "textColor": "#ffffff",
+        "activeColor": "#4ecdc4",
+        "panelColor": "#07101e",
+        "maxChars": 12,
+        "fontId": "sans",
+        "panelOpacity": 85,
+        "highlightScale": 1.2
+      },
+      "captions": [{"text": "真正重要的是信任。", "startMs": 0, "endMs": 3000, "highlight": "信任"}],
+      "wordTimed": false,
+      "warnings": []
+    }
+  }
+}

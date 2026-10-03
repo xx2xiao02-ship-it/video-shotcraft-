@@ -1,0 +1,70 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "asOf": "2026-10-02",
+  "fps": 30,
+  "durationInFrames": 180,
+  "metricsSource": {
+    "file": "template/fixtures/card-business-data-batch014-source.json",
+    "sha256": "67c8223a042afeb780d57a37f82c863ae60ef56baf2b8e0c183b06abdd18f4b0"
+  },
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "cards": [
+    {
+      "id": "data/counter-confetti",
+      "kind": "numeric",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：本镜真实指标、单位与逐项来源证据就是主体，外部城市视频会引入无关语义并压住读数。"
+      },
+      "sourceBindings": {
+        "value": "longFormLocallyAdmitted"
+      },
+      "narration": "截至2026年10月2日，214个运行变体中，有94个已取得长版本地准入。",
+      "lines": [
+        "长版准入变体"
+      ],
+      "templateParams": {
+        "value": 94,
+        "unit": "个",
+        "label": "长版有效准入",
+        "evidence": "94个已取得长版本地准入"
+      },
+      "inspectFrames": [
+        20,
+        92,
+        147,
+        179
+      ]
+    },
+    {
+      "id": "data/odometer-digit-roll",
+      "kind": "numeric",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：本镜真实指标、单位与逐项来源证据就是主体，外部城市视频会引入无关语义并压住读数。"
+      },
+      "sourceBindings": {
+        "value": "fullyLocallyAdmittedCards"
+      },
+      "narration": "截至2026年10月2日，157张镜头卡中，有74张达到全变体本地准入。",
+      "lines": [
+        "完整卡片准入"
+      ],
+      "templateParams": {
+        "value": 74,
+        "unit": "张",
+        "label": "完整准入",
+        "evidence": "74张达到全变体本地准入"
+      },
+      "inspectFrames": [
+        35,
+        84,
+        125,
+        179
+      ]
+    }
+  ]
+}
