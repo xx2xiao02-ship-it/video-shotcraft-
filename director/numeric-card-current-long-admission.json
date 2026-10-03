@@ -1,0 +1,197 @@
+{
+  "schema": "numeric-card-production-admission-v1",
+  "version": 1,
+  "cards": [
+    "data/counter-confetti",
+    "data/odometer-digit-roll"
+  ],
+  "localReview": "passed",
+  "report": "template/out/card-business-data-batch014-current-long-20261003/compatibility.json",
+  "reportSha256": "cd7a54477abecc51d5855d2daca8b348da71c9003bd0f3321bdea2ed8eed7877",
+  "scope": "2张数值卡，4条当前源码下的真实横竖180帧/30fps视频；实际selectComposition、编导结构化参数、精确适配器props、完整解码和样帧通过；收费模型、生产执行及用户验收仍待完成",
+  "sourceHashes": {
+    "template/fixtures/card-business-data-batch014-v2.json": "183cdabc5125efe4ec91be3486131c477fb7bf4f75e5669d1187519c0dac22c1",
+    "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/TemplateAdapter.tsx": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/a-mode-run.mjs": "7cd60bff8969976d45efac0bf2b9b0f27ba3b0cdcb263bcf4da206a258ac8c37",
+    "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/data/counter-confetti/CounterConfetti.tsx": "7859f3ea1c999a4c57794a8b51227bf95470121aa88eaca59ba875b271bb511e",
+    "demos/data/odometer-digit-roll/OdometerDigitRoll.tsx": "9d37ce60ecf8b2e809fb690d72718192fdad531c6c67202d907e28003304816a",
+    "demos/data/odometer-digit-roll/odometer-contract.mjs": "c1e9e6a59346c044bcdf87721485852138e2657c150267d0a440476ac4a95779",
+    "director/numeric-card-admission.mjs": "702ed8441946191820d4376eb0cf2079392c686e9fe19156c91ecdf76e0f6263"
+  },
+  "evidence": [
+    {
+      "card": "data/counter-confetti",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch014-current-long-20261003/counter-landscape.mp4",
+      "sha256": "778af5b2c94c37c5f0f6ba83bcf9125b9d3587539038aa63a86ce4ac2a424ce2",
+      "stream": {
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "fullDecodePassed": true,
+      "review": [
+        {
+          "frame": 20,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-landscape-f20-fresh.png",
+          "sha256": "4bb2a7238082575a595c45c3d39742b0ae3e86ef0066c1b7c3315384909318cc"
+        },
+        {
+          "frame": 92,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-landscape-f92-fresh.png",
+          "sha256": "27c331602e7bbdf16698cdcf15c0bf0be04996c3836cb4738ed16752ee61f674"
+        },
+        {
+          "frame": 147,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-landscape-f147-fresh.png",
+          "sha256": "c332ba75d14e98253953ec61e8e1b23e43d7133716c173c3621af2920cdc532f"
+        },
+        {
+          "frame": 179,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-landscape-f179-fresh.png",
+          "sha256": "a932f7d373797802e20b3be95aea59c952eb546c7732b59e11f483a5b676d622"
+        }
+      ]
+    },
+    {
+      "card": "data/counter-confetti",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch014-current-long-20261003/counter-portrait.mp4",
+      "sha256": "1806098ff7bc53a7943225a8e2b42b0afc148498c33aef225b0b2a93cd93ef4f",
+      "stream": {
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "fullDecodePassed": true,
+      "review": [
+        {
+          "frame": 20,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-portrait-f20-fresh.png",
+          "sha256": "75384eaf307fbca6264388c2207103ed6df4398f812c8005cc6f09bbf2a4b5b3"
+        },
+        {
+          "frame": 92,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-portrait-f92-fresh.png",
+          "sha256": "b3f923f63725461fe9650bcb314621a4a3522cd652b09737ec32119d6f9a909f"
+        },
+        {
+          "frame": 147,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-portrait-f147-fresh.png",
+          "sha256": "cf043b0b3399ffcfcc949b7dead9e390ac15a7dd300ba8ad72aa7a9e4dc038aa"
+        },
+        {
+          "frame": 179,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/counter-portrait-f179-fresh.png",
+          "sha256": "a52be462e2fb3b93e270f2378ce2285ef7a9acc598beec6b1f28e91f3e4bf613"
+        }
+      ]
+    },
+    {
+      "card": "data/odometer-digit-roll",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-landscape.mp4",
+      "sha256": "7822a1a217f1906a49b7dd4dd9978f23ec88dbbceb8149468e6267b07a64d2b1",
+      "stream": {
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "fullDecodePassed": true,
+      "review": [
+        {
+          "frame": 35,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-landscape-f35-fresh.png",
+          "sha256": "a3344a49e0e8b4091b6ea08c4226070495ca269fb7a011b1f2d548506560d36d"
+        },
+        {
+          "frame": 84,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-landscape-f84-fresh.png",
+          "sha256": "feef0279ec584cf19a311a986717eb91da434050571b20257beb8a8cab28ddf0"
+        },
+        {
+          "frame": 125,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-landscape-f125-fresh.png",
+          "sha256": "6875ea4f9ab3591a52631883d5e3ee443631493355fad225075c78555d7bc26c"
+        },
+        {
+          "frame": 179,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-landscape-f179-fresh.png",
+          "sha256": "343cf232fdd1385df29f90d1f87b5a4aa541f45bad75144ada5ee8fdf92fc7fd"
+        }
+      ]
+    },
+    {
+      "card": "data/odometer-digit-roll",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-portrait.mp4",
+      "sha256": "06aaef9d890d962c7277eac90daaef6ebac2379aa54a66c65a12a961215455db",
+      "stream": {
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "fullDecodePassed": true,
+      "review": [
+        {
+          "frame": 35,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-portrait-f35-fresh.png",
+          "sha256": "5dc7e8dbc67d5fd618a0ae71baeccee96a719925d70b6714b5b31c8a0f9f2d79"
+        },
+        {
+          "frame": 84,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-portrait-f84-fresh.png",
+          "sha256": "83d84b85235a86c70fc9c52192ebcdec3c9532042f6e2ae4d7b93396bad5c903"
+        },
+        {
+          "frame": 125,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-portrait-f125-fresh.png",
+          "sha256": "7d5fca4eb28216c7005f17dbc1219583ee8d7e0789a6f194b6db0c69f1d215ae"
+        },
+        {
+          "frame": 179,
+          "file": "template/out/card-business-data-batch014-current-long-20261003/odometer-portrait-f179-fresh.png",
+          "sha256": "93400a2fb354f81946f6b7310cfbdb87ef03e09f0592d3c3dea733e3e17d3c37"
+        }
+      ]
+    }
+  ],
+  "actualModelValidated": false,
+  "userAcceptance": "pending",
+  "productionAdmission": "not-recorded",
+  "createdAt": "2026-10-03T01:28:19.975Z",
+  "sourceRevalidation": {
+    "kind": "current-runtime-static-props",
+    "sharedSource": "template/src/TemplateAdapter.tsx",
+    "previousSha256": "93e13d2cc9bdc2472b005c27b39af8a62215e3fcd745aed76b655614b2ee1769",
+    "currentSha256": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "cases": 4,
+    "verifiedAt": "2026-10-03T03:04:17.454Z"
+  }
+}
