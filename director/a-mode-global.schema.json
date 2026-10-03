@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "properties": {
+    "shots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fromSegment": {"type": "integer"},
+          "toSegment": {"type": "integer"},
+          "type": {"type": "string", "enum": ["hook", "pain", "claim", "proof", "quote", "cta", "narrative", "keypoint", "transition", "example", "content"]},
+          "card": {"type": ["string", "null"]},
+          "material": {"type": ["string", "null"]},
+          "materialRole": {"type": ["string", "null"], "enum": ["background", "backdrop", "inline-element", "none", null]},
+          "reason": {"type": "string"}
+        },
+        "required": ["fromSegment", "toSegment", "type", "card", "material", "materialRole", "reason"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["shots"],
+  "additionalProperties": false
+}
