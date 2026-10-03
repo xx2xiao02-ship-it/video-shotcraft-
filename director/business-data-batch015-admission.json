@@ -45,7 +45,7 @@
     "demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx": "dd90e213766b9f087b17a62c02cab4db30d95905893f1eba9f55bf8be65fbae2",
     "demos/data/particle-celebrate-hits/CounterTickSparks.tsx": "b2104a5a110eeaaec6107251ad9a4ca9f04a34b7d8a201f942a8ccb38e85e551",
     "demos/data/particle-sand-fill/ParticleSandFill.tsx": "a05709aaef7007494726c39d21a1960f22b9ad92c8fe68adc1c97e9ab6733293",
-    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+    "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
     "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
   },
   "evidenceRoot": ".isolated/card-governance-batch-015-worktree",

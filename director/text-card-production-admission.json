@@ -36,7 +36,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -137,7 +137,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -237,7 +237,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -336,7 +336,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -435,7 +435,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -534,7 +534,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -635,7 +635,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -735,7 +735,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -836,7 +836,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -935,7 +935,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1034,7 +1034,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1133,7 +1133,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1232,7 +1232,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1331,7 +1331,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1430,7 +1430,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1531,7 +1531,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1630,7 +1630,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1730,7 +1730,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1829,7 +1829,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -1930,7 +1930,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2030,7 +2030,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2135,7 +2135,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2239,7 +2239,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2341,7 +2341,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2446,7 +2446,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2551,7 +2551,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2653,7 +2653,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2757,7 +2757,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2859,7 +2859,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -2960,7 +2960,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3063,7 +3063,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3166,7 +3166,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3269,7 +3269,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3369,7 +3369,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3472,7 +3472,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3577,7 +3577,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3683,7 +3683,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3783,7 +3783,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3888,7 +3888,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -3988,7 +3988,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4090,7 +4090,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4193,7 +4193,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4294,7 +4294,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4400,7 +4400,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4504,7 +4504,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4609,7 +4609,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4710,7 +4710,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4811,7 +4811,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -4913,7 +4913,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5014,7 +5014,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5117,7 +5117,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5218,7 +5218,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5322,7 +5322,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5422,7 +5422,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5522,7 +5522,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5622,7 +5622,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5725,7 +5725,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5827,7 +5827,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -5932,7 +5932,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6037,7 +6037,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6150,7 +6150,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6251,7 +6251,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6361,7 +6361,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6462,7 +6462,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6563,7 +6563,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6670,7 +6670,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6778,7 +6778,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6879,7 +6879,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -6984,7 +6984,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7086,7 +7086,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7191,7 +7191,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7303,7 +7303,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7417,7 +7417,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7528,7 +7528,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7634,7 +7634,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7741,7 +7741,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7851,7 +7851,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -7955,7 +7955,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8054,7 +8054,7 @@
         "director/screen-card-assets.mjs": "cf688ce138286faa3eb9c36be6daf7cc529f16f09a8ca702d897ad1c90494bb0",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8156,7 +8156,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8254,7 +8254,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8353,7 +8353,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8451,7 +8451,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8549,7 +8549,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8647,7 +8647,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
@@ -8746,7 +8746,7 @@
         "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
         "template/out/card-text-runtime-compatibility-20261002-r2/compatibility.json": "ab4402b31860bae8e1865e3f25b26ec50ec4f3a1f2dde8d846cc3670bb3b53dd",
         "template/out/card-text-runtime-compatibility-20261002-r2/adapter-output-compatibility.json": "c8b566ea2f7a3683dd364a2b8011e5df94985ab2d3f3f940ab1dc6ac03071a3a",
-        "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+        "director/business-data-admission.mjs": "0bce774ace2f56665070abcfe725250d8ff4e611d2e9dbaeccef1753107df6bd",
         "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
       },
       "localReview": "passed",
