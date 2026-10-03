@@ -1,0 +1,82 @@
+node_modules/
+out/qa/
+template/out/
+# 发帖用社交封面图等本地素材，不进 skill 安装包
+assets/images/
+# 样片 mp4 存 gallery-media release，不进 git（poster 小图仍在 git）；
+# 本地预览用 gallery/fetch-media.sh 拉取
+gallery/media/*.mp4
+# Showcase 用户投稿媒体与清单存 showcase-media release，不进 git
+gallery/showcase-media/
+gallery/api/showcase.json
+# 本地教程视频
+/video-shotcraft教程.mp4
+.DS_Store
+.synapse/
+__pycache__/
+CLAUDE.md
+AGENT.md
+PRODUCT.md
+/shots/
+
+# motion-lab 本地研究/渲染农场（动效已转换为正式镜头卡，此目录不进库）
+/motion-lab/
+.playwright-mcp/
+
+# ===== 本地独立开发线（video-shotcraft-local）=====
+# 素材库：3396 镜头不进库
+materials/
+# 运行日志与临时文件
+*.log
+temp-screenshot.png
+*.bak
+# 音频/视频产物与本地测试素材
+template/public/audio/voiceover.mp3
+template/public/*.mp4
+
+# 运行动态数据（素材使用计数，不入库）
+director/usage.json
+
+# 本地验证帧（不入库）
+_chk_*.png
+_render_log.txt
+
+tmp/
+_server.log
+_server_err.log
+docs/_shots/
+
+# B 模式本地测试产物
+/director/b-mode-runs/
+/template/public/b-mode/
+/template/out/b-mode/
+
+# ===== ↑ 以上同步自 .gitignore（「从 .gitignore 同步」只重写以上部分）=====
+.git/
+.hg/
+.svn/
+bower_components/
+jspm_packages/
+site-packages/
+venv/
+coverage/
+htmlcov/
+lcov-report/
+cmakefiles/
+cmake-build-*/
+bazel-*/
+pods/
+deriveddata/
+storybook-static/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+cdk.out/
+*.egg-info/
+*.dist-info/
+eggs/
+pip-wheel-metadata/
+wheels/
+# ----- ↑ 以上为 ZCode 默认排除规则（自定义规则请写在本行下方，不会被同步/恢复改动）-----
+# 自定义规则写在下方（本行提示可删除）
