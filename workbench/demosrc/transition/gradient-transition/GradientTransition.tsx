@@ -7,6 +7,10 @@ import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
 
 export const GRADIENT_TRANSITION_DURATION = 180; // 6000ms @30fps
 
+export type GradientTransitionProps = {
+  labels?: [string, string, string];
+};
+
 const hsl = (h: number, s: number, l: number) => `hsl(${h},${s}%,${l}%)`;
 type H3 = [number, number, number];
 // hsl 三元组按分量插值
@@ -19,7 +23,7 @@ const layerStyle = (background: string, opacity: number): React.CSSProperties =>
   opacity,
 });
 
-export const GradientTransition: React.FC = () => {
+export const GradientTransition: React.FC<GradientTransitionProps> = ({ labels = ['LINEAR', 'RADIAL', 'CONIC'] }) => {
   const t = useT();
 
   // Phase 1: linear —— 角度 40°→230°，两组色标 hsl 插值
@@ -67,7 +71,7 @@ export const GradientTransition: React.FC = () => {
           backdropFilter: 'blur(4px)',
         }}
       >
-        {t < 0.34 ? 'LINEAR' : t < 0.67 ? 'RADIAL' : 'CONIC'}
+        {t < 0.34 ? labels[0] : t < 0.67 ? labels[1] : labels[2]}
       </div>
     </DesignStage>
   );

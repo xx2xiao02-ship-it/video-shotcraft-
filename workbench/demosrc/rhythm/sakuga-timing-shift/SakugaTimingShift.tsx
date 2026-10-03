@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const W = 1920;
 const CARD_W = 420;
@@ -37,7 +39,8 @@ const pos2 = (t: number): number =>
     extrapolateRight: 'clamp',
   });
 
-export const SakugaTimingShift: React.FC = () => {
+export const SakugaTimingShift: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && (words.length!==6 || !skin || words.some(word=>!word.trim()||[...word].length>6))) throw new Error('SakugaTimingShift requires six business labels of at most six characters');
   const f = useCurrentFrame();
   const onThrees = f < SWITCH;
 
@@ -101,10 +104,16 @@ export const SakugaTimingShift: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const card = words ? <div style={{width:CARD_W,height:CARD_H,boxSizing:'border-box',padding:32,background:skin?.surface,color:skin?.text,border:`2px solid ${skin?.accent}`,borderRadius:8,fontFamily:skin?.fontFamily,display:'flex',flexDirection:'column',justifyContent:'center',gap:14}}>
+    <div style={{fontSize:48,fontWeight:800}}>{words[1]}</div>
+    <div style={{fontSize:38,lineHeight:1.3}}>{words[2]}</div>
+    <div style={{fontSize:38,lineHeight:1.3}}>{words[3]}</div>
+  </div> : <Card w={CARD_W} h={CARD_H} seed={4} />;
+  const scene = (
+    <div style={{ width: 1920, height: 1080, background: skin?.bg || G.bg, position: 'relative', overflow: 'hidden' }}>
+      <div style={words ? {position:'absolute',inset:0,transform:'scale(0.8)',transformOrigin:'50% 50%'} : {position:'absolute',inset:0}}>
       <div style={{ position: 'absolute', top: 90, width: '100%', textAlign: 'center', opacity: titleOp }}>
-        <TitleBlock text="SAKUGA TIMING SHIFT" size={64} />
+        {words ? <div style={{fontSize:64,fontWeight:800,fontFamily:skin?.fontFamily,color:skin?.text}}>{words[0]}</div> : <TitleBlock text="SAKUGA TIMING SHIFT" size={64} />}
       </div>
 
       {/* 轨道基线 + 中央落位虚线槽 */}
@@ -115,7 +124,7 @@ export const SakugaTimingShift: React.FC = () => {
           right: 100,
           top: CARD_Y + CARD_H + 24,
           height: 3,
-          background: G.line,
+          background: skin?.muted || G.line,
           borderRadius: 2,
         }}
       />
@@ -126,7 +135,7 @@ export const SakugaTimingShift: React.FC = () => {
           top: CARD_Y,
           width: CARD_W,
           height: CARD_H,
-          border: `3px dashed ${G.bar}`,
+          border: `3px dashed ${skin?.muted || G.bar}`,
           borderRadius: 14,
           boxSizing: 'border-box',
         }}
@@ -138,7 +147,7 @@ export const SakugaTimingShift: React.FC = () => {
           key={`ghost-${i}`}
           style={{ position: 'absolute', left: 0, top: CARD_Y, opacity: g.op, transform: `translateX(${g.xg}px)` }}
         >
-          <Card w={CARD_W} h={CARD_H} seed={4} />
+          {card}
         </div>
       ))}
 
@@ -152,7 +161,7 @@ export const SakugaTimingShift: React.FC = () => {
           transformOrigin: '50% 50%',
         }}
       >
-        <Card w={CARD_W} h={CARD_H} seed={4} />
+        {card}
       </div>
 
       {/* 角标：on 3s / on 1s */}
@@ -163,16 +172,18 @@ export const SakugaTimingShift: React.FC = () => {
           top: 160,
           transform: `translate(${bx}px, ${by}px) rotate(${brot}deg) scale(${pop})`,
           transformOrigin: '0% 50%',
-          fontFamily: 'Courier New, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
+          fontFamily: skin?.fontFamily || 'Courier New, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
           fontWeight: 700,
-          fontSize: 84,
-          color: G.ink,
-          borderBottom: `6px solid ${G.ink}`,
+          fontSize: words ? 60 : 84,
+          color: skin?.text || G.ink,
+          borderBottom: `6px solid ${skin?.accent || G.ink}`,
           paddingBottom: 6,
         }}
       >
-        {onThrees ? 'on 3s' : 'on 1s'}
+        {words ? words[onThrees ? 4 : 5] : onThrees ? 'on 3s' : 'on 1s'}
+      </div>
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

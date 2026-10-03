@@ -261,14 +261,20 @@ const CARDS: { title: string; k: [Pose, Pose, Pose]; conv: Pose }[] = [
     conv: { x: 15, y: 10, rx: 0, ry: 65, rz: 4, s: 0.12 },
   },
 ];
+
+export type CardFlockTumbleProps = {
+  titles?: string[];
+  finale?: string;
+};
 const lerpPose = (a: Pose, b: Pose, t: number): Pose => {
   const out = {} as Pose;
   for (const k of POSE_KEYS) out[k] = a[k] + (b[k] - a[k]) * t;
   return out;
 };
 
-export const CardFlockTumble: React.FC = () => {
+export const CardFlockTumble: React.FC<CardFlockTumbleProps> = ({ titles: inputTitles, finale = 'STRONGER' }) => {
   const frame = useCurrentFrame();
+  const titles = inputTitles?.length === 3 ? inputTitles : CARDS.map(card => card.title);
   // 渐变 ID 按实例生成，多实例同场不串引
   const gradId = `strokeGrad-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
 
@@ -332,7 +338,7 @@ export const CardFlockTumble: React.FC = () => {
                   zIndex: 10 + i,
                 }}
               >
-                <UiCard seed={i} title={c.title} />
+                <UiCard seed={i} title={titles[i]} />
               </div>
             );
           })}
@@ -377,7 +383,7 @@ export const CardFlockTumble: React.FC = () => {
               stroke={`url(#${gradId})`}
               strokeWidth={4.5}
             >
-              STRONGER
+              {finale}
             </text>
           </svg>
         </AbsoluteFill>

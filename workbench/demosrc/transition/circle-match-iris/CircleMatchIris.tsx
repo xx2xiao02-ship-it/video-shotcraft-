@@ -12,7 +12,12 @@ import { FakeDashboard, G } from '../../_fixtures/Fixtures';
 const CX = 308;
 const CY = 384.8;
 
-export const CircleMatchIris: React.FC = () => {
+export type CircleMatchIrisProps = {
+  value?: number;
+  metricLabel?: string;
+};
+
+export const CircleMatchIris: React.FC<CircleMatchIrisProps> = ({ value = 78, metricLabel = 'MATCHED' }) => {
   const f = useCurrentFrame();
 
   // ---- 景 A:头像脉冲(帧 0–30,两次呼吸) ----
@@ -46,7 +51,7 @@ export const CircleMatchIris: React.FC = () => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   });
   const circ = 2 * Math.PI * ringR;
-  const num = Math.round(sweep * 100);
+  const num = Math.round(sweep * value);
   const numOpacity = interpolate(f, [68, 88], [0, 1], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   });
@@ -100,7 +105,7 @@ export const CircleMatchIris: React.FC = () => {
             <div style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 96, color: '#1a1d24', letterSpacing: -2 }}>
               {num}%
             </div>
-            <div style={{ marginTop: 6, height: 12, width: 130, background: '#6a6a68', borderRadius: 6 }} />
+            <div style={{ marginTop: 6, color: '#6a6a68', fontSize: 22, fontWeight: 700 }}>{metricLabel}</div>
           </div>
           {/* 右侧页面家具:标题 + 统计条,证明这是一整页 */}
           <div style={{ position: 'absolute', left: 680, top: 260, opacity: furnitureOpacity, display: 'flex', flexDirection: 'column', gap: 30 }}>

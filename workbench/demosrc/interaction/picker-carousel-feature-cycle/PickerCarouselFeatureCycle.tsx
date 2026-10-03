@@ -5,6 +5,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const PICKER_CAROUSEL_FEATURE_CYCLE_DURATION = 108; // 3600ms @30fps
 
@@ -25,8 +27,9 @@ const ICONS = ['◎', '✉', '◧', '◈', '★', '↺', '⚑'];
 const STEPS = 5; // 五次吸附推进
 const HOLD = 5 / 14; // 每步末段静止占比（≈4–5 帧不动）
 
-export const PickerCarouselFeatureCycle: React.FC = () => {
+export const PickerCarouselFeatureCycle: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const items=skin ? words || [] : ITEMS;
 
   // 主时间轴：t∈[0.05,0.95] 均分 5 步；步内前 (1-HOLD) 用 outQuint 吸附，末段静止
   const g = seg(t, 0.05, 0.95) * STEPS;
@@ -39,16 +42,14 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
   const land = Math.max(0, (local - (1 - HOLD)) / HOLD);
   const breath = land > 0 ? Math.sin(Math.min(1, land / 0.6) * Math.PI) * 0.06 : 0;
 
-  return (
-    <DesignStage bg={PAPER}>
-      {/* 纸面底 —— 与原采集页 paper() 容器一致 */}
+  const scene=(
       <div
         style={{
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',
-          background: PAPER,
-          fontFamily: "-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif",
+          background: skinBackground(skin,PAPER),
+          fontFamily: skin?.fontFamily || "-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif",
         }}
       >
         {/* 选择器视口：300×(34×5) 居中，整体在开头 5% 内淡入 */}
@@ -62,6 +63,7 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
             transform: 'translate(-50%,-50%)',
             overflow: 'hidden',
             opacity: seg(t, 0, 0.05),
+            maskImage: skin ? 'linear-gradient(180deg,transparent,black 26%,black 74%,transparent)' : undefined,
           }}
         >
           {/* 焦点药丸：位置不动，仅落定时 scaleY 呼吸。
@@ -75,8 +77,8 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
               height: ROW_H,
               boxSizing: 'content-box',
               borderRadius: 999,
-              background: '#fff',
-              border: '1px solid #E3E3E6',
+              background: skin?.surface || '#fff',
+              border: `1px solid ${skin?.accent || '#E3E3E6'}`,
               boxShadow: '0 2px 8px rgba(0,0,0,.06)',
               transform: `scaleY(${1 + breath})`,
             }}
@@ -91,7 +93,7 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
               transform: `translateY(${ROW_H * 2 - pos * ROW_H}px)`,
             }}
           >
-            {ITEMS.map((txt, i) => {
+            {items.map((txt, i) => {
               // 按到中心距离分层：透明度两段线性、字号 17→14、颜色三档灰度
               const d = Math.abs(i - pos);
               const k2 = Math.min(2, d);
@@ -108,14 +110,14 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
                     fontWeight: 600,
                     fontSize: lerp(Math.min(1, d / 2), 17, 14),
                     lineHeight: 1,
-                    fontFamily: "-apple-system,'Helvetica Neue',sans-serif",
-                    color: d < 0.5 ? INK : d < 1.5 ? MID : '#B9B9BE',
+                    fontFamily: skin?.fontFamily || "-apple-system,'Helvetica Neue',sans-serif",
+                    color: skin ? d<.5 ? skin.text : skin.muted : d < 0.5 ? INK : d < 1.5 ? MID : '#B9B9BE',
                     opacity: o,
                   }}
                 >
                   {/* 图标仅在贴近焦点时浮现（d<0.625 内可见） */}
                   <span style={{ fontSize: 14, opacity: Math.max(0, 1 - d * 1.6) }}>
-                    {ICONS[i]}
+                    {skin ? i+1 : ICONS[i]}
                   </span>
                   <span>{txt}</span>
                 </div>
@@ -128,7 +130,7 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
               position: 'absolute',
               inset: 0,
               pointerEvents: 'none',
-              background: `linear-gradient(180deg,${PAPER} 0%,rgba(243,243,241,0) 26%,rgba(243,243,241,0) 74%,${PAPER} 100%)`,
+              background: skin ? undefined : `linear-gradient(180deg,${PAPER} 0%,rgba(243,243,241,0) 26%,rgba(243,243,241,0) 74%,${PAPER} 100%)`,
             }}
           />
         </div>
@@ -142,8 +144,8 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
             width: 26,
             height: 22,
             borderRadius: 6,
-            background: INK,
-            color: 'var(--text)',
+            background: skin?.accent || INK,
+            color: skin?.surface || 'var(--text)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -155,9 +157,9 @@ export const PickerCarouselFeatureCycle: React.FC = () => {
             opacity: seg(t, 0.02, 0.09),
           }}
         >
-          AI
+          {skin ? '选' : 'AI'}
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg={PAPER}>{scene}</DesignStage>;
 };

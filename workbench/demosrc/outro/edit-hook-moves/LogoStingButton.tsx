@@ -4,6 +4,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { FakeDashboard } from '../../_fixtures/Fixtures';
+import {BusinessScreen,BusinessScreenStage,type BusinessScreenSource} from '../../_fixtures/BusinessScreen';
+import {skinBackground,type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 时间轴（30fps，共 142f）
 const T = {
@@ -16,34 +18,43 @@ const T = {
   total: 142,       // 82–142f 黑底 LOGO 真静止 60f
 };
 
-const LogoLockup: React.FC<{ opacity: number; scale: number }> = ({ opacity, scale }) => (
+const LogoLockup: React.FC<{ opacity: number; scale: number;wordmark?:string;skin?:TemplateSkin }> = ({ opacity, scale,wordmark,skin }) => (
   <div style={{
-    width: 1920, height: 1080, background: '#000',
+    width: 1920, height: 1080, background: skinBackground(skin,'#000'),
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   }}>
     <div style={{
       display: 'flex', alignItems: 'center', gap: 44,
       opacity, transform: `scale(${scale})`,
     }}>
-      <div style={{
+      {!wordmark && <div style={{
         width: 120, height: 120, borderRadius: 28, background: '#fff',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {/* 方块内一个黑色小标记，避免纯白块太空 */}
         <div style={{ width: 44, height: 44, borderRadius: 12, background: '#000' }} />
-      </div>
+      </div>}
       <div style={{
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-        fontSize: 90, color: 'var(--text)', letterSpacing: 2,
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
+        fontSize: 90, color: skin?.text || 'var(--text)', letterSpacing: 2,
       }}>
-        ACME
+        {wordmark || 'ACME'}
       </div>
     </div>
   </div>
 );
 
-export const LogoStingButton: React.FC = () => {
+export const LogoStingButton: React.FC<{screens?:BusinessScreenSource[];targetRect?:{x:number;y:number;width:number;height:number};
+  words?:string[];skin?:TemplateSkin;durationInFrames?:number}>=({screens,targetRect,words,skin}) => {
   const frame = useCurrentFrame();
+  const business=Boolean(screens || targetRect || words);
+  if(business && (!screens || screens.length!==2 || screens[0].src===screens[1].src ||
+    !targetRect || !Object.values(targetRect).every(Number.isFinite) || targetRect.width<=0 || targetRect.height<=0 ||
+    targetRect.x<0 || targetRect.y<0 || targetRect.x+targetRect.width>1920 || targetRect.y+targetRect.height>1080 ||
+    !words || words.length!==1 || !words[0].trim() || [...words[0]].length>12 || !skin)) {
+    throw new Error('Button ending needs actual preceding/novel detail screens, a measured detail target and a wordmark.');
+  }
+  const wrap=(scene:React.ReactNode)=>skin ? <BusinessScreenStage skin={skin}>{scene}</BusinessScreenStage> : scene;
 
   // —— 段 1：上一镜（FakeDashboard B）压暗收黑 ——
   if (frame < T.shotAEnd) {
@@ -51,9 +62,9 @@ export const LogoStingButton: React.FC = () => {
       extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
       easing: Easing.in(Easing.cubic),
     });
-    return (
+    return wrap(
       <div style={{ width: 1920, height: 1080, background: '#000', position: 'relative', overflow: 'hidden' }}>
-        <FakeDashboard variant="B" />
+        {screens ? <BusinessScreen screen={screens[0]} width={1920} height={1080}/> : <FakeDashboard variant="B" />}
         <div style={{ position: 'absolute', inset: 0, background: '#000', opacity: dark }} />
       </div>
     );
@@ -61,24 +72,27 @@ export const LogoStingButton: React.FC = () => {
 
   // —— 段 2：黑场 6f ——
   if (frame < T.blackEnd) {
-    return <div style={{ width: 1920, height: 1080, background: '#000' }} />;
+    return wrap(<div style={{ width: 1920, height: 1080, background: '#000' }} />);
   }
 
   // —— 段 4：彩蛋硬切 12f（variant A 按钮区 2.4x 裁切 + 角落小圆点 tick 闪 2f）——
   if (frame >= T.holdEnd && frame < T.eggEnd) {
     const egg = frame - T.holdEnd; // 0..11
+    const eggX=targetRect ? Math.max(400,Math.min(1520,targetRect.x+targetRect.width/2)) : 839;
+    const eggY=targetRect ? Math.max(225,Math.min(855,targetRect.y+targetRect.height/2)) : 531;
     // tick 圆点：第 4–5f 亮 2f，像眨眼
     const tickOn = egg >= 4 && egg < 6;
-    return (
+    return wrap(
       <div style={{ width: 1920, height: 1080, background: '#0d0f14', position: 'relative', overflow: 'hidden' }}>
         <div style={{
           position: 'absolute', inset: 0,
           // 2.4x 放大：把第 1 张卡片底部"按钮行"（头像圆+文字条）平移到画面中心
           // 原坐标 (839, 531)（第 2 列卡片底部头像圆+文字条）→ 屏幕中心 (960, 540)
           // 选中列卡片可把左侧深色 sidebar 完全推出画面，特写更纯粹
-          transform: 'translate(-1054px, -734px) scale(2.4)', transformOrigin: '0 0',
+          transform: targetRect ? `translate(${960-eggX*2.4}px, ${540-eggY*2.4}px) scale(2.4)` :
+            'translate(-1054px, -734px) scale(2.4)', transformOrigin: '0 0',
         }}>
-          <FakeDashboard variant="A" />
+          {screens ? <BusinessScreen screen={screens[1]} width={1920} height={1080}/> : <FakeDashboard variant="A" />}
         </div>
         {tickOn && (
           <div style={{
@@ -102,5 +116,5 @@ export const LogoStingButton: React.FC = () => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     easing: Easing.out(Easing.cubic),
   });
-  return <LogoLockup opacity={opacity} scale={scale} />;
+  return wrap(<LogoLockup opacity={opacity} scale={scale} wordmark={words?.[0]} skin={skin}/>);
 };

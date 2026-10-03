@@ -5,6 +5,7 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing, spring, useVideoConfig } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const INK = '#20808d'; // 花形 mark 用一点 teal，其余灰阶
@@ -50,10 +51,12 @@ const FlowerMark: React.FC<{ size: number; bloom: number }> = ({ size, bloom }) 
 
 const DEFAULT_WORD = 'perplexity';
 
-export const IconFlipBloomLogo: React.FC<{ word?: string }> = ({ word }) => {
+export const IconFlipBloomLogo: React.FC<{ word?: string; durationInFrames?: number; skin?: TemplateSkin }> = ({ word, durationInFrames, skin }) => {
   const WORD = word || DEFAULT_WORD;
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames: compositionDuration } = useVideoConfig();
+  const total = Math.max(1, durationInFrames || compositionDuration);
+  const k = (value: number) => Math.round(value * total / 120);
 
   // ---- 时间轴 ----
   // 0–10: 图标登场（淡入微弹）
@@ -61,10 +64,10 @@ export const IconFlipBloomLogo: React.FC<{ word?: string }> = ({ word }) => {
   // 34–46: Y 轴翻转压扁成竖线（scaleX -> 0.04，带拖影）
   // 46–62: 翻过最薄处绽放花形（bloom 0->1 带过冲）
   // 64–100: mark 左移让位 + wordmark 逐字符方向模糊扫出
-  const FLIP_START = 34;
-  const FLIP_MID = 46;
-  const BLOOM_END = 62;
-  const WORD_START = 66;
+  const FLIP_START = k(34);
+  const FLIP_MID = k(46);
+  const BLOOM_END = k(62);
+  const WORD_START = k(66);
 
   // 登场
   const inT = spring({ frame, fps, config: { damping: 13, stiffness: 140, mass: 0.8 } });
@@ -109,7 +112,7 @@ export const IconFlipBloomLogo: React.FC<{ word?: string }> = ({ word }) => {
   const ghosts = frame >= FLIP_START && frame < FLIP_MID ? [0.12, 0.24] : [];
 
   return (
-    <AbsoluteFill style={{ background: G.bg, alignItems: 'center', justifyContent: 'center' }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, G.bg), alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'relative', width: 1920, height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {/* 图标 / mark 容器 */}
         <div
@@ -169,12 +172,12 @@ export const IconFlipBloomLogo: React.FC<{ word?: string }> = ({ word }) => {
             fontFamily: FONT,
             fontWeight: 700,
             fontSize: 150,
-            color: G.ink,
+            color: skin?.text || G.ink,
             letterSpacing: 2,
           }}
         >
           {WORD.split('').map((ch, i) => {
-            const cT = interpolate(frame, [WORD_START + i * 2.2, WORD_START + i * 2.2 + 10], [0, 1], {
+            const cT = interpolate(frame, [k(66 + i * 2.2), k(66 + i * 2.2 + 10)], [0, 1], {
               extrapolateLeft: 'clamp',
               extrapolateRight: 'clamp',
               easing: Easing.out(Easing.cubic),

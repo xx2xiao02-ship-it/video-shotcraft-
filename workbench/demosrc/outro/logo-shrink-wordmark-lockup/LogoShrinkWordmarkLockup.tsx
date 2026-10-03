@@ -4,6 +4,7 @@
 // 强调色标语延迟整行淡入收尾。设计坐标 480×270（DesignStage 等比放大）。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const LOGO_SHRINK_WORDMARK_LOCKUP_DURATION = 132; // 4400ms @30fps
 
@@ -49,21 +50,25 @@ const Arcs: React.FC<{ a0: number; a1: number; col: string; w: number; blur: num
   </g>
 );
 
-export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }> = ({ wordmark }) => {
-  const WORDMARK = Array.isArray(wordmark) ? wordmark.join(' ') : (wordmark || DEFAULT_WORDMARK);
+export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[]; words?:string[];skin?:TemplateSkin;durationInFrames?:number }> = ({ wordmark,words,skin }) => {
+  const WORDMARK = words?.[0] || (Array.isArray(wordmark) ? wordmark.join(' ') : (wordmark || DEFAULT_WORDMARK));
+  const charCount = [...WORDMARK].length;
+  const textWidth = charCount * 27 + Math.max(0,charCount-1)*2;
+  const shiftTarget = words ? -(textWidth+14)/2 : SHIFT;
+  const stagger = words ? 0.14/Math.max(1,charCount-1) : 0.035;
   const t = useT();
   // 收束：scale 5.4→1（easeInOut），末尾轻微 1.05 过冲刹车
   const k = seg(t, 0.02, 0.28, E.inOutCubic);
   const brake = Math.sin(seg(t, 0.26, 0.37) * Math.PI) * 0.06;
   const s = lerp(k, 5.4, 1) * (1 + brake);
   // 左移让位：落位后 t 0.34-0.47
-  const shift = seg(t, 0.34, 0.47, E.inOutCubic) * SHIFT;
+  const shift = seg(t, 0.34, 0.47, E.inOutCubic) * shiftTarget;
   // 霓虹缺口态 → 实心白 O 交叉淡化（随收束进行）
   const heal = seg(t, 0.10, 0.28, E.inOutQuad);
   // 底色标定：原样片 mp4（yuv420p，无色彩元数据）把 #05060a 解码回 rgb(3,5,9)，
   // 深底上 2/255 的恒差会拖垮平坦区 SSIM，这里钉到解码值；其余数值与 effect.js 一致
   return (
-    <DesignStage bg="#030509">
+    <DesignStage bg={skin?.bg || '#030509'}>
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
         {/* 图标：SVG 双弧切口环 —— 抽象几何 mark，非任何具体品牌 logo（收束时缺口愈合、霓虹转纯白） */}
         <div
@@ -101,7 +106,7 @@ export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }
         <div
           style={{
             position: 'absolute',
-            left: 'calc(50% - 40px)',
+            left: words ? `calc(50% + ${shiftTarget+29}px)` : 'calc(50% - 40px)',
             top: '50%',
             height: ICON,
             marginTop: -ICON / 2,
@@ -111,14 +116,15 @@ export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }
           }}
         >
           {[...WORDMARK].map((ch, i) => {
-            const lk = seg(t, 0.46 + i * 0.035, 0.46 + i * 0.035 + 0.10, E.outCubic);
+            const lk = seg(t, 0.46 + i * stagger, 0.46 + i * stagger + 0.10, E.outCubic);
             return (
               <span
                 key={i}
                 style={{
-                  color: '#f2f5fa',
-                  font: "800 27px/1 -apple-system,'Helvetica Neue',sans-serif",
-                  letterSpacing: 2,
+                  color: skin?.text || '#f2f5fa',
+                  font: skin ? `800 27px/1 ${skin.fontFamily}` : "800 27px/1 -apple-system,'Helvetica Neue',sans-serif",
+                  letterSpacing: words ? 0 : 2,
+                  ...(words ? {width:27,textAlign:'center' as const} : {}),
                   opacity: lk,
                   transform: `translateX(${lerp(lk, 8, 0)}px)`,
                 }}
@@ -136,13 +142,13 @@ export const LogoShrinkWordmarkLockup: React.FC<{ wordmark?: string | string[] }
             right: 0,
             top: 'calc(50% + 34px)',
             textAlign: 'center',
-            color: ACCENT,
-            font: '600 13px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-            letterSpacing: 5,
+            color: skin?.accent || ACCENT,
+            font: skin ? `600 16px/1 ${skin.fontFamily}` : '600 13px/1 -apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            letterSpacing: words ? 0 : 5,
             opacity: seg(t, 0.72, 0.84, E.outQuad),
           }}
         >
-          BUILD. SHIP. REPEAT.
+          {words?.[1] || 'BUILD. SHIP. REPEAT.'}
         </div>
       </div>
     </DesignStage>

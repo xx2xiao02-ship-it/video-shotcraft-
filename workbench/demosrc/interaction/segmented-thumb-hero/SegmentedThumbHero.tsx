@@ -5,6 +5,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing, spring, useVideoConfig } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
@@ -33,25 +35,25 @@ const ArrowCursor: React.FC<{ x: number; y: number; press: number }> = ({ x, y, 
   </svg>
 );
 
-const SmileLaptop: React.FC<{ size: number }> = ({ size }) => (
+const SmileLaptop: React.FC<{ size: number;color?:string }> = ({ size,color=G.ink }) => (
   <svg width={size} height={size} viewBox="0 0 40 40">
-    <rect x={7} y={7} width={26} height={19} rx={3} fill="none" stroke={G.ink} strokeWidth={3} />
-    <circle cx={15.5} cy={14.5} r={1.9} fill={G.ink} />
-    <circle cx={24.5} cy={14.5} r={1.9} fill={G.ink} />
-    <path d="M14.5 19 Q20 23.5 25.5 19" stroke={G.ink} strokeWidth={2.6} fill="none" strokeLinecap="round" />
-    <path d="M4 31 L36 31" stroke={G.ink} strokeWidth={3.4} strokeLinecap="round" />
+    <rect x={7} y={7} width={26} height={19} rx={3} fill="none" stroke={color} strokeWidth={3} />
+    <circle cx={15.5} cy={14.5} r={1.9} fill={color} />
+    <circle cx={24.5} cy={14.5} r={1.9} fill={color} />
+    <path d="M14.5 19 Q20 23.5 25.5 19" stroke={color} strokeWidth={2.6} fill="none" strokeLinecap="round" />
+    <path d="M4 31 L36 31" stroke={color} strokeWidth={3.4} strokeLinecap="round" />
   </svg>
 );
 
-const AskIcon: React.FC<{ size: number }> = ({ size }) => (
+const AskIcon: React.FC<{ size: number;color?:string }> = ({ size,color=G.ink }) => (
   <svg width={size} height={size} viewBox="0 0 40 40">
-    <circle cx={20} cy={20} r={13} fill="none" stroke={G.ink} strokeWidth={3} />
-    <path d="M16 17 q0-5 4.5-5 q4.5 0 4.5 4.2 q0 3-3.4 4.4 q-1.6 0.7-1.6 2.6" stroke={G.ink} strokeWidth={2.8} fill="none" strokeLinecap="round" />
-    <circle cx={20} cy={28} r={1.8} fill={G.ink} />
+    <circle cx={20} cy={20} r={13} fill="none" stroke={color} strokeWidth={3} />
+    <path d="M16 17 q0-5 4.5-5 q4.5 0 4.5 4.2 q0 3-3.4 4.4 q-1.6 0.7-1.6 2.6" stroke={color} strokeWidth={2.8} fill="none" strokeLinecap="round" />
+    <circle cx={20} cy={28} r={1.8} fill={color} />
   </svg>
 );
 
-export const SegmentedThumbHero: React.FC = () => {
+export const SegmentedThumbHero: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -111,10 +113,10 @@ export const SegmentedThumbHero: React.FC = () => {
   });
 
   const labelStyle = (active: boolean): React.CSSProperties => ({
-    fontFamily: FONT,
+    fontFamily: skin?.fontFamily || FONT,
     fontWeight: 700,
-    fontSize: 72,
-    color: active ? G.ink : G.mid,
+    fontSize: skin ? 56 : 72,
+    color: skin ? active ? skin.surface : skin.text : active ? G.ink : G.mid,
     transition: 'none',
     display: 'flex',
     alignItems: 'center',
@@ -128,16 +130,16 @@ export const SegmentedThumbHero: React.FC = () => {
 
   const askActive = thumbT < 0.5;
 
-  return (
-    <AbsoluteFill style={{ background: G.bg, alignItems: 'center', justifyContent: 'center' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,G.bg), alignItems: 'center', justifyContent: 'center' }}>
       {/* 分段控件 */}
       <div
         style={{
           width: CW,
           height: CH,
           borderRadius: CH / 2,
-          background: '#1a1d24',
-          border: `3px solid ${G.border}`,
+          background: skin?.surface || '#1a1d24',
+          border: `3px solid ${skin?.muted || G.border}`,
           boxShadow: `0 ${24 - floatT * 12}px ${70 - floatT * 20}px rgba(0,0,0,0.22)`,
           transform: `translateY(${ctrlY}px)`,
           opacity: Math.min(1, floatT * 1.5),
@@ -157,7 +159,7 @@ export const SegmentedThumbHero: React.FC = () => {
             width: SEGW,
             height: CH - PAD * 2,
             borderRadius: (CH - PAD * 2) / 2,
-            background: '#fff',
+            background: skin?.accent || '#fff',
             boxShadow: '0 6px 20px rgba(0,0,0,0.18)',
             zIndex: 1,
           }}
@@ -188,9 +190,9 @@ export const SegmentedThumbHero: React.FC = () => {
               overflow: 'visible',
             }}
           >
-            <AskIcon size={78} />
+            <AskIcon size={78} color={skin ? askActive ? skin.surface : skin.text : undefined} />
           </span>
-          Ask
+          {skin ? words?.[0] : 'Ask'}
         </div>
         {/* Computer 段 */}
         <div style={labelStyle(!askActive)}>
@@ -202,12 +204,13 @@ export const SegmentedThumbHero: React.FC = () => {
               overflow: 'visible',
             }}
           >
-            <SmileLaptop size={78} />
+            <SmileLaptop size={78} color={skin ? !askActive ? skin.surface : skin.text : undefined} />
           </span>
-          Computer
+          {skin ? words?.[1] : 'Computer'}
         </div>
       </div>
       <ArrowCursor x={curX} y={curY} press={press} />
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

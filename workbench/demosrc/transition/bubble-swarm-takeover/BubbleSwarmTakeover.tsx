@@ -92,6 +92,12 @@ const CAPSULES = [
   { text: 'Ciao!', idx: 23 },
 ];
 
+export type BubbleSwarmTakeoverProps = {
+  capsules?: string[];
+  sourceLabel?: string;
+  targetLabel?: string;
+};
+
 const Bubble: React.FC<{ spec: BubbleSpec; frame: number }> = ({ spec, frame }) => {
   const pIn = interpolate(frame, [spec.t0, PEAK], [0, 1], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
@@ -130,8 +136,9 @@ const Bubble: React.FC<{ spec: BubbleSpec; frame: number }> = ({ spec, frame }) 
   );
 };
 
-export const BubbleSwarmTakeover: React.FC = () => {
+export const BubbleSwarmTakeover: React.FC<BubbleSwarmTakeoverProps> = ({ capsules, sourceLabel = 'Current view', targetLabel = 'Updated view' }) => {
   const frame = useCurrentFrame();
+  const capsuleLabels = capsules?.length === 3 ? capsules : CAPSULES.map(item => item.text);
   // 页面"洗白"：靠近峰值时整体亮度提升
   const whiteout = interpolate(frame, [42, 68, 82, 104], [0, 0.92, 0.92, 0], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
@@ -143,6 +150,8 @@ export const BubbleSwarmTakeover: React.FC = () => {
       <AbsoluteFill style={{ transform: `scale(${breathe})` }}>
         {frame < PEAK ? <FakeDashboard variant="A" /> : <FakeDashboard variant="B" />}
       </AbsoluteFill>
+      <div style={{ position: 'absolute', left: 80, top: 70, color: '#ffffff', fontSize: 28, fontWeight: 700, opacity: frame < PEAK ? 0.9 : 0.25 }}>{sourceLabel}</div>
+      <div style={{ position: 'absolute', right: 80, top: 70, color: '#ffffff', fontSize: 28, fontWeight: 700, opacity: frame < PEAK ? 0.25 : 0.9 }}>{targetLabel}</div>
       {/* 洗白层压在页面之上、气泡之下 */}
       <AbsoluteFill style={{ background: '#ffffff', opacity: whiteout }} />
       {/* 远/中层气泡 */}
@@ -177,7 +186,7 @@ export const BubbleSwarmTakeover: React.FC = () => {
             boxShadow: '0 8px 32px rgba(150,120,220,0.25)',
             fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
             fontSize: 46, color: '#5b4a86', whiteSpace: 'nowrap',
-          }}>{c.text}</div>
+          }}>{capsuleLabels[i]}</div>
         );
       })}
       {/* 前景大气泡（焦外） */}

@@ -6,9 +6,10 @@
 // 双圈强调色 ripple 点击确认 + 3px 描边 + 辉光，相机 16f 推进 zoom 2.2 交棒。
 // 网格卡用真实纹理裁片（复用 projects-empty.png 里已有的卡），nano-lab 目标卡
 // 过滤后滑到首行槽位。缺的 float-* 小块用纯色占位，不影响动效读感。
-import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, Easing } from 'remotion';
+import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig, Easing } from 'remotion';
 import { PageCam2D, CamKey2D } from '../../_fixtures/PageCam2D';
 import layout from '../../_textures/live-layout.json';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const TYPE_AND_FILTER_DURATION = 73; // 118–190f 落在 shot 内 offset 0
 
@@ -17,52 +18,62 @@ const cards = layout.projects.cards;
 const PAPER = '#0d0f14';
 const FIELD = '#fefcf9';
 const AMBER = 'oklch(58% 0.13 65)';
-const QUERY = 'nano-lab';
 const TYPE_START = 10; // 118 - 118 = 0 偏移基准：scene-local 从 118 起
 const FILTER_START = 42; // 160 - 118
 
 // search box (page-space CSS px)
 const SEARCH = { x: 408, y: 130, w: 1016, h: 44 };
 
-// nano-lab target card (the one that filters to row one)
-const NANO_TITLE = 'nano-lab';
-const nanoIdx = cards.findIndex((c) => c.title.includes(NANO_TITLE));
-const nano = cards[nanoIdx];
 const NANO_TO = { x: 408, y: 247 }; // first-row slot
 const CLICK_C = { x: 586, y: 391 }; // click point on the settled result card
 
-// filter departure rank for the non-target cards (reading order)
-const leaveRank = new Map<number, number>();
-cards.forEach((_, i) => {
-  if (i !== nanoIdx) leaveRank.set(i, leaveRank.size);
-});
-
-// camera: hold through typing/breath/filter/slide, then push into the clicked card
-const CAM_KEYS: CamKey2D[] = [
-  { frame: 0, cx: 960, cy: 380, zoom: 0.9 },
-  { frame: 56, cx: 960, cy: 380, zoom: 0.9 },
-  { frame: 72, cx: CLICK_C.x, cy: CLICK_C.y, zoom: 2.2 },
-];
-
-export const TypeAndFilter: React.FC = () => {
+export const TypeAndFilter: React.FC<{
+  query?: string;
+  targetId?: string;
+  texture?: string;
+  durationInFrames?: number;
+  skin?: TemplateSkin;
+}> = ({query, targetId, texture, durationInFrames = TYPE_AND_FILTER_DURATION, skin}) => {
   const frame = useCurrentFrame();
+  const {width, height} = useVideoConfig();
+  const portrait = height > width;
+  const canvasScale = portrait ? Math.min(0.8, (width - 64) / 1920) : 1;
+  const canvasLeft = portrait ? (width - 1920 * canvasScale) / 2 : 0;
+  const canvasTop = portrait ? (height - 1080 * canvasScale) / 2 : 0;
+  const duration = Math.max(1, durationInFrames);
+  const cue = (legacyFrame: number) => Math.round((duration - 1) * legacyFrame / (TYPE_AND_FILTER_DURATION - 1));
+  const QUERY = query?.trim() || 'nano-lab';
+  const target = targetId?.trim() || 'nano-lab';
+  const nanoIdx = cards.findIndex((c) => c.title.includes(target));
+  if (nanoIdx < 0) throw new Error(`type-and-filter 找不到业务目标卡 ${target}`);
+  const nano = cards[nanoIdx];
+  const leaveRank = new Map<number, number>();
+  cards.forEach((_, i) => { if (i !== nanoIdx) leaveRank.set(i, leaveRank.size); });
+  const typeStart = cue(TYPE_START);
+  const filterStart = cue(FILTER_START);
+  const camKeys: CamKey2D[] = [
+    { frame: 0, cx: 960, cy: 380, zoom: 0.9 },
+    { frame: cue(56), cx: 960, cy: 380, zoom: 0.9 },
+    { frame: cue(72), cx: CLICK_C.x, cy: CLICK_C.y, zoom: 2.2 },
+  ];
 
   // typed chars: one every 3 frames (unhurried)
   const typedCount =
-    frame < TYPE_START ? 0 : Math.min(QUERY.length, Math.floor((frame - TYPE_START) / 3) + 1);
+    frame < typeStart ? 0 : Math.min(QUERY.length, Math.floor((frame - typeStart) / Math.max(1, cue(3))) + 1);
   // caret: solid while typing, blinks on an 8f cycle after, until the click
   const caretOn =
-    frame >= TYPE_START - 2 &&
-    frame <= 67 &&
-    (frame <= TYPE_START + 24 || Math.floor((frame - (TYPE_START + 24)) / 8) % 2 === 0);
+    frame >= typeStart - cue(2) &&
+    frame <= cue(67) &&
+    (frame <= typeStart + cue(24) || Math.floor((frame - (typeStart + cue(24))) / Math.max(1, cue(8))) % 2 === 0);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: PAPER }}>
-      <PageCam2D src="textures/live/projects-empty.png" pageH={PAGE_H} keys={CAM_KEYS}>
+    <AbsoluteFill style={{ background: skinBackground(skin, PAPER) }}>
+      <div style={{ position: 'absolute', left: canvasLeft, top: canvasTop, width: 1920, height: 1080, transform: `scale(${canvasScale})`, transformOrigin: '0 0' }}>
+        <PageCam2D src={texture || 'textures/live/projects-empty.png'} pageH={PAGE_H} keys={camKeys}>
         {/* ---- 25 non-target cards: staggered fade+sink on filter ---- */}
         {cards.map((c, i) => {
           if (i === nanoIdx) return null;
-          const outCue = FILTER_START + leaveRank.get(i)! * 0.4;
+          const outCue = filterStart + leaveRank.get(i)! * Math.max(1, cue(0.4));
           if (frame >= outCue + 5) return null;
           const outT = interpolate(frame, [outCue, outCue + 5], [0, 1], {
             extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.quad),
@@ -84,7 +95,7 @@ export const TypeAndFilter: React.FC = () => {
 
         {/* ---- nano-lab: slides up to the first-row slot on filter, floating ---- */}
         {(() => {
-          const slideT = interpolate(frame, [FILTER_START, FILTER_START + 10], [0, 1], {
+          const slideT = interpolate(frame, [filterStart, filterStart + cue(10)], [0, 1], {
             extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.bezier(0.35, 0, 0.2, 1),
           });
           const slideDy = (NANO_TO.y - nano.y) * slideT;
@@ -113,7 +124,7 @@ export const TypeAndFilter: React.FC = () => {
             style={{
               position: 'absolute', left: 440, top: SEARCH.y + 4,
               width: SEARCH.x + SEARCH.w - 448, height: SEARCH.h - 8,
-              background: FIELD, opacity: 1, pointerEvents: 'none',
+              background: skin?.surface || FIELD, opacity: 1, pointerEvents: 'none',
             }}
           />
         ) : null}
@@ -122,7 +133,7 @@ export const TypeAndFilter: React.FC = () => {
             position: 'absolute', left: 448, top: SEARCH.y, height: SEARCH.h,
             display: 'flex', alignItems: 'center',
             fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-            fontSize: 15, letterSpacing: 0.2, color: 'oklch(25% 0.006 82)', pointerEvents: 'none',
+            fontSize: 15, letterSpacing: 0.2, color: skin?.text || 'oklch(25% 0.006 82)', pointerEvents: 'none',
           }}
         >
           <span>{QUERY.slice(0, typedCount)}</span>
@@ -133,9 +144,9 @@ export const TypeAndFilter: React.FC = () => {
 
         {/* ---- click ripple: two concentric amber rings ---- */}
         {[0, 1].map((r) => {
-          const start = 58 + r * 3; // 176 - 118
-          if (frame < start || frame > start + 10) return null;
-          const t = interpolate(frame, [start, start + 10], [0, 1], {
+          const start = cue(58 + r * 3);
+          if (frame < start || frame > start + cue(10)) return null;
+          const t = interpolate(frame, [start, start + cue(10)], [0, 1], {
             extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic),
           });
           const rad = interpolate(t, [0, 1], [14, r === 0 ? 54 : 78]);
@@ -145,25 +156,26 @@ export const TypeAndFilter: React.FC = () => {
               style={{
                 position: 'absolute', left: CLICK_C.x - rad, top: CLICK_C.y - rad,
                 width: rad * 2, height: rad * 2, borderRadius: '50%',
-                border: `2px solid ${AMBER}`, opacity: 1 - t, pointerEvents: 'none', zIndex: 5,
+                border: `2px solid ${skin?.accent || AMBER}`, opacity: 1 - t, pointerEvents: 'none', zIndex: 5,
               }}
             />
           );
         })}
 
         {/* ---- selected-card amber outline, lit from the click ---- */}
-        {frame >= 60 ? (
+        {frame >= cue(60) ? (
           <div
             style={{
               position: 'absolute', left: NANO_TO.x - 6, top: NANO_TO.y - 6,
               width: nano.w + 12, height: nano.h + 12, borderRadius: 16,
-              border: `3px solid ${AMBER}`, boxShadow: '0 0 40px rgba(180,120,50,0.5)',
-              opacity: interpolate(frame, [60, 63], [0.5, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
+              border: `3px solid ${skin?.accent || AMBER}`, boxShadow: '0 0 40px rgba(180,120,50,0.5)',
+              opacity: interpolate(frame, [cue(60), cue(63)], [0.5, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }),
               pointerEvents: 'none', zIndex: 4,
             }}
           />
         ) : null}
-      </PageCam2D>
+        </PageCam2D>
+      </div>
     </AbsoluteFill>
   );
 };

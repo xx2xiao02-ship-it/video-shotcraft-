@@ -8,6 +8,11 @@ import { G, Card } from '../../_fixtures/Fixtures';
 const BLUE = '#2383e2';
 const RED = '#e8503a';
 
+export type ColorBlockStepWipeProps = {
+  badgeText?: string;
+  pageLabel?: string;
+};
+
 // 离散阶跃：frame 越过阈值瞬间跳到新值，无插值
 const stepVal = (frame: number, steps: Array<[number, number]>): number => {
   let v = steps[0][1];
@@ -18,7 +23,7 @@ const stepVal = (frame: number, steps: Array<[number, number]>): number => {
 };
 
 // 蓝底上的圆形 AI 表情徽章
-const AiBadge: React.FC<{ scale: number; opacity: number }> = ({ scale, opacity }) => (
+const AiBadge: React.FC<{ scale: number; opacity: number; label: string }> = ({ scale, opacity, label }) => (
   <div
     style={{
       width: 170,
@@ -40,13 +45,14 @@ const AiBadge: React.FC<{ scale: number; opacity: number }> = ({ scale, opacity 
       <path d="M24 28 Q34 20 44 26" stroke={G.ink} strokeWidth={6} fill="none" strokeLinecap="round" />
       <path d="M66 26 Q76 20 86 28" stroke={G.ink} strokeWidth={6} fill="none" strokeLinecap="round" />
     </svg>
+    <span style={{ position: 'absolute', bottom: -42, color: G.ink, fontSize: 24, fontWeight: 800, whiteSpace: 'nowrap' }}>{label}</span>
   </div>
 );
 
 // 变体 B 背景：极简灰阶页面（不动 Fixtures，只组合）
-const GrayPage: React.FC = () => (
+const GrayPage: React.FC<{ label: string }> = ({ label }) => (
   <AbsoluteFill style={{ background: G.panel, padding: '90px 160px', boxSizing: 'border-box' }}>
-    <div style={{ height: 40, width: 560, background: G.bar, borderRadius: 12, marginBottom: 40 }} />
+    <div style={{ height: 40, width: 560, background: G.bar, borderRadius: 12, marginBottom: 40, color: G.ink, fontSize: 26, fontWeight: 700, padding: '4px 16px', boxSizing: 'border-box' }}>{label}</div>
     {[92, 78, 86, 60].map((w, i) => (
       <div key={i} style={{ height: 18, width: `${w}%`, background: G.line, borderRadius: 9, marginBottom: 24 }} />
     ))}
@@ -57,7 +63,7 @@ const GrayPage: React.FC = () => (
   </AbsoluteFill>
 );
 
-export const ColorBlockStepWipe: React.FC = () => {
+export const ColorBlockStepWipe: React.FC<ColorBlockStepWipeProps> = ({ badgeText = 'AI READY', pageLabel = 'Processed workspace' }) => {
   const frame = useCurrentFrame();
 
   // ---------- 场景 A（0–77f）：蓝块中央阶跃生长 ----------
@@ -102,7 +108,7 @@ export const ColorBlockStepWipe: React.FC = () => {
             justifyContent: 'center',
           }}
         />
-        <AiBadge scale={badgeScale} opacity={badgeOpacity} />
+        <AiBadge scale={badgeScale} opacity={badgeOpacity} label={badgeText} />
       </AbsoluteFill>
     );
   }
@@ -136,7 +142,7 @@ export const ColorBlockStepWipe: React.FC = () => {
 
   return (
     <AbsoluteFill>
-      <GrayPage />
+      <GrayPage label={pageLabel} />
       <AbsoluteFill style={{ background: RED, clipPath: clip }} />
       {p > 0 && (
         <div

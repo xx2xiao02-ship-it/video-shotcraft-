@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // "SHIP" 手工笔画段。坐标系：每字 200 宽、320 高，字间距 60。
 // 段 = {x1,y1,x2,y2}，线宽 44，方形端帽（不连续感更强）。
@@ -57,8 +59,16 @@ const WORD_W = ADV * 3 + K; // 980
 const OX = (1920 - WORD_W) / 2;
 const OY = (1080 - H) / 2 + 20;
 
-export const StrokeSegmentBuild: React.FC = () => {
+export const StrokeSegmentBuild: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
+  const word=skin ? words?.[0] || '' : 'SHIP';
+  if(skin && !/^[SHIP]{3,6}$/.test(word)) throw new Error('Stroke segment wordmark supports 3 to 6 uppercase S H I P letters');
+  const glyphs={S:SEGS.slice(0,6),H:SEGS.slice(6,9),I:SEGS.slice(9,12),P:SEGS.slice(12,16)};
+  const glyphOffsets={S:0,H:ADV,I:ADV*2,P:ADV*3};
+  const segments=skin ? [...word].flatMap((letter,i)=>glyphs[letter as keyof typeof glyphs].map(s=>({...s,x1:s.x1-glyphOffsets[letter as keyof typeof glyphOffsets]+i*ADV,x2:s.x2-glyphOffsets[letter as keyof typeof glyphOffsets]+i*ADV}))) : SEGS;
+  const keys=skin ? segments.map((_,i)=>i).filter(i=>segments[i].x1===segments[i].x2).slice(-3) : [];
+  const order=skin ? segments.map((_,i)=>i).filter(i=>!keys.includes(i)).sort((a,b)=>(a*11%segments.length)-(b*11%segments.length)||a-b).concat(keys) : ORDER;
+  const sizeScale=skin ? Math.min(1,1400/(word.length*ADV-60)) : 1;
 
   // 末段落位：整字脉冲 1 → 1.06 → 1（8f）
   const pulse = interpolate(
@@ -68,8 +78,9 @@ export const StrokeSegmentBuild: React.FC = () => {
     { easing: Easing.out(Easing.cubic), extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.ink, overflow: 'hidden', position: 'relative' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.ink), overflow: 'hidden', position: 'relative' }}>
+      {!skin &&
       <div
         style={{
           position: 'absolute',
@@ -85,14 +96,15 @@ export const StrokeSegmentBuild: React.FC = () => {
       >
         STROKE SEGMENT BUILD
       </div>
+      }
       <svg
         width={1920}
         height={1080}
-        style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${pulse})`, transformOrigin: '50% 55%' }}
+        style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${pulse*sizeScale})`, transformOrigin: '50% 55%' }}
       >
-        {SEGS.map((seg, i) => {
-          const rank = ORDER.indexOf(i);
-          const start = FIRST + rank * STEP;
+        {segments.map((seg, i) => {
+          const rank = order.indexOf(i);
+          const start = FIRST + rank * (skin ? 90/(segments.length-1) : STEP);
           if (frame < start) return null; // 未开始的段不渲染
           const t = interpolate(frame, [start, start + SEG_IN], [0, 1], {
             easing: Easing.out(Easing.cubic),
@@ -109,11 +121,11 @@ export const StrokeSegmentBuild: React.FC = () => {
           return (
             <line
               key={i}
-              x1={OX + seg.x1 + ox}
+              x1={skin ? (1920-(word.length*ADV-60))/2 + seg.x1 + ox : OX + seg.x1 + ox}
               y1={OY + seg.y1 + oy}
-              x2={OX + seg.x2 + ox}
+              x2={skin ? (1920-(word.length*ADV-60))/2 + seg.x2 + ox : OX + seg.x2 + ox}
               y2={OY + seg.y2 + oy}
-              stroke={G.panel}
+              stroke={skin?.text || G.panel}
               strokeWidth={44}
               strokeLinecap="butt"
               opacity={t}
@@ -123,4 +135,5 @@ export const StrokeSegmentBuild: React.FC = () => {
       </svg>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };
