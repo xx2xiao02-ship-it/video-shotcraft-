@@ -4,6 +4,7 @@
 // 词表可整体替换为项目关键词。设计坐标 480×270（DesignStage 等比放大）。
 import React from 'react';
 import { DesignStage, lerp, rand, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const FLYING_WORDS_DURATION = 180; // 6000ms @30fps
 
@@ -27,8 +28,8 @@ const curve = (u: number) => {
 
 const CYCLES = 2; // 整数圈 → t=0/t=1 画面一致
 
-export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
-  const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
+export const FlyingWords: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
+  const WORDS = words && words.length > 0 ? (skin ? words.flatMap(line=>line.trim().split(/\s+/)) : words) : DEFAULT_WORDS;
   const N = WORDS.length;
 
   const ITEMS = WORDS.map((w, i) => {
@@ -38,9 +39,9 @@ export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
   const r = 82 + rand(i * 13 + 2) * 165;
   return {
     text: w,
-    fontSize: 20 + rand(i + 3) * 16,
-    color: `hsl(${hue},${58 + rand(i + 5) * 30}%,${70 + rand(i + 9) * 18}%)`,
-    textShadow: `0 0 16px hsla(${hue},90%,66%,.45)`,
+    fontSize: skin ? Math.min(36, 180 / Math.max(w.length,1)) : 20 + rand(i + 3) * 16,
+    color: skin ? (i % 2 ? skin.text : skin.accent) : `hsl(${hue},${58 + rand(i + 5) * 30}%,${70 + rand(i + 9) * 18}%)`,
+    textShadow: skin ? 'none' : `0 0 16px hsla(${hue},90%,66%,.45)`,
     x: Math.cos(a) * r,
     y: Math.sin(a) * r * 0.6,
     rz: (rand(i + 21) - 0.5) * 14,
@@ -54,7 +55,7 @@ export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
   return (
     // 渐变底全部用百分比 → 放到 DesignStage 外层 bg 上，在合成分辨率下原生栅格化
     // （与原渲染 DPR=4 的平滑度一致；缩放容器内画大渐变会产生 4px 宽的色带）
-    <DesignStage bg="radial-gradient(60% 60% at 50% 50%,#131a2c,#05060b 75%)">
+    <DesignStage bg={skinBackground(skin, 'radial-gradient(60% 60% at 50% 50%,#131a2c,#05060b 75%)')}>
       {/* 场景：透视相机（perspective 随 DesignStage 等比放大） */}
       <div
         style={{
@@ -90,8 +91,8 @@ export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
                   fontWeight: 800,
                   fontSize: it.fontSize,
                   lineHeight: 1,
-                  fontFamily: "-apple-system,'Segoe UI',sans-serif",
-                  letterSpacing: '0.5px',
+                  fontFamily: skin?.fontFamily || "-apple-system,'Segoe UI',sans-serif",
+                  letterSpacing: skin ? 0 : '0.5px',
                   color: it.color,
                   textShadow: it.textShadow,
                   margin: '-14px 0 0 -60px',
@@ -115,7 +116,7 @@ export const FlyingWords: React.FC<{ words?: string[] }> = ({ words }) => {
             height: 220,
             margin: -110,
             borderRadius: '50%',
-            background: 'radial-gradient(circle,rgba(120,150,255,.22),transparent 68%)',
+            background: skin ? `radial-gradient(circle,color-mix(in srgb,${skin.accent} 22%,transparent),transparent 68%)` : 'radial-gradient(circle,rgba(120,150,255,.22),transparent 68%)',
             filter: 'blur(6px)',
             opacity: 0.75 + Math.sin(t * Math.PI * 4) * 0.12,
           }}

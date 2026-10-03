@@ -5,6 +5,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 const SEL = 'rgba(58, 128, 236, 0.35)';
@@ -51,7 +53,9 @@ const DemoteScene: React.FC<{
   frame: number;
   title: string;
   withSelection: boolean;
-}> = ({ frame, title, withSelection }) => {
+  skin?: TemplateSkin;
+  body?: string[];
+}> = ({ frame, title, withSelection, skin, body }) => {
   // 时间轴（局部帧）
   const REVEAL = 0; // 0–12 显影
   const SEL_ON = 14; // 高亮扫入 14–24
@@ -102,10 +106,16 @@ const DemoteScene: React.FC<{
   });
 
   return (
-    <AbsoluteFill style={{ background: G.bg }}>
+    <AbsoluteFill style={{ background: skin ? 'transparent' : G.bg }}>
       {/* 内容骨架区 */}
       <div style={{ position: 'absolute', left: 150, top: 210 }}>
-        <Skeleton t={growT} />
+        {skin ? <div style={{display:'flex',flexDirection:'column',gap:42,width:1500}}>
+          {body?.map((line,i)=>{
+            const p=interpolate(growT,[i*0.16,i*0.16+0.3],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp',easing:Easing.out(Easing.cubic)});
+            return <div key={i} style={{fontFamily:skin.fontFamily,fontSize:68,color:skin.text,
+              opacity:p,transform:`translateY(${(1-p)*28}px)`}}>{line}</div>;
+          })}
+        </div> : <Skeleton t={growT} />}
       </div>
       {/* 标题：transform-origin 左中，位置补间 */}
       <div
@@ -122,11 +132,11 @@ const DemoteScene: React.FC<{
         <div
           style={{
             position: 'relative',
-            fontFamily: FONT,
+            fontFamily: skin?.fontFamily || FONT,
             fontWeight: 800,
-            fontSize: 128,
-            color: G.ink,
-            letterSpacing: -2,
+            fontSize: skin ? Math.min(128,1500/title.length) : 128,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : -2,
             whiteSpace: 'nowrap',
             padding: '10px 18px',
           }}
@@ -151,8 +161,10 @@ const DemoteScene: React.FC<{
   );
 };
 
-export const TitleDemoteToLabel: React.FC = () => {
+export const TitleDemoteToLabel: React.FC<{words?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({words, skin}) => {
   const frame = useCurrentFrame();
+  if(skin) return <BusinessTextStage skin={skin}><DemoteScene frame={frame}
+    title={words?.[0] || ''} body={words?.slice(1)} withSelection={false} skin={skin} /></BusinessTextStage>;
   const SPLIT = 92; // 变体 A 时长
 
   if (frame < SPLIT) {

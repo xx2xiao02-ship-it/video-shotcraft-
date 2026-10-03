@@ -5,7 +5,8 @@
 // 参数化：words/sub/subDigits 可换成目标产品文案；subDigits 走 DigitRoll
 // 数字滚动（必须在本卡淡出前落定）。渲染本 demo 前把 text 复制进项目即可。
 import React from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, Easing } from 'remotion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const PAPER_TITLE_CARD_DURATION = 55; // ≈1.8s @30fps
 
@@ -74,7 +75,7 @@ const DigitRoll: React.FC<{ value: string; delay: number; color: string }> = ({ 
   );
 };
 
-export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
+export const PaperTitleCard: React.FC<{ words?: string[]; skin?: TemplateSkin; durationInFrames?: number }> = ({ words, skin, durationInFrames }) => {
   // 由注入 words 重建：保留逐词压印时序（JSX 内按 i*4 推导），accent 落在居中词
   const resolvedWords: { text: string; accent?: boolean }[] =
     words && words.length > 0
@@ -84,7 +85,8 @@ export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
         }))
       : DEFAULT_WORDS;
   const frame = useCurrentFrame();
-  const duration = PAPER_TITLE_CARD_DURATION;
+  const duration = durationInFrames ?? PAPER_TITLE_CARD_DURATION;
+  const {width} = useVideoConfig();
   const fadeOut = interpolate(frame, [duration - 8, duration], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -102,24 +104,25 @@ export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: 'oklch(97.5% 0.008 82)',
+        backgroundColor: skinBackground(skin, 'oklch(97.5% 0.008 82)'),
         justifyContent: 'center',
         alignItems: 'center',
         opacity: fadeOut,
-        backgroundImage:
+        backgroundImage: skin ? 'none' :
           'radial-gradient(1100px 750px at 50% 42%, oklch(99.3% 0.014 88 / 0.85), transparent 65%)',
       }}
     >
-      <div style={{ textAlign: 'center', maxWidth: 1500 }}>
+      <div style={{ textAlign: 'center', maxWidth: width * 0.84 }}>
         <div
           style={{
-            fontFamily: SERIF,
-            fontSize: 116,
+            fontFamily: skin?.fontFamily || SERIF,
+            fontSize: Math.min(116, width * 0.84 / Math.max(...resolvedWords.map(word => [...word.text].length), 1)),
             fontWeight: 600,
             lineHeight: 1.14,
-            color: 'oklch(18% 0.006 82)',
+            color: skin?.text || 'oklch(18% 0.006 82)',
             letterSpacing: '-0.012em',
             display: 'flex',
+            flexDirection: words?.length ? 'column' : 'row',
             flexWrap: 'wrap',
             justifyContent: 'center',
             columnGap: '0.26em',
@@ -141,7 +144,7 @@ export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
                   filter: `blur(${(1 - t) * 7}px)`,
                   display: 'inline-block',
                   fontStyle: w.accent ? 'italic' : 'normal',
-                  color: w.accent ? 'oklch(52% 0.115 65)' : undefined,
+                  color: w.accent ? (skin?.accent || 'oklch(52% 0.115 65)') : undefined,
                 }}
               >
                 {w.text}
@@ -155,16 +158,16 @@ export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
             width: 220,
             margin: '38px auto 0',
             borderRadius: 3,
-            background: 'oklch(52% 0.115 65)',
+            background: skin?.accent || 'oklch(52% 0.115 65)',
             transform: `scaleX(${underline})`,
           }}
         />
-        <div
+        {!words?.length && <div
           style={{
-            fontFamily: MONO,
+            fontFamily: skin?.fontFamily || MONO,
             fontSize: 26,
             letterSpacing: '0.12em',
-            color: 'oklch(50% 0.006 82)',
+            color: skin?.muted || 'oklch(50% 0.006 82)',
             marginTop: 34,
             opacity: subT,
             textTransform: 'uppercase',
@@ -174,9 +177,9 @@ export const PaperTitleCard: React.FC<{ words?: string[] }> = ({ words }) => {
             gap: '0.5em',
           }}
         >
-          <DigitRoll value={SUB_DIGITS} delay={12} color="oklch(52% 0.115 65)" />
+          <DigitRoll value={SUB_DIGITS} delay={12} color={skin?.accent || 'oklch(52% 0.115 65)'} />
           <span>{SUB}</span>
-        </div>
+        </div>}
       </div>
     </AbsoluteFill>
   );

@@ -7,6 +7,8 @@
 // 品牌名/副标/强调色可换成目标品牌。
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const BRAND_INK_OPEN_DURATION = 104;
 
@@ -19,7 +21,7 @@ const INK2 = 'oklch(50% 0.006 82)';
 const DEFAULT_WORDMARK = 'AI Foundation Lab';
 const DEFAULT_KICKER = 'TEAM RESEARCH CONSOLE';
 
-export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
+export const BrandInkOpen: React.FC<{ words?: string[]; skin?: TemplateSkin; durationInFrames?: number }> = ({ words, skin, durationInFrames }) => {
   const WORDMARK = words && words.length > 0 ? words[0] : DEFAULT_WORDMARK;
   const KICKER = words && words.length > 1 ? words[1] : DEFAULT_KICKER;
   const frame = useCurrentFrame();
@@ -52,26 +54,27 @@ export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
   // glyph is done at 10+15*3+12=67), then dissolves out (97 → 104): lift +
   // shrink + fade. This leaves a clean ~30-frame hold of the COMPLETE title
   // (67→97), per the card's "完整标题停留 ~30 帧" requirement. ---
-  const brandOut = interpolate(frame, [97, 104], [0, 1], {
+  const exitStart = skin ? (durationInFrames || 180) - 8 : 97;
+  const brandOut = interpolate(frame, [exitStart, exitStart + 7], [0, 1], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.bezier(0.4, 0, 0.5, 1),
   });
   const brandOpacity = 1 - brandOut;
   const groupY = -brandOut * 40;
   const groupScale = 1 - brandOut * 0.12;
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: '#faf7f2', justifyContent: 'center', alignItems: 'center' }}>
+  const content = (
+    <AbsoluteFill style={{ backgroundColor: skin ? 'transparent' : '#faf7f2', justifyContent: 'center', alignItems: 'center' }}>
       <div style={{ textAlign: 'center', opacity: brandOpacity, transform: `translateY(${groupY}px) scale(${groupScale})` }}>
         {/* crosshair drawn by an invisible amber pen */}
         <svg width={64} height={64} viewBox="0 0 64 64" style={{ display: 'block', margin: '0 auto 34px', opacity: crossFade }}>
           <line
             x1={32} y1={2} x2={32} y2={62}
-            stroke={AMBER} strokeWidth={5} strokeLinecap="round"
+            stroke={skin?.accent || AMBER} strokeWidth={5} strokeLinecap="round"
             pathLength={100} strokeDasharray={100} strokeDashoffset={vDraw}
           />
           <line
             x1={2} y1={32} x2={62} y2={32}
-            stroke={AMBER} strokeWidth={5} strokeLinecap="round"
+            stroke={skin?.accent || AMBER} strokeWidth={5} strokeLinecap="round"
             pathLength={100} strokeDasharray={100} strokeDashoffset={hDraw}
           />
         </svg>
@@ -79,8 +82,8 @@ export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
         {/* wordmark: glyph-by-glyph letterpress with amber under-glint */}
         <div
           style={{
-            fontFamily: SERIF, fontSize: 132, fontWeight: 600, color: INK,
-            letterSpacing: '-0.01em', lineHeight: 1, whiteSpace: 'pre',
+            fontFamily: skin?.fontFamily || SERIF, fontSize: skin ? Math.min(132, 1500 / WORDMARK.length) : 132, fontWeight: 600, color: skin?.text || INK,
+            letterSpacing: skin ? 0 : '-0.01em', lineHeight: 1, whiteSpace: 'pre',
             display: 'inline-flex', alignItems: 'flex-end',
           }}
         >
@@ -106,7 +109,7 @@ export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
                 <span
                   style={{
                     position: 'absolute', left: '50%', bottom: -6, transform: 'translateX(-50%)',
-                    width: `${glint * 100}%`, height: 2, background: AMBER, opacity: glint, borderRadius: 2,
+                    width: `${glint * 100}%`, height: 2, background: skin?.accent || AMBER, opacity: glint, borderRadius: 2,
                   }}
                 />
               </span>
@@ -117,7 +120,7 @@ export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
         {/* mono kicker typewriter + amber block cursor */}
         <div
           style={{
-            fontFamily: MONO, fontSize: 26, letterSpacing: '0.14em', color: INK2,
+            fontFamily: skin?.fontFamily || MONO, fontSize: skin ? 48 : 26, letterSpacing: skin ? 0 : '0.14em', color: skin?.muted || INK2,
             marginTop: 30, textTransform: 'uppercase', height: 30,
             display: 'flex', justifyContent: 'center', alignItems: 'center',
           }}
@@ -126,11 +129,12 @@ export const BrandInkOpen: React.FC<{ words?: string[] }> = ({ words }) => {
           <span
             style={{
               display: 'inline-block', width: 14, height: 24, marginLeft: 4,
-              background: AMBER, opacity: cursorOn ? 0.85 : 0,
+              background: skin?.accent || AMBER, opacity: cursorOn ? 0.85 : 0,
             }}
           />
         </div>
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const OUTLINE_WORD_FILL_DURATION = 75; // 2500ms @30fps
 
@@ -19,9 +20,10 @@ const DUST = Array.from({ length: 14 }, (_, i) => ({
 // 默认单字文案（双层描边/实心同词）
 const DEFAULT_WORDS = ['Faster'];
 
-export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
+export const OutlineWordFill: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   const W = words && words.length > 0 ? words : DEFAULT_WORDS;
-  const label = W[0] ?? DEFAULT_WORDS[0];
+  const label = W.join('\n');
+  const fontSize = Math.min(42, Math.floor(360 / Math.max(...W.map(line => line.length), 1)));
   const t = useT();
   // 空心字从 ~3.2x 急缓收缩落位（原片 4.83→5.15s）
   const born = seg(t, 0.05, 0.14, E.outCubic);
@@ -41,8 +43,8 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
   // 注：原 effect.js 背景为 #050505，但样片 mp4 经 x264 编码后底色实测为 rgb(3,3,3)
   // （暗部量化损失），此处按样片实际电平取 #030303 保证帧一致性。
   return (
-    <DesignStage bg="#030303">
-      <div style={{ position: 'absolute', inset: 0, background: '#030303', overflow: 'hidden' }}>
+    <DesignStage bg={skinBackground(skin, '#030303')}>
+      <div style={{ position: 'absolute', inset: 0, background: skinBackground(skin, '#030303'), overflow: 'hidden' }}>
         {/* 背景微尘 */}
         {DUST.map(({ size, opacity, left, top }, i) => (
           <div
@@ -52,7 +54,7 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
               width: size,
               height: size,
               borderRadius: '50%',
-              background: '#fff',
+              background: skin?.accent || '#fff',
               opacity,
               left,
               top,
@@ -103,11 +105,14 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
             position: 'absolute',
             left: '50%',
             top: '50%',
-            fontFamily: '-apple-system,"Helvetica Neue",sans-serif',
-            fontSize: 48,
+            fontFamily: skin?.fontFamily || '-apple-system,"Helvetica Neue",sans-serif',
+            fontSize,
             fontWeight: 500,
             letterSpacing: 0.5,
             lineHeight: 1,
+            width: 410,
+            whiteSpace: 'pre',
+            textAlign: 'center',
             opacity: born,
             transform: `translate(-50%,-53%) scale(${lerp(zoom, 3.2, 1)})`,
           }}
@@ -115,7 +120,7 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
           <div
             style={{
               color: 'transparent',
-              WebkitTextStroke: `1px rgb(${gv - 4},${gv},${gv + 8})`,
+              WebkitTextStroke: skin ? `1px ${skin.accent}` : `1px rgb(${gv - 4},${gv},${gv + 8})`,
               opacity: 1 - pop,
             }}
           >
@@ -125,7 +130,7 @@ export const OutlineWordFill: React.FC<{ words?: string[] }> = ({ words }) => {
             style={{
               position: 'absolute',
               inset: 0,
-              color: 'var(--text)',
+              color: skin?.text || 'var(--text)',
               opacity: pop,
               textShadow:
                 flash > 0.01 ? `0 0 ${flash * 16}px rgba(255,255,255,${flash * 0.45})` : 'none',

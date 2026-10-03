@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const BEATS = [30, 50, 70, 90, 110];
 const ACCENTS = new Set([2, 4]); // 第 3、5 拍重音
@@ -20,7 +22,8 @@ const envAt = (frame: number, beat: number) => {
   return Math.pow(1 - t / DECAY, 0.8);
 };
 
-export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
+export const FontWeightPump: React.FC<{ text?: string;skin?:TemplateSkin;durationInFrames?:number }> = ({ text,skin }) => {
+  if(skin && (!text?.trim() || /[\r\n]/.test(text) || [...text].length>8)) throw new Error('FontWeightPump requires one business title of at most eight characters');
   const frame = useCurrentFrame();
   const TEXT = text || DEFAULT_TEXT;
 
@@ -35,20 +38,20 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
     }
   });
 
-  const strokeW = 10 * env; // 笔画粗细连续衰减
+  const strokeW = (skin ? 3 : 10) * env; // 中文内腔保留可读性，默认演示沿用10px。
   const weight = env > 0.15 ? 900 : 400; // 命中窗口离散跳字重
   const accent = activeBeat >= 0 && ACCENTS.has(activeBeat);
   const scaleX = accent ? 1 + 0.08 * env : 1; // 重音拍变宽一挡
 
-  return (
+  const scene = (
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skin?.bg || G.bg,
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       {/* 定宽居中容器，transform 缩放不改排版 */}
@@ -68,10 +71,10 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
           style={{
             fontSize: 150,
             fontWeight: weight,
-            color: G.ink,
-            letterSpacing: 6,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : 6,
             whiteSpace: 'nowrap',
-            WebkitTextStroke: `${strokeW}px ${G.ink}`,
+            WebkitTextStroke: `${strokeW}px ${skin?.text || G.ink}`,
             transform: `scaleX(${scaleX})`,
             transformOrigin: 'center center',
           }}
@@ -85,7 +88,7 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
         style={{
           position: 'absolute',
           left: 0,
-          bottom: 130,
+          bottom: skin ? 260 : 130,
           width: 1920,
           display: 'flex',
           justifyContent: 'center',
@@ -103,7 +106,7 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
                 width: 26,
                 height: 26,
                 borderRadius: 13,
-                background: G.line,
+                background: skin?.muted || G.line,
                 position: 'relative',
                 transform: `scale(${dotScale})`,
               }}
@@ -113,7 +116,7 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
                   position: 'absolute',
                   inset: 0,
                   borderRadius: 13,
-                  background: G.ink,
+                  background: skin?.accent || G.ink,
                   opacity: dotOpacity,
                 }}
               />
@@ -123,4 +126,5 @@ export const FontWeightPump: React.FC<{ text?: string }> = ({ text }) => {
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

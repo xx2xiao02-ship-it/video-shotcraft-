@@ -9,15 +9,18 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_WORD = 'BREATHE';
 const FS = 150; // 主词字号
 // 每个字缝的起始-终点差：(-0.42em) - (0.14em) = -0.56em = -84px @150px
 const GAP_DELTA = -0.56 * FS;
 
-export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
+export const TrackingExpandReveal: React.FC<{ word?: string; skin?: TemplateSkin }> = ({ word, skin }) => {
   const frame = useCurrentFrame();
   const WORD = word || DEFAULT_WORD;
+  const font = skin ? Math.min(FS, 1500 / Math.max(WORD.length,1)) : FS;
   // 展开进度 0→1（0–50f，out poly(5)）
   const p = interpolate(frame, [0, 50], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -38,11 +41,11 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
   const center = (N - 1) / 2;
   const settled = frame >= 50; // 展开完成后摘掉一切滤镜/变换，保证逐帧完全相同
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, position: 'relative', overflow: 'hidden' }}>
+      {!skin && <div style={{ position: 'absolute', left: 120, top: 96 }}>
         <TitleBlock text="TRACKING EXPAND REVEAL" size={54} />
-      </div>
+      </div>}
 
       {/* 主词：容器 letterSpacing 恒为 0.14em（终态），字符仅做 translateX */}
       <div
@@ -60,18 +63,18 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
-            fontSize: FS,
-            color: G.ink,
-            letterSpacing: '0.14em',
+            fontSize: font,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : '0.14em',
             whiteSpace: 'pre',
             // letter-spacing 只加在字后，整体左移半个缝宽找回视觉对中
-            marginLeft: 0.14 * FS * 0.5,
+            marginLeft: skin ? 0 : 0.14 * FS * 0.5,
           }}
         >
           {WORD.split('').map((ch, i) => {
-            const tx = (1 - p) * (i - center) * GAP_DELTA;
+            const tx = (1 - p) * (i - center) * (skin ? -0.56 * font : GAP_DELTA);
             return (
               <span
                 key={i}
@@ -88,7 +91,7 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
       </div>
 
       {/* 副标题：主词展开 70% 时点淡入 */}
-      <div
+      {!skin && <div
         style={{
           position: 'absolute',
           top: 630,
@@ -104,7 +107,8 @@ export const TrackingExpandReveal: React.FC<{ word?: string }> = ({ word }) => {
         }}
       >
         A CINEMATIC TITLE ENTRANCE
-      </div>
+      </div>}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

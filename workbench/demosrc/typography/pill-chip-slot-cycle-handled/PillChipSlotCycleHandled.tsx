@@ -4,6 +4,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const PILL_CHIP_SLOT_CYCLE_HANDLED_DURATION = 150; // 5000ms @30fps
 
@@ -27,28 +28,31 @@ const SIDE: React.CSSProperties = {
   flex: 'none',
 };
 
-export const PillChipSlotCycleHandled: React.FC = () => {
+export const PillChipSlotCycleHandled: React.FC<{words?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({words, skin}) => {
   const t = useT();
+  const items = words ? words.slice(1,-1).map(w=>({w,e:''})) : WORDS;
+  const font = skin ? `700 22px ${skin.fontFamily}` : FONT;
+  const side = skin ? {...SIDE,color:skin.text,fontSize:26,letterSpacing:0} : SIDE;
 
   // 量宽：与原 effect.js 相同，用隐藏 span 实测每个词的 offsetWidth（+74 胶囊留白），
   // 只在首次布局量一次；量到前用兜底估算，避免首帧闪动
   const measRef = useRef<HTMLDivElement>(null);
-  const [widths, setWidths] = useState<number[]>(FALLBACK_WIDTHS);
+  const [widths, setWidths] = useState<number[]>(words ? items.map(o=>o.w.length*22+40) : FALLBACK_WIDTHS);
   useLayoutEffect(() => {
     const spans = measRef.current?.children;
     if (!spans) return;
     setWidths(
-      WORDS.map((o, i) => ((spans[i] as HTMLElement).offsetWidth || o.w.length * 13) + 74),
+      items.map((o, i) => ((spans[i] as HTMLElement).offsetWidth || o.w.length * (skin?22:13)) + (skin?40:74)),
     );
   }, []);
 
   // 三次切换：0.25 / 0.47 / 0.69，每次用 0.12 的 inOutCubic 推进一格
   let pos = 0;
   for (const s0 of [0.25, 0.47, 0.69]) pos += seg(t, s0, s0 + 0.12, E.inOutCubic);
-  const ci = Math.min(WORDS.length - 1, Math.floor(pos));
+  const ci = Math.min(items.length - 1, Math.floor(pos));
   const frac = pos - ci;
   // 胶囊宽度随当前词→下一词插值，平滑挤开两侧文字
-  const chipW = lerp(frac, widths[ci], widths[Math.min(ci + 1, WORDS.length - 1)]);
+  const chipW = lerp(frac, widths[ci], widths[Math.min(ci + 1, items.length - 1)]);
 
   // 幽灵项：当前词的前/后邻居，随滚动微移，落定时回到基准透明度
   const near = Math.round(pos);
@@ -58,15 +62,15 @@ export const PillChipSlotCycleHandled: React.FC = () => {
     position: 'absolute',
     left: '50%',
     top,
-    font: FONT,
-    color: '#15171d',
+    font,
+    color: skin?.muted || '#15171d',
     whiteSpace: 'nowrap',
     transform: `translateX(-50%) translateY(${-roll}px)`,
     opacity: 0.13 * (0.4 + settle * 0.6),
   });
 
   return (
-    <DesignStage bg="#fbfbfd">
+    <DesignStage bg={skinBackground(skin,'#fbfbfd')}>
       <div
         style={{
           position: 'absolute',
@@ -74,18 +78,18 @@ export const PillChipSlotCycleHandled: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: skin?.fontFamily || '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* 隐藏量宽 span（与原 setup 的 meas 等价，不参与布局显示） */}
         <div ref={measRef} style={{ position: 'absolute', visibility: 'hidden' }}>
-          {WORDS.map((o) => (
-            <span key={o.w} style={{ whiteSpace: 'nowrap', font: FONT }}>
+          {items.map((o) => (
+            <span key={o.w} style={{ whiteSpace: 'nowrap', font }}>
               {o.w}
             </span>
           ))}
         </div>
-        <div style={SIDE}>Your</div>
+        <div style={side}>{words?.[0] || 'Your'}</div>
         <div style={{ position: 'relative', flex: 'none' }}>
           {/* 深色胶囊：overflow hidden 里放 4 行词的滚轮列 */}
           <div
@@ -96,7 +100,7 @@ export const PillChipSlotCycleHandled: React.FC = () => {
               margin: '0 14px',
               flex: 'none',
               borderRadius: 99,
-              background: '#1a1c24',
+              background: skin?.surface || '#1a1c24',
               boxShadow: '0 8px 24px rgba(20,22,40,.22)',
               overflow: 'hidden',
             }}
@@ -110,7 +114,7 @@ export const PillChipSlotCycleHandled: React.FC = () => {
                 transform: `translateY(${-pos * 48}px)`,
               }}
             >
-              {WORDS.map(({ w, e }) => (
+              {items.map(({ w, e }) => (
                 <div
                   key={w}
                   style={{
@@ -122,17 +126,17 @@ export const PillChipSlotCycleHandled: React.FC = () => {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  <span style={{ fontSize: 18 }}>{e}</span>
-                  <span style={{ font: FONT, color: 'var(--text)' }}>{w}</span>
+                  {!skin && <span style={{ fontSize: 18 }}>{e}</span>}
+                  <span style={{ font, color: skin?.accent || 'var(--text)' }}>{w}</span>
                 </div>
               ))}
             </div>
           </div>
           {/* 胶囊外上下的灰色幽灵项 */}
-          <div style={ghost(-38)}>{near > 0 ? WORDS[near - 1].w : ''}</div>
-          <div style={ghost(58)}>{near < WORDS.length - 1 ? WORDS[near + 1].w : ''}</div>
+          <div style={ghost(-38)}>{near > 0 ? items[near - 1].w : ''}</div>
+          <div style={ghost(58)}>{near < items.length - 1 ? items[near + 1].w : ''}</div>
         </div>
-        <div style={SIDE}>Handled</div>
+        <div style={side}>{words?.at(-1) || 'Handled'}</div>
       </div>
     </DesignStage>
   );

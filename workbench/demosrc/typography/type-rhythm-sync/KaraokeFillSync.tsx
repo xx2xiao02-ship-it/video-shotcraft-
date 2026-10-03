@@ -7,6 +7,9 @@
 import React from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
+import {validateKaraokeTimings} from '../../../director/karaoke-timing.mjs';
 
 type Word = { text: string; start: number; end: number };
 
@@ -21,7 +24,7 @@ const DEFAULT_LINES: Word[][] = [
   ],
 ];
 
-const KaraokeWord: React.FC<{ word: Word; frame: number }> = ({ word, frame }) => {
+const KaraokeWord: React.FC<{ word: Word; frame: number;skin?:TemplateSkin }> = ({ word, frame,skin }) => {
   // 词内 linear 填充进度，clamp 保证读完保持
   const p = interpolate(frame, [word.start, word.end], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -31,13 +34,13 @@ const KaraokeWord: React.FC<{ word: Word; frame: number }> = ({ word, frame }) =
   return (
     <span style={{ position: 'relative', display: 'inline-block' }}>
       {/* 底层：浅灰未读字 */}
-      <span style={{ color: G.line }}>{word.text}</span>
+      <span style={{ color: skin?.muted || G.line }}>{word.text}</span>
       {/* 上层：深字按进度从左到右揭开 */}
       <span
         style={{
           position: 'absolute',
           inset: 0,
-          color: G.ink,
+          color: skin?.text || G.ink,
           clipPath: `inset(0 ${(1 - p) * 100}% 0 0)`,
         }}
       >
@@ -52,7 +55,7 @@ const KaraokeWord: React.FC<{ word: Word; frame: number }> = ({ word, frame }) =
             bottom: -14,
             width: `${p * 100}%`,
             height: 8,
-            background: G.ink,
+            background: skin?.accent || G.ink,
           }}
         />
       )}
@@ -60,11 +63,12 @@ const KaraokeWord: React.FC<{ word: Word; frame: number }> = ({ word, frame }) =
   );
 };
 
-export const KaraokeFillSync: React.FC<{ text?: string[] }> = ({ text }) => {
+export const KaraokeFillSync: React.FC<{ text?: string[];timedWords?:Array<Word & {line:number}>;skin?:TemplateSkin;durationInFrames?:number }> = ({ text,timedWords,skin,durationInFrames }) => {
   const frame = useCurrentFrame();
+  if(skin) validateKaraokeTimings(timedWords,text,durationInFrames);
   // 由注入词数组重建带时序的双行结构：每词 ~28f 读时 + 4f 间隔，均分两行
   const LINES: Word[][] =
-    text && text.length > 0
+    skin ? [0,1].map(line=>timedWords!.filter(word=>word.line===line)).filter(line=>line.length) : text && text.length > 0
       ? (() => {
           const words = text.slice(0, 8);
           const perLine = Math.ceil(words.length / 2);
@@ -86,32 +90,34 @@ export const KaraokeFillSync: React.FC<{ text?: string[] }> = ({ text }) => {
           return result.length > 0 ? result : DEFAULT_LINES;
         })()
       : DEFAULT_LINES;
-  return (
+  const scene = (
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skin?.bg || G.bg,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        paddingLeft: 240,
+        paddingLeft: skin ? 0 : 240,
+        alignItems:skin ? 'center' : undefined,
         boxSizing: 'border-box',
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-        fontSize: 130,
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontSize: skin ? 66 : 130,
         fontWeight: 800,
-        letterSpacing: 2,
+        letterSpacing: skin ? 0 : 2,
         lineHeight: 1.45,
       }}
     >
       {LINES.map((words, li) => (
         <div key={li} style={{ display: 'flex', gap: 48 }}>
           {words.map((w) => (
-            <KaraokeWord key={w.text} word={w} frame={frame} />
+            <KaraokeWord key={w.text+'-'+w.start} word={w} frame={frame} skin={skin} />
           ))}
         </div>
       ))}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

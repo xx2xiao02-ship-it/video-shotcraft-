@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const COUNTDOWN_ARC_SCATTER_DURATION = 33; // 1100ms @30fps
 
@@ -35,12 +36,18 @@ const DEFAULT_WORDS: { text: string; mr: number; win: [number, number] }[] = [
 
 const mix = (k: number, a: number, b: number) => Math.round(lerp(k, a, b));
 
-export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) => {
+export const CountdownArcScatter: React.FC<{ words?: string[]; skin?: TemplateSkin; durationInFrames?: number }> = ({ words, skin }) => {
   const t = useT();
+  const target = skin ? Number(words?.[0]) : 5;
+  const labels = skin ? words?.slice(1) : words;
+  const nums = skin ? NUMS.map(n=>n===5?target:n===4?Math.max(0,target-1):n===3?Math.max(0,target-2):n+target-5) : NUMS;
+  const numberWidth = skin ? String(target).length * 24 : 24;
+  const titleWidth = skin ? numberWidth + (labels?.join('').length || 0)*40 + 22 : 0;
+  const targetX = skin ? -titleWidth/2 + numberWidth/2 : TARGET.x;
   // 由注入 words 重建逐词元数据：保留 mr（词间距）与 win（模糊淡入时间窗）的错峰节奏
   const resolvedWords: { text: string; mr: number; win: [number, number] }[] =
-    words && words.length > 0
-      ? words.map((text, i, arr) => {
+    labels && labels.length > 0
+      ? labels.map((text, i, arr) => {
           const n = arr.length;
           const start = 0.54 + (i / Math.max(1, n - 1)) * 0.16;
           return {
@@ -57,20 +64,20 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
   // 结尾整词（末双字母收尾）转强调色 #17181c → ACCENT
   const bl = seg(t, 0.84, 0.98);
   return (
-    <DesignStage bg="#fff">
+    <DesignStage bg={skinBackground(skin,'#fff')}>
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: '#fff',
+          background: skin ? 'transparent' : '#fff',
           overflow: 'hidden',
-          fontFamily: '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: skin?.fontFamily || '-apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         {/* pivot：所有元素都以它为原点定位 */}
         <div style={{ position: 'absolute', left: '50%', top: '58%', width: 0, height: 0 }}>
-          {NUMS.map((n, i) => {
-            const is5 = n === 5;
+          {nums.map((n, i) => {
+            const is5 = i === 6;
             const pa = (i - 6) * SP + rot; // 当前位置角
             const rad = (pa * Math.PI) / 180;
             let x = Math.sin(rad) * R0;
@@ -78,7 +85,7 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
             let rSelf = pa; // 切向排布：随位置角自转
             let op = Math.max(0, Math.min(1, (70 - Math.abs(pa)) / 22)); // 弧两端淡入淡出
             if (is5) {
-              x = lerp(hand, x, TARGET.x);
+              x = lerp(hand, x, targetX);
               y = lerp(hand, y, TARGET.y);
               rSelf *= 1 - hand;
             } else {
@@ -92,6 +99,8 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
                   left: 0,
                   top: 0,
                   ...NUM_FONT,
+                  color: skin?.text || INK,
+                  letterSpacing: skin ? 0 : NUM_FONT.letterSpacing,
                   opacity: op,
                   transform: `translate(-50%,-50%) translate(${x}px,${y}px) rotate(${rSelf}deg)`,
                   // "5" 不模糊；其余数字随淡出同步糊化
@@ -121,7 +130,7 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
                 width: 3,
                 height: 26,
                 borderRadius: 2,
-                background: INK,
+                background: skin?.text || INK,
                 opacity: 1 - out,
               }}
             />
@@ -130,10 +139,12 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
           <div
             style={{
               position: 'absolute',
-              left: -124,
+              left: skin ? targetX+numberWidth/2+11 : -124,
               top: -30,
               transform: 'translateY(-50%)',
               ...NUM_FONT,
+              color: skin?.text || INK,
+              letterSpacing: skin ? 0 : NUM_FONT.letterSpacing,
             }}
           >
             {resolvedWords.map(({ text, mr, win }, k) => {
@@ -147,7 +158,7 @@ export const CountdownArcScatter: React.FC<{ words?: string[] }> = ({ words }) =
                     marginRight: mr || undefined,
                     opacity: p,
                     filter: `blur(${(1 - p) * 6}px)`,
-                    color: isLast
+                    color: skin ? (isLast && bl>0.5 ? skin.accent : skin.text) : isLast
                       ? `rgb(${mix(bl, 23, ACCENT_RGB[0])},${mix(bl, 24, ACCENT_RGB[1])},${mix(bl, 28, ACCENT_RGB[2])})`
                       : undefined,
                   }}

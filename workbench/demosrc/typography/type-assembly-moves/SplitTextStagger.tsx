@@ -9,6 +9,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_TEXT = 'MOTION SYSTEM';
 const START = 12; // 首字起跳帧
@@ -34,10 +36,11 @@ const charY = (f: number, idx: number): number => {
   });
 };
 
-export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
+export const SplitTextStagger: React.FC<{ text?: string; skin?: TemplateSkin }> = ({ text, skin }) => {
   const TEXT = text ? (Array.isArray(DEFAULT_TEXT) ? [text] : text) : DEFAULT_TEXT;
   const frame = useCurrentFrame();
   const chars = TEXT.split('');
+  const font = skin ? Math.min(FONT, 1580 / Math.max(chars.length,1)) : FONT;
   // 基线：首字起跳同帧开始，从左向右生长到 100%
   const lineW = interpolate(frame, [START, START + 26], [0, 100], {
     extrapolateLeft: 'clamp',
@@ -45,11 +48,11 @@ export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
     easing: Easing.out(Easing.cubic),
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, position: 'relative', overflow: 'hidden' }}>
+      {!skin && <div style={{ position: 'absolute', left: 120, top: 96 }}>
         <TitleBlock text="SPLIT TEXT STAGGER" size={54} />
-      </div>
+      </div>}
       <div
         style={{
           position: 'absolute',
@@ -70,7 +73,7 @@ export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
               style={{
                 // 遮罩盒：上方留 0.3em 头部空间容纳过冲，底边即裁切线
                 overflow: 'hidden',
-                height: FONT * 1.35,
+                height: font * 1.35,
                 display: 'flex',
                 alignItems: 'flex-end',
               }}
@@ -78,12 +81,12 @@ export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
               <span
                 style={{
                   display: 'inline-block',
-                  fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+                  fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                   fontWeight: 800,
-                  fontSize: FONT,
+                  fontSize: font,
                   lineHeight: 1.05,
-                  color: G.ink,
-                  letterSpacing: 2,
+                  color: skin?.text || G.ink,
+                  letterSpacing: skin ? 0 : 2,
                   transform: `translateY(${charY(frame, i)}%)`,
                 }}
               >
@@ -94,9 +97,10 @@ export const SplitTextStagger: React.FC<{ text?: string }> = ({ text }) => {
         </div>
         {/* 基线细线：宽度从 0 生长到全文宽 */}
         <div style={{ width: 920, marginTop: 10, display: 'flex', justifyContent: 'flex-start' }}>
-          <div style={{ height: 2, width: `${lineW}%`, background: G.bar }} />
+          <div style={{ height: 2, width: `${lineW}%`, background: skin?.accent || G.bar }} />
         </div>
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

@@ -1,6 +1,8 @@
 import React from 'react';
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion';
 import { FakeDashboard, G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // split-flap-flip：机场翻牌字。每字符一个深底翻牌格（上下两半），
 // 逐格翻过 3 个乱码中间态后咔哒停在目标字，左→右 4f 级联成波。
@@ -27,7 +29,7 @@ const FLAP_BG = '#262624';
 const FLAP_INK = '#f4f4f2';
 
 // 半格：上/下半各自 overflow hidden，内部整字定位错半格露出对应一半
-const Half: React.FC<{ ch: string; part: 'top' | 'bottom' }> = ({ ch, part }) => (
+const Half: React.FC<{ ch: string; part: 'top' | 'bottom'; skin?: TemplateSkin }> = ({ ch, part, skin }) => (
   <div
     style={{
       position: 'absolute',
@@ -36,7 +38,7 @@ const Half: React.FC<{ ch: string; part: 'top' | 'bottom' }> = ({ ch, part }) =>
       width: CELL_W,
       height: CELL_H / 2,
       overflow: 'hidden',
-      background: FLAP_BG,
+      background: skin?.surface || FLAP_BG,
       borderRadius: part === 'top' ? '10px 10px 0 0' : '0 0 10px 10px',
     }}
   >
@@ -53,7 +55,7 @@ const Half: React.FC<{ ch: string; part: 'top' | 'bottom' }> = ({ ch, part }) =>
         fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontWeight: 800,
         fontSize: 100,
-        color: FLAP_INK,
+        color: skin?.text || FLAP_INK,
       }}
     >
       {ch}
@@ -61,10 +63,11 @@ const Half: React.FC<{ ch: string; part: 'top' | 'bottom' }> = ({ ch, part }) =>
   </div>
 );
 
-const FlapCell: React.FC<{ target: string; i: number; frame: number }> = ({
+const FlapCell: React.FC<{ target: string; i: number; frame: number; skin?: TemplateSkin }> = ({
   target,
   i,
   frame,
+  skin,
 }) => {
   // 该格的字符序列：2 个乱码 → 1 个乱码 → 目标字（首态也是乱码，建立段可见）
   const seq = [garble(i, 0), garble(i, 1), garble(i, 2), target];
@@ -109,7 +112,7 @@ const FlapCell: React.FC<{ target: string; i: number; frame: number }> = ({
             zIndex: 2,
           }}
         >
-          <Half ch={from} part="top" />
+          <Half ch={from} part="top" skin={skin} />
         </div>
       );
     } else {
@@ -127,7 +130,7 @@ const FlapCell: React.FC<{ target: string; i: number; frame: number }> = ({
             zIndex: 2,
           }}
         >
-          <Half ch={to} part="bottom" />
+          <Half ch={to} part="bottom" skin={skin} />
         </div>
       );
     }
@@ -145,8 +148,8 @@ const FlapCell: React.FC<{ target: string; i: number; frame: number }> = ({
         boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
       }}
     >
-      <Half ch={topCh} part="top" />
-      <Half ch={bottomCh} part="bottom" />
+      <Half ch={topCh} part="top" skin={skin} />
+      <Half ch={bottomCh} part="bottom" skin={skin} />
       {flap}
       {/* 中缝铰链线 */}
       <div
@@ -164,26 +167,28 @@ const FlapCell: React.FC<{ target: string; i: number; frame: number }> = ({
   );
 };
 
-export const SplitFlapFlip: React.FC = () => {
+export const SplitFlapFlip: React.FC<{text?: string; skin?: TemplateSkin; durationInFrames?: number}> = ({text, skin}) => {
   const frame = useCurrentFrame();
   let letterIdx = 0;
-  return (
-    <AbsoluteFill style={{ background: G.bg, overflow: 'hidden' }}>
+  const title = text || TEXT;
+  const content = (
+    <AbsoluteFill style={{ background: skin ? 'transparent' : G.bg, overflow: 'hidden' }}>
       {/* 背景假页面压暗，突出翻牌板 */}
-      <div style={{ position: 'absolute', inset: 0, opacity: 0.3, filter: 'saturate(0.8)' }}>
+      {!skin && <div style={{ position: 'absolute', inset: 0, opacity: 0.3, filter: 'saturate(0.8)' }}>
         <FakeDashboard variant="A" />
-      </div>
+      </div>}
       <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          {TEXT.split('').map((ch, idx) => {
+          {title.split('').map((ch, idx) => {
             if (ch === ' ') {
               return <div key={idx} style={{ width: 52 }} />;
             }
             const i = letterIdx++;
-            return <FlapCell key={idx} target={ch} i={i} frame={frame} />;
+            return <FlapCell key={idx} target={ch} i={i} frame={frame} skin={skin} />;
           })}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

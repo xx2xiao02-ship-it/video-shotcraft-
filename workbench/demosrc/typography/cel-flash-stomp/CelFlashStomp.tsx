@@ -8,8 +8,10 @@
 // → 60 "TODAY" 硬切(rot 0°) → 60–66 弹落 → 66–73 背景闪加倍(8f, #c4c4c0)
 // + 66–80 底部标签条淡入 → 80–144 全静止(≥45f, 无逐帧噪声层)。
 import React from 'react';
-import { useCurrentFrame, interpolate, Easing } from 'remotion';
+import { useCurrentFrame, useVideoConfig, interpolate, Easing } from 'remotion';
+import {skinBackground} from '../../_fixtures/TemplateSkin';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 type Word = {
   text: string;
@@ -28,7 +30,7 @@ const DEFAULT_WORDS: Word[] = [
 ];
 const SLOT_DURATION = 30; // 每词占帧（与原 3 词节奏一致）
 
-export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
+export const CelFlashStomp: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   const resolvedWords: Word[] =
     words && words.length > 0
       ? words.slice(0, 4).map((w, i, arr) => ({
@@ -41,6 +43,7 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
         }))
       : DEFAULT_WORDS;
   const frame = useCurrentFrame();
+  const {width, height} = useVideoConfig();
   const word = resolvedWords.find((w) => frame >= w.start && frame < w.end)!;
   const t = frame - word.start;
 
@@ -60,7 +63,8 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
   // 背景闪：落定帧(start+LAND)起，每 2f 在加深灰与 G.bg 间交替，共 flashLen 帧
   const ft = t - LAND;
   const flashing = ft >= 0 && ft < word.flashLen;
-  const bg = flashing && Math.floor(ft / 2) % 2 === 0 ? word.flashDark : G.bg;
+  const bg = flashing && Math.floor(ft / 2) % 2 === 0
+    ? (skin?.surface || word.flashDark) : (skin?.bg || G.bg);
 
   // 第三词落定同帧起底部标签条淡入（66–80）
   const labelOp = interpolate(frame, [66, 80], [0, 1], {
@@ -70,10 +74,10 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
   });
 
   return (
-    <div style={{ width: 1920, height: 1080, background: bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
+    <div style={{ width, height, background: skinBackground(skin, bg), position: 'relative', overflow: 'hidden' }}>
+      {!skin && <div style={{ position: 'absolute', left: 120, top: 96 }}>
         <TitleBlock text="CEL FLASH STOMP" size={54} />
-      </div>
+      </div>}
       {/* 文字层独立在背景之上：背景闪切时它纹丝不动 */}
       <div
         style={{
@@ -86,11 +90,11 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
-            fontSize: 210,
-            color: G.ink,
-            letterSpacing: -4,
+            fontSize: Math.min(210, Math.floor(width * 0.82 / Math.max([...word.text].length, 1))),
+            color: skin?.text || G.ink,
+            letterSpacing: 0,
             transform: `scale(${scale}) rotate(${word.rot}deg)`,
           }}
         >
@@ -105,7 +109,7 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
           right: 0,
           bottom: 0,
           height: 96,
-          background: G.ink,
+          background: skin?.accent || G.ink,
           opacity: labelOp,
           display: 'flex',
           alignItems: 'center',
@@ -114,9 +118,9 @@ export const CelFlashStomp: React.FC<{ words?: string[] }> = ({ words }) => {
           boxSizing: 'border-box',
         }}
       >
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: G.sideBar }} />
-        <div style={{ height: 16, width: 320, background: G.mid, borderRadius: 8 }} />
-        <div style={{ marginLeft: 'auto', height: 16, width: 180, background: G.sideBar, borderRadius: 8 }} />
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: skin?.bg || G.sideBar }} />
+        <div style={{ height: 16, width: 320, background: skin?.surface || G.mid, borderRadius: 8 }} />
+        <div style={{ marginLeft: 'auto', height: 16, width: 180, background: skin?.bg || G.sideBar, borderRadius: 8 }} />
       </div>
     </div>
   );

@@ -4,6 +4,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
@@ -20,10 +22,11 @@ const BEAT = 21; // ~0.7s @30fps
 const INTRO = 12; // 句干入场
 const CYCLES = PILLS.length;
 
-const Pill: React.FC<{ label: string; icon: string; style?: React.CSSProperties }> = ({
+const Pill: React.FC<{ label: string; icon: string; style?: React.CSSProperties; skin?: TemplateSkin }> = ({
   label,
   icon,
   style,
+  skin,
 }) => (
   <div
     style={{
@@ -32,13 +35,13 @@ const Pill: React.FC<{ label: string; icon: string; style?: React.CSSProperties 
       gap: 16,
       padding: '14px 36px 14px 24px',
       borderRadius: 999,
-      background: '#fff',
+      background: skin?.surface || '#fff',
       border: `3px solid ${G.border}`,
       boxShadow: '0 6px 18px rgba(0,0,0,0.10)',
       fontFamily: FONT,
       fontWeight: 700,
       fontSize: 64,
-      color: G.ink,
+      color: skin?.text || G.ink,
       whiteSpace: 'nowrap',
       ...style,
     }}
@@ -63,8 +66,10 @@ const Pill: React.FC<{ label: string; icon: string; style?: React.CSSProperties 
   </div>
 );
 
-export const PillSlotCycle: React.FC = () => {
+export const PillSlotCycle: React.FC<{words?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({words, skin}) => {
   const frame = useCurrentFrame();
+  const pills = words ? words.slice(1,-1).map(label=>({label,icon:'›'})) : PILLS;
+  const cycles = pills.length;
 
   // 句干入场：ease-out 上浮淡入
   const stemT = interpolate(frame, [0, INTRO], [0, 1], {
@@ -73,11 +78,11 @@ export const PillSlotCycle: React.FC = () => {
   });
 
   const cycleStart = INTRO;
-  const cycleEnd = cycleStart + CYCLES * BEAT;
+  const cycleEnd = cycleStart + cycles * BEAT;
 
   // 当前处于第几个 pill 拍
   const rel = frame - cycleStart;
-  const idx = Math.min(Math.floor(rel / BEAT), CYCLES - 1);
+  const idx = Math.min(Math.floor(rel / BEAT), cycles - 1);
   const beatFrame = rel - idx * BEAT;
 
   const SWAP = 8; // 每拍前 8f 完成换位
@@ -93,8 +98,8 @@ export const PillSlotCycle: React.FC = () => {
   // 槽内容渲染
   let slot: React.ReactNode = null;
   if (!isFinale && rel >= 0) {
-    const incoming = PILLS[idx];
-    const outgoing = idx > 0 ? PILLS[idx - 1] : null;
+    const incoming = pills[idx];
+    const outgoing = idx > 0 ? pills[idx - 1] : null;
 
     // 新 pill：从下 +120px 带 blur 滑入，ease-out
     const inT = interpolate(beatFrame, [0, SWAP], [0, 1], {
@@ -114,7 +119,7 @@ export const PillSlotCycle: React.FC = () => {
     slot = (
       <div style={{ position: 'relative', display: 'inline-block' }}>
         {/* 撑起槽宽度的隐形占位（当前 pill） */}
-        <Pill label={incoming.label} icon={incoming.icon} style={{ visibility: 'hidden' }} />
+        <Pill label={incoming.label} icon={incoming.icon} skin={skin} style={{ visibility: 'hidden' }} />
         {outgoing && outT < 1 && (
           <div
             style={{
@@ -126,7 +131,7 @@ export const PillSlotCycle: React.FC = () => {
               filter: `blur(${outT * 10}px)`,
             }}
           >
-            <Pill label={outgoing.label} icon={outgoing.icon} />
+            <Pill label={outgoing.label} icon={outgoing.icon} skin={skin} />
           </div>
         )}
         <div
@@ -139,7 +144,7 @@ export const PillSlotCycle: React.FC = () => {
             filter: `blur(${inBlur}px)`,
           }}
         >
-          <Pill label={incoming.label} icon={incoming.icon} />
+          <Pill label={incoming.label} icon={incoming.icon} skin={skin} />
         </div>
       </div>
     );
@@ -157,8 +162,8 @@ export const PillSlotCycle: React.FC = () => {
             fontFamily: FONT,
             fontWeight: 800,
             fontSize: 96,
-            color: G.ink,
-            letterSpacing: -1,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : -1,
             display: 'inline-block',
             opacity: finT,
             transform: `translateY(${(1 - finT) * 90}px)`,
@@ -166,7 +171,7 @@ export const PillSlotCycle: React.FC = () => {
             whiteSpace: 'nowrap',
           }}
         >
-          do it all.
+          {words?.at(-1) || 'do it all.'}
         </span>
         {lastOutT < 1 && (
           <div
@@ -179,15 +184,15 @@ export const PillSlotCycle: React.FC = () => {
               filter: `blur(${lastOutT * 10}px)`,
             }}
           >
-            <Pill label={PILLS[CYCLES - 1].label} icon={PILLS[CYCLES - 1].icon} />
+            <Pill label={pills[cycles - 1].label} icon={pills[cycles - 1].icon} skin={skin} />
           </div>
         )}
       </div>
     );
   }
 
-  return (
-    <AbsoluteFill style={{ background: G.bg }}>
+  const content = (
+    <AbsoluteFill style={{ background: skin ? 'transparent' : G.bg }}>
       {/* 句干固定不动：整行左端锚死，不随 pill 宽度居中重排 */}
       <div
         style={{
@@ -206,15 +211,16 @@ export const PillSlotCycle: React.FC = () => {
             fontFamily: FONT,
             fontWeight: 800,
             fontSize: 96,
-            color: G.ink,
-            letterSpacing: -1,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : -1,
             whiteSpace: 'nowrap',
           }}
         >
-          One AI tool to
+          {words?.[0] || 'One AI tool to'}
         </span>
         {slot}
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

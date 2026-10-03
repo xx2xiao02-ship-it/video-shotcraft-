@@ -11,6 +11,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const h = (n: number) => {
   const s = Math.sin(n * 127.3) * 43758.5453;
@@ -21,7 +23,7 @@ const DEFAULT_WORD = 'ASSEMBLE';
 const TRAVEL = 45; // 每字漂入行程帧数
 const STAG = 3; // 错峰间隔
 
-export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) => {
+export const LetterformDriftAssembly: React.FC<{ word?: string; skin?: TemplateSkin }> = ({ word, skin }) => {
   const frame = useCurrentFrame();
   const WORD = word || DEFAULT_WORD;
   const chars = WORD.split('');
@@ -41,11 +43,11 @@ export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) =
           easing: Easing.inOut(Easing.cubic),
         });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, position: 'relative', overflow: 'hidden' }}>
+      {!skin && <div style={{ position: 'absolute', left: 120, top: 96 }}>
         <TitleBlock text="LETTERFORM DRIFT ASSEMBLY" size={54} />
-      </div>
+      </div>}
       <div
         style={{
           position: 'absolute',
@@ -86,16 +88,16 @@ export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) =
             <span
               key={i}
               style={{
-                fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+                fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 800,
-                fontSize: 140,
-                letterSpacing: 8,
-                color,
+                fontSize: skin ? Math.min(140, 1520 / chars.length) : 140,
+                letterSpacing: skin ? 0 : 8,
+                color: skin ? (pulse > 0.5 ? skin.accent : skin.text) : color,
                 display: 'inline-block',
                 transform: `translate(${dx}px, ${dy}px)`,
                 opacity: op,
                 filter: blur > 0.01 ? `blur(${blur}px)` : undefined,
-                WebkitTextStroke: strokeW > 0.01 ? `${strokeW}px #000` : undefined,
+                WebkitTextStroke: strokeW > 0.01 ? `${strokeW}px ${skin?.accent || '#000'}` : undefined,
               }}
             >
               {c}
@@ -105,4 +107,5 @@ export const LetterformDriftAssembly: React.FC<{ word?: string }> = ({ word }) =
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };
