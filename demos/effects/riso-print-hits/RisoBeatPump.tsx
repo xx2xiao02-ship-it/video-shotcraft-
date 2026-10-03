@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const HITS = [30, 54, 78, 102]; // 节拍命中帧
 const AMP = [4, 7, 11, 16]; // 每拍单版初始错位（px），逐拍加码
@@ -14,7 +16,7 @@ const PUMP_WIN = 14; // scale 泵窗口：14f 后精确归 1（保证结尾真�
 const SPLIT_WIN = 12; // 错位窗口：12f 后精确归 0（余量 <0.4px，硬切套准）
 
 // 与 TitleBlock 同字形的单色印版（错位需要可调色副本）
-const Plate: React.FC<{ color: string; dx: number; dy: number }> = ({ color, dx, dy }) => (
+const Plate: React.FC<{ color: string; dx: number; dy: number;label?:string;skin?:TemplateSkin }> = ({ color, dx, dy,label,skin }) => (
   <div
     style={{
       position: 'absolute',
@@ -28,20 +30,21 @@ const Plate: React.FC<{ color: string; dx: number; dy: number }> = ({ color, dx,
   >
     <div
       style={{
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         fontWeight: 800,
         fontSize: 160,
         color,
-        letterSpacing: -1,
+        letterSpacing: label ? 0 : -1,
         whiteSpace: 'nowrap',
       }}
     >
-      ON THE BEAT
+      {label || 'ON THE BEAT'}
     </div>
   </div>
 );
 
-export const RisoBeatPump: React.FC = () => {
+export const RisoBeatPump: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && (words.length!==7 || !skin || words.some(word=>!word.trim()||[...word].length>6))) throw new Error('RisoBeatPump requires a title and three title/detail pairs');
   const frame = useCurrentFrame();
 
   // 找最近一次已命中的节拍（24f 间隔 > 14f 窗口，永远只有一拍在作用）
@@ -60,12 +63,12 @@ export const RisoBeatPump: React.FC = () => {
   const dx = beatIdx >= 0 ? AMP[beatIdx] * m : 0;
   const dy = dx * 0.45; // y 少量，更像没对准版
 
-  return (
+  const scene = (
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: words ? '#f5f6f7' : G.bg,
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -75,7 +78,7 @@ export const RisoBeatPump: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          transform: `scale(${pump})`,
+          transform: `scale(${pump * (words ? 0.8 : 1)})`,
           transformOrigin: 'center center',
         }}
       >
@@ -91,13 +94,13 @@ export const RisoBeatPump: React.FC = () => {
                 justifyContent: 'center',
               }}
             >
-              <TitleBlock text="ON THE BEAT" size={160} />
+              {words ? <div style={{fontSize:160,fontWeight:800,color:skin?.surface,fontFamily:skin?.fontFamily}}>{words[0]}</div> : <TitleBlock text="ON THE BEAT" size={160} />}
             </div>
           )}
           {split && (
             <>
-              <Plate color={G.mid} dx={-dx} dy={dy} />
-              <Plate color={G.ink} dx={dx} dy={-dy} />
+              <Plate color={words ? skin!.accent : G.mid} dx={-dx} dy={dy} label={words?.[0]} skin={skin} />
+              <Plate color={words ? skin!.surface : G.ink} dx={dx} dy={-dy} label={words?.[0]} skin={skin} />
             </>
           )}
         </div>
@@ -114,9 +117,9 @@ export const RisoBeatPump: React.FC = () => {
             gap: 44,
           }}
         >
-          <Card w={330} h={200} seed={2} />
-          <Card w={330} h={200} seed={5} />
-          <Card w={330} h={200} seed={8} />
+          {words ? [0,1,2].map(i=><div key={i} style={{width:330,height:200,boxSizing:'border-box',padding:'30px 24px',background:skin!.surface,border:`2px solid ${skin!.accent}`,borderRadius:8,color:skin!.text,fontFamily:skin!.fontFamily,display:'flex',flexDirection:'column',justifyContent:'center',gap:18}}>
+            <div style={{fontSize:42,fontWeight:800}}>{words[1+i*2]}</div><div style={{fontSize:32}}>{words[2+i*2]}</div>
+          </div>) : <><Card w={330} h={200} seed={2} /><Card w={330} h={200} seed={5} /><Card w={330} h={200} seed={8} /></>}
         </div>
 
         {/* 节拍刻度：命中即闪深（8f 缩放脉冲 1.8→1）并常驻深色 */}
@@ -142,7 +145,7 @@ export const RisoBeatPump: React.FC = () => {
                   width: 22,
                   height: 22,
                   borderRadius: 11,
-                  background: on ? G.ink : G.bar,
+                  background: on ? skin?.surface || G.ink : G.bar,
                   transform: `scale(${s})`,
                 }}
               />
@@ -152,4 +155,5 @@ export const RisoBeatPump: React.FC = () => {
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

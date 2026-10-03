@@ -5,6 +5,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {BusinessScreen,type BusinessScreenSource} from '../../_fixtures/BusinessScreen';
+import {skinBackground,type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const RADIAL_RIPPLE_PHONE_CHIPS_DURATION = 168; // 5600ms @30fps
 
@@ -24,8 +26,14 @@ const CARDS = Array.from({ length: 8 }, (_, i) => ({
   l2w: `${34 + rand(i + 40) * 30}%`,
 }));
 
-export const RadialRipplePhoneChips: React.FC = () => {
+export const RadialRipplePhoneChips: React.FC<{screen?:BusinessScreenSource;words?:string[];
+  skin?:TemplateSkin;durationInFrames?:number}>=({screen,words,skin}) => {
   const t = useT();
+  const business=Boolean(screen || words);
+  if(business && (!screen || screen.kind!=='image' || screen.height*132/screen.width<414 ||
+    !words || words.length!==2 || words.some(word=>!word.trim() || [...word].length>8) || !skin)) {
+    throw new Error('Phone needs a real long image covering its 264px window plus 150px scroll and two actual feature labels.');
+  }
   // chip 先后 pop：scale 0.8→1 过冲 + 淡入，随后轻浮动
   const chipStyle = (t0: number, ph: number): React.CSSProperties => {
     const p = seg(t, t0, t0 + 0.12, E.outBack);
@@ -39,15 +47,15 @@ export const RadialRipplePhoneChips: React.FC = () => {
     position: 'absolute',
     padding: '10px 18px',
     borderRadius: 999,
-    background: '#fff',
-    color: '#2c3038',
-    font: `600 13px ${SANS}`,
+    background: skin?.surface || '#fff',
+    color: skin?.text || '#2c3038',
+    font: `600 13px ${skin?.fontFamily || SANS}`,
     whiteSpace: 'nowrap',
     boxShadow: '0 10px 26px rgba(58,64,74,.22)',
   };
   return (
-    <DesignStage bg="#f2f3f5">
-      <div style={{ position: 'absolute', inset: 0, background: '#f2f3f5', overflow: 'hidden' }}>
+    <DesignStage bg={skinBackground(skin,'#f2f3f5')}>
+      <div style={{ position: 'absolute', inset: 0, background: skinBackground(skin,'#f2f3f5'), overflow: 'hidden' }}>
         {/* 同心圆各层错相极缓呼吸 */}
         {RINGS.map(({ size, color, phase }, i) => (
           <div
@@ -60,7 +68,7 @@ export const RadialRipplePhoneChips: React.FC = () => {
               height: size,
               margin: `${-size / 2}px 0 0 ${-size / 2}px`,
               borderRadius: '50%',
-              background: color,
+              background: skin ? [skin.muted,skin.surface,skin.bg,skin.surface][i] : color,
               transform: `scale(${1 + 0.06 * Math.sin(t * Math.PI * 2 * 1.5 + phase)})`,
             }}
           />
@@ -94,7 +102,7 @@ export const RadialRipplePhoneChips: React.FC = () => {
                 transform: `translateY(${-seg(t, 0.08, 0.98) * 150}px)`,
               }}
             >
-              {CARDS.map(({ imgGrad, l1w, l2w }, i) => (
+              {screen ? <BusinessScreen screen={screen} width={132} height={screen.height*132/screen.width}/> : CARDS.map(({ imgGrad, l1w, l2w }, i) => (
                 <div key={i} style={{ position: 'relative', margin: '8px 8px 0', padding: 7, borderRadius: 8, background: '#1a1d24' }}>
                   <div style={{ height: 34, borderRadius: 5, background: imgGrad }} />
                   <div style={{ marginTop: 6, height: 5, width: l1w, borderRadius: 3, background: '#c9cad3' }} />
@@ -106,8 +114,8 @@ export const RadialRipplePhoneChips: React.FC = () => {
         </div>
 
         {/* 两侧 chip：左先右后 spring pop */}
-        <div style={{ ...chipBase, top: '38%', right: 'calc(50% + 86px)', ...chipStyle(0.22, 0) }}>Feature one</div>
-        <div style={{ ...chipBase, top: '56%', left: 'calc(50% + 86px)', ...chipStyle(0.4, 1.8) }}>Feature detail</div>
+        <div style={{ ...chipBase, top: '38%', right: 'calc(50% + 86px)', ...chipStyle(0.22, 0) }}>{words?.[0] || 'Feature one'}</div>
+        <div style={{ ...chipBase, top: '56%', left: 'calc(50% + 86px)', ...chipStyle(0.4, 1.8) }}>{words?.[1] || 'Feature detail'}</div>
       </div>
     </DesignStage>
   );

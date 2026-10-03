@@ -4,6 +4,8 @@
 // 运动来向，文档本身完全静止。设计坐标 480×270（DesignStage 等比放大）。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const SCAN_BRACKET_SWEEP_DURATION = 150; // 5000ms @30fps
 
@@ -45,7 +47,7 @@ const CORNERS: { pos: React.CSSProperties; dx: number; dy: number }[] = [
 
 const PASSES = 5;
 
-export const ScanBracketSweep: React.FC = () => {
+export const ScanBracketSweep: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
 
   // 文档弹入：scale 0.86→1 + 快速淡入
@@ -62,8 +64,7 @@ export const ScanBracketSweep: React.FC = () => {
   // 光带整体淡入（0.16–0.2）淡出（0.93–0.99）
   const clipOp = Number((seg(t, 0.16, 0.2) * (1 - seg(t, 0.93, 0.99))).toFixed(3));
 
-  return (
-    <DesignStage bg={BG}>
+  const scene=(<>
       {/* 440×240 定尺画布（mkSheet），居中于 480×270 设计坐标 */}
       <div
         style={{
@@ -86,8 +87,8 @@ export const ScanBracketSweep: React.FC = () => {
               width: DW,
               height: DH,
               boxSizing: 'content-box',
-              background: '#fff',
-              border: `1px solid ${LINE}`,
+              background: skin?.surface || '#fff',
+              border: `1px solid ${skin?.muted || LINE}`,
               borderRadius: 10,
               boxShadow: '0 8px 26px rgba(0,0,0,.06)',
               overflow: 'hidden',
@@ -97,6 +98,10 @@ export const ScanBracketSweep: React.FC = () => {
             }}
           >
             <div style={{ position: 'absolute', left: 0, top: 0, right: 0 }}>
+              {skin ? <>
+                <div style={{position:'absolute',left:18,top:14,fontFamily:skin.fontFamily,fontSize:22,fontWeight:700,color:skin.text}}>{words?.[0]}</div>
+                {words?.slice(1).map((word,i)=><div key={i} style={{position:'absolute',left:18+(i%2)*140,top:66+Math.floor(i/2)*48,fontFamily:skin.fontFamily,fontSize:18,color:skin.text}}>{word}</div>)}
+              </> : <>
               {/* 标题条 + 副标题条 */}
               <div
                 style={{
@@ -151,6 +156,7 @@ export const ScanBracketSweep: React.FC = () => {
                   ))}
                 </React.Fragment>
               ))}
+              </>}
             </div>
           </div>
 
@@ -185,8 +191,7 @@ export const ScanBracketSweep: React.FC = () => {
                   right: 0,
                   height: 82,
                   top: dir > 0 ? -82 : 2.5,
-                  background:
-                    dir > 0
+                  background: skin ? `linear-gradient(180deg,${dir>0 ? 'transparent' : `color-mix(in srgb, ${skin.accent} 50%, transparent)`},${dir>0 ? `color-mix(in srgb, ${skin.accent} 50%, transparent)` : 'transparent'})` : dir > 0
                       ? 'linear-gradient(180deg,rgba(20,20,22,0),rgba(20,20,22,.5))'
                       : 'linear-gradient(180deg,rgba(20,20,22,.5),rgba(20,20,22,0))',
                 }}
@@ -198,7 +203,7 @@ export const ScanBracketSweep: React.FC = () => {
                   right: 0,
                   top: 0,
                   height: 2.5,
-                  background: INK,
+                  background: skin?.accent || INK,
                 }}
               />
             </div>
@@ -218,12 +223,14 @@ export const ScanBracketSweep: React.FC = () => {
                   opacity: p,
                   transform: `translate(${(1 - p) * 8 * c.dx}px,${(1 - p) * 8 * c.dy}px)`,
                   ...c.pos,
+                  ...(skin ? {borderColor:skin.accent} : {}),
                 }}
               />
             );
           })}
         </div>
       </div>
-    </DesignStage>
+    </>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:144,top:0,width:480,height:270,transform:'scale(3.4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg={BG}>{scene}</DesignStage>;
 };

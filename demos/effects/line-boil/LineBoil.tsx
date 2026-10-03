@@ -10,6 +10,8 @@
 import React, { useId } from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const BOIL_START = 35;
 const BOIL_END = 105;
@@ -37,7 +39,7 @@ const CornerTag: React.FC<{ text: string; opacity: number }> = ({ text, opacity 
   </div>
 );
 
-export const LineBoil: React.FC = () => {
+export const LineBoil: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
   // 滤镜 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const boilId = `boil-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -53,8 +55,8 @@ export const LineBoil: React.FC = () => {
   });
   const offOp = 1 - onOp;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       {/* 沸腾段才渲染 filter 定义——摘罩即整个 SVG def 消失，收尾天然真静止 */}
       {boiling && (
         <svg width={0} height={0} style={{ position: 'absolute' }}>
@@ -81,7 +83,7 @@ export const LineBoil: React.FC = () => {
 
       {/* 手法名标签：不入滤镜层，作为静止参照物 */}
       <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="LINE BOIL" size={54} />
+        {skin ? <div style={{font:`700 54px ${skin.fontFamily}`,color:skin.text}}>{words?.[0]}</div> : <TitleBlock text="LINE BOIL" size={54} />}
       </div>
 
       {/* 被沸腾的整层：大标题 + 描边卡 */}
@@ -99,22 +101,22 @@ export const LineBoil: React.FC = () => {
       >
         <div
           style={{
-            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
-            fontSize: 170,
-            color: G.ink,
-            letterSpacing: 4,
+            fontSize: skin ? 130 : 170,
+            color: skin?.text || G.ink,
+            letterSpacing: skin ? 0 : 4,
             lineHeight: 1,
           }}
         >
-          ALIVE
+          {skin ? words?.[1] : 'ALIVE'}
         </div>
         {/* 描边卡：透明底 3px ink 描边 520×300 圆角框 + 几条灰线 */}
         <div
           style={{
             width: 520,
-            height: 300,
-            border: `3px solid ${G.ink}`,
+            height: skin ? 230 : 300,
+            border: `3px solid ${skin?.text || G.ink}`,
             borderRadius: 20,
             boxSizing: 'border-box',
             padding: '36px 40px',
@@ -123,20 +125,21 @@ export const LineBoil: React.FC = () => {
             gap: 26,
           }}
         >
-          <div style={{ height: 16, width: '62%', background: G.mid, borderRadius: 8 }} />
+          {skin ? <><div style={{font:`600 42px ${skin.fontFamily}`,color:skin.text}}>{words?.[2]}</div><div style={{font:`500 42px ${skin.fontFamily}`,color:skin.text}}>{words?.[3]}</div></> : <><div style={{ height: 16, width: '62%', background: G.mid, borderRadius: 8 }} />
           <div style={{ height: 12, width: '88%', background: G.bar, borderRadius: 6 }} />
           <div style={{ height: 12, width: '74%', background: G.bar, borderRadius: 6 }} />
           <div style={{ height: 12, width: '81%', background: G.bar, borderRadius: 6 }} />
           <div style={{ marginTop: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ width: 30, height: 30, borderRadius: 15, border: `3px solid ${G.ink}`, boxSizing: 'border-box' }} />
             <div style={{ height: 12, width: 120, background: G.mid, borderRadius: 6 }} />
-          </div>
+          </div></>}
         </div>
       </div>
 
       {/* 状态角标：沸腾段 boil on，静止段 boil off */}
-      <CornerTag text="boil on" opacity={onOp} />
-      <CornerTag text="boil off" opacity={offOp} />
+      {!skin && <CornerTag text="boil on" opacity={onOp} />}
+      {!skin && <CornerTag text="boil off" opacity={offOp} />}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

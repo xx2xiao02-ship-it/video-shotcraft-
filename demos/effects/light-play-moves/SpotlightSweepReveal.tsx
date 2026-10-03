@@ -1,5 +1,7 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // spotlight-sweep-reveal: 聚光灯摆动扫字
 // 暗场 #2a2e38，标题两行常驻 opacity 0.07；亮版同文本用 radial-gradient mask，
@@ -27,13 +29,13 @@ const textStyle: React.CSSProperties = {
   whiteSpace: 'pre',
 };
 
-const TitleText: React.FC = () => (
+const TitleText: React.FC<{words?:string[];skin?:TemplateSkin}> = ({words,skin}) => (
   <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
-    <div style={textStyle}>{'SPOTLIGHT\nON'}</div>
+    <div style={skin ? {...textStyle,fontFamily:skin.fontFamily,fontSize:130,letterSpacing:0,color:skin.text} : textStyle}>{skin ? words?.join('\n') : 'SPOTLIGHT\nON'}</div>
   </AbsoluteFill>
 );
 
-export const SpotlightSweepReveal: React.FC = () => {
+export const SpotlightSweepReveal: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
 
   // 光斑 x：sin 摆动，两个来回后停在中心
@@ -55,11 +57,11 @@ export const SpotlightSweepReveal: React.FC = () => {
 
   const maskGrad = `radial-gradient(circle 380px at ${x}px ${CY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 45%, rgba(0,0,0,0) 100%)`;
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: BG }}>
+  const scene=(
+    <AbsoluteFill style={{ backgroundColor: skin?.surface || BG }}>
       {/* 暗版文字常驻 */}
       <AbsoluteFill style={{ opacity: 0.07 }}>
-        <TitleText />
+        <TitleText words={words} skin={skin} />
       </AbsoluteFill>
 
       {sweepAlive && (
@@ -88,15 +90,16 @@ export const SpotlightSweepReveal: React.FC = () => {
               maskImage: maskGrad,
             }}
           >
-            <TitleText />
+            <TitleText words={words} skin={skin} />
           </AbsoluteFill>
         </>
       )}
 
       {/* 全亮定格层 */}
       <AbsoluteFill style={{ opacity: brighten }}>
-        <TitleText />
+        <TitleText words={words} skin={skin} />
       </AbsoluteFill>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

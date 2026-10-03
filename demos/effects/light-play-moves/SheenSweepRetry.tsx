@@ -4,12 +4,14 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const CARD_W = 760;
 const CARD_H = 420;
 const SHEEN_W = CARD_W * 1.6; // 1216
 
-export const SheenSweepRetry: React.FC = () => {
+export const SheenSweepRetry: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // 扫光：40–68f，从卡左外(-SHEEN_W)扫到卡右外(CARD_W)，inOut(cubic)，只一次
@@ -20,23 +22,23 @@ export const SheenSweepRetry: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  return (
+  const scene=(
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skinBackground(skin,G.bg),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
       }}
     >
       <div
         style={{
           width: CARD_W,
           height: CARD_H,
-          background: G.side,
+          background: skin?.surface || G.side,
           borderRadius: 24,
           overflow: 'hidden', // 圆角裁剪：高光带被卡的圆角裁住
           position: 'relative',
@@ -51,17 +53,19 @@ export const SheenSweepRetry: React.FC = () => {
       >
         <div
           style={{
-            fontSize: 130,
+            fontSize: skin ? 90 : 130,
             fontWeight: 800,
-            color: '#f5f5f3',
-            letterSpacing: 2,
+            color: skin?.text || '#f5f5f3',
+            letterSpacing: skin ? 0 : 2,
             lineHeight: 1,
           }}
         >
-          PRO
+          {skin ? words?.[0] : 'PRO'}
         </div>
-        <div style={{ height: 16, width: 380, background: G.sideBar, borderRadius: 8 }} />
-        <div style={{ height: 16, width: 260, background: G.sideBar, borderRadius: 8 }} />
+        {skin ? words?.slice(1).map((word,i)=><div key={i} style={{fontSize:36,lineHeight:1.1,color:skin.text}}>{word}</div>) : <>
+          <div style={{ height: 16, width: 380, background: G.sideBar, borderRadius: 8 }} />
+          <div style={{ height: 16, width: 260, background: G.sideBar, borderRadius: 8 }} />
+        </>}
 
         {/* 高光带：条件挂载，扫完即摘罩，收尾真静止 */}
         {sweepActive && (
@@ -82,4 +86,5 @@ export const SheenSweepRetry: React.FC = () => {
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

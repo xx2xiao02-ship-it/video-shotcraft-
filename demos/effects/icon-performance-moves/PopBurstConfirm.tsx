@@ -8,12 +8,14 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const POP = 27; // 释放帧
 const DUR = 120;
 
-export const PopBurstConfirm: React.FC = () => {
+export const PopBurstConfirm: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
 
   // icon 缩放：蓄力→过冲→落回
@@ -64,8 +66,8 @@ export const PopBurstConfirm: React.FC = () => {
   const CX = 960;
   const CY = 470;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       {/* 扩散圆环（不随 icon 缩放） */}
       {rt > 0 && rt < 1 && (
         <svg
@@ -73,7 +75,7 @@ export const PopBurstConfirm: React.FC = () => {
           height={1400}
           style={{ position: 'absolute', left: CX - 700, top: CY - 700 }}
         >
-          <circle cx={700} cy={700} r={ringR} fill="none" stroke={AMBER} strokeWidth={ringW} opacity={ringO} />
+          <circle cx={700} cy={700} r={ringR} fill="none" stroke={skin?.accent || AMBER} strokeWidth={ringW} opacity={ringO} />
         </svg>
       )}
 
@@ -94,7 +96,7 @@ export const PopBurstConfirm: React.FC = () => {
               <line
                 key={i}
                 x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke={i % 5 < 2 ? AMBER : G.ink}
+                stroke={skin ? i%5<2 ? skin.accent : skin.text : i % 5 < 2 ? AMBER : G.ink}
                 strokeWidth={12}
                 strokeLinecap="round"
                 opacity={1 - pt}
@@ -117,12 +119,12 @@ export const PopBurstConfirm: React.FC = () => {
           transformOrigin: '50% 50%',
         }}
       >
-        <circle cx={240} cy={240} r={190} fill={G.card} stroke={G.ink} strokeWidth={22} />
+        <circle cx={240} cy={240} r={190} fill={skin?.surface || G.card} stroke={skin?.text || G.ink} strokeWidth={22} />
         {checkT > 0 && (
           <path
             d="M 150 245 L 215 310 L 340 175"
             fill="none"
-            stroke={AMBER}
+            stroke={skin?.accent || AMBER}
             strokeWidth={34}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -138,25 +140,26 @@ export const PopBurstConfirm: React.FC = () => {
         <div
           style={{
             position: 'absolute',
-            left: CX - 130,
-            top: CY + 300,
-            width: 260,
+            left: CX - (skin ? 210 : 130),
+            top: CY + (skin ? 260 : 300),
+            width: skin ? 420 : 260,
             transform: `scale(${tagT})`,
             transformOrigin: '50% 0%',
             padding: '16px 0',
             borderRadius: 40,
-            background: G.ink,
-            color: 'var(--text)',
+            background: skin?.surface || G.ink,
+            color: skin?.text || 'var(--text)',
             textAlign: 'center',
-            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+            fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
             fontWeight: 800,
             fontSize: 40,
-            letterSpacing: 1,
+            letterSpacing: skin ? 0 : 1,
           }}
         >
-          Deployed
+          {skin ? words?.[0] : 'Deployed'}
         </div>
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

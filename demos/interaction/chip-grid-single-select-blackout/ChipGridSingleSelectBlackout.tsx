@@ -5,6 +5,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），440×240 定尺画布居中排版。
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const CHIP_GRID_SINGLE_SELECT_BLACKOUT_DURATION = 150; // 5000ms @30fps
 
@@ -37,8 +39,15 @@ const CAP_N = CAP_WORDS.length;
 const CAP_ST = 0.78 / CAP_N;
 const CAP_WIN = CAP_ST * 1.5;
 
-export const ChipGridSingleSelectBlackout: React.FC = () => {
+export const ChipGridSingleSelectBlackout: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const names=skin ? words?.slice(1,6) || [] : NAMES;
+  const capWords=skin ? (words?.[6] || '').split(' ') : CAP_WORDS;
+  const capN=capWords.length;
+  const capSt=skin ? .78/capN : CAP_ST;
+  const capWin=skin ? capSt*1.5 : CAP_WIN;
+  const font=skin?.fontFamily || SANS;
+  const businessMix=(p:number,a:string,b:string)=>`color-mix(in srgb, ${b} ${clamp01(p)*100}%, ${a})`;
 
   // 选中 chip 上移时同步回到水平中线：cx = 220 - 选中 chip 在 440 画布内的中心 x。
   // chip 宽度由文本 + padding 决定（flex 布局），挂载后实测一次；149 为兜底估算
@@ -48,21 +57,19 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
   useLayoutEffect(() => {
     const el = targetRef.current;
     if (el && el.offsetWidth) setCx(220 - (el.offsetLeft + el.offsetWidth / 2));
-  }, []);
+  }, [skin?.fontFamily,words?.join('|')]);
 
   const capShow = seg(t, FS + 0.36, FS + 0.42);
   const capInn = seg(t, FS + 0.37, 0.98);
 
-  return (
-    <DesignStage bg={BG}>
-      {/* 页面 + 440×240 定尺画布（居中） */}
+  const scene=(
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: BG,
+          background: skinBackground(skin,BG),
           overflow: 'hidden',
-          fontFamily: SANS,
+          fontFamily: font,
           WebkitFontSmoothing: 'antialiased',
         }}
       >
@@ -75,13 +82,13 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
               right: 0,
               top: 26,
               textAlign: 'center',
-              font: `600 11px/1 ${SANS}`,
-              letterSpacing: 2.4,
-              color: '#9A9AA2',
+              font: `600 ${skin ? 16 : 11}px/1 ${font}`,
+              letterSpacing: skin ? 0 : 2.4,
+              color: skin?.text || '#9A9AA2',
               opacity: seg(t, 0.02, 0.1, E.outQuad),
             }}
           >
-            OPTION GROUP
+            {skin ? words?.[0] : 'OPTION GROUP'}
           </div>
 
           {/* 两行 chip：3+2 居中排布（flex 布局，位置全程锁死不重排） */}
@@ -98,13 +105,13 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
                 gap: 10,
               }}
             >
-              {NAMES.map((n, i) => {
+              {names.map((n, i) => {
                 if ((i < 3 ? 0 : 1) !== row) return null;
                 const d = 0.05 + i * 0.028;
                 const inP = seg(t, d, d + 0.04, E.outQuad);
-                let bg = '#fff';
-                let borderColor = LINE;
-                let labelColor: string = TXT;
+                let bg = skin?.surface || '#fff';
+                let borderColor = skin?.muted || LINE;
+                let labelColor: string = skin?.text || TXT;
                 let flashO = '0';
                 let opacity: string | number;
                 let transform: string;
@@ -112,9 +119,9 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
                   // 灰闪 1 帧
                   flashO = (seg(t, FS, FS + 0.006) * (1 - seg(t, FS + 0.006, FS + 0.014))).toFixed(3);
                   const bk = seg(t, FS + 0.008, FS + 0.04, E.linear);
-                  bg = mix(bk, '#ffffff', INK);
-                  borderColor = mix(bk, LINE, INK);
-                  labelColor = mix(bk, TXT, '#ffffff');
+                  bg = skin ? businessMix(bk,skin.surface,INK) : mix(bk, '#ffffff', INK);
+                  borderColor = skin ? businessMix(bk,skin.muted,INK) : mix(bk, LINE, INK);
+                  labelColor = skin ? businessMix(bk,skin.text,'#ffffff') : mix(bk, TXT, '#ffffff');
                   // 按压回弹 1→1.04→1
                   const pr = seg(t, FS + 0.008, FS + 0.075, E.linear);
                   const sc = 1 + Math.sin(pr * Math.PI) * 0.04 * (pr > 0 ? 1 : 0);
@@ -149,7 +156,7 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
                       transform,
                     }}
                   >
-                    <div style={{ font: `600 12px/1 ${SANS}`, color: labelColor, letterSpacing: '-.01em', whiteSpace: 'nowrap' }}>
+                    <div style={{ font: `600 ${skin ? 13 : 12}px/1 ${font}`, color: labelColor, letterSpacing: skin ? 0 : '-.01em', whiteSpace: 'nowrap' }}>
                       {n}
                     </div>
                     {/* 按压灰闪块（盖在 label 上） */}
@@ -173,16 +180,16 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
               opacity: capShow,
             }}
           >
-            {CAP_WORDS.map((w, i) => {
-              const q = clamp01((capInn - i * CAP_ST) / CAP_WIN);
+            {capWords.map((w, i) => {
+              const q = clamp01((capInn - i * capSt) / capWin);
               return (
                 <span
                   key={i}
                   style={{
-                    font: `600 14px/1.25 ${SANS}`,
-                    color: mix(q, DIM, TXT),
-                    letterSpacing: (-0.03 * (1 - q)).toFixed(4) + 'em',
-                    marginRight: i === CAP_N - 1 ? 0 : 4.5,
+                    font: `600 14px/1.25 ${font}`,
+                    color: skin ? businessMix(q,skin.muted,skin.text) : mix(q, DIM, TXT),
+                    letterSpacing: skin ? 0 : (-0.03 * (1 - q)).toFixed(4) + 'em',
+                    marginRight: i === capN - 1 ? 0 : 4.5,
                   }}
                 >
                   {w}
@@ -192,6 +199,6 @@ export const ChipGridSingleSelectBlackout: React.FC = () => {
           </div>
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg={BG}>{scene}</DesignStage>;
 };

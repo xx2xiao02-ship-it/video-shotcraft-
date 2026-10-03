@@ -5,6 +5,8 @@
 import React from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const BLOCK_WIDTHS = [230, 190, 265, 210, 245];
 const BLOCK_H = 100;
@@ -16,7 +18,7 @@ const GROW_START = 14;
 const GROW_END = 52;
 const HOLD_END = 66;
 
-export const AutolayoutGapDial: React.FC = () => {
+export const AutolayoutGapDial: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -56,8 +58,8 @@ export const AutolayoutGapDial: React.FC = () => {
   const ticking = Math.abs(gap - (frame < HOLD_END ? G_MIN : G_MIN)) > 0.5 && (frame >= GROW_START && frame < HOLD_END + 40);
   const tickPulse = ticking ? 1 + 0.10 * Math.abs(Math.sin(frame * 0.9)) : 1;
 
-  return (
-    <AbsoluteFill style={{ background: G.bg, overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,G.bg), overflow: 'hidden' }}>
       <AbsoluteFill
         style={{
           backgroundImage: `radial-gradient(${G.line} 3px, transparent 3px)`,
@@ -66,11 +68,11 @@ export const AutolayoutGapDial: React.FC = () => {
       />
 
       {/* 标题字块（讲清这是"参数驱动布局"） */}
-      <div style={{ position: 'absolute', top: 250, width: '100%', textAlign: 'center', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 44, color: G.mid, letterSpacing: 2 }}>
-        GAP
-        <span style={{ display: 'inline-block', minWidth: 130, marginLeft: 24, padding: '4px 22px', borderRadius: 12, background: G.ink, color: '#1a1d24', fontVariantNumeric: 'tabular-nums', transform: `scale(${tickPulse})` }}>
+      <div style={{ position: 'absolute', top: 250, width: '100%', textAlign: 'center', fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 44, color: skin?.text || G.mid, letterSpacing: skin ? 0 : 2 }}>
+        {skin ? words?.[0] : 'GAP'}
+        <span style={{ display: 'inline-block', minWidth: 130, marginLeft: 24, padding: '4px 22px', borderRadius: 12, background: skin?.accent || G.ink, color: skin?.surface || '#1a1d24', fontVariantNumeric: 'tabular-nums', transform: `scale(${tickPulse})` }}>
           {gapShown}
-        </span>
+        </span>{skin && <span style={{marginLeft:16,fontSize:30}}>px</span>}
       </div>
 
       {/* 框选描边 + 8 手柄 */}
@@ -131,7 +133,7 @@ export const AutolayoutGapDial: React.FC = () => {
             boxSizing: 'border-box',
           }}
         >
-          <div style={{ height: 16, width: w - 76, background: G.bar, borderRadius: 8 }} />
+          {skin ? <span style={{font:`600 36px ${skin.fontFamily}`,color:skin.text}}>{words?.[i+1]}</span> : <div style={{ height: 16, width: w - 76, background: G.bar, borderRadius: 8 }} />}
         </div>
       ))}
 
@@ -156,8 +158,8 @@ export const AutolayoutGapDial: React.FC = () => {
                 transform: `translateX(-50%) scale(${tickPulse})`,
                 padding: '5px 14px',
                 borderRadius: 10,
-                background: G.ink,
-                color: '#1a1d24',
+                background: skin?.accent || G.ink,
+                color: skin?.surface || '#1a1d24',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontWeight: 700,
                 fontSize: 24,
@@ -171,4 +173,5 @@ export const AutolayoutGapDial: React.FC = () => {
       })}
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };
