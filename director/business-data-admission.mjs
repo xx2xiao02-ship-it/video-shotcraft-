@@ -8,6 +8,7 @@ const RECORDS = [
   'director/business-data-batch015-admission.json',
   'director/business-data-batch017-admission.json',
   'director/business-data-batch019-admission.json',
+  'director/business-data-batch020-admission.json',
 ];
 
 function readJson(root, relative) {

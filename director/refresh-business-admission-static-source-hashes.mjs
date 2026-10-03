@@ -6,6 +6,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const staticSources = [
   'director/a-mode-run.mjs',
   'director/graphic-contracts.mjs',
+  'director/business-data-admission.mjs',
 ];
 const records = fs.readdirSync(path.join(root, 'director'))
   .filter(name => name.endsWith('-admission.json'))
