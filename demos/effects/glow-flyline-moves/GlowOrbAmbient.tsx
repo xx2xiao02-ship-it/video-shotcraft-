@@ -4,6 +4,8 @@
 // 0–20f 光斑淡入，中段正常速度漂移，90–120f 缓动收敛到静止，末 30f 真静止。
 import React from 'react';
 import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 库内标准伪随机（帧确定）
 const h = (n: number) => {
@@ -43,7 +45,7 @@ const orbPos = (o: Orb, t: number) => {
   return { x, y };
 };
 
-export const GlowOrbAmbient: React.FC = () => {
+export const GlowOrbAmbient: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
 
   // 有效时间：0–90f 匀速，90–120f 用 out-sine 减速收敛（起始斜率≈0.94，近似连续），
@@ -81,8 +83,8 @@ export const GlowOrbAmbient: React.FC = () => {
   const shadowSpread = 10 * glow;
   const shadowAlpha = 0.25 * glow;
 
-  return (
-    <AbsoluteFill style={{ background: '#1d1d1b', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skin?.bg || '#1d1d1b', overflow: 'hidden' }}>
       {ORBS.map((o, i) => (
         <div
           key={i}
@@ -93,9 +95,9 @@ export const GlowOrbAmbient: React.FC = () => {
             width: o.size,
             height: o.size,
             borderRadius: '50%',
-            background: `radial-gradient(circle, rgba(232,232,228,${o.peak}) 0%, rgba(232,232,228,${o.peak * 0.5}) 42%, rgba(232,232,228,0) 70%)`,
+            background: skin ? `radial-gradient(circle, ${skin.accent} 0%, color-mix(in srgb, ${skin.accent} 50%, transparent) 42%, transparent 70%)` : `radial-gradient(circle, rgba(232,232,228,${o.peak}) 0%, rgba(232,232,228,${o.peak * 0.5}) 42%, rgba(232,232,228,0) 70%)`,
             filter: 'blur(100px)',
-            opacity: fadeIn,
+            opacity: fadeIn * (skin ? o.peak : 1),
           }}
         />
       ))}
@@ -108,8 +110,8 @@ export const GlowOrbAmbient: React.FC = () => {
           width: 560,
           height: 330,
           boxSizing: 'border-box',
-          background: '#262624',
-          border: '1.5px solid #6a6a68',
+          background: skin?.surface || '#262624',
+          border: `1.5px solid ${skin?.muted || '#6a6a68'}`,
           borderRadius: 16,
           boxShadow: `0 0 ${shadowBlur}px ${shadowSpread}px rgba(255,255,255,${shadowAlpha})`,
           padding: 32,
@@ -118,6 +120,7 @@ export const GlowOrbAmbient: React.FC = () => {
           gap: 16,
         }}
       >
+        {skin ? words?.map((word,i)=><div key={i} style={{fontFamily:skin.fontFamily,fontSize:i===0 ? 52 : 36,fontWeight:i===0 ? 800 : 500,lineHeight:1.25,color:skin.text}}>{word}</div>) : <>
         <div style={{ height: 18, width: '55%', background: '#3a3a3a', borderRadius: 9 }} />
         <div style={{ height: 11, width: '82%', background: '#3a3a3a', borderRadius: 6 }} />
         <div style={{ height: 11, width: '68%', background: '#3a3a3a', borderRadius: 6 }} />
@@ -125,7 +128,9 @@ export const GlowOrbAmbient: React.FC = () => {
           <div style={{ width: 28, height: 28, borderRadius: 14, background: '#3a3a3a' }} />
           <div style={{ height: 11, width: 90, background: '#3a3a3a', borderRadius: 6 }} />
         </div>
+        </>}
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

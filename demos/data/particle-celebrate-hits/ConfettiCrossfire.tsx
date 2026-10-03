@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const FIRE = 16; // 揭晓帧 = 发射帧
@@ -47,9 +49,15 @@ const RIGHT_GUN = makeGun(120, 9); // 右下炮朝 120°（偏左上）
 const LEFT_POS = { x: 140, y: 1040 };
 const RIGHT_POS = { x: 1780, y: 1040 };
 
-export const ConfettiCrossfire: React.FC = () => {
+type BusinessRow = {label:string;value:number;evidence:string};
+type ConfettiProps = {rows?:BusinessRow[];unit?:string;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
+export const ConfettiCrossfire: React.FC<ConfettiProps> = ({rows,unit='',title,skin}) => {
   const frame = useCurrentFrame();
   const age = frame - FIRE;
+  const metric=rows?.[0];
+  const value=metric ? `${metric.value.toLocaleString('en-US')}${unit}` : '98.5%';
+  const accent=skin?.accent || AMBER;
 
   // KPI 卡 scale 入场落定
   const cardScale = interpolate(frame, [0, 14], [0.6, 1], {
@@ -84,10 +92,10 @@ export const ConfettiCrossfire: React.FC = () => {
       );
     });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="CONFETTI CROSSFIRE" size={72} />
+        <TitleBlock text={title || 'CONFETTI CROSSFIRE'} size={72} />
       </div>
 
       {/* 中央 KPI 卡 */}
@@ -101,15 +109,18 @@ export const ConfettiCrossfire: React.FC = () => {
         <div style={{ height: 14, width: 220, background: G.bar, borderRadius: 7 }} />
         <div style={{
           fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 150,
-          color: AMBER, letterSpacing: -3, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums',
+          color: accent, letterSpacing: -3, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums',
         }}>
-          98.5%
+          {value}
         </div>
-        <div style={{ height: 10, width: 150, background: G.line, borderRadius: 5 }} />
+        <div style={{ color:skin?.text || G.ink,fontFamily:skin?.fontFamily,fontSize:24,fontWeight:700,marginTop:10 }}>
+          {metric ? metric.label : <div style={{ height: 10, width: 150, background: G.line, borderRadius: 5 }} />}
+        </div>
       </div>
 
       {renderGun(LEFT_GUN, LEFT_POS, 'L')}
       {renderGun(RIGHT_GUN, RIGHT_POS, 'R')}
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

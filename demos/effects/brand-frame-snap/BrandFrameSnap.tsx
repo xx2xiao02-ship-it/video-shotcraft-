@@ -3,8 +3,11 @@
 // 停一拍 → 画框整圈蓝→绿同帧硬翻色，窗口内容同帧换布局。
 // 一个 borderColor 完成章节导航/状态提示/品牌露出。
 import React from 'react';
-import { useCurrentFrame, spring, interpolate } from 'remotion';
+import { useVideoConfig, useCurrentFrame, spring, interpolate } from 'remotion';
 import { G, FakeDashboard } from '../../_fixtures/Fixtures';
+import {BusinessScreen,type BusinessScreenSource} from '../../_fixtures/BusinessScreen';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground,type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FPS = 30;
 const FIGMA_BLUE = '#3E7BFA';
@@ -14,10 +17,23 @@ const FLIP_FRAME = 78; // 同帧硬翻色时刻
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-export const BrandFrameSnap: React.FC = () => {
+export const BrandFrameSnap: React.FC<{screens?:BusinessScreenSource[];portraitScreens?:BusinessScreenSource[];words?:string[];
+  skin?:TemplateSkin;durationInFrames?:number}>=({screens,portraitScreens,words,skin}) => {
   const f = useCurrentFrame();
+  const config=useVideoConfig();
+  const business=Boolean(screens || words);
+  if(business && (!screens || screens.length!==2 || screens[0].src===screens[1].src ||
+    !words || words.length!==2 || words.some(word=>!word.trim() || [...word].length>8) || !skin)) {
+    throw new Error('Brand frame requires two distinct actual screens and two complete mode labels.');
+  }
+  const portrait=business && config.height>config.width;
+  if(portrait && (!portraitScreens || portraitScreens.length!==2 || portraitScreens[0].src===portraitScreens[1].src))
+    throw new Error('Brand frame portrait requires two actual portrait mode screenshots.');
+  const sceneWidth=portrait ? config.width : 1920,sceneHeight=portrait ? config.height : 1080;
+  const winWidth=portrait ? sceneWidth-180 : 1560,winHeight=portrait ? sceneHeight-300 : 830;
+  const activeScreens=portrait ? portraitScreens : screens;
   const mode: 'design' | 'dev' = f < FLIP_FRAME ? 'design' : 'dev';
-  const frameColor = mode === 'design' ? FIGMA_BLUE : DEV_GREEN;
+  const frameColor = mode === 'design' ? skin?.accent || FIGMA_BLUE : skin?.muted || DEV_GREEN;
 
   // 1) 画框先登场：厚度从 0 长到 44px（ease-out，前 18 帧）
   const frameGrow = easeOut(clamp01(f / 18));
@@ -35,38 +51,39 @@ export const BrandFrameSnap: React.FC = () => {
   const snapPulse = sinceFlip >= 0 ? Math.exp(-sinceFlip * 0.22) * Math.cos(sinceFlip * 0.9) * 10 : 0;
 
   // 模式标签
-  const label = mode === 'design' ? 'DESIGN' : 'DEV MODE';
+  const label = words?.[mode==='design' ? 0 : 1] || (mode === 'design' ? 'DESIGN' : 'DEV MODE');
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: '#161618', position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: sceneWidth, height: sceneHeight, background: skinBackground(skin,'#161618'), position: 'relative', overflow: 'hidden' }}>
       {/* 框内内容区 */}
       <div style={{
-        position: 'absolute', inset: frameW + snapPulse, background: G.bg,
+        position: 'absolute', inset: frameW + snapPulse, background: skinBackground(skin,G.bg),
         overflow: 'hidden', borderRadius: 8,
       }}>
         {/* 录屏窗口（带标题栏的窗口卡）落位 */}
         <div style={{
           position: 'absolute', left: '50%', top: '50%',
-          width: 1560, height: 830,
+          width: winWidth, height: winHeight,
           transform: `translate(-50%, -50%) translateY(${winY}px) scale(${winS})`,
           opacity: winO,
           borderRadius: 16, overflow: 'hidden',
           boxShadow: '0 24px 70px rgba(0,0,0,0.28)',
-          border: `2px solid ${G.border}`, background: G.panel,
+          border: `2px solid ${skin?.muted || G.border}`, background: skin?.surface || G.panel,
         }}>
           {/* 窗口标题栏 */}
           <div style={{
-            height: 52, background: '#e9e9e7', borderBottom: `2px solid ${G.line}`,
+            height: 52, background: skin?.surface || '#e9e9e7', borderBottom: `2px solid ${skin?.muted || G.line}`,
             display: 'flex', alignItems: 'center', gap: 10, padding: '0 22px', boxSizing: 'border-box',
           }}>
             {[0, 1, 2].map((i) => (
               <div key={i} style={{ width: 16, height: 16, borderRadius: 8, background: G.bar }} />
             ))}
-            <div style={{ marginLeft: 18, height: 12, width: 260, background: G.line, borderRadius: 6 }} />
+            {business ? <div style={{marginLeft:18,color:skin?.text,fontFamily:skin?.fontFamily,fontSize:18}}>{label}</div> :
+              <div style={{ marginLeft: 18, height: 12, width: 260, background: G.line, borderRadius: 6 }} />}
             {/* 模式徽标：随画框同帧换色换字 */}
             <div style={{
-              marginLeft: 'auto', background: frameColor, color: 'var(--text)',
-              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 15,
+              marginLeft: 'auto', background: frameColor, color: skin?.text || 'var(--text)',
+              fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 15,
               letterSpacing: 1.5, padding: '6px 16px', borderRadius: 8,
               opacity: winO,
             }}>
@@ -74,9 +91,10 @@ export const BrandFrameSnap: React.FC = () => {
             </div>
           </div>
           {/* 窗口内容：翻色同帧换布局 A→B */}
+          {activeScreens ? <BusinessScreen screen={activeScreens[mode==='design' ? 0 : 1]} width={winWidth} height={winHeight-52}/> :
           <div style={{ transform: 'scale(0.81)', transformOrigin: '0 0', width: 1920, height: 1080 }}>
             <FakeDashboard variant={mode === 'design' ? 'A' : 'B'} />
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -94,8 +112,8 @@ export const BrandFrameSnap: React.FC = () => {
       <div style={{
         position: 'absolute', left: 70, top: 0, height: frameW + snapPulse,
         display: 'flex', alignItems: 'center',
-        fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-        fontSize: 22, letterSpacing: 3, color: 'var(--text)',
+        fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
+        fontSize: 22, letterSpacing: 3, color: skin?.text || 'var(--text)',
         opacity: frameGrow,
       }}>
         {label}
@@ -107,4 +125,5 @@ export const BrandFrameSnap: React.FC = () => {
       )}
     </div>
   );
+  return skin && !portrait ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const frac = (x: number) => x - Math.floor(x);
@@ -32,13 +34,24 @@ const BARS = [
 const fallTime = (dist: number) => Math.sqrt((2 * dist) / GRAV);
 const departOf = (bar: number, i: number) => 8 + bar * STAGGER + i * RATE + rnd(i, bar * 7 + 1) * 1.5;
 
-export const ParticleSandFill: React.FC = () => {
-  const frame = useCurrentFrame();
+type BusinessRow = {label:string;value:number;evidence:string};
+type SandProps = {rows?:BusinessRow[];unit?:string;title?:string;skin?:TemplateSkin;durationInFrames?:number};
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+export const ParticleSandFill: React.FC<SandProps> = ({rows,unit='',title,skin}) => {
+  const frame = useCurrentFrame();
+  const maxValue=Math.max(...(rows || []).map(row=>row.value),1);
+  const plotWidth=CARD.w-160;
+  const bars=rows ? rows.map((row,index)=>({
+    cx:CARD.x+80+plotWidth*(index+0.5)/rows.length,
+    h:Math.max(84,Math.round(row.value/maxValue*290)),
+    label:String(row.value),category:row.label,
+  })) : BARS.map(bar=>({...bar,category:null as string | null}));
+  const accentIndex=rows ? rows.findIndex(row=>row.value===maxValue) : 1;
+
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="PARTICLE SAND FILL" size={72} />
+        <TitleBlock text={title || 'PARTICLE SAND FILL'} size={72} />
       </div>
 
       {/* 图表卡 */}
@@ -53,10 +66,12 @@ export const ParticleSandFill: React.FC = () => {
       {/* 基线 */}
       <div style={{ position: 'absolute', left: CARD.x + 40, top: PLOT_BOTTOM, width: CARD.w - 80, height: 3, background: G.line }} />
 
-      {BARS.map((bar, b) => {
+      {bars.map((bar, b) => {
         const left = bar.cx - BAR_W / 2;
+        const layers=Math.round(bar.h/GRAIN);
+        const particleCount=layers*PER_LAYER;
         // 末颗落地帧（闭式）：末颗落点在堆顶，坠距仍 ≈DROP_FROM
-        const lastLand = departOf(b, bar.n - 1) + fallTime(DROP_FROM);
+        const lastLand = departOf(b, particleCount - 1) + fallTime(DROP_FROM);
         const doneAt = lastLand + 7; // 回弹收完 → 开始交接
         const solidOp = interpolate(frame, [doneAt, doneAt + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
         const labelScale = interpolate(frame, [doneAt + 6, doneAt + 18], [0, 1], {
@@ -69,7 +84,7 @@ export const ParticleSandFill: React.FC = () => {
             {solidOp > 0 && (
               <div style={{
                 position: 'absolute', left, top: PLOT_BOTTOM - bar.h,
-                width: BAR_W, height: bar.h, background: b === 1 ? AMBER : G.bar,
+                width: BAR_W, height: bar.h, background: b === accentIndex ? (skin?.accent || AMBER) : G.bar,
                 borderRadius: '6px 6px 0 0', opacity: solidOp,
               }} />
             )}
@@ -77,14 +92,16 @@ export const ParticleSandFill: React.FC = () => {
               <div style={{
                 position: 'absolute', left: bar.cx - 70, top: PLOT_BOTTOM - bar.h - 62, width: 140,
                 textAlign: 'center', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-                fontSize: 46, color: b === 1 ? AMBER : G.ink,
+                fontSize: 46, color: b === accentIndex ? (skin?.accent || AMBER) : G.ink,
                 transform: `scale(${labelScale})`,
               }}>
-                {bar.label}
+                {bar.label}{rows ? unit : ''}
               </div>
             )}
+            {bar.category && <div style={{position:'absolute',left:bar.cx-90,top:PLOT_BOTTOM+18,width:180,
+              textAlign:'center',fontFamily:skin?.fontFamily,fontSize:24,fontWeight:700,color:skin?.text || G.ink}}>{bar.category}</div>}
             {/* 粒子面：交接完成（solidOp=1）即整体条件卸载 → 真静止 */}
-            {solidOp < 1 && Array.from({ length: bar.n }).map((_, i) => {
+            {solidOp < 1 && Array.from({ length: particleCount }).map((_, i) => {
               const depart = departOf(b, i);
               const age = frame - depart;
               if (age <= 0) return null;
@@ -102,7 +119,7 @@ export const ParticleSandFill: React.FC = () => {
                 const bounce = ba < 6 ? Math.sin((ba / 6) * Math.PI) * GRAIN * 2 * 0.15 * (1 + rnd(i, b * 13 + 9)) : 0;
                 top = targetTop - bounce;
               }
-              const amber = b === 1 || rnd(i, b * 13 + 7) < 0.18;
+              const amber = b === accentIndex || rnd(i, b * 13 + 7) < 0.18;
               return (
                 <div key={i} style={{
                   position: 'absolute', left: left + col * GRAIN + 1, top, width: GRAIN - 2, height: GRAIN - 2,
@@ -116,4 +133,5 @@ export const ParticleSandFill: React.FC = () => {
       })}
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

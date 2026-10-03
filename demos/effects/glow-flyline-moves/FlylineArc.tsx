@@ -6,6 +6,8 @@
 import React, { useId } from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { FakeDashboard } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 type Pt = { x: number; y: number };
 
@@ -124,7 +126,8 @@ const CardPulse: React.FC<{
   );
 };
 
-export const FlylineArc: React.FC = () => {
+export const FlylineArc: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && words.filter((_,i)=>i%2===0).some(word=>[...word].length>4)) throw new Error('FlylineArc titles allow at most four characters to keep the arc clear');
   const frame = useCurrentFrame();
   // 渐变 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const haloId = `headHalo-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -134,11 +137,16 @@ export const FlylineArc: React.FC = () => {
   const L1 = { p0: { x: CARD_LT.cx, y: CARD_LT.cy }, p1: { x: 818, y: 60 }, p2: { x: 1322, y: 380 }, p3: { x: CARD_RB.cx, y: CARD_RB.cy } };
   const L2 = { p0: { x: CARD_RB.cx, y: CARD_RB.cy }, p1: { x: 1760, y: 560 }, p2: { x: 1360, y: 150 }, p3: { x: CARD_TM.cx, y: CARD_TM.cy } };
 
-  return (
-    <div style={{ width: 1920, height: 1080, position: 'relative', background: '#e0e0de' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, position: 'relative', background: skin?.bg || '#e0e0de' }}>
       {/* 背景微暗化 0.92，常量、不动画 */}
       <div style={{ filter: 'brightness(0.92)' }}>
-        <FakeDashboard variant="A" />
+        {skin ? <div style={{width:1920,height:1080,position:'relative'}}>
+          {[CARD_LT,CARD_RB,CARD_TM].map((rect,i)=><div key={i} style={{position:'absolute',left:rect.x,top:rect.y,width:rect.w,height:rect.h,borderRadius:14,background:skin.surface,border:`2px solid ${skin.muted}`,boxSizing:'border-box',padding:'320px 48px 12px',fontFamily:skin.fontFamily,color:skin.text}}>
+            <div style={{fontSize:44,lineHeight:1.2,fontWeight:800}}>{words?.[i*2]}</div>
+            <div style={{fontSize:32,lineHeight:1.3,marginTop:12}}>{words?.[i*2+1]}</div>
+          </div>)}
+        </div> : <FakeDashboard variant="A" />}
       </div>
       <svg
         width={1920} height={1080} viewBox="0 0 1920 1080"
@@ -158,4 +166,5 @@ export const FlylineArc: React.FC = () => {
       </svg>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:192,top:0,width:1920,height:1080,transform:'scale(.8)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : scene;
 };

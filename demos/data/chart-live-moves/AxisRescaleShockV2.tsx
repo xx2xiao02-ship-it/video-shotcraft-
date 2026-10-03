@@ -8,6 +8,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 
@@ -27,6 +29,12 @@ const DATA = [22, 30, 26, 38, 35, 47, 44, 58, 55, 66, 72, 340];
 const N = DATA.length;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+type BusinessRow = {label:string;value:number;evidence:string};
+type AxisProps = {rows?:BusinessRow[];unit?:string;axisMax?:number;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
+const niceUpperBound = (value:number,step:number) => Math.ceil(value/step)*step;
+const formatTick = (value:number,unit:string) => unit === '$k' ? `$${value}k` : `${Math.round(value)}${unit}`;
+
 const HOLD = 12;
 const DRAW_END = HOLD + 34; // f46：历史段画完
 const SHOCK_END = DRAW_END + 16; // f62：爆表点冲顶
@@ -37,18 +45,26 @@ const VAL_END = MARK_END + 10; // f108：真值标签弹出
 
 const easeDraw = Easing.inOut(Easing.cubic);
 
-export const AxisRescaleShockV2: React.FC = () => {
+export const AxisRescaleShockV2: React.FC<AxisProps> = ({rows,unit='$k',axisMax=100,title,skin}) => {
   const frame = useCurrentFrame();
+  const labels=rows?.map(row=>row.label) || MONTHS;
+  const values=rows?.map(row=>row.value) || DATA;
+  const count=values.length;
+  const step=axisMax/4;
+  const rescaledMax=rows ? niceUpperBound(Math.max(...values),step) : 400;
+  const ink=skin?.text || G.ink;
+  const muted=skin?.muted || G.mid;
+  const accent=skin?.accent || AMBER;
 
-  // 量程：0–100 → 0–400，重标 12f out-cubic
-  const range = interpolate(frame, [BEAT, RESCALE_END], [100, 400], {
+  // 业务量程按输入上限与末项真实值重标；演示分支保留原100→400范围。
+  const range = interpolate(frame, [BEAT, RESCALE_END], [axisMax, rescaledMax], {
     easing: Easing.out(Easing.cubic),
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
   const yOf = (v: number): number => PLOT_H - (v / range) * PLOT_H;
 
-  const drawT = interpolate(frame, [HOLD, DRAW_END], [0, N - 2], {
+  const drawT = interpolate(frame, [HOLD, DRAW_END], [0, count - 2], {
     easing: easeDraw,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -67,17 +83,17 @@ export const AxisRescaleShockV2: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  const xOf = (i: number): number => (i / (N - 1)) * PLOT_W;
+  const xOf = (i: number): number => (i / (count - 1)) * PLOT_W;
 
   // 历史段点集
   const basePts: string[] = [];
-  const upto = Math.min(drawT, N - 2);
-  for (let i = 0; i <= Math.floor(upto); i++) basePts.push(`${xOf(i).toFixed(2)},${yOf(DATA[i]).toFixed(2)}`);
-  if (upto < N - 2 && upto > Math.floor(upto)) {
+  const upto = Math.min(drawT, count - 2);
+  for (let i = 0; i <= Math.floor(upto); i++) basePts.push(`${xOf(i).toFixed(2)},${yOf(values[i]).toFixed(2)}`);
+  if (upto < count - 2 && upto > Math.floor(upto)) {
     const i = Math.floor(upto);
     const f = upto - i;
     const x = xOf(i) + (xOf(i + 1) - xOf(i)) * f;
-    const y = yOf(DATA[i]) + (yOf(DATA[i + 1]) - yOf(DATA[i])) * f;
+    const y = yOf(values[i]) + (yOf(values[i + 1]) - yOf(values[i])) * f;
     basePts.push(`${x.toFixed(2)},${y.toFixed(2)}`);
   }
 
@@ -86,10 +102,10 @@ export const AxisRescaleShockV2: React.FC = () => {
   let headY = basePts.length ? Number(basePts[basePts.length - 1].split(',')[1]) : 0;
   let shockSeg: string[] = [];
   if (shockT > 0) {
-    const x0 = xOf(N - 2);
-    const y0 = yOf(DATA[N - 2]);
-    const x = x0 + (xOf(N - 1) - x0) * shockT;
-    const yEnd = SHOCK_Y + (yOf(DATA[N - 1]) - SHOCK_Y) * rescaleP;
+    const x0 = xOf(count - 2);
+    const y0 = yOf(values[count - 2]);
+    const x = x0 + (xOf(count - 1) - x0) * shockT;
+    const yEnd = SHOCK_Y + (yOf(values[count - 1]) - SHOCK_Y) * rescaleP;
     const y = y0 + (yEnd - y0) * shockT;
     shockSeg = [`${x0.toFixed(2)},${y0.toFixed(2)}`, `${x.toFixed(2)},${y.toFixed(2)}`];
     headX = x;
@@ -102,8 +118,8 @@ export const AxisRescaleShockV2: React.FC = () => {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const OLD_TICKS = ['$25k', '$50k', '$75k', '$100k'];
-  const NEW_TICKS = ['$100k', '$200k', '$300k', '$400k'];
+  const OLD_TICKS = [1,2,3,4].map(index=>formatTick(step*index,unit));
+  const NEW_TICKS = [1,2,3,4].map(index=>formatTick(rescaledMax/4*index,unit));
 
   // 网格密度 4→8：新增的 4 根细网格随 swap 浮现
   const denseOp = swap;
@@ -127,10 +143,10 @@ export const AxisRescaleShockV2: React.FC = () => {
 
   const shockOn = frame >= DRAW_END; // 爆表段样式生效期
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 100, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="AXIS RESCALE SHOCK V2" size={72} />
+        <TitleBlock text={title || 'AXIS RESCALE SHOCK V2'} size={72} />
       </div>
 
       <div
@@ -151,8 +167,8 @@ export const AxisRescaleShockV2: React.FC = () => {
       >
         {/* 真卡头 */}
         <div style={{ position: 'absolute', left: PAD, top: 34, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
-          <div style={{ fontSize: 30, fontWeight: 700, color: G.ink }}>Monthly revenue</div>
-          <div style={{ fontSize: 19, fontWeight: 500, color: G.mid, marginTop: 6 }}>FY2026 · all products · USD</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: ink }}>{rows ? `${labels[0]} → ${labels[count-1]}` : 'Monthly revenue'}</div>
+          <div style={{ fontSize: 19, fontWeight: 500, color: muted, marginTop: 6 }}>{rows ? `量程 ${formatTick(axisMax,unit)} → ${formatTick(rescaledMax,unit)}` : 'FY2026 · all products · USD'}</div>
         </div>
 
         <div style={{ position: 'absolute', left: PLOT_X, top: PLOT_Y, width: PLOT_W, height: PLOT_H }}>
@@ -202,7 +218,7 @@ export const AxisRescaleShockV2: React.FC = () => {
               </div>
             );
           })}
-          <div style={{ position: 'absolute', left: -AXIS_W, top: PLOT_H - 13, width: AXIS_W - 14, fontFamily: 'Helvetica', fontWeight: 700, fontSize: 21, color: G.mid, textAlign: 'right' }}>$0</div>
+          <div style={{ position: 'absolute', left: -AXIS_W, top: PLOT_H - 13, width: AXIS_W - 14, fontFamily: 'Helvetica', fontWeight: 700, fontSize: 21, color: muted, textAlign: 'right' }}>{formatTick(0,unit)}</div>
 
           {/* 图表上沿强调线 */}
           <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 3, background: G.bar }} />
@@ -212,10 +228,10 @@ export const AxisRescaleShockV2: React.FC = () => {
             <polyline points={basePts.join(' ')} fill="none" stroke={G.ink} strokeWidth={5} strokeLinejoin="round" strokeLinecap="round" />
             {/* 爆表段：琥珀 + 10px，重标落回后收敛回常规 */}
             {shockSeg.length > 0 && (
-              <polyline
+                <polyline
                 points={shockSeg.join(' ')}
                 fill="none"
-                stroke={AMBER}
+                stroke={accent}
                 strokeWidth={shockOn && frame < RESCALE_END ? 10 : 6}
                 strokeLinejoin="round"
                 strokeLinecap="round"
@@ -224,8 +240,8 @@ export const AxisRescaleShockV2: React.FC = () => {
             {/* 端点标记 */}
             {markS > 0 && (
               <>
-                <circle cx={headX} cy={headY} r={13 * markS} fill={AMBER} />
-                <circle cx={headX} cy={headY} r={22 * markS} fill="none" stroke={AMBER} strokeWidth={3} opacity={0.55} />
+                <circle cx={headX} cy={headY} r={13 * markS} fill={accent} />
+                <circle cx={headX} cy={headY} r={22 * markS} fill="none" stroke={accent} strokeWidth={3} opacity={0.55} />
               </>
             )}
           </svg>
@@ -239,7 +255,7 @@ export const AxisRescaleShockV2: React.FC = () => {
                 top: headY - 27,
                 width: 150,
                 height: 54,
-                background: AMBER,
+                background: accent,
                 borderRadius: 10,
                 color: 'var(--text)',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
@@ -252,12 +268,12 @@ export const AxisRescaleShockV2: React.FC = () => {
                 transformOrigin: 'right center',
               }}
             >
-              $340k
+              {formatTick(values[count-1],unit)}
             </div>
           )}
 
           {/* x 轴真月份 */}
-          {MONTHS.map((m, i) => (
+          {labels.map((m, i) => (
             <div
               key={`m${i}`}
               style={{
@@ -269,7 +285,7 @@ export const AxisRescaleShockV2: React.FC = () => {
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontSize: 18,
                 fontWeight: 600,
-                color: i === N - 1 ? AMBER : G.mid,
+                color: i === count - 1 ? accent : muted,
               }}
             >
               {m}
@@ -279,4 +295,5 @@ export const AxisRescaleShockV2: React.FC = () => {
       </div>
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

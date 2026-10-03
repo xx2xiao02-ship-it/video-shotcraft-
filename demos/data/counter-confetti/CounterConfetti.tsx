@@ -4,6 +4,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const COUNTER_CONFETTI_DURATION = 138; // 4600ms @30fps
 
@@ -31,19 +32,23 @@ const BITS = Array.from({ length: 52 }, (_, i) => {
   };
 });
 
-export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }) => {
+export const CounterConfetti: React.FC<{value?: number | string; label?: string; unit?: string; title?: string; skin?: TemplateSkin; durationInFrames?: number}> = ({ value, label, unit = '', title, skin }) => {
   const t = useT();
   // 计数：easeOutQuart 冲刺
   const p = seg(t, 0.06, 0.56, E.outQuart);
-  const target = typeof value === 'number' ? value : parseInt(String(value || '1000').replace(/[^0-9]/g, '')) || 1000;
-  const val = Math.round(p * target);
+  const target = value === undefined ? 1000 : Number(value);
+  if (!Number.isFinite(target) || target < 0 || target > 999999) throw new Error('CounterConfetti value must be between 0 and 999999');
+  const decimals = Math.min(2, String(target).split('.')[1]?.length || 0);
+  const val = Number((p * target).toFixed(decimals));
+  const formatted = val.toLocaleString('en-US', {minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+  const business = Boolean(skin || label !== undefined || title !== undefined);
   const s1 = seg(t, 0.06, 0.3, E.outCubic);
   const s2 = seg(t, 0.56, 0.72, E.outBack);
   const sc = lerp(s1, 0.2, 1.3) + s2 * (1 - 1.3);
   // 到位冲击环
   const rp = seg(t, 0.545, 0.75, E.outQuart);
   return (
-    <DesignStage bg="radial-gradient(80% 80% at 50% 45%,#161a2b,#0d0f14 75%)">
+    <DesignStage bg={skinBackground(skin,'radial-gradient(80% 80% at 50% 45%,#161a2b,#0d0f14 75%)')}>
       {/* 中心辉光 */}
       <div
         style={{
@@ -55,7 +60,7 @@ export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }
           margin: -170,
           borderRadius: '50%',
           background: 'radial-gradient(circle,rgba(120,160,255,.28),transparent 66%)',
-          opacity: 0.35 + seg(t, 0.5, 0.62, E.outCubic) * 0.65 - seg(t, 0.72, 1) * 0.5,
+          opacity: skin ? 0 : 0.35 + seg(t, 0.5, 0.62, E.outCubic) * 0.65 - seg(t, 0.72, 1) * 0.5,
         }}
       />
       {/* 大数字（渐变填充文字，外层 scale 过冲） */}
@@ -68,13 +73,13 @@ export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }
             transform: 'translate(-50%,-50%)',
             whiteSpace: 'nowrap',
             fontWeight: 800,
-            fontSize: 74,
+            fontSize: business ? Math.min(74, 340 / Math.max(formatted.length * 0.62, 1)) : 74,
             lineHeight: 1,
             // 原栈 -apple-system 在 Remotion 无头浏览器解析不到（落到 Arial），
             // 补 Helvetica 兜底——度量与原片的 SF Pro 逐字形吻合
-            fontFamily: "-apple-system,Helvetica,'Segoe UI',sans-serif",
-            letterSpacing: -2,
-            background: 'linear-gradient(180deg,#ffffff,#a9bcff)',
+            fontFamily: skin?.fontFamily || "-apple-system,Helvetica,'Segoe UI',sans-serif",
+            letterSpacing: business ? 0 : -2,
+            background: skin?.text || 'linear-gradient(180deg,#ffffff,#a9bcff)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
@@ -82,9 +87,14 @@ export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }
             opacity: Math.min(1, seg(t, 0.02, 0.12) * 1.2),
           }}
         >
-          {val.toLocaleString('en-US')}
+          {formatted}
         </div>
       </div>
+      {unit && <div style={{position:'absolute',left:'10%',right:'10%',top:'61%',textAlign:'center',
+        color:skin?.accent || '#a9bcff',fontFamily:skin?.fontFamily,fontSize:20,fontWeight:700}}>{unit}</div>}
+      {title && <div style={{position:'absolute',left:'10%',right:'10%',top:'22%',textAlign:'center',
+        color:skin?.text || '#ffffff',fontFamily:skin?.fontFamily,fontSize:Math.min(24,340 / Math.max([...title].length,1)),
+        fontWeight:700,lineHeight:1.3,whiteSpace:'pre-wrap',opacity:seg(t,0.02,0.12)}}>{title}</div>}
       {/* 底部标签：淡入 + letter-spacing 收拢 */}
       <div
         style={{
@@ -93,16 +103,17 @@ export const CounterConfetti: React.FC<{ value?: number | string }> = ({ value }
           top: '70%',
           transform: 'translate(-50%,0)',
           fontWeight: 700,
-          fontSize: 10,
+          fontSize: business ? Math.min(18,340 / Math.max([...(label || '')].length,1)) : 10,
           lineHeight: 1,
-          fontFamily: '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', // 同上：Helvetica 兜底对齐原片
+          fontFamily: skin?.fontFamily || '-apple-system,Helvetica,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', // 同上：Helvetica 兜底对齐原片
 
-          color: '#7d88a8',
-          opacity: seg(t, 0.62, 0.78, E.outCubic),
-          letterSpacing: lerp(seg(t, 0.62, 0.82, E.outCubic), 11, 5),
+          color: skin?.text || '#7d88a8',
+          opacity: business ? seg(t, 0.18, 0.3, E.outCubic) : seg(t, 0.62, 0.78, E.outCubic),
+          letterSpacing: business ? 0 : lerp(seg(t, 0.62, 0.82, E.outCubic), 11, 5),
+          whiteSpace:'nowrap',
         }}
       >
-        METRIC THIS WEEK
+        {label === undefined ? 'METRIC THIS WEEK' : label}
       </div>
       {/* 到位冲击环 */}
       <div

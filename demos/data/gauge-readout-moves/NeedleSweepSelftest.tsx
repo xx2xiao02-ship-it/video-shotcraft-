@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const RED = '#7c2d12';
@@ -61,11 +63,14 @@ const needleAngle = (frame: number, s: number, target: number): number => {
   });
 };
 
-const Gauge: React.FC<{ start: number; target: number }> = ({ start, target }) => {
+type BusinessRow={label:string;value:number;evidence:string};
+type GaugeProps={rows?:BusinessRow[];unit?:string;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
+const Gauge: React.FC<{ start:number;target:number;value:number;unit:string;label:string;accent:string;ink:string;muted:string }> =
+  ({start,target,value,unit,label,accent,ink,muted}) => {
   const frame = useCurrentFrame();
   const d = needleAngle(frame, start, target);
   const settle = start + 32;
-  const value = Math.round((target / 270) * 100);
 
   const popScale = interpolate(frame, [settle, settle + 4, settle + 8], [0.3, 1.18, 1], {
     extrapolateLeft: 'clamp',
@@ -102,32 +107,41 @@ const Gauge: React.FC<{ start: number; target: number }> = ({ start, target }) =
         {ticks}
         {/* 指针：琥珀刚体，rotate 全量程往返 */}
         <g transform={`rotate(${d.toFixed(3)} ${CX} ${CY})`}>
-          <line x1={tailX} y1={tailY} x2={tipX} y2={tipY} stroke={AMBER} strokeWidth={9} strokeLinecap="round" />
+        <line x1={tailX} y1={tailY} x2={tipX} y2={tipY} stroke={accent} strokeWidth={9} strokeLinecap="round" />
         </g>
         <circle cx={CX} cy={CY} r={15} fill={G.ink} />
-        <circle cx={CX} cy={CY} r={6} fill={AMBER} />
+        <circle cx={CX} cy={CY} r={6} fill={accent} />
       </svg>
       {/* 落定同帧弹出的数值 */}
       <div style={{
         position: 'absolute', left: 0, right: 0, top: 396, textAlign: 'center',
         opacity: popOp, transform: `scale(${popScale.toFixed(4)})`,
       }}>
-        <span style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 62, color: G.ink }}>
-          {value}
+        <span style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 62, color: ink }}>
+          {value.toLocaleString('en-US')}
         </span>
         <span style={{ fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 700, fontSize: 30, color: G.mid, marginLeft: 8 }}>
-          %
+          {unit}
         </span>
       </div>
+      {label && <div style={{position:'absolute',left:0,right:0,top:482,textAlign:'center',fontFamily:'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',fontSize:20,fontWeight:700,color:muted}}>{label}</div>}
     </div>
   );
 };
 
-export const NeedleSweepSelftest: React.FC = () => {
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+export const NeedleSweepSelftest: React.FC<GaugeProps> = ({rows,unit='%',title,skin}) => {
+  const business=Boolean(rows?.length);
+  const maxValue=business?Math.max(...rows!.map(row=>row.value),1):100;
+  const ink=skin?.text || G.ink;
+  const muted=skin?.muted || G.mid;
+  const accent=skin?.accent || AMBER;
+  const gauges=business ? rows!.map((row,index)=>({
+    start:12+index*4,target:row.value/maxValue*270,value:row.value,label:row.label,
+  })) : GAUGES.map(g=>({start:g.start,target:g.target,value:Math.round(g.target/270*100),label:''}));
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="NEEDLE SWEEP SELF-TEST" size={72} />
+        <TitleBlock text={title || 'NEEDLE SWEEP SELF-TEST'} size={72} />
       </div>
       <div style={{
         position: 'absolute', left: CARD_X, top: CARD_Y, width: CARD_W, height: CARD_H,
@@ -136,11 +150,13 @@ export const NeedleSweepSelftest: React.FC = () => {
       }}>
         <div style={{ height: 16, width: 320, background: G.bar, borderRadius: 8 }} />
         <div style={{ position: 'absolute', left: 0, top: 96, display: 'flex' }}>
-          {GAUGES.map((g, i) => (
-            <Gauge key={i} start={g.start} target={g.target} />
+          {gauges.map((g, i) => (
+            <Gauge key={i} start={g.start} target={g.target} value={g.value} label={g.label}
+              unit={business?unit:'%'} accent={accent} ink={ink} muted={muted} />
           ))}
         </div>
       </div>
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

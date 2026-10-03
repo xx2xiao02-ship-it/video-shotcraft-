@@ -7,6 +7,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 
@@ -69,18 +71,48 @@ const fmt = (n: number): string => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,
 const Y_TICKS = ['2.0k', '1.5k', '1.0k', '0.5k', '0'];
 const X_TICKS = ['-60s', '-50s', '-40s', '-30s', '-20s', '-10s', 'now'];
 
-export const OscilloscopeStreamV2: React.FC = () => {
+type BusinessRow = {label:string;value:number;evidence:string};
+type StreamProps = {rows?:BusinessRow[];unit?:string;eventIndex?:number;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
+export const OscilloscopeStreamV2: React.FC<StreamProps> = ({rows,unit='req/s',eventIndex=0,title,skin}) => {
   const frame = useCurrentFrame();
   const T = effTime(frame);
+  const business=Boolean(rows?.length);
+  const maxValue=business ? Math.max(...rows!.map(row=>row.value),1) : 2000;
+  const minValue=business ? Math.min(...rows!.map(row=>row.value),0) : 0;
+  const ink=skin?.text || G.ink;
+  const muted=skin?.muted || G.mid;
+  const accent=skin?.accent || AMBER;
+  const dataProgress=business ? interpolate(frame,[HOLD,FREEZE_START],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'}) : 1;
+  const sampleAt=(progress:number) => {
+    if (!rows?.length) return valueOf(T);
+    const pos=Math.min(Math.max(progress,0),1)*(rows.length-1);
+    const index=Math.min(Math.floor(pos),rows.length-2);
+    const mix=pos-index;
+    return rows.length===1 ? rows[0].value : rows[index].value+(rows[index+1].value-rows[index].value)*mix;
+  };
+  const currentIndex=business ? dataProgress*(rows!.length-1) : 0;
+  const liveValue=business ? sampleAt(dataProgress) : valueOf(T);
+  const peakIndex=business ? (eventIndex ?? 0) : 0;
+  const peakProgress=business && rows!.length>1 ? peakIndex/(rows!.length-1) : 0;
+  const peakValue=business ? rows![peakIndex].value : 0;
 
   const N = 270;
   const pts: string[] = [];
   for (let i = 0; i <= N; i++) {
     const px = (i / N) * PLOT_W;
-    const worldX = T - (PLOT_W - px);
-    pts.push(`${px.toFixed(2)},${yOf(worldX).toFixed(2)}`);
+    if (business) {
+      const value=sampleAt(px/PLOT_W);
+      const y=PLOT_H-((value-minValue)/(maxValue-minValue||1))*PLOT_H;
+      pts.push(`${px.toFixed(2)},${y.toFixed(2)}`);
+    } else {
+      const worldX = T - (PLOT_W - px);
+      pts.push(`${px.toFixed(2)},${yOf(worldX).toFixed(2)}`);
+    }
   }
-  const headY = yOf(T);
+  const headX=business ? dataProgress*PLOT_W : PLOT_W;
+  const headY=business ? PLOT_H-((liveValue-minValue)/(maxValue-minValue||1))*PLOT_H : yOf(T);
+  const peakY=business ? PLOT_H-((peakValue-minValue)/(maxValue-minValue||1))*PLOT_H : 0;
 
   const frozen = frame >= FREEZE_END;
   const glowOp = interpolate(frame, [FREEZE_START, FREEZE_END], [1, 0], {
@@ -91,7 +123,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
   // 余辉段：头部往回 160px（v1 90 → 160）
   const TAIL = 160;
   const tailPts: string[] = [];
-  if (!frozen) {
+  if (!frozen && !business) {
     for (let i = 0; i <= 40; i++) {
       const px = PLOT_W - TAIL + (i / 40) * TAIL;
       const worldX = T - (PLOT_W - px);
@@ -100,16 +132,18 @@ export const OscilloscopeStreamV2: React.FC = () => {
   }
 
   // 实时读数：尖峰经过写入点时跳大 + 变琥珀
-  const spikeK = Math.min(Math.max((env(T) - 1) / SPIKE_GAIN, 0), 1);
-  const hot = spikeK > 0.22;
-  const readout = fmt(valueOf(T));
-  const readScale = 1 + 0.32 * spikeK;
-  const dotColor = spikeK > 0.15 ? AMBER : G.ink;
+  const spikeK=business ? Math.max(0,1-Math.abs(currentIndex-peakIndex)*1.6) : Math.min(Math.max((env(T)-1)/SPIKE_GAIN,0),1);
+  const hot=spikeK>0.22;
+  const readout=fmt(Math.round(liveValue));
+  const readScale=1+0.32*spikeK;
+  const dotColor=hot ? accent : ink;
+  const yTicks=business ? [0,0.25,0.5,0.75,1].map(pct=>fmt(Math.round(maxValue-(maxValue-minValue)*pct))) : Y_TICKS;
+  const xTicks=business ? rows!.map(row=>row.label) : X_TICKS;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="OSCILLOSCOPE STREAM V2" size={72} />
+        <TitleBlock text={title || 'OSCILLOSCOPE STREAM V2'} size={72} />
       </div>
 
       <div
@@ -128,8 +162,8 @@ export const OscilloscopeStreamV2: React.FC = () => {
       >
         {/* 真卡头：标题 + 副题 + 实时读数 */}
         <div style={{ position: 'absolute', left: PAD, top: 38, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
-          <div style={{ fontSize: 30, fontWeight: 700, color: G.ink }}>Requests per second</div>
-          <div style={{ fontSize: 20, fontWeight: 500, color: G.mid, marginTop: 8 }}>api-gateway · production · last 60 s</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: ink }}>{business ? `${rows![0].label} → ${rows!.at(-1)!.label}` : 'Requests per second'}</div>
+          <div style={{ fontSize: 20, fontWeight: 500, color: muted, marginTop: 8 }}>{business ? `每批新增变体 · 单位 ${unit}` : 'api-gateway · production · last 60 s'}</div>
         </div>
         <div
           style={{
@@ -145,11 +179,11 @@ export const OscilloscopeStreamV2: React.FC = () => {
           <div style={{ fontSize: 46, fontWeight: 800, color: hot ? AMBER : G.ink, fontVariantNumeric: 'tabular-nums', letterSpacing: -1 }}>
             {readout}
           </div>
-          <div style={{ fontSize: 18, fontWeight: 600, color: hot ? AMBER : G.mid, marginTop: 2 }}>req/s · live</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: hot ? accent : muted, marginTop: 2 }}>{business ? `${rows![Math.min(Math.floor(currentIndex),rows!.length-1)].label} · ${unit}` : 'req/s · live'}</div>
         </div>
 
         {/* y 轴真刻度 */}
-        {Y_TICKS.map((t, i) => (
+        {yTicks.map((t, i) => (
           <div
             key={`yt${i}`}
             style={{
@@ -161,7 +195,7 @@ export const OscilloscopeStreamV2: React.FC = () => {
               fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontSize: 20,
               fontWeight: 600,
-              color: G.mid,
+              color: muted,
             }}
           >
             {t}
@@ -178,8 +212,11 @@ export const OscilloscopeStreamV2: React.FC = () => {
           ))}
 
           <svg width={PLOT_W} height={PLOT_H} style={{ position: 'absolute', inset: 0, overflow: 'visible' }}>
-            <polyline points={pts.join(' ')} fill="none" stroke={G.ink} strokeWidth={5} strokeLinejoin="round" strokeLinecap="round" />
-            {!frozen && glowOp > 0 && (
+            <polyline points={pts.join(' ')} fill="none" stroke={ink} strokeWidth={5} strokeLinejoin="round" strokeLinecap="round"
+              clipPath={business ? 'url(#business-data-reveal)' : undefined} />
+            {business && <defs><clipPath id="business-data-reveal"><rect x={0} y={0} width={Math.max(1,dataProgress*PLOT_W)} height={PLOT_H} /></clipPath></defs>}
+            {business && frame>=HOLD && <circle cx={peakProgress*PLOT_W} cy={peakY} r={9} fill={accent} />}
+            {!business && !frozen && glowOp > 0 && (
               <polyline
                 points={tailPts.join(' ')}
                 fill="none"
@@ -194,27 +231,28 @@ export const OscilloscopeStreamV2: React.FC = () => {
             {/* 写入点亮点（1.5×） */}
             {!frozen && glowOp > 0 && (
               <>
-                <circle cx={PLOT_W} cy={headY} r={24} fill={spikeK > 0.15 ? AMBER : '#8f8f8d'} opacity={0.35 * glowOp} style={{ filter: 'blur(5px)' }} />
-                <circle cx={PLOT_W} cy={headY} r={10.5} fill={dotColor} opacity={glowOp} />
+                <circle cx={headX} cy={headY} r={24} fill={spikeK > 0.15 ? accent : '#8f8f8d'} opacity={0.35 * glowOp} style={{ filter: 'blur(5px)' }} />
+                <circle cx={headX} cy={headY} r={10.5} fill={dotColor} opacity={glowOp} />
               </>
             )}
+            {business && frozen && <circle cx={headX} cy={headY} r={10.5} fill={accent} />}
           </svg>
         </div>
 
         {/* x 轴真时间刻度 */}
         <div style={{ position: 'absolute', left: PLOT_X, top: PLOT_Y + PLOT_H + 14, width: PLOT_W }}>
-          {X_TICKS.map((t, i) => (
+          {xTicks.map((t, i) => (
             <div
               key={`xt${i}`}
               style={{
                 position: 'absolute',
-                left: (PLOT_W / 6) * i - 40,
+                left: (PLOT_W / Math.max(xTicks.length-1,1)) * i - 40,
                 width: 80,
                 textAlign: 'center',
                 fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                 fontSize: 19,
                 fontWeight: 600,
-                color: G.mid,
+                color: muted,
               }}
             >
               {t}
@@ -224,4 +262,5 @@ export const OscilloscopeStreamV2: React.FC = () => {
       </div>
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };
