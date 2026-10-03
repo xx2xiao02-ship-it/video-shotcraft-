@@ -31,7 +31,7 @@ async def synthesize(text_file):
     # 合成完整语音
     communicate = edge_tts.Communicate(text, VOICE, rate=RATE)
     await communicate.save(output_path)
-    print(f"✓ 语音合成完成: {output_path}")
+    print(f"[OK] 语音合成完成: {output_path}")
     
     # 用 ffprobe 获取真实时长
     result = subprocess.run(
@@ -69,7 +69,7 @@ async def synthesize(text_file):
     with open(timing_path, "w", encoding="utf-8") as f:
         json.dump(timing, f, ensure_ascii=False, indent=2)
     
-    print(f"✓ 时间轴生成: {len(segments)} 句 → {timing_path}")
+    print(f"[OK] 时间轴生成: {len(segments)} 句 -> {timing_path}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

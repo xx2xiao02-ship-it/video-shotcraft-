@@ -215,6 +215,7 @@ textarea::placeholder { color: #879591; }
 .talkcraft-sample-review { margin-top: 18px; max-width: 760px; }
 .talkcraft-sample-review h3 { margin: 0 0 10px; font-size: 14px; }
 .talkcraft-sample-review video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #111; }
+.talkcraft-sample-review video[data-aspect-ratio="9:16"] { width: min(100%, 340px); aspect-ratio: 9 / 16; }
 .talkcraft-sample-review p { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
 .talkcraft-progress { padding: 10px 12px; margin: 16px 0 0; background: var(--green-soft); color: var(--green); border-radius: 5px; font-size: 12px; }
 .talkcraft-failure { margin-top: 14px; padding: 14px 16px; border: 1px solid #ead0bf; border-left: 3px solid var(--rust); background: #fffaf6; color: var(--ink); font-size: 12px; line-height: 1.6; }

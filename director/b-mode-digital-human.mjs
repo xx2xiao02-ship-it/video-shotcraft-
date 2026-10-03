@@ -63,12 +63,12 @@ const timingFile = path.join(runDir, 'digital-human-timing.json');
 if (settings.voiceMode === 'volcengine-clone' || settings.voiceMode === 'volcengine-tts2') {
   const scriptName = settings.voiceMode === 'volcengine-tts2' ? 'volcengine-tts2.mjs' : 'volcengine-voice.mjs';
   run(process.execPath, [path.join(ROOT, 'director', scriptName), 'synthesize',
-    path.join(runDir, 'input.txt'), inputMp3, timingFile, settings.speakerId]);
+    path.join(runDir, 'input.txt'), inputMp3, timingFile, settings.speakerId, String(settings.speechRate ?? 0)]);
   completeVolcengineTiming({timingFile, audioFile:inputMp3, text});
 } else {
   run(python, [path.join(ROOT, 'director', 'b-mode-tts.py'), path.join(runDir, 'input.txt'), inputMp3,
     timingFile, '--voice', String(settings.voice || 'zh-CN-YunxiNeural'),
-    '--rate', '0', '--max-chars', '1200', '--preserve-sentences']);
+    '--rate', String(settings.speechRate ?? 0), '--max-chars', '1200', '--preserve-sentences']);
 }
 
 console.log('Digital human stage 1b: normalize audio to WAV');

@@ -6,6 +6,7 @@ import {test} from 'node:test';
 import {loadModeCConfig, runModeCStage} from './mode-c/mode-c-dispatcher.mjs';
 import {planImage2Generation} from './mode-c/adapters/image2-adapter.mjs';
 import {planVeoGeneration} from './mode-c/adapters/veo-adapter.mjs';
+import {verifyAsset} from './mode-c/asset-verifier.mjs';
 
 function tempProject() {
   const project = mkdtempSync(path.join(os.tmpdir(), 'shotcraft-mode-c-'));
@@ -37,6 +38,9 @@ test('main console exposes a selectable C mode without changing A/B defaults', (
   assert.match(html, /visualMode[^\n]+"C"/u);
   assert.match(html, /id="b-mode-a"/u);
   assert.match(html, /id="b-mode-real"/u);
+  assert.match(html, /data-video-aspect="16:9"/u);
+  assert.match(html, /data-video-aspect="9:16"/u);
+  assert.doesNotMatch(html, /模式 C 暂不支持竖版/u);
   assert.doesNotMatch(html, /id="b-mode-c"[^>]*cursor:not-allowed/u);
 });
 
@@ -65,6 +69,33 @@ test('mode C creates image/video/evidence plans without making paid calls', () =
     const verification = runModeCStage('verify', project);
     assert.ok(['verified', 'pending_generation', 'blocked'].includes(verification.status));
     assert.equal(verification.verified, mock.generated);
+  } finally {
+    rmSync(project, {recursive:true, force:true});
+  }
+});
+
+test('portrait C run freezes 9:16 across queue, provider plans and video verification', () => {
+  const project = tempProject();
+  try {
+    writeFileSync(path.join(project, 'source-run.json'), JSON.stringify({aspectRatio:'9:16'}), 'utf8');
+    const result = runModeCStage('dry-run', project);
+    const queue = JSON.parse(readFileSync(result.queueFile, 'utf8'));
+    const plan = JSON.parse(readFileSync(result.planFile, 'utf8'));
+    assert.equal(queue.aspectRatio, '9:16');
+    assert.ok(queue.jobs.every(job => job.status === 'blocked' || job.aspectRatio === '9:16'));
+    assert.equal(plan.aspectRatio, '9:16');
+    const image = plan.jobs.find(job => job.assetKind === 'image');
+    const video = plan.jobs.find(job => job.assetKind === 'video');
+    assert.equal(image.args[image.args.indexOf('--size') + 1], '1024x1792');
+    assert.equal(video.args[video.args.indexOf('--aspect-ratio') + 1], '9:16');
+    assert.match(video.prompt, /vertical portrait/u);
+    runModeCStage('mock', project);
+    const verification = runModeCStage('verify', project);
+    assert.equal(verification.verified, 3);
+    const wrongAspect = verifyAsset({root:project, file:queue.jobs.find(job => job.assetKind === 'video').outputPath,
+      kind:'video', expectedDurationSec:8, aspectRatio:'16:9'});
+    assert.equal(wrongAspect.ok, false);
+    assert.match(wrongAspect.errors.join(' '), /画幅/u);
   } finally {
     rmSync(project, {recursive:true, force:true});
   }

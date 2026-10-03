@@ -36,7 +36,7 @@ function requestedCount(entry) {
   return /多图|multi[-_ ]?image/iu.test(text) ? 2 : 1;
 }
 
-function promptFor(entry, shotId, kind, index) {
+function promptFor(entry, shotId, kind, index, aspectRatio) {
   const sentence = String(entry?.text || entry?.sentence || '').trim();
   const cardSlug = String(entry?.cardSlug || flattenCandidateValues(entry)[0]?.slug || 'material-fallback');
   const medium = kind === 'video' ? 'cinematic B-roll video' : 'cinematic still image';
@@ -44,6 +44,7 @@ function promptFor(entry, shotId, kind, index) {
     `Asset type: ${medium}`,
     `Shot: ${shotId}`,
     `Card: ${cardSlug}`,
+    `Frame: ${aspectRatio} ${aspectRatio === '9:16' ? 'vertical portrait' : 'horizontal landscape'}`,
     sentence ? `Narration meaning: ${sentence}` : '',
     'Composition: leave clean negative space for Chinese subtitles, no logos, no invented UI, no readable text.',
     `Variant: ${index + 1}`,
@@ -69,13 +70,14 @@ export function buildGenerationQueue({projectRoot, config, candidatesFile = path
       const model = kind === 'video' ? config.video.model : config.image.model;
       jobs.push({jobId:`${safeName(shotId)}-${kind}-${String(index + 1).padStart(2, '0')}`,
         shotId, cardSlug, assetKind:kind, provider, model,
-        prompt:promptFor(entry, shotId, kind, index),
+        prompt:promptFor(entry, shotId, kind, index, config.aspectRatio),
         durationSec:kind === 'video' ? config.video.durationSeconds : null,
         aspectRatio:config.aspectRatio, status:'pending_generation', state:'pending_generation', source:'mode-c',
         outputPath:`mode-c/generated/${safeName(shotId)}-${kind}-${String(index + 1).padStart(2, '0')}.${kind === 'video' ? 'mp4' : 'png'}`});
     }
   }
-  return {schema:'mode-c-generation-queue-v1', mode:'C', sourceCandidates:path.relative(projectRoot, candidatesFile), jobs,
+  return {schema:'mode-c-generation-queue-v1', mode:'C', aspectRatio:config.aspectRatio,
+    sourceCandidates:path.relative(projectRoot, candidatesFile), jobs,
     counts:{total:jobs.length, image:jobs.filter(job => job.assetKind === 'image').length,
       video:jobs.filter(job => job.assetKind === 'video').length, blocked:jobs.filter(job => job.status === 'blocked').length}};
 }

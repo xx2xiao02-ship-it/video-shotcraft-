@@ -51,6 +51,14 @@ const CARDS = Object.freeze({
   'ui-entrance/list-reveal': '二至三项列表',
   'ui-entrance/list-stack-press': '层层递进的列表',
   'ui-entrance/clipcard-looping': '真实视频进入卡片内部；唯一支持本链路媒体替换的卡',
+  'transition/bottom-push-stack-wipe': '真实章节标题与颜色驱动的底部推入转场',
+  'transition/bubble-swarm-takeover': '真实前后页面标签与业务胶囊驱动的气泡接管转场',
+  'transition/card-flip-reveal': '真实功能结果指标驱动的翻面揭示转场',
+  'transition/card-flock-tumble': '真实页面标题与收束口号驱动的卡片群转场',
+  'transition/circle-match-iris': '真实匹配百分比与指标标签驱动的光圈转场',
+  'transition/color-block-step-wipe': '真实徽章与页面标签驱动的色块阶梯转场',
+  'transition/gradient-transition': '真实章节阶段标签驱动的渐变转场',
+  'transition/line-carry-transition': '真实起点终点标题与目标状态驱动的线条接力转场',
 });
 const MEDIA_CARD = 'ui-entrance/clipcard-looping';
 const BACKDROP_CARDS = new Set([

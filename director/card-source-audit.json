@@ -6,7 +6,7 @@
     "variants": 214,
     "runtimeRegistrations": 220,
     "resolvedVariants": 212,
-    "adapterDeclaredVariants": 113
+    "adapterDeclaredVariants": 125
   },
   "productionEntry": {
     "composition": "DynamicVideo",
@@ -112,7 +112,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -205,17 +205,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -298,17 +300,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -387,17 +391,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -492,7 +498,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -610,7 +616,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -681,7 +687,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -749,7 +755,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -804,7 +810,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -895,17 +901,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -960,7 +968,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -1080,34 +1088,21 @@
           },
           "shortShot": {
             "id": "ui-entrance/bezier-source-converge-merge",
-            "status": "accepted",
+            "status": "not-accepted",
             "fps": 30,
-            "acceptedFrames": [
-              60
-            ],
-            "completionFrame": 42,
-            "holdFrames": 18,
-            "exitFrames": 0,
-            "maxLines": 1,
-            "maxChars": 6,
-            "kind": "graphic",
-            "graphicLimits": {
-              "maxSources": 3,
-              "maxSourceChars": 2,
-              "maxTargetChars": 4
-            },
-            "evidence": "director/short-card-production-admission.json"
+            "acceptedFrames": [],
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": true,
+            "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
-            "shortVersionAdmitted": true,
+            "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
             "longUserAcceptance": "not-admitted",
-            "shortUserAcceptance": "pending"
+            "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
           "warnings": [],
@@ -1197,17 +1192,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -1242,8 +1239,19 @@
             "id": "transition/bottom-push-stack-wipe",
             "file": "demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
             "export": "BottomPushStackWipe",
-            "sha256": "0d325fe23d2fec70d1c3d18b3ae2a3df3a51bc24b61fe3fa3b1384984eb93e1d",
-            "props": [],
+            "sha256": "9e5dba246e6c164a2d4baac61b06829ef670f8803caea1718a2de9d73e615b8d",
+            "props": [
+              {
+                "name": "chapters",
+                "type": "Array<{ color: string; label: string; seed?: number }>",
+                "optional": true
+              },
+              {
+                "name": "durationInFrames",
+                "type": "number",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "PUSH_DUR",
@@ -1256,7 +1264,16 @@
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/bottom-push-stack-wipe",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "chapters": "chapters"
+              },
+              "note": "真实章节标题、颜色和卡片种子驱动四次推入"
+            }
           },
           "candidateRuntimeIds": [
             "transition/bottom-push-stack-wipe"
@@ -1270,10 +1287,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -1284,7 +1301,7 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
           "warnings": [],
           "layoutValidation": "pending",
@@ -1360,17 +1377,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -1460,17 +1479,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -1554,17 +1575,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -1598,15 +1621,42 @@
             "id": "transition/bubble-swarm-takeover",
             "file": "demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
             "export": "BubbleSwarmTakeover",
-            "sha256": "93dc61c2c72d81b050c14986eb62530a2f45a4c68da69537c15bc061fe13bc3d",
-            "props": [],
+            "sha256": "c58dcddf0eaf11458ab982eaa4ea3dddfa8e0637e9779bbcf17a53f98cd5a0c5",
+            "props": [
+              {
+                "name": "capsules",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "sourceLabel",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "name": "targetLabel",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [],
             "literalJsxText": [],
             "staticMediaReferences": [],
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/bubble-swarm-takeover",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "capsules": "capsules",
+                "sourceLabel": "sourceLabel",
+                "targetLabel": "targetLabel"
+              },
+              "note": "真实前后页面标签和三条业务胶囊"
+            }
           },
           "candidateRuntimeIds": [
             "transition/bubble-swarm-takeover"
@@ -1620,10 +1670,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -1634,9 +1684,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -1712,17 +1764,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -1791,17 +1845,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -1837,8 +1893,19 @@
             "id": "transition/card-flip-reveal",
             "file": "demos/transition/card-flip-reveal/CardFlipReveal.tsx",
             "export": "CardFlipReveal",
-            "sha256": "e5ae4fc159c6923072219a552c168e3f24d8914606194161476be39199f92281",
-            "props": [],
+            "sha256": "dfd66ca9bcff71826cda2c4a682875007a6d0ea6f190d7957a4738b4d6c457a7",
+            "props": [
+              {
+                "name": "results",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "FLIP_DUR",
@@ -1851,7 +1918,17 @@
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/card-flip-reveal",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "results": "results",
+                "title": "title"
+              },
+              "note": "真实功能结果指标逐卡翻面揭示"
+            }
           },
           "candidateRuntimeIds": [
             "transition/card-flip-reveal"
@@ -1865,10 +1942,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -1879,9 +1956,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -1910,18 +1989,38 @@
             "id": "transition/card-flock-tumble",
             "file": "demos/transition/card-flock-tumble/CardFlockTumble.tsx",
             "export": "CardFlockTumble",
-            "sha256": "147c10ae812b8e5acede16834b7998e5b2327716cf6a4cffd77e1c892d25760f",
-            "props": [],
+            "sha256": "d0a065a6e0b21a2c921da4d973e726bb23bee4707369b8096fb581117bfc8078",
+            "props": [
+              {
+                "name": "titles",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "finale",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [],
             "literalJsxText": [
-              "FASTER",
-              "STRONGER"
+              "FASTER"
             ],
             "staticMediaReferences": [],
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/card-flock-tumble",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "titles": "titles",
+                "finale": "finale"
+              },
+              "note": "真实三页标题和收束口号"
+            }
           },
           "candidateRuntimeIds": [
             "transition/card-flock-tumble"
@@ -1935,10 +2034,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -1949,9 +2048,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -1980,8 +2081,24 @@
             "id": "ui-entrance/card-stack",
             "file": "demos/ui-entrance/card-stack/CardStack.tsx",
             "export": "CardStack",
-            "sha256": "9a2a72588e69b30acd00027d02794290cb7588c88d3161d0ceb2dc446503ede9",
-            "props": [],
+            "sha256": "613a8459d42b4ca5fcb7fa445701b16f57ff153c7233390509bae0219e48de2b",
+            "props": [
+              {
+                "name": "labels",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "skin",
+                "type": "TemplateSkin",
+                "optional": true
+              },
+              {
+                "name": "durationInFrames",
+                "type": "number",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "CARD_STACK_DURATION",
@@ -1991,10 +2108,19 @@
             ],
             "literalJsxText": [],
             "staticMediaReferences": [],
-            "skinDeclared": false,
+            "skinDeclared": true,
             "aspectAwareness": true,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "ui-entrance/card-stack",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "labels": "labels"
+              },
+              "note": "8张卡面标签由真实业务输入逐项提供"
+            }
           },
           "candidateRuntimeIds": [
             "ui-entrance/card-stack"
@@ -2002,16 +2128,20 @@
           "mappingEvidence": {
             "method": "exact-runtime-id"
           },
-          "structuredDataContract": null,
+          "structuredDataContract": {
+            "fields": {
+              "labels": "exactly 8 real card labels, each <=12 chars"
+            }
+          },
           "shortShot": {
             "id": "ui-entrance/card-stack",
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -2021,9 +2151,7 @@
             "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
-          "blockers": [
-            "business-adapter-missing-or-disabled"
-          ],
+          "blockers": [],
           "warnings": [],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
@@ -2053,8 +2181,24 @@
             "id": "ui-entrance/carousel-3d",
             "file": "demos/ui-entrance/carousel-3d/Carousel3D.tsx",
             "export": "Carousel3D",
-            "sha256": "3c13ef32e64ba1e6a428b42b0f2d4e00e40e50725625a3b95db35f72825ed93e",
-            "props": [],
+            "sha256": "404358fc1f91576250f31b00b8406840209b044cf60d3c82e13f3636e47ca37f",
+            "props": [
+              {
+                "name": "labels",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "skin",
+                "type": "TemplateSkin",
+                "optional": true
+              },
+              {
+                "name": "durationInFrames",
+                "type": "number",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "CAROUSEL_3D_DURATION",
@@ -2062,14 +2206,21 @@
                 "fps": 30
               }
             ],
-            "literalJsxText": [
-              "CARD 0"
-            ],
+            "literalJsxText": [],
             "staticMediaReferences": [],
-            "skinDeclared": false,
+            "skinDeclared": true,
             "aspectAwareness": true,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "ui-entrance/carousel-3d",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "labels": "labels"
+              },
+              "note": "8个环形卡片标签由真实业务输入逐项提供"
+            }
           },
           "candidateRuntimeIds": [
             "ui-entrance/carousel-3d"
@@ -2077,16 +2228,20 @@
           "mappingEvidence": {
             "method": "exact-runtime-id"
           },
-          "structuredDataContract": null,
+          "structuredDataContract": {
+            "fields": {
+              "labels": "exactly 8 real carousel labels, each <=12 chars"
+            }
+          },
           "shortShot": {
             "id": "ui-entrance/carousel-3d",
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -2096,9 +2251,7 @@
             "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
-          "blockers": [
-            "business-adapter-missing-or-disabled"
-          ],
+          "blockers": [],
           "warnings": [],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
@@ -2174,17 +2327,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -2317,7 +2472,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -2433,7 +2588,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -2554,7 +2709,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -2651,17 +2806,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -2744,17 +2901,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -2787,8 +2946,19 @@
             "id": "transition/circle-match-iris",
             "file": "demos/transition/circle-match-iris/CircleMatchIris.tsx",
             "export": "CircleMatchIris",
-            "sha256": "31f8732ccc319c7e4c79b8539ec56261c34dd0923df4944beae38a202c3deb76",
-            "props": [],
+            "sha256": "54a8cf98c027d9292118b86892338818e784f031c8abe7d94b9612f4dad8790e",
+            "props": [
+              {
+                "name": "value",
+                "type": "number",
+                "optional": true
+              },
+              {
+                "name": "metricLabel",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [],
             "literalJsxText": [
               "%"
@@ -2797,7 +2967,17 @@
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/circle-match-iris",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "value": "value",
+                "metricLabel": "metricLabel"
+              },
+              "note": "真实匹配百分比与指标标签"
+            }
           },
           "candidateRuntimeIds": [
             "transition/circle-match-iris"
@@ -2811,10 +2991,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -2825,9 +3005,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -2906,17 +3088,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -2996,17 +3180,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -3073,17 +3259,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -3119,15 +3307,36 @@
             "id": "transition/color-block-step-wipe",
             "file": "demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
             "export": "ColorBlockStepWipe",
-            "sha256": "e5df29a1a821694f5d8e6a7c4cfaea365f3b53eb6928e179aae69a9e0fffc000",
-            "props": [],
+            "sha256": "1287aa9979c1c5b9bd95f72eba1466ee4d607709c348be8a23532dc1a0987072",
+            "props": [
+              {
+                "name": "badgeText",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "name": "pageLabel",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [],
             "literalJsxText": [],
             "staticMediaReferences": [],
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/color-block-step-wipe",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "badgeText": "badgeText",
+                "pageLabel": "pageLabel"
+              },
+              "note": "真实接管徽章和页面标签"
+            }
           },
           "candidateRuntimeIds": [
             "transition/color-block-step-wipe"
@@ -3141,10 +3350,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -3155,9 +3364,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -3239,17 +3450,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -3332,22 +3545,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "holdFrames": 18,
-            "exitFrames": 0,
-            "maxLines": 2,
-            "maxChars": 2,
-            "reason": "固定数字5、白底且缺少阅读停留，不符合通用中文透底镜头契约；当前样帧发现 NaN 文本，保留失败，不开放",
-            "evidence": "director/short-card-production-admission.json"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -3465,17 +3675,17 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": true,
-            "longVersionAdmitted": true,
+            "locallyTested": false,
+            "longVersionAdmitted": false,
             "acceptedLongFrames": null,
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "pending",
+            "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -3530,7 +3740,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -3585,7 +3795,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -3659,7 +3869,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -3735,7 +3945,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -3830,17 +4040,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -3947,7 +4159,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4014,7 +4226,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4089,7 +4301,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4168,7 +4380,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4233,7 +4445,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4308,7 +4520,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4384,7 +4596,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -4474,17 +4686,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -4572,17 +4786,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -4660,17 +4876,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -4735,17 +4953,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -4781,8 +5001,24 @@
             "id": "ui-entrance/floating-glossy-label-pills",
             "file": "demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
             "export": "FloatingGlossyLabelPills",
-            "sha256": "9f7364f27f97df3db84542080ca899ffb4583dd93f8265ac292dc0205308df29",
-            "props": [],
+            "sha256": "c4040b07fc5edece680c22cd49abbb7362c253e4ef8dd5a78158e7c04a6a8c7c",
+            "props": [
+              {
+                "name": "labels",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "skin",
+                "type": "TemplateSkin",
+                "optional": true
+              },
+              {
+                "name": "durationInFrames",
+                "type": "number",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "FLOATING_GLOSSY_LABEL_PILLS_DURATION",
@@ -4792,10 +5028,19 @@
             ],
             "literalJsxText": [],
             "staticMediaReferences": [],
-            "skinDeclared": false,
+            "skinDeclared": true,
             "aspectAwareness": true,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "ui-entrance/floating-glossy-label-pills",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "labels": "labels"
+              },
+              "note": "4个功能标签由真实业务输入逐项提供"
+            }
           },
           "candidateRuntimeIds": [
             "ui-entrance/floating-glossy-label-pills"
@@ -4803,16 +5048,20 @@
           "mappingEvidence": {
             "method": "exact-runtime-id"
           },
-          "structuredDataContract": null,
+          "structuredDataContract": {
+            "fields": {
+              "labels": "exactly 4 real feature labels, each <=18 chars"
+            }
+          },
           "shortShot": {
             "id": "ui-entrance/floating-glossy-label-pills",
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -4822,9 +5071,7 @@
             "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
-          "blockers": [
-            "business-adapter-missing-or-disabled"
-          ],
+          "blockers": [],
           "warnings": [],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
@@ -4900,17 +5147,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -4995,17 +5244,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -5083,17 +5334,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -5170,17 +5423,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -5303,7 +5558,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -5422,7 +5677,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -5518,17 +5773,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -5606,17 +5863,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -5697,17 +5956,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -5773,17 +6034,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -5851,17 +6114,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -5898,8 +6163,14 @@
             "id": "transition/gradient-transition",
             "file": "demos/transition/gradient-transition/GradientTransition.tsx",
             "export": "GradientTransition",
-            "sha256": "d5d1ed4d4365e315bdcd2a09498f6e3cb5948363b0617552275d9163f3c5760e",
-            "props": [],
+            "sha256": "95b9fb419dba0d10b1b0185a4dd9299bc3d914093b8ad5143be338b469f2ad56",
+            "props": [
+              {
+                "name": "labels",
+                "type": "[string, string, string]",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "GRADIENT_TRANSITION_DURATION",
@@ -5912,7 +6183,16 @@
             "skinDeclared": false,
             "aspectAwareness": true,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/gradient-transition",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "labels": "labels"
+              },
+              "note": "真实章节背景阶段标签"
+            }
           },
           "candidateRuntimeIds": [
             "transition/gradient-transition"
@@ -5926,10 +6206,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -5940,9 +6220,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -6010,17 +6292,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -6105,17 +6389,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -6192,7 +6478,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6286,17 +6572,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -6413,34 +6701,21 @@
           },
           "shortShot": {
             "id": "data/hatch-depth",
-            "status": "accepted",
+            "status": "not-accepted",
             "fps": 30,
-            "acceptedFrames": [
-              60
-            ],
-            "completionFrame": 30,
-            "holdFrames": 30,
-            "exitFrames": 0,
-            "maxLines": 1,
-            "maxChars": 6,
-            "kind": "graphic",
-            "graphicLimits": {
-              "maxRows": 2,
-              "maxLabelChars": 4,
-              "maxUnitChars": 2
-            },
-            "evidence": "director/short-card-production-admission.json"
+            "acceptedFrames": [],
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": true,
+            "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
-            "shortVersionAdmitted": true,
+            "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
             "longUserAcceptance": "not-admitted",
-            "shortUserAcceptance": "pending"
+            "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
           "warnings": [],
@@ -6494,7 +6769,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6584,17 +6859,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -6659,17 +6936,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -6728,7 +7007,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6783,7 +7062,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6857,7 +7136,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6912,7 +7191,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -6988,7 +7267,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -7109,17 +7388,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7198,17 +7479,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7289,17 +7572,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7367,17 +7652,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -7445,17 +7732,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -7536,17 +7825,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7579,15 +7870,42 @@
             "id": "transition/line-carry-transition",
             "file": "demos/transition/line-carry-transition/LineCarryTransition.tsx",
             "export": "LineCarryTransition",
-            "sha256": "8243d4226ca93659ffbb93b3fd427fcf601e53b06b5c737de6db3e62a6d2ecf7",
-            "props": [],
+            "sha256": "fd24c800923e9970339d2bf8b834031657861ceec77ef3f340d4773a741ba11d",
+            "props": [
+              {
+                "name": "sourceTitle",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "name": "targetTitle",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "name": "targetLabel",
+                "type": "string",
+                "optional": true
+              }
+            ],
             "durations": [],
             "literalJsxText": [],
             "staticMediaReferences": [],
             "skinDeclared": false,
             "aspectAwareness": false,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "transition/line-carry-transition",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "sourceTitle": "sourceTitle",
+                "targetTitle": "targetTitle",
+                "targetLabel": "targetLabel"
+              },
+              "note": "真实起点/终点页面标题和目标状态"
+            }
           },
           "candidateRuntimeIds": [
             "transition/line-carry-transition"
@@ -7601,10 +7919,10 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -7615,9 +7933,11 @@
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
-            "business-adapter-missing-or-disabled"
+            "theme-and-backdrop-not-parameterized"
           ],
-          "warnings": [],
+          "warnings": [
+            "duration-from-remotion-context; explicit prop unused"
+          ],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
         }
@@ -7692,17 +8012,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7794,17 +8116,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7892,17 +8216,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -7963,7 +8289,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8044,29 +8370,23 @@
           "structuredDataContract": null,
           "shortShot": {
             "id": "typography/marker-underline-title",
-            "status": "accepted",
+            "status": "not-accepted",
             "fps": 30,
-            "acceptedFrames": [
-              60
-            ],
-            "completionFrame": 42,
-            "holdFrames": 18,
-            "exitFrames": 0,
-            "maxLines": 2,
-            "maxChars": 6,
-            "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
-            "evidence": "director/short-card-production-admission.json"
+            "acceptedFrames": [],
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
             "locallyTested": true,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
-            "shortVersionAdmitted": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
+            "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
-            "shortUserAcceptance": "pending"
+            "longUserAcceptance": "pending",
+            "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
           "warnings": [
@@ -8126,7 +8446,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8184,7 +8504,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8247,7 +8567,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8339,17 +8659,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -8410,7 +8732,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8499,17 +8821,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -8586,17 +8910,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -8673,17 +8999,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -8796,17 +9124,17 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": true,
-            "longVersionAdmitted": true,
+            "locallyTested": false,
+            "longVersionAdmitted": false,
             "acceptedLongFrames": null,
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "pending",
+            "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -8881,7 +9209,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -8971,17 +9299,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -9048,7 +9378,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9116,7 +9446,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9171,7 +9501,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9241,7 +9571,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9296,7 +9626,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9368,7 +9698,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9444,7 +9774,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9500,7 +9830,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9559,7 +9889,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9652,17 +9982,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -9711,7 +10043,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9782,7 +10114,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -9874,29 +10206,23 @@
           "structuredDataContract": null,
           "shortShot": {
             "id": "typography/paper-title-card",
-            "status": "accepted",
+            "status": "not-accepted",
             "fps": 30,
-            "acceptedFrames": [
-              60
-            ],
-            "completionFrame": 34,
-            "holdFrames": 18,
-            "exitFrames": 8,
-            "maxLines": 2,
-            "maxChars": 6,
-            "reason": "保留原入场时序；完成后至少18帧中文阅读停留",
-            "evidence": "director/short-card-production-admission.json"
+            "acceptedFrames": [],
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
             "locallyTested": true,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
-            "shortVersionAdmitted": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
+            "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
-            "shortUserAcceptance": "pending"
+            "longUserAcceptance": "pending",
+            "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
           "warnings": [],
@@ -10003,7 +10329,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -10117,7 +10443,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -10252,7 +10578,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -10345,17 +10671,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -10438,17 +10766,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -10525,17 +10855,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -10618,17 +10950,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -10683,7 +11017,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -10760,7 +11094,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -10841,7 +11175,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -10942,17 +11276,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11035,17 +11371,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11078,8 +11416,24 @@
             "id": "ui-entrance/research-card-stack-scroll",
             "file": "demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
             "export": "ResearchCardStackScroll",
-            "sha256": "7fb916c96b9fc759d97797e6eba15328ceb5bffa08e5af103f8a3ae9c9343c50",
-            "props": [],
+            "sha256": "ec689bd84f40591083e9bb6edc8a2f6e53cad80f1bffea96594ca096efa559eb",
+            "props": [
+              {
+                "name": "titles",
+                "type": "string[]",
+                "optional": true
+              },
+              {
+                "name": "skin",
+                "type": "TemplateSkin",
+                "optional": true
+              },
+              {
+                "name": "durationInFrames",
+                "type": "number",
+                "optional": true
+              }
+            ],
             "durations": [
               {
                 "name": "RESEARCH_CARD_STACK_SCROLL_DURATION",
@@ -11089,10 +11443,19 @@
             ],
             "literalJsxText": [],
             "staticMediaReferences": [],
-            "skinDeclared": false,
+            "skinDeclared": true,
             "aspectAwareness": true,
             "evidence": "typescript-ast; declarations are not visual acceptance",
-            "adapter": null
+            "adapter": {
+              "shotCard": "ui-entrance/research-card-stack-scroll",
+              "propsMap": {
+                "durationInFrames": "durationInFrames"
+              },
+              "paramsMap": {
+                "titles": "titles"
+              },
+              "note": "8个研究标题由真实业务输入逐项提供"
+            }
           },
           "candidateRuntimeIds": [
             "ui-entrance/research-card-stack-scroll"
@@ -11100,16 +11463,20 @@
           "mappingEvidence": {
             "method": "exact-runtime-id"
           },
-          "structuredDataContract": null,
+          "structuredDataContract": {
+            "fields": {
+              "titles": "exactly 8 real research titles, each <=64 chars"
+            }
+          },
           "shortShot": {
             "id": "ui-entrance/research-card-stack-scroll",
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
-            "implemented": false,
+            "implemented": true,
             "locallyTested": false,
             "longVersionAdmitted": false,
             "acceptedLongFrames": null,
@@ -11119,9 +11486,7 @@
             "longUserAcceptance": "not-admitted",
             "shortUserAcceptance": "not-admitted"
           },
-          "blockers": [
-            "business-adapter-missing-or-disabled"
-          ],
+          "blockers": [],
           "warnings": [],
           "layoutValidation": "pending",
           "readingHoldValidation": "pending"
@@ -11174,7 +11539,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -11229,7 +11594,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -11326,17 +11691,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11416,17 +11783,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11493,17 +11862,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -11569,7 +11940,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -11653,7 +12024,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -11742,17 +12113,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11835,17 +12208,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -11924,7 +12299,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12015,7 +12390,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12106,17 +12481,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -12207,17 +12584,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -12293,17 +12672,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -12383,17 +12764,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -12441,7 +12824,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12512,7 +12895,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12583,7 +12966,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12657,7 +13040,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12726,7 +13109,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12796,7 +13179,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -12895,17 +13278,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -12962,7 +13347,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13021,7 +13406,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13078,7 +13463,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13170,17 +13555,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -13236,7 +13623,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13291,7 +13678,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13373,7 +13760,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13449,7 +13836,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13512,7 +13899,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13604,17 +13991,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -13681,7 +14070,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -13778,17 +14167,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -13860,17 +14251,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -13951,17 +14344,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -14033,7 +14428,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14124,17 +14519,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -14217,17 +14614,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -14282,7 +14681,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14354,7 +14753,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14411,7 +14810,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14472,7 +14871,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14538,7 +14937,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14617,7 +15016,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14686,7 +15085,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14781,17 +15180,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -14847,7 +15248,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14904,7 +15305,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -14995,17 +15396,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -15082,17 +15485,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -15151,7 +15556,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15207,7 +15612,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15264,7 +15669,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15336,7 +15741,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15392,7 +15797,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15449,7 +15854,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15520,7 +15925,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15577,7 +15982,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -15698,7 +16103,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -15784,17 +16189,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -15861,17 +16268,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -15942,17 +16351,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -16018,17 +16429,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -16109,17 +16522,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -16189,17 +16604,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -16283,17 +16700,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -16363,17 +16782,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -16456,17 +16877,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -16538,17 +16961,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [
@@ -16634,17 +17059,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -16708,7 +17135,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -16807,7 +17234,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -16893,7 +17320,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -16989,17 +17416,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -17077,17 +17506,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -17146,7 +17577,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17215,7 +17646,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17271,7 +17702,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17328,7 +17759,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17404,7 +17835,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17472,7 +17903,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17527,7 +17958,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": false,
@@ -17643,7 +18074,7 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
@@ -17731,17 +18162,19 @@
             "status": "not-accepted",
             "fps": 30,
             "acceptedFrames": [],
-            "reason": "未通过短时长业务验收，不能凭标注截短"
+            "reason": "缺少有效验收证据或源码已变化"
           },
           "status": {
             "implemented": true,
-            "locallyTested": false,
-            "longVersionAdmitted": false,
-            "acceptedLongFrames": null,
+            "locallyTested": true,
+            "longVersionAdmitted": true,
+            "acceptedLongFrames": [
+              180
+            ],
             "shortVersionAdmitted": false,
             "actualModelValidated": false,
             "userAcceptance": "pending",
-            "longUserAcceptance": "not-admitted",
+            "longUserAcceptance": "pending",
             "shortUserAcceptance": "not-admitted"
           },
           "blockers": [],
@@ -20847,8 +21280,19 @@
       "id": "transition/bottom-push-stack-wipe",
       "file": "demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx",
       "export": "BottomPushStackWipe",
-      "sha256": "0d325fe23d2fec70d1c3d18b3ae2a3df3a51bc24b61fe3fa3b1384984eb93e1d",
-      "props": [],
+      "sha256": "9e5dba246e6c164a2d4baac61b06829ef670f8803caea1718a2de9d73e615b8d",
+      "props": [
+        {
+          "name": "chapters",
+          "type": "Array<{ color: string; label: string; seed?: number }>",
+          "optional": true
+        },
+        {
+          "name": "durationInFrames",
+          "type": "number",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "PUSH_DUR",
@@ -20861,28 +21305,75 @@
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/bottom-push-stack-wipe",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "chapters": "chapters"
+        },
+        "note": "真实章节标题、颜色和卡片种子驱动四次推入"
+      }
     },
     {
       "id": "transition/bubble-swarm-takeover",
       "file": "demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx",
       "export": "BubbleSwarmTakeover",
-      "sha256": "93dc61c2c72d81b050c14986eb62530a2f45a4c68da69537c15bc061fe13bc3d",
-      "props": [],
+      "sha256": "c58dcddf0eaf11458ab982eaa4ea3dddfa8e0637e9779bbcf17a53f98cd5a0c5",
+      "props": [
+        {
+          "name": "capsules",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "sourceLabel",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [],
       "literalJsxText": [],
       "staticMediaReferences": [],
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/bubble-swarm-takeover",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "capsules": "capsules",
+          "sourceLabel": "sourceLabel",
+          "targetLabel": "targetLabel"
+        },
+        "note": "真实前后页面标签和三条业务胶囊"
+      }
     },
     {
       "id": "transition/card-flip-reveal",
       "file": "demos/transition/card-flip-reveal/CardFlipReveal.tsx",
       "export": "CardFlipReveal",
-      "sha256": "e5ae4fc159c6923072219a552c168e3f24d8914606194161476be39199f92281",
-      "props": [],
+      "sha256": "dfd66ca9bcff71826cda2c4a682875007a6d0ea6f190d7957a4738b4d6c457a7",
+      "props": [
+        {
+          "name": "results",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "FLIP_DUR",
@@ -20895,31 +21386,72 @@
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/card-flip-reveal",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "results": "results",
+          "title": "title"
+        },
+        "note": "真实功能结果指标逐卡翻面揭示"
+      }
     },
     {
       "id": "transition/card-flock-tumble",
       "file": "demos/transition/card-flock-tumble/CardFlockTumble.tsx",
       "export": "CardFlockTumble",
-      "sha256": "147c10ae812b8e5acede16834b7998e5b2327716cf6a4cffd77e1c892d25760f",
-      "props": [],
+      "sha256": "d0a065a6e0b21a2c921da4d973e726bb23bee4707369b8096fb581117bfc8078",
+      "props": [
+        {
+          "name": "titles",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "finale",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [],
       "literalJsxText": [
-        "FASTER",
-        "STRONGER"
+        "FASTER"
       ],
       "staticMediaReferences": [],
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/card-flock-tumble",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "titles": "titles",
+          "finale": "finale"
+        },
+        "note": "真实三页标题和收束口号"
+      }
     },
     {
       "id": "transition/circle-match-iris",
       "file": "demos/transition/circle-match-iris/CircleMatchIris.tsx",
       "export": "CircleMatchIris",
-      "sha256": "31f8732ccc319c7e4c79b8539ec56261c34dd0923df4944beae38a202c3deb76",
-      "props": [],
+      "sha256": "54a8cf98c027d9292118b86892338818e784f031c8abe7d94b9612f4dad8790e",
+      "props": [
+        {
+          "name": "value",
+          "type": "number",
+          "optional": true
+        },
+        {
+          "name": "metricLabel",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [],
       "literalJsxText": [
         "%"
@@ -20928,21 +21460,52 @@
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/circle-match-iris",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "value": "value",
+          "metricLabel": "metricLabel"
+        },
+        "note": "真实匹配百分比与指标标签"
+      }
     },
     {
       "id": "transition/color-block-step-wipe",
       "file": "demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx",
       "export": "ColorBlockStepWipe",
-      "sha256": "e5df29a1a821694f5d8e6a7c4cfaea365f3b53eb6928e179aae69a9e0fffc000",
-      "props": [],
+      "sha256": "1287aa9979c1c5b9bd95f72eba1466ee4d607709c348be8a23532dc1a0987072",
+      "props": [
+        {
+          "name": "badgeText",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "pageLabel",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [],
       "literalJsxText": [],
       "staticMediaReferences": [],
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/color-block-step-wipe",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "badgeText": "badgeText",
+          "pageLabel": "pageLabel"
+        },
+        "note": "真实接管徽章和页面标签"
+      }
     },
     {
       "id": "transition/cube-navigation",
@@ -20968,8 +21531,14 @@
       "id": "transition/gradient-transition",
       "file": "demos/transition/gradient-transition/GradientTransition.tsx",
       "export": "GradientTransition",
-      "sha256": "d5d1ed4d4365e315bdcd2a09498f6e3cb5948363b0617552275d9163f3c5760e",
-      "props": [],
+      "sha256": "95b9fb419dba0d10b1b0185a4dd9299bc3d914093b8ad5143be338b469f2ad56",
+      "props": [
+        {
+          "name": "labels",
+          "type": "[string, string, string]",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "GRADIENT_TRANSITION_DURATION",
@@ -20982,21 +21551,57 @@
       "skinDeclared": false,
       "aspectAwareness": true,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/gradient-transition",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "labels": "labels"
+        },
+        "note": "真实章节背景阶段标签"
+      }
     },
     {
       "id": "transition/line-carry-transition",
       "file": "demos/transition/line-carry-transition/LineCarryTransition.tsx",
       "export": "LineCarryTransition",
-      "sha256": "8243d4226ca93659ffbb93b3fd427fcf601e53b06b5c737de6db3e62a6d2ecf7",
-      "props": [],
+      "sha256": "fd24c800923e9970339d2bf8b834031657861ceec77ef3f340d4773a741ba11d",
+      "props": [
+        {
+          "name": "sourceTitle",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "targetTitle",
+          "type": "string",
+          "optional": true
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "optional": true
+        }
+      ],
       "durations": [],
       "literalJsxText": [],
       "staticMediaReferences": [],
       "skinDeclared": false,
       "aspectAwareness": false,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "transition/line-carry-transition",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "sourceTitle": "sourceTitle",
+          "targetTitle": "targetTitle",
+          "targetLabel": "targetLabel"
+        },
+        "note": "真实起点/终点页面标题和目标状态"
+      }
     },
     {
       "id": "transition/mosaic-reframe",
@@ -21881,8 +22486,24 @@
       "id": "ui-entrance/card-stack",
       "file": "demos/ui-entrance/card-stack/CardStack.tsx",
       "export": "CardStack",
-      "sha256": "9a2a72588e69b30acd00027d02794290cb7588c88d3161d0ceb2dc446503ede9",
-      "props": [],
+      "sha256": "613a8459d42b4ca5fcb7fa445701b16f57ff153c7233390509bae0219e48de2b",
+      "props": [
+        {
+          "name": "labels",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "skin",
+          "type": "TemplateSkin",
+          "optional": true
+        },
+        {
+          "name": "durationInFrames",
+          "type": "number",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "CARD_STACK_DURATION",
@@ -21892,17 +22513,42 @@
       ],
       "literalJsxText": [],
       "staticMediaReferences": [],
-      "skinDeclared": false,
+      "skinDeclared": true,
       "aspectAwareness": true,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "ui-entrance/card-stack",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "labels": "labels"
+        },
+        "note": "8张卡面标签由真实业务输入逐项提供"
+      }
     },
     {
       "id": "ui-entrance/carousel-3d",
       "file": "demos/ui-entrance/carousel-3d/Carousel3D.tsx",
       "export": "Carousel3D",
-      "sha256": "3c13ef32e64ba1e6a428b42b0f2d4e00e40e50725625a3b95db35f72825ed93e",
-      "props": [],
+      "sha256": "404358fc1f91576250f31b00b8406840209b044cf60d3c82e13f3636e47ca37f",
+      "props": [
+        {
+          "name": "labels",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "skin",
+          "type": "TemplateSkin",
+          "optional": true
+        },
+        {
+          "name": "durationInFrames",
+          "type": "number",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "CAROUSEL_3D_DURATION",
@@ -21910,14 +22556,21 @@
           "fps": 30
         }
       ],
-      "literalJsxText": [
-        "CARD 0"
-      ],
+      "literalJsxText": [],
       "staticMediaReferences": [],
-      "skinDeclared": false,
+      "skinDeclared": true,
       "aspectAwareness": true,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "ui-entrance/carousel-3d",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "labels": "labels"
+        },
+        "note": "8个环形卡片标签由真实业务输入逐项提供"
+      }
     },
     {
       "id": "ui-entrance/clipcard-looping",
@@ -22191,8 +22844,24 @@
       "id": "ui-entrance/floating-glossy-label-pills",
       "file": "demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx",
       "export": "FloatingGlossyLabelPills",
-      "sha256": "9f7364f27f97df3db84542080ca899ffb4583dd93f8265ac292dc0205308df29",
-      "props": [],
+      "sha256": "c4040b07fc5edece680c22cd49abbb7362c253e4ef8dd5a78158e7c04a6a8c7c",
+      "props": [
+        {
+          "name": "labels",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "skin",
+          "type": "TemplateSkin",
+          "optional": true
+        },
+        {
+          "name": "durationInFrames",
+          "type": "number",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "FLOATING_GLOSSY_LABEL_PILLS_DURATION",
@@ -22202,10 +22871,19 @@
       ],
       "literalJsxText": [],
       "staticMediaReferences": [],
-      "skinDeclared": false,
+      "skinDeclared": true,
       "aspectAwareness": true,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "ui-entrance/floating-glossy-label-pills",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "labels": "labels"
+        },
+        "note": "4个功能标签由真实业务输入逐项提供"
+      }
     },
     {
       "id": "ui-entrance/integration-hub-map",
@@ -22621,8 +23299,24 @@
       "id": "ui-entrance/research-card-stack-scroll",
       "file": "demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx",
       "export": "ResearchCardStackScroll",
-      "sha256": "7fb916c96b9fc759d97797e6eba15328ceb5bffa08e5af103f8a3ae9c9343c50",
-      "props": [],
+      "sha256": "ec689bd84f40591083e9bb6edc8a2f6e53cad80f1bffea96594ca096efa559eb",
+      "props": [
+        {
+          "name": "titles",
+          "type": "string[]",
+          "optional": true
+        },
+        {
+          "name": "skin",
+          "type": "TemplateSkin",
+          "optional": true
+        },
+        {
+          "name": "durationInFrames",
+          "type": "number",
+          "optional": true
+        }
+      ],
       "durations": [
         {
           "name": "RESEARCH_CARD_STACK_SCROLL_DURATION",
@@ -22632,10 +23326,19 @@
       ],
       "literalJsxText": [],
       "staticMediaReferences": [],
-      "skinDeclared": false,
+      "skinDeclared": true,
       "aspectAwareness": true,
       "evidence": "typescript-ast; declarations are not visual acceptance",
-      "adapter": null
+      "adapter": {
+        "shotCard": "ui-entrance/research-card-stack-scroll",
+        "propsMap": {
+          "durationInFrames": "durationInFrames"
+        },
+        "paramsMap": {
+          "titles": "titles"
+        },
+        "note": "8个研究标题由真实业务输入逐项提供"
+      }
     },
     {
       "id": "ui-entrance/row-embed",

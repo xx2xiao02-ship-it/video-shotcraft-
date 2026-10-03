@@ -47,7 +47,7 @@ export function normalizeVideoPlan({input, output, fps = 30, width = 1920, heigh
   };
 }
 
-export function createMockAsset({root, file, kind, durationSec = 8, fps = 30}) {
+export function createMockAsset({root, file, kind, durationSec = 8, fps = 30, aspectRatio = '16:9'}) {
   const absoluteFile = path.resolve(root, file);
   if (!inside(root, absoluteFile)) throw new Error('Mock 素材路径超出当前项目目录');
   mkdirSync(path.dirname(absoluteFile), {recursive:true});
@@ -56,13 +56,14 @@ export function createMockAsset({root, file, kind, durationSec = 8, fps = 30}) {
     return {file:absoluteFile, kind, state:'generated', mock:true};
   }
   if (kind !== 'video') throw new Error(`不支持生成 Mock 素材：${kind}`);
+  const mockSize = aspectRatio === '9:16' ? '90x160' : '160x90';
   execFileSync('ffmpeg', ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
-    '-i', `color=c=black:s=16x16:r=${fps}:d=${Number(durationSec) || 8}`, '-an',
+    '-i', `color=c=black:s=${mockSize}:r=${fps}:d=${Number(durationSec) || 8}`, '-an',
     '-c:v', 'libx264', '-pix_fmt', 'yuv420p', absoluteFile], {timeout:30000});
   return {file:absoluteFile, kind, state:'generated', mock:true};
 }
 
-export function verifyAsset({root, file, kind, expectedDurationSec = null, fps = 30, stripAudio = false}) {
+export function verifyAsset({root, file, kind, expectedDurationSec = null, fps = 30, aspectRatio = '16:9', stripAudio = false}) {
   const absoluteFile = path.resolve(root, file);
   const result = {ok: false, status: 'blocked', file: absoluteFile, kind, errors: []};
   if (!inside(root, absoluteFile)) {
@@ -93,6 +94,13 @@ export function verifyAsset({root, file, kind, expectedDurationSec = null, fps =
   }
   const videoStream = (probe.streams || []).find(stream => stream.codec_type === 'video');
   if (!videoStream) result.errors.push('没有视频流');
+  if (videoStream) {
+    const actualRatio = Number(videoStream.width) / Number(videoStream.height);
+    const targetRatio = aspectRatio === '9:16' ? 9 / 16 : 16 / 9;
+    if (!Number.isFinite(actualRatio) || Math.abs(actualRatio - targetRatio) > 0.03) {
+      result.errors.push(`视频画幅与任务 ${aspectRatio} 不一致`);
+    }
+  }
   const duration = Number(probe.format?.duration || videoStream?.duration);
   if (!Number.isFinite(duration) || duration <= 0) result.errors.push('视频时长无效');
   if (expectedDurationSec !== null && Number.isFinite(duration) && Math.abs(duration - expectedDurationSec) > 0.2) {

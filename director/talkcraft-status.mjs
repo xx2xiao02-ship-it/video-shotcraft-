@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-import {existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync} from 'node:fs';
+import {copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
 import {readNativeTiming, timingHealth} from './talkcraft-native-timing.mjs';
@@ -143,6 +143,7 @@ export function readTalkcraftStatus(root, runId) {
     Object.keys(inputs).every(name => preflightResult.inputs?.[name] === inputs[name]);
   const preflightPassed = preflight || (preflightCompleted && preflightResult.passed === true);
   const storyboardGate = has('qa/storyboard-approved.json') ? json(path.join(project, 'qa/storyboard-approved.json')) : null;
+  const storyboardAdjustment = has('qa/storyboard-adjustment-request.json') ? json(path.join(project, 'qa/storyboard-adjustment-request.json')) : null;
   const storyboardApprovalInputs = storyboardInputs(project);
   const storyboardApproved = !!storyboardApprovalInputs && storyboardGate?.schema === 'talkcraft-storyboard-approval-v1' &&
     Object.keys(storyboardApprovalInputs).every(name => storyboardGate.inputs?.[name] === storyboardApprovalInputs[name]);
@@ -184,7 +185,7 @@ export function readTalkcraftStatus(root, runId) {
     preflightIssues:preflightCompleted && Array.isArray(preflightResult.issues) && preflightResult.issues.length
       ? preflightResult.issues : (!preflightResult?.passed ? latestPreflightIssues(project) : []),
     preflightAdjustments:preflightCompleted && Array.isArray(preflightResult.adjustments) ? preflightResult.adjustments : [],
-    storyboardApproved,
+    storyboardApproved, storyboardAdjustmentPending:!!storyboardAdjustment?.request,
     workbenchReady:has('remotion/src/index.ts'),
     cardCallsRequired:source.cardCallsRequired === true, cardCallsPresent:has('qa/card-calls.json'),
     candidatesReady, sample, sampleApproved, scenesImplemented:sceneCoverage.implemented,
@@ -225,4 +226,50 @@ export function approveTalkcraftStoryboard(root, runId, note = '') {
     preflightIssues:status.preflightIssues, adjustments:status.preflightAdjustments,
     approvedAt:new Date().toISOString()}, null, 2), 'utf8');
   return {runId, approved:true};
+}
+
+export function requestTalkcraftStoryboardAdjustment(root, runId, request) {
+  const project = talkcraftProject(root, runId);
+  const text = String(request || '').trim();
+  if (!text) throw new Error('请填写需要调整的镜头和内容');
+  const inputs = storyboardInputs(project);
+  if (!inputs) throw new Error('分镜脚本、语义或镜头数据不完整，暂不能提交调整');
+  const file = path.join(project, 'qa', 'storyboard-adjustment-request.json');
+  mkdirSync(path.dirname(file), {recursive:true});
+  const approvalFile = path.join(project, 'qa', 'storyboard-approved.json');
+  let invalidatedApproval = null;
+  if (existsSync(approvalFile)) {
+    try { invalidatedApproval = json(approvalFile); } catch {}
+    unlinkSync(approvalFile);
+  }
+  writeFileSync(file, JSON.stringify({schema:'talkcraft-storyboard-adjustment-v1', runId,
+    request:text, inputs, invalidatedApproval:invalidatedApproval ? {
+      approvedAt:invalidatedApproval.approvedAt || null,
+      governanceNote:invalidatedApproval.governanceNote || ''
+    } : null, createdAt:new Date().toISOString()}, null, 2), 'utf8');
+  return {runId, submitted:true, file};
+}
+
+export function prepareTalkcraftStoryboardRevision(root, runId) {
+  const project = talkcraftProject(root, runId);
+  const requestFile = path.join(project, 'qa', 'storyboard-adjustment-request.json');
+  if (!existsSync(requestFile)) throw new Error('请先提交分镜调整要求');
+  const backupSemantics = path.join(project, 'qa', 'semantics-before-ark.json');
+  if (!existsSync(backupSemantics)) throw new Error('缺少原始语义备份，无法安全重新生成分镜');
+  const revision = path.join(project, 'qa', 'storyboard-revisions', new Date().toISOString().replace(/[:.]/g, '-'));
+  mkdirSync(revision, {recursive:true});
+  const files = ['SHOTBOOK.md', 'remotion/shots.json', 'semantic-decisions.json',
+    'semantics.json', 'qa/ark-editorial-response.json', 'qa/preflight-result.json',
+    'qa/preflight-passed.json', 'qa/semantic-passed.json', 'qa/card-candidates.json',
+    'qa/card-candidates.md', 'qa/storyboard-approved.json', 'qa/storyboard-adjustment-request.json'];
+  for (const name of files) {
+    const source = path.join(project, name);
+    if (!existsSync(source)) continue;
+    const target = path.join(revision, name);
+    mkdirSync(path.dirname(target), {recursive:true});
+    copyFileSync(source, target);
+    unlinkSync(source);
+  }
+  copyFileSync(backupSemantics, path.join(project, 'semantics.json'));
+  return {runId, revision};
 }

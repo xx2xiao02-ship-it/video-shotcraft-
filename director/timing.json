@@ -1,120 +1,12 @@
 {
   "fps": 30,
-  "total_duration": 99.96,
+  "total_duration": 1.584,
   "segments": [
     {
-      "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
+      "text": "测试",
       "start": 0.0,
-      "duration": 4.278,
-      "duration_frames": 128
-    },
-    {
-      "text": "这不是你的问题，是收藏这个动作本身，给了你虚假的进步感。",
-      "start": 4.278,
-      "duration": 5.445,
-      "duration_frames": 163
-    },
-    {
-      "text": "刷到一条好视频，你点收藏，心里想着 \"等有空再学\"。",
-      "start": 9.724,
-      "duration": 5.056,
-      "duration_frames": 151
-    },
-    {
-      "text": "可真相是，那条视频你大概率再也不会打开第二次。",
-      "start": 14.78,
-      "duration": 4.473,
-      "duration_frames": 134
-    },
-    {
-      "text": "收藏夹里躺着的，不是知识，是你对自己 \"还会努力\" 的幻想。",
-      "start": 19.253,
-      "duration": 5.834,
-      "duration_frames": 175
-    },
-    {
-      "text": "我见过太多这样的朋友：收藏了职场沟通、理财入门、时间管理，三年过去，收藏夹越来越满，生活却毫无变化。",
-      "start": 25.087,
-      "duration": 9.724,
-      "duration_frames": 291
-    },
-    {
-      "text": "为什么？",
-      "start": 34.811,
-      "duration": 0.778,
-      "duration_frames": 23
-    },
-    {
-      "text": "因为收藏只是信息的搬运，而能力来自行动的回馈。",
-      "start": 35.589,
-      "duration": 4.473,
-      "duration_frames": 134
-    },
-    {
-      "text": "心理学里有个概念叫 \"认知卸载\"—— 我们太依赖收藏、截图、转发来 \"记住\" 知识，大脑以为存了就等于会了，于是真正用功的记忆通道全部关闭。",
-      "start": 40.062,
-      "duration": 13.613,
-      "duration_frames": 408
-    },
-    {
-      "text": "研究者发现，只是把资料放进收藏夹，就能显著降低你真正学习它的概率，这是大脑在偷懒，不是你在偷懒。",
-      "start": 53.675,
-      "duration": 9.335,
-      "duration_frames": 280
-    },
-    {
-      "text": "那怎么办？",
-      "start": 63.01,
-      "duration": 0.972,
-      "duration_frames": 29
-    },
-    {
-      "text": "方法只有一句话：知识必须穿过行动，才算真正属于你。",
-      "start": 63.982,
-      "duration": 4.862,
-      "duration_frames": 145
-    },
-    {
-      "text": "具体做三步。",
-      "start": 68.844,
-      "duration": 1.167,
-      "duration_frames": 35
-    },
-    {
-      "text": "第一步，看完一条内容，立刻用三句话写下 \"我学到了什么\"。",
-      "start": 70.011,
-      "duration": 5.64,
-      "duration_frames": 169
-    },
-    {
-      "text": "第二步，当天做一件与之相关的小事，哪怕五分钟。",
-      "start": 75.651,
-      "duration": 4.473,
-      "duration_frames": 134
-    },
-    {
-      "text": "第三步，周末把这一周的三条笔记翻出来，教给一个人 —— 讲得出来，才算真的会了。",
-      "start": 80.124,
-      "duration": 7.779,
-      "duration_frames": 233
-    },
-    {
-      "text": "收藏是起点，不是终点。",
-      "start": 87.903,
-      "duration": 2.139,
-      "duration_frames": 64
-    },
-    {
-      "text": "从今天开始，删掉一条吃灰的收藏，把省下来的时间，用来做一件真正的小事。",
-      "start": 90.042,
-      "duration": 6.807,
-      "duration_frames": 204
-    },
-    {
-      "text": "知识本身没有力量，用它的人才算。",
-      "start": 96.848,
-      "duration": 3.112,
-      "duration_frames": 93
+      "duration": 1.584,
+      "duration_frames": 47
     }
   ]
 }

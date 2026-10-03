@@ -10,7 +10,7 @@ const $ = (selector) => document.querySelector(selector);
 
 function freshDraft() {
   return {script: '', voiceMode: 'standard', voice: 'zh-CN-YunxiNeural', background: 'keep',
-    speakerId: '', tts2SpeakerId: '',
+    speakerId: '', tts2SpeakerId: '', speechRate:0,
     backgroundVideoPath: null, backgroundVideoMeta: null, renderMode: 'placeholder', scenes: [], planSource: '', approved: false};
 }
 
@@ -22,6 +22,7 @@ function loadDraft() {
     restored.voiceMode = saved.voiceMode === 'clone' || saved.voiceMode === 'volcengine-clone' ? 'clone' : saved.voiceMode === 'volcengine-tts2' ? 'volcengine-tts2' : 'standard';
     restored.speakerId = typeof saved.speakerId === 'string' ? saved.speakerId.trim() : '';
     restored.tts2SpeakerId = typeof saved.tts2SpeakerId === 'string' ? saved.tts2SpeakerId.trim() : '';
+    restored.speechRate = Number.isInteger(saved.speechRate) && saved.speechRate >= -15 && saved.speechRate <= 15 ? saved.speechRate : 0;
     restored.scenes = Array.isArray(saved.scenes) ? saved.scenes.filter(scene => scene && typeof scene.text === 'string' && SUBJECT_LABELS[scene.subject]) : [];
     restored.approved = saved.approved === true;
     restored.renderMode = ['runninghub', 'runninghub-combined'].includes(saved.renderMode) ? saved.renderMode : 'placeholder';
@@ -43,6 +44,42 @@ let digitalHumanRunning = false;
 let digitalHumanConfigured = false;
 let volcengineConfigured = false;
 let backgroundSearchTimer = null;
+
+// 编导台内嵌在主台时，跟随主台当前视频主题；独立打开时仍使用本地默认主题。
+const VIDEO_THEME_KEY = 'shotcraft-current-video-theme';
+function hexToRgba(hex, alpha) {
+  const m = /^#?([\da-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return `rgba(17,107,89,${alpha})`;
+  const n = parseInt(m[1], 16);
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+function applyVideoTheme(theme) {
+  if (!theme || typeof theme !== 'object') return;
+  const root = document.documentElement;
+  const page = theme.bg || '#f3f5f2';
+  const surface = theme.card || page;
+  const ink = theme.ink || '#1f2929';
+  const muted = theme.mid || '#60706e';
+  const line = theme.border || '#d9e1db';
+  const accent = theme.accent || '#116b59';
+  const accent2 = theme.accent2 || '#ac5839';
+  root.style.setProperty('--page', page);
+  root.style.setProperty('--surface', surface);
+  root.style.setProperty('--ink', ink);
+  root.style.setProperty('--muted', muted);
+  root.style.setProperty('--line', line);
+  root.style.setProperty('--green', accent);
+  root.style.setProperty('--green-soft', hexToRgba(accent, .16));
+  root.style.setProperty('--rust', accent2);
+  root.style.setProperty('--rust-soft', hexToRgba(accent2, .14));
+  root.style.setProperty('--blue', accent2);
+  root.style.setProperty('--nav', page);
+  try { localStorage.setItem(VIDEO_THEME_KEY, JSON.stringify(theme)); } catch {}
+}
+try {
+  const savedTheme = JSON.parse(localStorage.getItem(VIDEO_THEME_KEY) || 'null');
+  if (savedTheme) applyVideoTheme(savedTheme);
+} catch {}
 let talkcraftRunId = localStorage.getItem('shotcraft-b-talkcraft-run') || null;
 let talkcraftBusy = false;
 let pendingDirectorStart = false;
@@ -525,6 +562,7 @@ async function runPlaceholder() {
     form.set('voiceMode', selectedVoiceMode());
     if (draft.voiceMode !== 'standard') form.set('speakerId', selectedSpeakerId());
     form.set('voice', draft.voice);
+    form.set('speechRate', String(draft.speechRate ?? 0));
     form.set('background', draft.background);
     form.set('backgroundVideoPath', draft.backgroundVideoPath || '');
     form.set('scenes', JSON.stringify(draft.scenes.map(scene => ({text:scene.text, subject:scene.subject, videoPath:scene.videoPath || null,
@@ -599,6 +637,7 @@ async function runDigitalHuman() {
     form.set('voiceMode', selectedVoiceMode());
     if (draft.voiceMode !== 'standard') form.set('speakerId', selectedSpeakerId());
     form.set('voice', draft.voice);
+    form.set('speechRate', String(draft.speechRate ?? 0));
     form.set('generationMode', draft.renderMode === 'runninghub-combined' ? 'combined' : 'segments');
     form.set('prompt', '人物自然说话，身体保持稳定，配合轻微自然手势');
     form.set('scenes', JSON.stringify(draft.scenes.map(scene => ({text:scene.text, subject:scene.subject}))));
@@ -758,6 +797,7 @@ async function refreshTalkcraft() {
   renderTalkcraftStages(run);
   $('#talkcraft-sample-review').hidden = !run.sample;
   const sampleVideo = $('#talkcraft-sample-video');
+  sampleVideo.dataset.aspectRatio = run.aspectRatio || '16:9';
   if (run.sample) {
     const sampleUrl = `/api/talkcraft/video?id=${encodeURIComponent(run.runId)}&kind=sample`;
     if (sampleVideo.getAttribute('src') !== sampleUrl) sampleVideo.src = sampleUrl;
@@ -862,6 +902,7 @@ async function startTalkcraft() {
     form.set('voiceMode', selectedVoiceMode());
     if (draft.voiceMode !== 'standard') form.set('speakerId', selectedSpeakerId());
     form.set('voice', draft.voice);
+    form.set('speechRate', String(draft.speechRate ?? 0));
     for (const file of roleFiles) form.append('avatar', file);
     form.set('generationMode', draft.renderMode === 'runninghub-combined' ? 'combined' : 'segments');
     const response = await fetch('/api/talkcraft/create', {method:'POST', body:form});
@@ -1006,6 +1047,10 @@ $('#restore-draft').onclick = () => {
 };
 window.addEventListener('message', (event) => {
   if (event.origin !== location.origin || event.source !== window.parent) return;
+  if (event.data?.type === 'shotcraft-video-theme') {
+    applyVideoTheme(event.data.theme);
+    return;
+  }
   if (event.data?.type === 'shotcraft-b-open-from-director') {
     const nextText = typeof event.data.text === 'string' ? event.data.text.trim() : '';
     const avatar = event.data.avatar;
@@ -1040,6 +1085,7 @@ window.addEventListener('message', (event) => {
     }
     draft.voice = event.data.voice;
     draft.voiceMode = event.data.voiceMode === 'volcengine-clone' ? 'clone' : event.data.voiceMode;
+    draft.speechRate = Number.isInteger(event.data.speechRate) && event.data.speechRate >= -15 && event.data.speechRate <= 15 ? event.data.speechRate : 0;
     if (draft.voiceMode === 'volcengine-tts2') draft.tts2SpeakerId = String(event.data.speakerId);
     if (draft.voiceMode === 'clone') draft.speakerId = String(event.data.speakerId);
     $('#voice-select').value = draft.voice;
@@ -1094,6 +1140,7 @@ window.addEventListener('message', (event) => {
     }
     draft.voice = event.data.voice;
     draft.voiceMode = event.data.voiceMode === 'volcengine-clone' ? 'clone' : event.data.voiceMode;
+    draft.speechRate = Number.isInteger(event.data.speechRate) && event.data.speechRate >= -15 && event.data.speechRate <= 15 ? event.data.speechRate : 0;
     if (draft.voiceMode === 'volcengine-tts2') draft.tts2SpeakerId = String(event.data.speakerId);
     if (draft.voiceMode === 'clone') draft.speakerId = String(event.data.speakerId);
     $('#voice-select').value = draft.voice;

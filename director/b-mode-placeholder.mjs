@@ -7,8 +7,6 @@ import {countPersonUnits, mapPlaceholderScenes} from './b-mode-placeholder-plan.
 import {resolveLibraryVideo} from './b-mode-library-video.mjs';
 import {loadMaterialIndex, matchSceneVideos} from './b-mode-material-match.mjs';
 import {loadAcceptanceFixture} from './b-mode-acceptance.mjs';
-import {buildShotbook} from './b-mode-shotbook.mjs';
-import {preflightShotbook} from './b-mode-shotbook-preflight.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -17,7 +15,7 @@ if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId || '')) throw new Error('Invalid
 const reuseFrom = process.argv.find(arg => arg.startsWith('--reuse-from='))?.split('=')[1] || null;
 const useAcceptancePresentation = process.argv.includes('--acceptance-presentation');
 const rematchMaterials = process.argv.includes('--rematch-materials');
-const talkcraft = process.argv.includes('--talkcraft');
+if (process.argv.includes('--talkcraft')) throw new Error('旧 --talkcraft 规则编导已退役，请使用正式 TalkCraft 入口 /api/talkcraft/create');
 
 const runDir = path.join(ROOT, 'director', 'b-mode-runs', runId);
 const inputFile = path.join(runDir, 'input.txt');
@@ -28,7 +26,6 @@ const publicDir = path.join(ROOT, 'template', 'public', 'b-mode', runId);
 const audioRel = `b-mode/${runId}/placeholder-voice.mp3`;
 const avatarRel = `b-mode/${runId}/placeholder-avatar.png`;
 const audioFile = path.join(publicDir, 'placeholder-voice.mp3');
-const talkcraftPropsFile = path.join(runDir, 'talkcraft-props.json');
 const baselinePropsFile = path.join(runDir, 'placeholder-props.json');
 const outDir = path.join(ROOT, 'template', 'out', 'b-mode');
 const rawFile = path.join(outDir, `${runId}.placeholder.raw.mp4`);
@@ -77,11 +74,11 @@ if (reuseFrom) {
   if (settings.voiceMode === 'volcengine-clone' || settings.voiceMode === 'volcengine-tts2') {
     const scriptName = settings.voiceMode === 'volcengine-tts2' ? 'volcengine-tts2.mjs' : 'volcengine-voice.mjs';
     run(process.execPath, [path.join(ROOT, 'director', scriptName), 'synthesize',
-      inputFile, audioFile, timingFile, settings.speakerId]);
+      inputFile, audioFile, timingFile, settings.speakerId, String(settings.speechRate ?? 0)]);
     completeVolcengineTiming({timingFile, audioFile, text});
   } else {
     run(python, [path.join(ROOT, 'director', 'b-mode-tts.py'), inputFile, audioFile, timingFile,
-      '--voice', settings.voice, '--rate', '0', '--max-chars', '1200', '--preserve-sentences']);
+      '--voice', settings.voice, '--rate', String(settings.speechRate ?? 0), '--max-chars', '1200', '--preserve-sentences']);
   }
 }
 const timing = JSON.parse(readFileSync(timingFile, 'utf8'));
@@ -115,55 +112,18 @@ for (const scene of scenes) {
   scene.video = proxy?.video || null;
   scene.videoDurationFrames = proxy?.durationFrames || 0;
 }
-const scenePlan = {runId, kind:talkcraft ? 'talkcraft-card-preview' : 'baseline-b-mode-preview', timingMethod:timing.timingMethod,
+const scenePlan = {runId, kind:'baseline-b-mode-preview', timingMethod:timing.timingMethod,
   totalFrames:timing.totalFrames, personUnits:countPersonUnits(scenes),
   backgroundVideoSource:selectedBackground?.path || null, scenes};
-if (talkcraft) {
-const baseStoryboard = JSON.parse(readFileSync(path.join(ROOT, 'director', 'props.json'), 'utf8')).storyboard;
-  const shotbook = buildShotbook(scenes, baseStoryboard);
-  const gate = preflightShotbook(shotbook);
-  writeFileSync(path.join(runDir, 'semantics.json'), JSON.stringify(shotbook.semantics, null, 2), 'utf8');
-  writeFileSync(path.join(runDir, 'shotbook.json'), JSON.stringify(shotbook, null, 2), 'utf8');
-  writeFileSync(path.join(runDir, 'shotbook-preflight.json'), JSON.stringify(gate, null, 2), 'utf8');
-  if (!gate.ok) throw new Error(`SHOTBOOK preflight 失败: ${gate.findings.filter(f => f.level === 'FAIL').map(f => f.message).join('；')}`);
-  const shots = shotbook.shots.map((shot, index) => {
-    const base = baseStoryboard.shots[index] || {};
-    return {
-      ...base,
-      type: base.type || (shot.subject === 'person' ? 'claim' : 'proof'),
-      text: shot.visualText || shot.text,
-      subText: shot.subtitle || '',
-      durationInFrames: shot.durationInFrames,
-      material: shot.material || null,
-      materialOpacity: 0.58,
-      shotCard: shot.selectedCard,
-      subject: shot.subject,
-      layoutVariant: shot.layoutVariant,
-      ...(shot.subject === 'person' ? {avatar:avatarRel} : {}),
-      audio: undefined,
-    };
-  });
-  const storyboard = {
-    ...baseStoryboard,
-    title: 'B 模式 · TalkCraft 卡片驱动预览',
-    audio: audioRel,
-    style: {...baseStoryboard.style, captionStyle:'plain', materialOpacity:0.58},
-    shots,
-  };
-writeFileSync(talkcraftPropsFile, JSON.stringify({storyboard}, null, 2), 'utf8');
- scenePlan.cardsUsed = shotbook.cardsUsed;
- scenePlan.cardsUnique = shotbook.cardsUnique;
- scenePlan.shotbookPreflight = gate.summary;
-}
 writeFileSync(path.join(runDir, 'placeholder-scene-plan.json'), JSON.stringify(scenePlan, null, 2), 'utf8');
 writeFileSync(baselinePropsFile, JSON.stringify({avatar:avatarRel, audio:audioRel, totalFrames:timing.totalFrames, scenes}, null, 2), 'utf8');
 
-const composition = talkcraft ? 'DynamicVideo' : 'BModeBaseline';
-const renderPropsFile = talkcraft ? talkcraftPropsFile : baselinePropsFile;
-console.log(`${talkcraft ? 'TalkCraft' : 'Baseline'} stage 2: Remotion render`, timing.totalFrames, 'frames');
+const composition = 'BModeBaseline';
+const renderPropsFile = baselinePropsFile;
+console.log(`Baseline stage 2: Remotion render`, timing.totalFrames, 'frames');
 run(process.execPath, [cli, 'render', 'src/index.ts', composition, rawFile,
-  `--props=${renderPropsFile}`, `--browser-executable=${chrome}`, `--concurrency=${talkcraft ? 4 : 1}`, '--overwrite'], path.join(ROOT, 'template'));
-console.log(`${talkcraft ? 'TalkCraft' : 'Baseline'} stage 3: browser-compatible MP4`);
+  `--props=${renderPropsFile}`, `--browser-executable=${chrome}`, `--concurrency=1`, '--overwrite'], path.join(ROOT, 'template'));
+console.log(`Baseline stage 3: browser-compatible MP4`);
 run('ffmpeg', ['-y','-hide_banner','-loglevel','error','-i',rawFile,
   '-vf','scale=in_range=full:out_range=limited,format=yuv420p',
   '-c:v','libx264','-profile:v','baseline','-level:v','3.1','-bf','0','-crf','21',
@@ -177,7 +137,7 @@ if (!probe.streams?.some(stream => stream.codec_type === 'video') || !probe.stre
   throw new Error('占位视频缺少画面或配音');
 }
 const report = {
-  runId, mode:'B', kind:talkcraft ? 'talkcraft-card-preview' : 'baseline-b-mode-preview', renderer:talkcraft ? 'DynamicVideo + TemplateAdapter' : 'BModeBaseline', cardDriven:talkcraft, isDigitalHuman:false, runningHubCalled:false,
+  runId, mode:'B', kind:'baseline-b-mode-preview', renderer:'BModeBaseline', cardDriven:false, isDigitalHuman:false, runningHubCalled:false,
   avatarSource:'user-provided-still-image', voiceEngine:timing.voiceEngine, voice:timing.voice,
   timingMethod:timing.timingMethod, audioSeconds:timing.durationSeconds, fps:timing.fps,
   totalFrames:timing.totalFrames, renderedSeconds:Number(probe.format.duration),
@@ -190,9 +150,5 @@ const report = {
   output:finalFile, poster:posterFile,
   streams:probe.streams.map(stream => ({type:stream.codec_type, codec:stream.codec_name})),
 };
-if (talkcraft) {
-  report.cardsUsed = scenePlan.cardsUsed;
-  report.cardsUnique = scenePlan.cardsUnique;
-}
 writeFileSync(path.join(runDir, 'placeholder-report.json'), JSON.stringify(report, null, 2), 'utf8');
 console.log('Placeholder complete:', finalFile);

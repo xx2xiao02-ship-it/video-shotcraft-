@@ -18,7 +18,7 @@ function readJson(file) {
 export function loadModeCConfig(root = MODE_C_ROOT) {
   const config = readJson(path.join(root, 'mode-c-config.json'));
   if (config.mode !== 'C' || config.schema !== 'mode-c-config-v1') throw new Error('模式 C 配置版本无效');
-  if (config.fps !== 30 || config.aspectRatio !== '16:9') throw new Error('模式 C 当前只允许 30fps、16:9 基线');
+  if (config.fps !== 30 || !['16:9', '9:16'].includes(config.aspectRatio)) throw new Error('模式 C 仅支持 30fps、16:9 或 9:16');
   return config;
 }
 
@@ -40,25 +40,30 @@ export function runModeCStage(stage, projectRoot, options = {}) {
   const project = path.resolve(projectRoot);
   const modeCRoot = modeCRootFromProject(project);
   const config = loadModeCConfig(modeCRoot);
+  const sourceFile = path.join(project, 'source-run.json');
+  const source = existsSync(sourceFile) ? readJson(sourceFile) : {};
+  const aspectRatio = source.aspectRatio || source.themeSnapshot?.aspectRatio || config.aspectRatio;
+  if (!['16:9', '9:16'].includes(aspectRatio)) throw new Error('模式 C 任务画幅无效');
+  const runConfig = {...config, aspectRatio};
   if (!config.enabled) throw new Error('模式 C 已禁用');
   if (!['dry-run', 'mock', 'verify', 'rematch-plan', 'rematch', 'inspect'].includes(stage)) throw new Error(`未知模式 C 阶段：${stage}`);
 
   if (stage === 'inspect') {
-    return {mode:'C', config, root:modeCRoot, project, dryRun:config.dryRun === true};
+    return {mode:'C', config:runConfig, root:modeCRoot, project, dryRun:config.dryRun === true};
   }
 
   if (stage === 'dry-run') {
     const candidatesFile = path.join(project, 'qa', 'card-candidates.json');
-    const queue = buildGenerationQueue({projectRoot:project, config, candidatesFile});
+    const queue = buildGenerationQueue({projectRoot:project, config:runConfig, candidatesFile});
     const queueFile = writeGenerationQueue(project, queue);
     const plans = queue.jobs.map(job => {
       if (job.status === 'blocked') return {...job, planStatus:'blocked'};
       return job.assetKind === 'image'
-        ? {...job, ...image2DryRun(job, modeCRoot, config, project)}
-        : {...job, ...veoDryRun(job, modeCRoot, config, project)};
+        ? {...job, ...image2DryRun(job, modeCRoot, runConfig, project)}
+        : {...job, ...veoDryRun(job, modeCRoot, runConfig, project)};
     });
     const planFile = writeManifest(project, 'generation-plan.json', {schema:'mode-c-generation-plan-v1', mode:'C',
-      dryRun:true, jobs:plans, externalCalls:0, paidCalls:0});
+      dryRun:true, aspectRatio, jobs:plans, externalCalls:0, paidCalls:0});
     const rematch = planCardRematch({projectRoot:project, talkcraftSkillRoot:options.talkcraftSkillRoot || path.resolve(modeCRoot, '..', '..', '_audit', 'video-talkcraft'),
       python:options.python || 'python'});
     const rematchFile = writeCardRematchPlan(project, rematch);
@@ -78,7 +83,7 @@ export function runModeCStage(stage, projectRoot, options = {}) {
       if (job.state === 'blocked' || job.status === 'blocked') continue;
       try {
         generated.push({...job, ...createMockAsset({root:project, file:job.outputPath, kind:job.assetKind,
-          durationSec:job.durationSec || config.video.durationSeconds, fps:config.fps})});
+          durationSec:job.durationSec || config.video.durationSeconds, fps:config.fps, aspectRatio:job.aspectRatio || aspectRatio})});
       } catch (error) {
         failed.push({...job, state:'generation_failed', status:'generation_failed', error:String(error.message || error)});
       }
@@ -96,7 +101,8 @@ export function runModeCStage(stage, projectRoot, options = {}) {
     const results = queue.jobs.map(job => job.status === 'blocked'
       ? {...job, ok:false, state:'blocked', status:'blocked', errors:[job.reason]}
       : {...verifyAsset({root:project, file:job.outputPath, kind:job.assetKind, expectedDurationSec:job.durationSec,
-        fps:config.fps, stripAudio:job.assetKind === 'video' && config.video.audioPolicy === 'strip'}), state:'verifying'});
+        fps:config.fps, aspectRatio:job.aspectRatio || aspectRatio,
+        stripAudio:job.assetKind === 'video' && config.video.audioPolicy === 'strip'}), state:'verifying'});
     const passed = results.length > 0 && results.every(result => result.ok);
     const finalState = passed ? 'verified' : results.some(result => result.status === 'pending_generation') ? 'pending_generation' :
       results.some(result => result.status === 'blocked') ? 'blocked' : 'generation_failed';
