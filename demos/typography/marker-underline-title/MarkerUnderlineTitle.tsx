@@ -2,7 +2,8 @@
 // 马克笔下划线从左到右描画（粗细变化/端头圆润/微歪/边缘毛糙）。
 // 对标 notion-ai.mp4 2.3–3.6s。与库内 draw-svg-trace 撞车，本版做马克笔质感。
 import React, { useId } from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const mulberry32 = (a: number) => () => {
   let t = (a += 0x6d2b79f5);
@@ -36,11 +37,13 @@ const buildStroke = (len: number, seed: number) => {
 // 默认三段式：引导语 / 马克笔高亮斜体词 / 副标题
 const DEFAULT_WORDS = ['Meet the', 'new', 'Notion AI'];
 
-export const MarkerUnderlineTitle: React.FC<{ words?: string[] }> = ({ words }) => {
+export const MarkerUnderlineTitle: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   const W = words && words.length > 0 ? words : DEFAULT_WORDS;
-  const lead = W[0] ?? DEFAULT_WORDS[0];
-  const hot = W[1] ?? DEFAULT_WORDS[1];
-  const sub = W[2] ?? DEFAULT_WORDS[2];
+  const lead = W.length > 2 ? W[0] : '';
+  const hot = W.length > 2 ? W[1] : W[0];
+  const sub = W.length > 2 ? W[2] : W[1];
+  const {width} = useVideoConfig();
+  const fontSize = Math.min(118, Math.floor(width * 0.84 / Math.max(lead.length + hot.length, sub?.length || 0, 1)));
   const frame = useCurrentFrame();
   // clipPath ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const revealId = `reveal-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -62,15 +65,15 @@ export const MarkerUnderlineTitle: React.FC<{ words?: string[] }> = ({ words }) 
   const path = buildStroke(LEN, 77);
 
   return (
-    <AbsoluteFill style={{ background: '#f4f4f2', alignItems: 'center', justifyContent: 'center' }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, '#f4f4f2'), alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
         opacity: titleOp, transform: `translateY(${titleY}px)`,
-        fontFamily: '-apple-system, "Helvetica Neue", Arial, sans-serif',
-        fontWeight: 700, fontSize: 118, color: '#191919',
+        fontFamily: skin?.fontFamily || '-apple-system, "Helvetica Neue", Arial, sans-serif',
+        fontWeight: 700, fontSize, color: skin?.text || '#191919',
         textAlign: 'center', lineHeight: 1.12, letterSpacing: '-0.02em',
       }}>
         <div>
-          {lead}{' '}
+          {lead}{lead ? ' ' : ''}
           <span style={{ fontStyle: 'italic', position: 'relative', display: 'inline-block' }}>
             {hot}
             {/* 马克笔下划线：clip 从左到右揭示，保留笔形本身的粗细变化 */}
@@ -84,12 +87,12 @@ export const MarkerUnderlineTitle: React.FC<{ words?: string[] }> = ({ words }) 
                 </clipPath>
               </defs>
               {draw > 0 && (
-                <path d={path} fill="#e8e6e1" clipPath={`url(#${revealId})`} />
+                <path d={path} fill={skin?.accent || '#e8e6e1'} clipPath={`url(#${revealId})`} />
               )}
             </svg>
           </span>
         </div>
-        <div>{sub}</div>
+        {sub && <div>{sub}</div>}
       </div>
     </AbsoluteFill>
   );

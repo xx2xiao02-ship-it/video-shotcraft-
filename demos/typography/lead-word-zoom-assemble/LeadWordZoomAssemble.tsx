@@ -8,6 +8,7 @@
 // offsetTop 读出），否则缩放过程中字会逐帧抖基线。
 // 参数以 1920×1080 标定。
 import React, { Fragment, useEffect, useRef, useState } from 'react';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 import {
   AbsoluteFill,
   continueRender,
@@ -36,7 +37,7 @@ const WORD_STAGGER = 4; // f：后续词之间的错峰
 const WORD_DURATION = 12; // f：单词推入行程
 const WORD_PUSH = 0.5; // em：后续词起始位置在自己槽位右侧多远
 const WORD_FADE = 2; // f：后续词淡入（刻意极短——是被推进来的，不是淡进来的）
-const LETTER_SPACING = '-0.03em';
+const LETTER_SPACING = 0;
 
 // ---- 场景层 ----
 const LIFT: [number, number] = [34, 50]; // f：整行上移 + 副行同帧出现
@@ -64,9 +65,10 @@ const ZOOM_EASE = Easing.bezier(0.5, 0, 0.05, 1);
 /** 后续词推入槽位：起步快，落地长而软 */
 const WORD_EASE = Easing.bezier(0.22, 0.8, 0.36, 1);
 
-const TextReveal: React.FC<{ text: string; highlight: string }> = ({ text, highlight }) => {
+const TextReveal: React.FC<{ text: string; highlight: string; skin?: TemplateSkin; lineOffset?: number }> = ({ text, highlight, skin, lineOffset = 0 }) => {
   const frame = useCurrentFrame();
   const { width } = useVideoConfig();
+  const fontSize = Math.min(FONT_SIZE, width * 0.78 / Math.max([...text].length, 1));
 
   // 整行宽度、首词中心占比、基线位置：只在挂载时量一次，量到之前挂起渲染
   const lineRef = useRef<HTMLSpanElement>(null);
@@ -108,19 +110,19 @@ const TextReveal: React.FC<{ text: string; highlight: string }> = ({ text, highl
   const slideDistance = lineWidth * (0.5 - leadRatio);
 
   return (
-    <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', transform:`translateY(${lineOffset}px)` }}>
       <span
         ref={lineRef}
         style={{
           position: 'relative',
           display: 'inline-block',
-          fontSize: FONT_SIZE,
+          fontSize,
           fontWeight: 600,
-          color: INK,
+          color: skin?.text || INK,
           letterSpacing: LETTER_SPACING,
           lineHeight: 1.1,
           whiteSpace: 'nowrap',
-          fontFamily: SANS,
+          fontFamily: skin?.fontFamily || SANS,
           transformOrigin: `${leadRatio * 100}% ${baseline}px`,
           scale:
             interpolate(frame, [0, HOLD_DURATION], [INITIAL_SCALE, INITIAL_SCALE * PUSH_SCALE], {
@@ -164,7 +166,7 @@ const TextReveal: React.FC<{ text: string; highlight: string }> = ({ text, highl
                 style={{
                   display: 'inline-block',
                   opacity,
-                  color: word === highlight ? ACCENT : undefined,
+                  color: word === highlight ? skin?.accent || ACCENT : undefined,
                   translate: isLead
                     ? undefined
                     : `${interpolate(
@@ -189,8 +191,9 @@ const TextReveal: React.FC<{ text: string; highlight: string }> = ({ text, highl
   );
 };
 
-export const LeadWordZoomAssemble: React.FC<{ text?: string }> = ({ text }) => {
+export const LeadWordZoomAssemble: React.FC<{ text?: string; skin?: TemplateSkin; subText?: string }> = ({ text, skin, subText }) => {
   const TEXT = text || DEFAULT_TEXT;
+  const lines = TEXT.split('\n').filter(Boolean);
   const HIGHLIGHT_WORD = text ? text.split(/\s+/)[0] : DEFAULT_HIGHLIGHT_WORD;
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
@@ -208,7 +211,7 @@ export const LeadWordZoomAssemble: React.FC<{ text?: string }> = ({ text }) => {
   );
 
   return (
-    <AbsoluteFill style={{ background: MESH_BG, fontFamily: SANS }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, MESH_BG), fontFamily: skin?.fontFamily || SANS }}>
       <AbsoluteFill
         style={{
           transform: `scale(${1 + crash * CRASH_SCALE})`,
@@ -217,9 +220,10 @@ export const LeadWordZoomAssemble: React.FC<{ text?: string }> = ({ text }) => {
         }}
       >
         <AbsoluteFill style={{ transform: `translateY(${lift * LIFT_DISTANCE}px)` }}>
-            <TextReveal text={TEXT} highlight={HIGHLIGHT_WORD} />
+            {lines.map((line,index) => <TextReveal key={index} text={line} highlight={HIGHLIGHT_WORD} skin={skin}
+              lineOffset={(index - (lines.length - 1) / 2) * 114} />)}
         </AbsoluteFill>
-        <div
+        {(!skin || subText) && <div
           style={{
             position: 'absolute',
             left: 0,
@@ -228,13 +232,13 @@ export const LeadWordZoomAssemble: React.FC<{ text?: string }> = ({ text }) => {
             marginTop: 62,
             textAlign: 'center',
             fontSize: 32,
-            color: INK_DIM,
+            color: skin?.muted || INK_DIM,
             opacity: lift,
             transform: `translateY(${(1 - lift) * 16}px)`,
           }}
         >
-          {SUBLINE}
-        </div>
+          {subText || SUBLINE}
+        </div>}
       </AbsoluteFill>
     </AbsoluteFill>
   );

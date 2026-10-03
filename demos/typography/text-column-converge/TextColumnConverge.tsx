@@ -6,6 +6,8 @@
 // 定格后约 0.6s，斜体 "COMING 2026" 在下方近乎硬切浮现。
 import React from 'react';
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 词轮换表：停留帧数不均（机器节奏），全程钉在右缘，不做间距收缩
 const STEPS: { word: string; dur: number }[] = [
@@ -38,20 +40,28 @@ const CONVERGE_DUR = 36; // 合拢时长：原片 ~1.2s ≈ 36 帧
 const CONVERGE_DELAY = 10; // RAYCAST 停稳后先静置 10 帧再合拢（原片 32.4→32.7s）
 const SUB_DELAY = 18; // 合拢定格后 ~0.6s 出斜体小字
 
-export const TextColumnConverge: React.FC = () => {
+export const TextColumnConverge: React.FC<{words?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({words, skin}) => {
   const f = useCurrentFrame();
+  const stem = words?.[0] || 'NEW';
+  const steps = words ? words.slice(1,-1).map((word,i,arr)=>({word,dur:i===arr.length-1?999:20})) : STEPS;
+  const fs = skin ? 80 : FS;
+  const mergedWidth = skin ? (stem.length + steps.at(-1)!.word.length) * fs + 36 : LINE_W;
+  const mergedLeft = skin ? 960 - mergedWidth/2 : MERGED_LEFT;
+  const mergedRight = skin ? 960 + mergedWidth/2 : MERGED_RIGHT;
+  const startLeft = skin ? 380 : NEW_LEFT_EDGE;
+  const startRight = skin ? 1540 : WORD_RIGHT_EDGE;
   const t = f - START;
 
   // 定位当前步
   let acc = 0;
   let idx = 0;
   let stepStart = 0;
-  for (let i = 0; i < STEPS.length; i++) {
+  for (let i = 0; i < steps.length; i++) {
     if (t >= acc) { idx = i; stepStart = acc; }
-    acc += STEPS[i].dur;
+    acc += steps[i].dur;
   }
-  const cur = STEPS[idx];
-  const isLast = idx === STEPS.length - 1;
+  const cur = steps[idx];
+  const isLast = idx === steps.length - 1;
   const local = t - stepStart;
 
   // 唯一一次合拢：RAYCAST 停稳 CONVERGE_DELAY 帧后，ease-in-out 连续滑动
@@ -62,8 +72,8 @@ export const TextColumnConverge: React.FC = () => {
   });
 
   // NEW 左缘：618 → 831；特性词右缘：1302 → 1088
-  const newLeft = interpolate(cv, [0, 1], [NEW_LEFT_EDGE, MERGED_LEFT]);
-  const wordRight = interpolate(cv, [0, 1], [WORD_RIGHT_EDGE, MERGED_RIGHT]);
+  const newLeft = interpolate(cv, [0, 1], [startLeft, mergedLeft]);
+  const wordRight = interpolate(cv, [0, 1], [startRight, mergedRight]);
 
   const converged = cv >= 1;
 
@@ -76,17 +86,17 @@ export const TextColumnConverge: React.FC = () => {
   const visible = t >= 0;
 
   const font: React.CSSProperties = {
-    fontFamily: '"SF Mono", Menlo, monospace',
+    fontFamily: skin?.fontFamily || '"SF Mono", Menlo, monospace',
     fontWeight: 500,
-    fontSize: FS,
-    letterSpacing: 3,
-    color: '#f2f2f4',
+    fontSize: fs,
+    letterSpacing: skin ? 0 : 3,
+    color: skin?.text || '#f2f2f4',
     whiteSpace: 'nowrap',
     lineHeight: 1,
   };
 
-  return (
-    <AbsoluteFill style={{ background: '#050506', overflow: 'hidden' }}>
+  const content = (
+    <AbsoluteFill style={{ background: skin ? 'transparent' : '#050506', overflow: 'hidden' }}>
       {visible && (
         <div style={{ position: 'absolute', inset: 0 }}>
           {/* NEW：左缘定位（轮换期间钉死在左屏边距处） */}
@@ -94,7 +104,7 @@ export const TextColumnConverge: React.FC = () => {
             ...font, position: 'absolute',
             left: newLeft, top: 519,
           }}>
-            NEW
+            {stem}
           </div>
           {/* 特性词：右缘定位（词换长换短，右缘不动） */}
           <div style={{
@@ -108,15 +118,17 @@ export const TextColumnConverge: React.FC = () => {
           <div style={{
             ...font,
             fontStyle: 'italic',
-            color: '#d8d8dc',
+            color: skin?.muted || '#d8d8dc',
             position: 'absolute',
-            left: MERGED_LEFT, top: 519 + FS + 14,
+            left: mergedLeft, top: 519 + fs + (skin ? 28 : 14),
+            ...(skin ? {fontSize:48} : {}),
             opacity: subOp,
           }}>
-            COMING 2026
+            {words?.at(-1) || 'COMING 2026'}
           </div>
         </div>
       )}
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

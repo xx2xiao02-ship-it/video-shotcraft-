@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 上升贝塞尔：左下 → 右上，先缓后陡（增长线形状）
 const P0 = { x: 200, y: 820 };
@@ -34,12 +36,12 @@ const CHAR_W = 46; // 64px fontWeight 800 的近似字宽
 
 
 
-export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => {
+export const TextOnPath: React.FC<{ text?: string | string[]; skin?: TemplateSkin }> = ({ text, skin }) => {
   const TEXT = Array.isArray(text) ? text.join(' ') : (text || DEFAULT_TEXT);
   const N = TEXT.length;
-  const CHAR_W = 46;
-  const FINAL_Y = 300;
-  const FINAL_X0 = 960 - (N * CHAR_W) / 2;
+  const CHAR_W = skin ? Math.min(104, 1480 / Math.max(N,1)) : 46;
+  const FINAL_Y = skin ? 470 : 300;
+  const FINAL_X0 = 960 - ((skin ? N-1 : N) * CHAR_W) / 2;
   const frame = useCurrentFrame();
   // 曲线 evolve：随最前字符推进同步生长
   const evolve = interpolate(frame, [0, 82], [0, 1], {
@@ -47,18 +49,18 @@ export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => 
     easing: Easing.out(Easing.quad),
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, position: 'relative', overflow: 'hidden' }}>
       <svg width={1920} height={1080} style={{ position: 'absolute', inset: 0 }}>
         <path
           d={`M ${P0.x} ${P0.y} C ${P1.x} ${P1.y}, ${P2.x} ${P2.y}, ${P3.x} ${P3.y}`}
-          fill="none" stroke={G.bar} strokeWidth={3}
+          fill="none" stroke={skin?.accent || G.bar} strokeWidth={3}
           pathLength={1} strokeDasharray={1} strokeDashoffset={1 - evolve}
         />
       </svg>
       {TEXT.split('').map((ch, i) => {
         if (ch === ' ') return null;
-        const tEnd = 0.12 + 0.82 * (i / (N - 1)); // 各字符沿线终点
+        const tEnd = 0.12 + 0.82 * (i / Math.max(1,N - 1)); // 各字符沿线终点
         const start = i * 2;
         // 沿线推进：start 起 45f 到达 tEnd
         const t = interpolate(frame, [start, start + 45], [0, tEnd], {
@@ -82,8 +84,8 @@ export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => 
           <div key={i} style={{
             position: 'absolute', left: x, top: y, opacity: op,
             transform: `translate(-50%, -50%) rotate(${ang}deg)`,
-            fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
-            fontSize: 64, color: G.ink,
+            fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800,
+            fontSize: skin ? CHAR_W * 0.9 : 64, color: skin?.text || G.ink,
           }}>
             {ch}
           </div>
@@ -91,4 +93,5 @@ export const TextOnPath: React.FC<{ text?: string | string[] }> = ({ text }) => 
       })}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

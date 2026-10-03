@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, FakeDashboard } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_CMD = 'acme deploy --prod';
 
@@ -20,7 +22,7 @@ const PAD = 34;
 const FOCUS_X = 960;
 const FOCUS_Y = TT + TITLEBAR + PAD + 92; // ≈ 408
 
-const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean }> = ({ text, chars, cursorOn }) => (
+const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean; skin?: TemplateSkin }> = ({ text, chars, cursorOn, skin }) => (
   <div style={{
     width: TW, height: TH, background: '#1e1e1c', borderRadius: 14,
     boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
@@ -44,7 +46,7 @@ const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean 
       color: '#d8d8d6', lineHeight: 1.5,
     }}>
       {/* 一行历史输出做上下文 */}
-      <div style={{ color: '#7a7a78', fontSize: 32, marginBottom: 18 }}>~/acme-app (main)</div>
+      <div style={{ color: '#7a7a78', fontSize: 32, marginBottom: 18 }}>{skin ? '素材工作台' : '~/acme-app (main)'}</div>
       <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'pre' }}>
         <span style={{ color: '#9f9f9d' }}>{'$ '}</span>
         <span>{text.substring(0, chars)}</span>
@@ -57,15 +59,15 @@ const TerminalWindow: React.FC<{ text: string; chars: number; cursorOn: boolean 
   </div>
 );
 
-export const TerminalTypewriter: React.FC<{ text?: string }> = ({ text }) => {
+export const TerminalTypewriter: React.FC<{ text?: string; skin?: TemplateSkin; durationInFrames?: number }> = ({ text, skin }) => {
   const CMD = text || DEFAULT_CMD;
   // 时间轴（30fps，共 145f）；typeEnd 随 CMD 长度派生
   const T = {
     typeStart: 10,                       // 开始敲字
     typeEnd: 10 + CMD.length * 2,        // 2f/字符
-    enter: 58,                           // 敲完停 12f 后回车
-    pushEnd: 64,                         // 6f 急推结束，硬切帧
-    settleEnd: 68,                       // dashboard 1.06→1 回稳 4f
+    enter: skin ? 10 + CMD.length * 2 + 12 : 58,
+    pushEnd: skin ? 10 + CMD.length * 2 + 18 : 64,
+    settleEnd: skin ? 10 + CMD.length * 2 + 22 : 68,
     total: 145,                          // f68 起真静止
   };
   const frame = useCurrentFrame();
@@ -95,8 +97,8 @@ export const TerminalTypewriter: React.FC<{ text?: string }> = ({ text }) => {
     easing: Easing.out(Easing.cubic),
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, position: 'relative', overflow: 'hidden' }}>
       {!cut ? (
         <div style={{
           width: 1920, height: 1080,
@@ -105,7 +107,7 @@ export const TerminalTypewriter: React.FC<{ text?: string }> = ({ text }) => {
           ...(pushBlur > 0 ? { filter: `blur(${pushBlur}px)` } : {}),
         }}>
           <div style={{ position: 'absolute', left: TL, top: TT }}>
-            <TerminalWindow text={CMD} chars={chars} cursorOn={cursorOn} />
+            <TerminalWindow text={CMD} chars={chars} cursorOn={cursorOn} skin={skin} />
           </div>
         </div>
       ) : (
@@ -114,9 +116,11 @@ export const TerminalTypewriter: React.FC<{ text?: string }> = ({ text }) => {
           transform: `scale(${dashScale})`,
           transformOrigin: '960px 540px',
         }}>
-          <FakeDashboard variant="A" />
+          {skin ? <div style={{position:'absolute',left:260,right:260,top:460,textAlign:'center',
+            color:skin.text,fontFamily:skin.fontFamily,fontSize:86,fontWeight:700}}>{CMD}</div> : <FakeDashboard variant="A" />}
         </div>
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

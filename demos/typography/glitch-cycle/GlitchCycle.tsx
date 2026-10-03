@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, lerp, rand, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const GLITCH_CYCLE_DURATION = 168; // 5600ms @30fps
 
@@ -22,7 +23,7 @@ const glitchAt = (kf: number[], p: number) => {
   return lerp(x - i, kf[i], kf[i + 1]);
 };
 
-export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
+export const GlitchCycle: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   const PHRASES = words && words.length > 0 ? words : DEFAULT_PHRASES;
   const MAXCH = Math.max(...PHRASES.map((p) => p.length));
   const t = useT();
@@ -37,7 +38,7 @@ export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
   const jx = (rand(bucket * 5 + slot) - 0.5) * g * 10;
   const jy = (rand(bucket * 9 + slot + 40) - 0.5) * g * 4;
   return (
-    <DesignStage bg="#0a0b10">
+    <DesignStage bg={skinBackground(skin, '#0a0b10')}>
       <div
         style={{
           position: 'absolute',
@@ -45,16 +46,16 @@ export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0a0b10',
+          background: skin ? 'transparent' : '#0a0b10',
         }}
       >
         <div
           style={{
             display: 'flex',
-            fontFamily: '"SF Mono",Menlo,monospace',
-            fontSize: 26,
-            letterSpacing: 3,
-            color: '#dfe6f5',
+            fontFamily: skin?.fontFamily || '"SF Mono",Menlo,monospace',
+            fontSize: skin ? Math.min(36, 390 / MAXCH) : 26,
+            letterSpacing: skin ? 0 : 3,
+            color: skin?.text || '#dfe6f5',
             transform: `translate(${jx}px,${jy}px)`,
             textShadow:
               g > 0.04
@@ -71,13 +72,13 @@ export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
               const hit = rand(i * 31 + bucket * 17 + slot * 97) < g;
               if (hit) {
                 content = POOL[Math.floor(rand(i * 131 + bucket * 7 + slot * 13) * POOL.length)];
-                color = rand(i + bucket) > 0.5 ? '#6c8cff' : '#4a5270';
+                color = rand(i + bucket) > 0.5 ? (skin?.accent || '#6c8cff') : (skin?.muted || '#4a5270');
               } else {
-                color = '#dfe6f5';
+                color = skin?.text || '#dfe6f5';
               }
             }
             return (
-              <span key={i} style={{ minWidth: '0.66em', textAlign: 'center', color }}>
+              <span key={i} style={{ minWidth: skin ? '1em' : '0.66em', textAlign: 'center', color }}>
                 {content}
               </span>
             );
@@ -93,12 +94,12 @@ export const GlitchCycle: React.FC<{ words?: string[] }> = ({ words }) => {
           width: 120,
           height: 2,
           marginLeft: -60,
-          background: '#232840',
+          background: skin?.surface || '#232840',
           borderRadius: 1,
           overflow: 'hidden',
         }}
       >
-        <div style={{ height: '100%', width: `${t * 100}%`, background: '#6c8cff' }} />
+        <div style={{ height: '100%', width: `${t * 100}%`, background: skin?.accent || '#6c8cff' }} />
       </div>
     </DesignStage>
   );

@@ -4,7 +4,8 @@
 // 3) 波前尾迹梯度：刚被点亮的字符辉光最强，随扫过距离衰减到稳态
 //    （trailing-window 增亮层，填充结束后淡出到稳态呼吸）。
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, Easing } from 'remotion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const mulberry32 = (a: number) => () => {
   let t = (a += 0x6d2b79f5);
@@ -70,11 +71,11 @@ const FLASHES: Flash[] = Array.from({ length: 36 }, () => ({
   bolt: Math.floor(rand() * BOLTS.length),
 }));
 
-export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => {
+export const GradientWordSweep: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   const W = words && words.length > 0 ? words : DEFAULT_WORDS;
-  const head = W[0] ?? DEFAULT_WORDS[0];
-  const line2 = W[1] ?? DEFAULT_WORDS[1];
-  const line3 = W[2] ?? DEFAULT_WORDS[2];
+  const head = W[0];
+  const line2 = W.length > 2 ? W[1] : '';
+  const line3 = W.length > 1 ? W[W.length - 1] : '';
   const frame = useCurrentFrame();
 
   const enter = interpolate(frame, [0, 12], [0, 1], {
@@ -132,39 +133,41 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
           maskImage: softMask(soft),
         };
 
+  const {width, height} = useVideoConfig();
   const lineStyle: React.CSSProperties = {
-    fontFamily: FONT,
+    fontFamily: skin?.fontFamily || FONT,
     fontWeight: 700,
     fontStyle: 'italic',
-    fontSize: 92,
+    fontSize: Math.min(92, Math.floor(width * 0.84 / Math.max(head.length + line2.length, line3.length, 1))),
     letterSpacing: -1,
     lineHeight: 1.28,
-    color: 'var(--text)',
+    color: skin?.text || 'var(--text)',
     whiteSpace: 'nowrap',
   };
 
   const gradText: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
-    backgroundImage: GRAD,
+    backgroundImage: skin ? `linear-gradient(92deg, ${skin.accent}, ${skin.text})` : GRAD,
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     color: 'transparent',
   };
 
   return (
-    <AbsoluteFill style={{ background: '#050505', justifyContent: 'center', alignItems: 'center' }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, '#050505'), justifyContent: 'center', alignItems: 'center' }}>
       {/* 词后方环境泛光（大半径，随充能增强） */}
       <div
         style={{
           position: 'absolute',
-          left: 500,
-          top: 340,
-          width: 820,
+          left: width * 0.26,
+          top: height * 0.32,
+          width: width * 0.43,
           height: 320,
           borderRadius: '50%',
-          background:
-            'radial-gradient(closest-side, rgba(180,110,255,0.6), rgba(255,110,212,0.25) 55%, transparent 78%)',
+          background: skin
+            ? `radial-gradient(closest-side, ${skin.accent}66, ${skin.accent}22 55%, transparent 78%)`
+            : 'radial-gradient(closest-side, rgba(180,110,255,0.6), rgba(255,110,212,0.25) 55%, transparent 78%)',
           filter: 'blur(38px)',
           opacity: 0.55 * glowLvl,
         }}
@@ -248,7 +251,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  color: 'var(--text)',
+                  color: skin?.text || 'var(--text)',
                   clipPath: `inset(-25% ${Math.max(0, 100 - pPct)}% -25% ${Math.max(0, pPct - 10)}%)`,
                   filter: 'blur(3px)',
                   opacity: 0.9 * headFade,
@@ -280,7 +283,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
                     <path
                       d={b.d}
                       fill="none"
-                      stroke="rgba(216,60,190,0.65)"
+                      stroke={skin?.accent || 'rgba(216,60,190,0.65)'}
                       strokeWidth={b.long ? 6 : 4.5}
                       strokeLinejoin="miter"
                       style={{ filter: 'blur(6px)' }}
@@ -288,7 +291,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
                     <path
                       d={b.d}
                       fill="none"
-                      stroke="rgba(235,110,215,0.9)"
+                      stroke={skin?.accent || 'rgba(235,110,215,0.9)'}
                       strokeWidth={b.long ? 2.4 : 1.9}
                       strokeLinejoin="miter"
                       style={{ filter: 'blur(1.5px)' }}
@@ -296,7 +299,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
                     <path
                       d={b.d}
                       fill="none"
-                      stroke="#ffd8f2"
+                      stroke={skin?.text || '#ffd8f2'}
                       strokeWidth={b.long ? 1.4 : 1.1}
                       strokeLinejoin="miter"
                     />
@@ -307,7 +310,7 @@ export const GradientWordSweep: React.FC<{ words?: string[] }> = ({ words }) => 
           </span>{' '}
           <span>{line2}</span>
         </div>
-        <div style={lineStyle}>{line3}</div>
+        {line3 && <div style={lineStyle}>{line3}</div>}
       </div>
     </AbsoluteFill>
   );

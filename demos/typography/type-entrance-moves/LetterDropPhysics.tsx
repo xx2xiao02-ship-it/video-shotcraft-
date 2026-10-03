@@ -8,6 +8,8 @@
 import React from 'react';
 import { useCurrentFrame, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 // 确定性伪随机
 const h = (n: number) => {
@@ -46,18 +48,20 @@ const dropY = (t: number): number => {
   return 0;
 };
 
-export const LetterDropPhysics: React.FC<{ word?: string }> = ({ word }) => {
+export const LetterDropPhysics: React.FC<{ word?: string; skin?: TemplateSkin }> = ({ word, skin }) => {
   const WORD = word || DEFAULT_WORD;
+  const SLOT_W = skin ? Math.min(150, 1560 / WORD.length) : 150;
+  const FONT = skin ? SLOT_W * 0.93 : 140;
   const WORD_W = WORD.length * SLOT_W;
   const LEFT = (1920 - WORD_W) / 2;
   const frame = useCurrentFrame();
   // 帧 110 起的齐整回正进度
   const snap = easeOutCubic(clamp01((frame - SNAP) / SNAP_DUR));
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, overflow: 'hidden', position: 'relative' }}>
+  const content = (
+    <div style={{ width: 1920, height: 1080, background: skin ? 'transparent' : G.bg, overflow: 'hidden', position: 'relative' }}>
       {/* 地板线：字符落点的视觉基线 */}
-      <div style={{ position: 'absolute', left: LEFT - 60, top: FLOOR_Y, width: WORD_W + 120, height: 6, background: G.bar, borderRadius: 3 }} />
+      <div style={{ position: 'absolute', left: LEFT - 60, top: FLOOR_Y, width: WORD_W + 120, height: 6, background: skin?.accent || G.bar, borderRadius: 3 }} />
 
       {WORD.split('').map((ch, i) => {
         const start = 10 + i * 5;
@@ -85,11 +89,11 @@ export const LetterDropPhysics: React.FC<{ word?: string }> = ({ word }) => {
               justifyContent: 'center',
               transform: `translateY(${y + jitter}px) rotate(${rot}deg) scale(${scale})`,
               transformOrigin: '50% 100%',
-              fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+              fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
               fontWeight: 800,
               fontSize: FONT,
               lineHeight: 1,
-              color: G.ink,
+              color: skin?.text || G.ink,
             }}
           >
             {ch}
@@ -98,4 +102,5 @@ export const LetterDropPhysics: React.FC<{ word?: string }> = ({ word }) => {
       })}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_TEXT = 'DECODE SPEED';
 const CHARSET = 'ABCDEF0123456789#$%&';
@@ -19,19 +21,19 @@ const h = (n: number) => {
   return s - Math.floor(s);
 };
 
-export const ScrambleDecode: React.FC<{ text?: string }> = ({ text }) => {
+export const ScrambleDecode: React.FC<{ text?: string; skin?: TemplateSkin }> = ({ text, skin }) => {
   const TEXT = text || DEFAULT_TEXT;
   const frame = useCurrentFrame();
   const chars = TEXT.split('');
   const lockedCount = chars.filter((c, i) => c === ' ' || frame >= LOCK_START + i * LOCK_STEP).length;
   const allLocked = lockedCount === chars.length;
 
-  return (
+  const content = (
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skin ? 'transparent' : G.bg,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -41,10 +43,10 @@ export const ScrambleDecode: React.FC<{ text?: string }> = ({ text }) => {
     >
       <div
         style={{
-          fontFamily: 'ui-monospace, Menlo, Monaco, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
+          fontFamily: skin?.fontFamily || 'ui-monospace, Menlo, Monaco, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace',
           fontWeight: 800,
-          fontSize: 120,
-          letterSpacing: 2,
+          fontSize: skin ? Math.min(120, 1540 / chars.length) : 120,
+          letterSpacing: skin ? 0 : 2,
           display: 'flex',
         }}
       >
@@ -64,10 +66,10 @@ export const ScrambleDecode: React.FC<{ text?: string }> = ({ text }) => {
               key={i}
               style={{
                 display: 'inline-block',
-                width: '1ch',
+                width: skin ? '1em' : '1ch',
                 textAlign: 'center',
-                color: flashing ? G.card : locked ? G.ink : G.mid,
-                background: flashing ? G.ink : 'transparent',
+                color: flashing ? (skin?.bg || G.card) : locked ? (skin?.text || G.ink) : (skin?.muted || G.mid),
+                background: flashing ? (skin?.accent || G.ink) : 'transparent',
               }}
             >
               {shown}
@@ -76,16 +78,17 @@ export const ScrambleDecode: React.FC<{ text?: string }> = ({ text }) => {
         })}
       </div>
       {/* 底部进度提示条：已锁定字符数比例，帮助读出"从左到右扫过"的推进感 */}
-      <div style={{ width: 900, height: 10, background: G.line, borderRadius: 5, overflow: 'hidden' }}>
+      <div style={{ width: 900, height: 10, background: skin?.surface || G.line, borderRadius: 5, overflow: 'hidden' }}>
         <div
           style={{
             width: `${(lockedCount / chars.length) * 100}%`,
             height: '100%',
-            background: allLocked ? G.ink : G.mid,
+            background: allLocked ? (skin?.accent || G.ink) : (skin?.muted || G.mid),
             borderRadius: 5,
           }}
         />
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };
