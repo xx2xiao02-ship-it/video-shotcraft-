@@ -1,0 +1,53 @@
+{
+  "schema": "business-data-card-admission-v1",
+  "version": 1,
+  "review": "passed",
+  "localVisualReview": "passed-encoded-mp4-frames",
+  "userVisualAcceptance": "pending",
+  "actualModelValidated": false,
+  "productionAdmission": "not-recorded",
+  "reviewer": "Codex: batch 20 current governance metrics, exact graphic props, 2 encoded MP4 cases",
+  "scope": "1 graphic card, 2 landscape/portrait cases, current 116/117/212/214 metrics, 180 frames at 30fps; paid model, production execution and user acceptance remain pending",
+  "cards": [
+    "data/hatch-depth"
+  ],
+  "fixtureFile": "template/fixtures/card-business-data-batch019-v1.json",
+  "fixtureSha256": "84ead3d453b068dd4386991f193cc900bba0c2209e0a17c57b75919b1729cfe4",
+  "report": "template/out/card-business-data-batch019-v1/acceptance.json",
+  "reportSha256": "a929fa13e0d50f389115fb81db20a90dc4fbd034c3e975890fe6838c5ce5bd71",
+  "sourceHashes": {
+    "template/fixtures/card-business-data-batch019-v1.json": "84ead3d453b068dd4386991f193cc900bba0c2209e0a17c57b75919b1729cfe4",
+    "template/fixtures/card-business-data-batch019-source.json": "ff5461d1d7def9da4a303f4c894541a02aff7148eff0d1628bbad45512e1cb67",
+    "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/TemplateAdapter.tsx": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/a-mode-run.mjs": "7cd60bff8969976d45efac0bf2b9b0f27ba3b0cdcb263bcf4da206a258ac8c37",
+    "director/graphic-contracts.mjs": "9b18acdf969f07212a86cb808a1f5760b48a1b044303affe577ce0d76344700a",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/data/hatch-depth/HatchDepth.tsx": "9529bff18cfd4d4fb200afe1f24c65805d75479848560912b7ed3b26f2247e65",
+    "template/render-business-text-videos.mjs": "c6953244ff888666396c33813fc19a354926abda7937f23d1a8a5117bf22b463",
+    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1"
+  },
+  "evidence": [
+    {
+      "card": "data/hatch-depth",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch019-v1/hatch-landscape.mp4",
+      "sha256": "b6866c0add46dcc67e06f1a9c11a053e4a36147fc288c70d0c0a5abc23dfac97",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/hatch-depth",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch019-v1/hatch-portrait.mp4",
+      "sha256": "bb323147ee00a3d3b478e903818eb02cf45ae5313816c89419aa7a708965b4ea",
+      "fullDecodePassed": true
+    }
+  ]
+}

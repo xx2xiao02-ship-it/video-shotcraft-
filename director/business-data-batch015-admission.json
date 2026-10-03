@@ -1,0 +1,166 @@
+{
+  "schema": "business-data-card-admission-v1",
+  "version": 1,
+  "review": "passed",
+  "localVisualReview": "passed-current-runtime-static-props",
+  "userVisualAcceptance": "pending",
+  "actualModelValidated": false,
+  "productionAdmission": "not-recorded",
+  "reviewer": "Codex: current adapter props exact; prior selectComposition and encoded-pixel proof retained",
+  "scope": "8 batch 15 business-data cards, 16 real landscape/portrait videos; current adapter revalidated without video rerender",
+  "cards": [
+    "data/chart-live-moves/axis-rescale-shock",
+    "data/chart-live-moves/oscilloscope-stream",
+    "data/chart-live-moves/unit-dot-swarm-regroup",
+    "data/gauge-readout-moves/needle-sweep",
+    "data/gauge-readout-moves/tape-scroll-fixed-pointer",
+    "data/particle-celebrate-hits/confetti-crossfire",
+    "data/particle-celebrate-hits/counter-tick-sparks",
+    "data/particle-sand-fill"
+  ],
+  "fixtureFile": ".isolated/card-governance-batch-015-worktree/template/fixtures/card-business-data-batch015-v3.json",
+  "fixtureSha256": "1c1cdf888b502e8a304bc5cba41fdf7abd6829d62b2a59d5830b1a5ded74dec7",
+  "report": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/acceptance.json",
+  "reportSha256": "ad670af363bb18c61b1c5f7a6d8f645808909bda00bb858e767f2015ba774043",
+  "compatibilityReport": "template/out/card-business-data-batch015-static-revalidation-20261003.json",
+  "compatibilityReportSha256": "af1686ca2a37f80681449c2200e70822948159ef7e651d0762ae187582194552",
+  "sourceHashes": {
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/TemplateAdapter.tsx": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/card-runtime-choice.mjs": "7c9c550b67db8c25cbee47ce66dcc1ef09b562466a57a86be7ddd83991599121",
+    "director/theme-contract.mjs": "da0862c35ff3cae47cc52ddc626262648de4dfaa02f3825969d3154e3f5d9a46",
+    "director/graphic-contracts.mjs": "9b18acdf969f07212a86cb808a1f5760b48a1b044303affe577ce0d76344700a",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "director/a-mode-run.mjs": "7cd60bff8969976d45efac0bf2b9b0f27ba3b0cdcb263bcf4da206a258ac8c37",
+    "director/a-mode-render-preflight.mjs": "4ce46fd1e313ffa907751b5658b903c227a69a8e4911e78383f5f5b1b3b13f3e",
+    "template/package.json": "7ca1a23c6fad1f21debc3c89186284176a44eed0f5d1fcbdde622fd5153db477",
+    "package-lock.json": "0b2dab5225d30dc653013e606f130c8a71da599c959376153f6db8139c0c2490",
+    "demos/data/chart-live-moves/AxisRescaleShockV2.tsx": "da46fc62acbe5ff0c6cdcb7f95f86fec78c11fcb69ab592aca407952cc14379d",
+    "demos/data/chart-live-moves/OscilloscopeStreamV2.tsx": "610c722e915cab3cdfba9774bb27d092d8251b775d4aff189426f9b4aa218e6c",
+    "demos/data/chart-live-moves/UnitDotSwarmRegroupV2.tsx": "1c297dc0dd0b0b6cfdb1b6e1dd97083a790addacf030b4abdc0f002c46724422",
+    "demos/data/gauge-readout-moves/NeedleSweepSelftest.tsx": "249ffc0b6d953c60070f3708dc88e4070e942b3fffc32e839fae7eeb54f5bdca",
+    "demos/data/gauge-readout-moves/TapeScrollFixedPointer.tsx": "90ff1ec68a6a3f8aaaacf84967a8b0a8c642ea8496645d1573387c5f8639402f",
+    "demos/data/particle-celebrate-hits/ConfettiCrossfire.tsx": "dd90e213766b9f087b17a62c02cab4db30d95905893f1eba9f55bf8be65fbae2",
+    "demos/data/particle-celebrate-hits/CounterTickSparks.tsx": "b2104a5a110eeaaec6107251ad9a4ca9f04a34b7d8a201f942a8ccb38e85e551",
+    "demos/data/particle-sand-fill/ParticleSandFill.tsx": "a05709aaef7007494726c39d21a1960f22b9ad92c8fe68adc1c97e9ab6733293",
+    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
+  },
+  "evidenceRoot": ".isolated/card-governance-batch-015-worktree",
+  "evidence": [
+    {
+      "card": "data/chart-live-moves/axis-rescale-shock",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-0-landscape.mp4",
+      "sha256": "34e9782b37271d8921f65ef9ecd88c55ad811b541865ef8ee75cc13755fe6b84",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/chart-live-moves/axis-rescale-shock",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-0-portrait.mp4",
+      "sha256": "e3a9e535c7bad73ef5326c97684e16349434060d15d34b42848c0750fab40f14",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/chart-live-moves/oscilloscope-stream",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-1-landscape.mp4",
+      "sha256": "7e6d3a26ac2e68254ccbeb8e814718034b2c20c460ffed808027c9d55c74f7d4",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/chart-live-moves/oscilloscope-stream",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-1-portrait.mp4",
+      "sha256": "f102dea2f3dbd7e0b264dfd5183407a902be3f502d4054a0b922b208e72bc6c9",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/chart-live-moves/unit-dot-swarm-regroup",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-2-landscape.mp4",
+      "sha256": "eac09b90ddceb550efc023d2a4e5daa486e589b448786f911728a79bfe5a72e4",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/chart-live-moves/unit-dot-swarm-regroup",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-2-portrait.mp4",
+      "sha256": "be0008270feb3a30d5f7512fbaebc2d113bd3358a23f0dc692371bcce71a7ca0",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/gauge-readout-moves/needle-sweep",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-3-landscape.mp4",
+      "sha256": "e6d33d2ac4d707e8b4e3357940811ede7a010daa2fe88724f26e302f16081c76",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/gauge-readout-moves/needle-sweep",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-3-portrait.mp4",
+      "sha256": "0bbb5890a23db7af3ac237921bef9b456c63fa21abf5bd2a2dd1381a4b386a6b",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/gauge-readout-moves/tape-scroll-fixed-pointer",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-4-landscape.mp4",
+      "sha256": "526824b49e6ca21beb22ac2996f17194f0aa1dcdf63702be29c39747f9648210",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/gauge-readout-moves/tape-scroll-fixed-pointer",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-4-portrait.mp4",
+      "sha256": "ce7251cadb12160838ad079b152239d6806d7c4c3c7510a50e520acf4c538a68",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-celebrate-hits/confetti-crossfire",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-5-landscape.mp4",
+      "sha256": "ddf67fc022901d3f622222ee6f9e8a62c844bf4d59e44d4eec0229f669eb614a",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-celebrate-hits/confetti-crossfire",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-5-portrait.mp4",
+      "sha256": "36bde30bc29dc9606ae127e2657eb0983cfc7a447c07d213bafdeac09d9bcd88",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-celebrate-hits/counter-tick-sparks",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-6-landscape.mp4",
+      "sha256": "7b99da70e3e36a9282cb67ed0edc81d23700bb12a94db4a61f80802ca6ba5c04",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-celebrate-hits/counter-tick-sparks",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-6-portrait.mp4",
+      "sha256": "76e9d7979169b6a55160efefe525897b0591af073a5bc5c019600eafc9cb8633",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-sand-fill",
+      "aspect": "16:9",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-7-landscape.mp4",
+      "sha256": "a425419dbc38052a335ca7efa5b20af2cb16014388677d8734f0a6f103374ad6",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/particle-sand-fill",
+      "aspect": "9:16",
+      "file": ".isolated/card-governance-batch-015-worktree/template/out/card-business-data-batch015-v3/case-7-portrait.mp4",
+      "sha256": "770ac01e479af25be118f06876ebd1479a4aaf79edbd3a10b08373013fed3b1f",
+      "fullDecodePassed": true
+    }
+  ]
+}

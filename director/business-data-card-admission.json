@@ -1,0 +1,183 @@
+{
+  "schema": "business-data-card-admission-v1",
+  "version": 1,
+  "review": "passed",
+  "localVisualReview": "passed-current-runtime-static-props",
+  "userVisualAcceptance": "pending",
+  "actualModelValidated": false,
+  "productionAdmission": "not-recorded",
+  "reviewer": "Codex: batch 16 current adapter props exact; existing encoded evidence retained after additive registration changes",
+  "scope": "8 business-data cards, 16 existing landscape/portrait cases; current props revalidated without video rerender; paid model, service loading, production execution and user acceptance remain pending",
+  "cards": [
+    "ui-entrance/bezier-source-converge-merge",
+    "typography/word-relay-filmstrip",
+    "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+    "outro/ui-to-brand-morph/input-morphs-into-logo",
+    "interaction/ai-stream-response/stream-response",
+    "interaction/type-and-filter",
+    "ui-entrance/avatar-bracket-carousel",
+    "data/avatar-grid-radial-build-colorize"
+  ],
+  "fixtureFile": "template/fixtures/card-business-data-batch016-v3.json",
+  "fixtureSha256": "b3f2c3e0d62937854796f1e2617f9b0f8dd71c0c50966589886730a6ce98772a",
+  "report": "template/out/card-business-data-batch016-v3/acceptance.json",
+  "reportSha256": "ca5c6551c07c0ccb1cbd2c715e4b6125dc1f90c807643f41ba0c8280bd893652",
+  "compatibilityReport": "template/out/card-business-data-batch016-static-revalidation-20261003.json",
+  "compatibilityReportSha256": "a368b646831461f6ced8d3a1ecf6afa80cf81b753c78c233209e637447c6620c",
+  "sourceHashes": {
+    "template/accept-business-text-batch004.mjs": "9ad8423d0364e68d7ecc593a5a617f28e7cdd749ffe7339266c5ff821e265dcf",
+    "template/cached-still-renderer.mjs": "67d8a07ca33880aad65d68772ef21d25d958c7c5615db2db23e586e4470dd2e4",
+    "template/package.json": "7ca1a23c6fad1f21debc3c89186284176a44eed0f5d1fcbdde622fd5153db477",
+    "package-lock.json": "0b2dab5225d30dc653013e606f130c8a71da599c959376153f6db8139c0c2490",
+    "template/fixtures/card-business-data-batch016-v3.json": "b3f2c3e0d62937854796f1e2617f9b0f8dd71c0c50966589886730a6ce98772a",
+    "template/fixtures/card-business-data-batch016-source.json": "fac47a60884ff305e9cdb6282b0ca27357f28017139e902fd36f76c8ce0a12cf",
+    ".isolated/card-governance-batch-016-worktree/director/card-source-audit.json": "9d8a204279a7266d953ec711e7dad3a5eb5c04ae4e6b85f979473c4499c123da",
+    "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/CardAcceptance.tsx": "d19896a093b3fd2d6734239e6770599523b97ee31df98557fe96c575a5bdebdc",
+    "template/src/TemplateAdapter.tsx": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/card-runtime-choice.mjs": "7c9c550b67db8c25cbee47ce66dcc1ef09b562466a57a86be7ddd83991599121",
+    "director/a-mode-run.mjs": "7cd60bff8969976d45efac0bf2b9b0f27ba3b0cdcb263bcf4da206a258ac8c37",
+    "director/theme-contract.mjs": "da0862c35ff3cae47cc52ddc626262648de4dfaa02f3825969d3154e3f5d9a46",
+    "director/background-policy.mjs": "199478535524e30d2601603c7999f7269523d3f6bc876af42ea525dc2c2f6fee",
+    "director/video-material-policy.mjs": "eb8e9304cfda3b41a66648a539125bee6f11ba52e5f84b582fde67386afed940",
+    "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+    "director/graphic-contracts.mjs": "9b18acdf969f07212a86cb808a1f5760b48a1b044303affe577ce0d76344700a",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "director/text-card-contracts.mjs": "1404f9d5036b208eeec6d8d5c8f4c55a4c2e79de0c06f7a921dfcb0e0b7a43fa",
+    "director/karaoke-timing.mjs": "8ace480c7b99fee165c6da56a45ef74416fa5d0187d2e84bacdb8d18df39d0a0",
+    "director/a-mode-render-preflight.mjs": "4ce46fd1e313ffa907751b5658b903c227a69a8e4911e78383f5f5b1b3b13f3e",
+    "demos/_fixtures/BusinessTextStage.tsx": "4487d545f14c901902bb07de87243cebc9e03c795cfcebf79060094c98819ca1",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/_fixtures/PageCam2D.tsx": "66cea00b806c1d3292495e1ada12bd9be6b30230b7bae2ba547443932a8e9947",
+    "demos/_textures/live-layout.json": "e8d2e6a76fbc1e1fa0cd56a9acc341279683cd2452a1a667d420c31931b520fd",
+    "demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx": "1af70144aefb9f514f9e5d7ce83f668ce5e9fb081ef091080f6340b987cccc1c",
+    "demos/typography/word-relay-filmstrip/WordRelayFilmstrip.tsx": "36d7310127a6462d5afb8309d5e26b8d41e1abadb7e34032d5b937ecfc3f535b",
+    "demos/outro/ui-to-brand-morph/IconFlipBloomLogo.tsx": "752c7a7bd86d82ff4a74fe8698b6cfe25597aebbe05cfd85943fc46835484256",
+    "demos/outro/ui-to-brand-morph/InputMorphsIntoLogo.tsx": "95ab249421ec50485ef61548fcfd2d2f990b4e4dd7e6e877b03cba435536827f",
+    "demos/interaction/ai-stream-response/StreamResponse.tsx": "9f3c2a0157f99d95ded264604a2ff8e92b51fb48a9f33788ab78373bc0924f36",
+    "demos/interaction/type-and-filter/TypeAndFilter.tsx": "0a8ca5a62c4b307ca6a345127d52c5bf77697b94777f58b7b66afef012f3b39d",
+    "demos/ui-entrance/avatar-bracket-carousel/AvatarBracketCarousel.tsx": "5d4b6766b3b925e0584cd3f921ad987a223e54c2406cb83abab0a5e8fa51d370",
+    "demos/data/avatar-grid-radial-build-colorize/AvatarGridRadialBuildColorize.tsx": "acc57e5be2258367af85dce09917442766b83fe0a666833244654645d17bbe9c",
+    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1"
+  },
+  "evidence": [
+    {
+      "card": "ui-entrance/bezier-source-converge-merge",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-0-landscape.mp4",
+      "sha256": "3487f65ad1be31a56a37f4623ce50fee1870a4c0789b3e8b9138fc71305e7792",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/bezier-source-converge-merge",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-0-portrait.mp4",
+      "sha256": "1aba10e1cc7b6b391f38eba4764eb284e0ccd9a3183a2c94c4bb5dddc8d006c5",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "typography/word-relay-filmstrip",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-1-landscape.mp4",
+      "sha256": "d8a986c699c0265fe972e973d031f76ed53b5237539ac9d7dce2b1dde1a2d75d",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "typography/word-relay-filmstrip",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-1-portrait.mp4",
+      "sha256": "3f941d003b112b525e5a8dc2cbf85fac232d2824c6babbdda4b61a91b551320f",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-2-landscape.mp4",
+      "sha256": "89baef6b41ffdf41b98ac410e619b9f51bc09c1dbddb7e8e7bcb62ce14a8b97e",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-2-portrait.mp4",
+      "sha256": "171a7766f883e3f005bd222b4c95cf2c8db7f11be37605648bb06c3bfa48eea7",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "outro/ui-to-brand-morph/input-morphs-into-logo",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-3-landscape.mp4",
+      "sha256": "c92da7a708be8ac75c9232d05631a81812bc925058314de1f35165c96404f6ec",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "outro/ui-to-brand-morph/input-morphs-into-logo",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-3-portrait.mp4",
+      "sha256": "cdb8774386d0ca2ba0563e94e4fdd0dfe5f03ca5f19f540377e99ea39460dff2",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "interaction/ai-stream-response/stream-response",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-4-landscape.mp4",
+      "sha256": "394632d6f4b5af3d7b58d3a94f961533d0077619d11901c30cd0392bee903530",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "interaction/ai-stream-response/stream-response",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-4-portrait.mp4",
+      "sha256": "1f00fb416b19ad439110c6d6e12a525e039deab48b9c3607e9eb8a6c5cc2d8fe",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "interaction/type-and-filter",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-5-landscape.mp4",
+      "sha256": "85434cca1c343d627fc8d54affc44f1529fc522707c191fd70b323494559ad8b",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "interaction/type-and-filter",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-5-portrait.mp4",
+      "sha256": "d56f231e7cea0bc24db1560f5dd0850ba454ce5cebefbb11f074eb714b7a5841",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/avatar-bracket-carousel",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-6-landscape.mp4",
+      "sha256": "9444a68e5f5c69a19fe989520defe6b3c4450b4e7ac9154cfdd6ade9ae3b8fad",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/avatar-bracket-carousel",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-6-portrait.mp4",
+      "sha256": "7a0d5675369cc0ee306a81b7017b69907d092f9d76cfe498c911838686c33267",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/avatar-grid-radial-build-colorize",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch016-v3/case-7-landscape.mp4",
+      "sha256": "5deee47ce63c2b06d2fbc42169fad8c4713cf6115245ef305d2ea0657b031250",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "data/avatar-grid-radial-build-colorize",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch016-v3/case-7-portrait.mp4",
+      "sha256": "ac5cfb30d9f2863d8c87e94469bc54dc80a5368173cbe0a537e0ccd5be6f1919",
+      "fullDecodePassed": true
+    }
+  ]
+}

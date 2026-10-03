@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>清空操作台草稿</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f5f7f5; color: #1c2926; font: 16px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
+    main { width: min(440px, calc(100% - 32px)); }
+    h1 { margin: 0 0 12px; font-size: 24px; }
+    p { margin: 0 0 20px; color: #49615a; }
+    button, a { display: inline-block; padding: 10px 16px; border: 1px solid #245f50; border-radius: 4px; background: #245f50; color: white; font: inherit; text-decoration: none; cursor: pointer; }
+    a { margin-left: 8px; background: transparent; color: #245f50; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>清空草稿</h1>
+    <p id="status">仅清除当前浏览器中 B 模式文案、分镜草稿及旧草稿备份。视频主题、音色设置、任务和成片不受影响。</p>
+    <button id="clear" type="button">确认清空草稿</button>
+    <a href="/">返回操作台</a>
+  </main>
+  <script>
+    document.getElementById('clear').onclick = () => {
+      const keys = Object.keys(localStorage).filter(key => key === 'shotcraft-b-workspace-v1' ||
+        key === 'shotcraft-b-before-acceptance-v1' || key.startsWith('shotcraft-b-before-acceptance-v1-archive-'));
+      for (const key of keys) localStorage.removeItem(key);
+      document.getElementById('status').textContent = `已清空 ${keys.length} 项浏览器草稿。主题、设置、任务和成片未删除。`;
+      document.getElementById('clear').disabled = true;
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+{
+  "schema": "business-data-card-admission-v1",
+  "version": 1,
+  "review": "passed",
+  "localVisualReview": "passed-encoded-mp4-frames",
+  "userVisualAcceptance": "pending",
+  "actualModelValidated": false,
+  "productionAdmission": "not-recorded",
+  "reviewer": "Codex: batch 17 exact registrations, real props, 8 encoded MP4 cases",
+  "scope": "4 business-text cards, 8 landscape/portrait cases, 180 frames at 30fps; paid model, service loading, production execution and user acceptance remain pending",
+  "cards": [
+    "ui-entrance/card-stack",
+    "ui-entrance/carousel-3d",
+    "ui-entrance/research-card-stack-scroll",
+    "ui-entrance/floating-glossy-label-pills"
+  ],
+  "fixtureFile": "template/fixtures/card-business-text-batch017-v2.json",
+  "fixtureSha256": "91362f22f089bfdf3f53699cbc97b154282eabb22060273ed9d46de46fb47f2d",
+  "report": "template/out/card-business-text-batch017-v2/acceptance.json",
+  "reportSha256": "df7d20ab6e112fcd0c0ef9f1083fe458dec7cefe200c3e4b2bc106840c22cf55",
+  "sourceHashes": {
+    "template/accept-business-text-batch004.mjs": "9ad8423d0364e68d7ecc593a5a617f28e7cdd749ffe7339266c5ff821e265dcf",
+    "template/cached-still-renderer.mjs": "67d8a07ca33880aad65d68772ef21d25d958c7c5615db2db23e586e4470dd2e4",
+    "template/package.json": "7ca1a23c6fad1f21debc3c89186284176a44eed0f5d1fcbdde622fd5153db477",
+    "package-lock.json": "0b2dab5225d30dc653013e606f130c8a71da599c959376153f6db8139c0c2490",
+    "template/fixtures/card-business-text-batch017-v2.json": "91362f22f089bfdf3f53699cbc97b154282eabb22060273ed9d46de46fb47f2d",
+    "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/CardAcceptance.tsx": "d19896a093b3fd2d6734239e6770599523b97ee31df98557fe96c575a5bdebdc",
+    "template/src/TemplateAdapter.tsx": "7e0530f97b9926f2eb46d92a6860625e6e21f1a91d5771e5924fb21cfc64d81b",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/card-runtime-choice.mjs": "7c9c550b67db8c25cbee47ce66dcc1ef09b562466a57a86be7ddd83991599121",
+    "director/a-mode-run.mjs": "7cd60bff8969976d45efac0bf2b9b0f27ba3b0cdcb263bcf4da206a258ac8c37",
+    "director/theme-contract.mjs": "da0862c35ff3cae47cc52ddc626262648de4dfaa02f3825969d3154e3f5d9a46",
+    "director/background-policy.mjs": "199478535524e30d2601603c7999f7269523d3f6bc876af42ea525dc2c2f6fee",
+    "director/video-material-policy.mjs": "eb8e9304cfda3b41a66648a539125bee6f11ba52e5f84b582fde67386afed940",
+    "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+    "director/graphic-contracts.mjs": "9b18acdf969f07212a86cb808a1f5760b48a1b044303affe577ce0d76344700a",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "director/text-card-contracts.mjs": "1404f9d5036b208eeec6d8d5c8f4c55a4c2e79de0c06f7a921dfcb0e0b7a43fa",
+    "director/karaoke-timing.mjs": "8ace480c7b99fee165c6da56a45ef74416fa5d0187d2e84bacdb8d18df39d0a0",
+    "director/a-mode-render-preflight.mjs": "4ce46fd1e313ffa907751b5658b903c227a69a8e4911e78383f5f5b1b3b13f3e",
+    "demos/_fixtures/BusinessTextStage.tsx": "4487d545f14c901902bb07de87243cebc9e03c795cfcebf79060094c98819ca1",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/_fixtures/PageCam2D.tsx": "66cea00b806c1d3292495e1ada12bd9be6b30230b7bae2ba547443932a8e9947",
+    "demos/_textures/live-layout.json": "e8d2e6a76fbc1e1fa0cd56a9acc341279683cd2452a1a667d420c31931b520fd",
+    "demos/ui-entrance/card-stack/CardStack.tsx": "613a8459d42b4ca5fcb7fa445701b16f57ff153c7233390509bae0219e48de2b",
+    "demos/ui-entrance/carousel-3d/Carousel3D.tsx": "404358fc1f91576250f31b00b8406840209b044cf60d3c82e13f3636e47ca37f",
+    "demos/ui-entrance/research-card-stack-scroll/ResearchCardStackScroll.tsx": "ec689bd84f40591083e9bb6edc8a2f6e53cad80f1bffea96594ca096efa559eb",
+    "demos/ui-entrance/floating-glossy-label-pills/FloatingGlossyLabelPills.tsx": "c4040b07fc5edece680c22cd49abbb7362c253e4ef8dd5a78158e7c04a6a8c7c",
+    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1"
+  },
+  "evidence": [
+    {
+      "card": "ui-entrance/card-stack",
+      "aspect": "16:9",
+      "file": "template/out/card-business-text-batch017-v2/case-0-landscape.mp4",
+      "sha256": "493c41a4e9de0c74e4c1be9db7ba5972a0ca546658de389ef907d595e0662c2f",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/card-stack",
+      "aspect": "9:16",
+      "file": "template/out/card-business-text-batch017-v2/case-0-portrait.mp4",
+      "sha256": "19be9f96df52e126ad3c27edceea304d7459abacfcbf73b27a6abfac03a205db",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/carousel-3d",
+      "aspect": "16:9",
+      "file": "template/out/card-business-text-batch017-v2/case-1-landscape.mp4",
+      "sha256": "bc48bf23bf9897572e6f7e76ae259e12034157b3e22beae71c779cf5aecc84e0",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/carousel-3d",
+      "aspect": "9:16",
+      "file": "template/out/card-business-text-batch017-v2/case-1-portrait.mp4",
+      "sha256": "dfefce8758b2d6971b2327614a15561dcb785fbe99a1884790bb530feef326ca",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/research-card-stack-scroll",
+      "aspect": "16:9",
+      "file": "template/out/card-business-text-batch017-v2/case-2-landscape.mp4",
+      "sha256": "12cfcb2fa27e32730d291572f1ad4e3559f805d64c4e82f1350ddcb6d61dfd59",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/research-card-stack-scroll",
+      "aspect": "9:16",
+      "file": "template/out/card-business-text-batch017-v2/case-2-portrait.mp4",
+      "sha256": "76d5c01e07f2426691d251e142aae6e7637036783bd15775b3417d363da1a138",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/floating-glossy-label-pills",
+      "aspect": "16:9",
+      "file": "template/out/card-business-text-batch017-v2/case-3-landscape.mp4",
+      "sha256": "e28d99666c77ebc2a8ad510cf6ec21af8a5032d5bf60378f6d42011f8b993e0c",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "ui-entrance/floating-glossy-label-pills",
+      "aspect": "9:16",
+      "file": "template/out/card-business-text-batch017-v2/case-3-portrait.mp4",
+      "sha256": "87caf751a32f9caf671f7cf897ad0a01e41cc4af9a2c7d46b41f0f5ad4307809",
+      "fullDecodePassed": true
+    }
+  ]
+}

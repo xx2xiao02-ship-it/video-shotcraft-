@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="835" viewBox="0 0 1280 835">
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#50616f"/></marker>
+  <style>
+    text{font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;fill:#18232b}
+    .title{font-size:26px;font-weight:700}.sub{font-size:15px;fill:#52616c}.label{font-size:16px;font-weight:700}.small{font-size:13px}.tiny{font-size:12px}.onDark{fill:#fff}
+    .box{fill:#fff;stroke:#b7c5cd;stroke-width:1.5;rx:6}.line{stroke:#50616f;stroke-width:2;fill:none;marker-end:url(#arrow)}
+  </style>
+</defs>
+<rect width="1280" height="800" fill="#f3f6f5"/>
+<text class="title" x="44" y="48">数字人按镜头时间裁音频与合成 · 待审核</text>
+<text class="sub" x="44" y="77">60 秒主 TTS，30 fps，共 1800 帧；5 个分散人物镜头 = 5 个素材，相邻两镜可合为 1 个生成单元</text>
+
+<rect class="box" x="44" y="104" width="360" height="76"/>
+<text class="label" x="65" y="134">最终版完整 TTS</text><text class="small" x="65" y="158">同一条主音频，作为全片唯一口播音轨</text>
+<rect class="box" x="460" y="104" width="405" height="76"/>
+<text class="label" x="481" y="134">已确认的镜头级时间表</text><text class="small" x="481" y="158">对齐实际 TTS · 镜头 ID + [起帧, 止帧)</text>
+<path class="line" d="M404 142H460"/>
+<rect x="912" y="104" width="324" height="76" rx="6" fill="#fff3df" stroke="#d5932d" stroke-width="1.5"/>
+<text class="label" x="932" y="134">当前缺口</text><text class="small" x="932" y="158">现代码按句段推时，未消费确认切点</text>
+
+<text class="label" x="44" y="221">全片镜头轴</text><text class="small" x="164" y="221">以下时间仅为流程示意，不代表实际任务切点</text>
+<g>
+  <rect x="44" y="239" width="1192" height="56" rx="5" fill="#dde7e5"/>
+  <rect x="44" y="239" width="139" height="56" fill="#168174"/><rect x="263" y="239" width="139" height="56" fill="#168174"/>
+  <rect x="521" y="239" width="139" height="56" fill="#168174"/><rect x="779" y="239" width="139" height="56" fill="#168174"/>
+  <rect x="1037" y="239" width="139" height="56" fill="#168174"/>
+  <text class="small onDark" x="89" y="272">人物 ①</text><text class="small onDark" x="308" y="272">人物 ②</text>
+  <text class="small onDark" x="566" y="272">人物 ③</text><text class="small onDark" x="824" y="272">人物 ④</text>
+  <text class="small onDark" x="1082" y="272">人物 ⑤</text>
+  <text class="tiny" x="190" y="272">图解</text><text class="tiny" x="410" y="272">素材</text><text class="tiny" x="675" y="272">图解</text><text class="tiny" x="932" y="272">素材</text>
+  <text class="tiny" x="44" y="318">0s</text><text class="tiny" x="1205" y="318">60s</text>
+</g>
+
+<path class="line" d="M650 324V351"/>
+<rect class="box" x="44" y="352" width="1192" height="75"/>
+<text class="label" x="65" y="381">仅筛选 person 镜头</text>
+<text class="small" x="65" y="405">相邻且帧段无缝的人物镜头合为一组；每组裁 1 段 TTS、选 1 张形象图；非人物镜头截断连续组</text>
+
+<g>
+  <path class="line" d="M145 427V465"/><path class="line" d="M383 427V465"/><path class="line" d="M621 427V465"/>
+  <path class="line" d="M859 427V465"/><path class="line" d="M1097 427V465"/>
+  <rect class="box" x="44" y="466" width="202" height="111"/><rect class="box" x="282" y="466" width="202" height="111"/>
+  <rect class="box" x="520" y="466" width="202" height="111"/><rect class="box" x="758" y="466" width="202" height="111"/>
+  <rect class="box" x="996" y="466" width="202" height="111"/>
+  <text class="label" x="65" y="495">镜头 ①</text><text class="label" x="303" y="495">镜头 ②</text><text class="label" x="541" y="495">镜头 ③</text>
+  <text class="label" x="779" y="495">镜头 ④</text><text class="label" x="1017" y="495">镜头 ⑤</text>
+  <text class="small" x="65" y="521">音频 ① + 图片 A</text><text class="small" x="303" y="521">音频 ② + 图片 C</text><text class="small" x="541" y="521">音频 ③ + 图片 B</text>
+  <text class="small" x="779" y="521">音频 ④ + 图片 A</text><text class="small" x="1017" y="521">音频 ⑤ + 图片 C</text>
+  <text class="small" x="65" y="549">→ 视频素材 ①</text><text class="small" x="303" y="549">→ 视频素材 ②</text><text class="small" x="541" y="549">→ 视频素材 ③</text>
+  <text class="small" x="779" y="549">→ 视频素材 ④</text><text class="small" x="1017" y="549">→ 视频素材 ⑤</text>
+</g>
+<text class="small" x="44" y="606">图中 5 镜彼此分散，故为 5 次合成；相邻两镜合并时变为 4 次。每组保存原镜头 ID、图片索引、任务 ID 和时长。</text>
+<rect x="44" y="619" width="1192" height="34" rx="5" fill="#d9eee8"/>
+<text class="small" x="65" y="641">相邻示例：人物镜头 A [0,120) + 人物镜头 B [120,240) → 裁一段 [0,240) TTS + 选一张图 → 只合成一次</text>
+<path class="line" d="M621 654V671"/>
+<rect x="44" y="672" width="1192" height="100" rx="6" fill="#e9eef7" stroke="#7b8eb1" stroke-width="1.5"/>
+<text class="label" x="65" y="703">回填同一时间线 → 最终成片</text>
+<text class="small" x="65" y="731">人物镜头放对应数字人视频；图解/素材镜头用各自画面；数字人视频静音，完整 TTS 只播放一次。</text>
+<text class="small" x="65" y="754">审核通过后：接通合成 → 分散/相邻两类离线 Mock → 边界/单音轨/播放 QA → 真实服务另行验证。</text>
+<text class="tiny" x="44" y="803">现状：已有按句段推导后裁 WAV、连续人物合并及独立 MP4；精确镜头时间锚与最终回填合成仍待实现。</text>
+</svg>
