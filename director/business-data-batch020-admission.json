@@ -1,0 +1,162 @@
+{
+  "schema": "business-data-card-admission-v1",
+  "version": 1,
+  "review": "passed",
+  "localVisualReview": "passed-encoded-mp4-frames",
+  "userVisualAcceptance": "pending",
+  "actualModelValidated": false,
+  "productionAdmission": "not-recorded",
+  "reviewer": "Codex: batch 20 exact transition registrations, real structured props, 16 encoded MP4 cases",
+  "scope": "8 transition cards, 16 landscape/portrait cases, 180 frames at 30fps; paid model, production execution and user acceptance remain pending",
+  "cards": [
+    "transition/bottom-push-stack-wipe",
+    "transition/bubble-swarm-takeover",
+    "transition/card-flip-reveal",
+    "transition/card-flock-tumble",
+    "transition/circle-match-iris",
+    "transition/color-block-step-wipe",
+    "transition/gradient-transition",
+    "transition/line-carry-transition"
+  ],
+  "fixtureFile": "template/fixtures/card-business-transition-batch020-v1.json",
+  "fixtureSha256": "90503164a4e4bc3e52d2b380218a0e7a1aff849ed055f9ec979bdc3c5a1c9173",
+  "report": "template/out/card-business-transition-batch020-v1/acceptance.json",
+  "reportSha256": "b48d9326674faba498d0d028b57ff98e69775f1c65ba6695fe33e4f483890458",
+  "sourceHashes": {
+    "template/fixtures/card-business-transition-batch020-v1.json": "90503164a4e4bc3e52d2b380218a0e7a1aff849ed055f9ec979bdc3c5a1c9173",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/TemplateAdapter.tsx": "01ef82ae04b157225e6e4a9606e61a3abb83afe6d71f47b53553a59a2805beda",
+    "director/a-mode-run.mjs": "ef39207acabeb0f407543b19cc0ec17687c1b53510781649df25f60282135710",
+    "director/graphic-contracts.mjs": "7228e39d30777951195c2180461d43305f88652bfcc717461525d75b144c292a",
+    "director/card-source-audit.mjs": "20e1015930a0609b2a5e17852a077f08c8fdee5d6e5d8944c3e5aa10e49385ec",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/transition/bottom-push-stack-wipe/BottomPushStackWipe.tsx": "9e5dba246e6c164a2d4baac61b06829ef670f8803caea1718a2de9d73e615b8d",
+    "demos/transition/bubble-swarm-takeover/BubbleSwarmTakeover.tsx": "c58dcddf0eaf11458ab982eaa4ea3dddfa8e0637e9779bbcf17a53f98cd5a0c5",
+    "demos/transition/card-flip-reveal/CardFlipReveal.tsx": "dfd66ca9bcff71826cda2c4a682875007a6d0ea6f190d7957a4738b4d6c457a7",
+    "demos/transition/card-flock-tumble/CardFlockTumble.tsx": "d0a065a6e0b21a2c921da4d973e726bb23bee4707369b8096fb581117bfc8078",
+    "demos/transition/circle-match-iris/CircleMatchIris.tsx": "54a8cf98c027d9292118b86892338818e784f031c8abe7d94b9612f4dad8790e",
+    "demos/transition/color-block-step-wipe/ColorBlockStepWipe.tsx": "1287aa9979c1c5b9bd95f72eba1466ee4d607709c348be8a23532dc1a0987072",
+    "demos/transition/gradient-transition/GradientTransition.tsx": "95b9fb419dba0d10b1b0185a4dd9299bc3d914093b8ad5143be338b469f2ad56",
+    "demos/transition/line-carry-transition/LineCarryTransition.tsx": "fd24c800923e9970339d2bf8b834031657861ceec77ef3f340d4773a741ba11d",
+    "director/business-data-admission.mjs": "fbaee48763dc4432f3ed4998e7f33df0d4859b4aa085d84d5ef4f77466de69e1"
+  },
+  "evidence": [
+    {
+      "card": "transition/bottom-push-stack-wipe",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-bottom-push-stack-wipe-landscape.mp4",
+      "sha256": "d31092cb9fc0abf4f477b15bb3a8e577753feaff726bc11c617c2d01e66d08c1",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/bottom-push-stack-wipe",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-bottom-push-stack-wipe-portrait.mp4",
+      "sha256": "682aebef08e619edb15df316c4f2d749a1901305a7a1b64c67b1f5d784cefc9a",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/bubble-swarm-takeover",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-bubble-swarm-takeover-landscape.mp4",
+      "sha256": "424a10eba305bacbbb6842fe14ab9a4fe87377e477da8d23e88b1069ff04f47d",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/bubble-swarm-takeover",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-bubble-swarm-takeover-portrait.mp4",
+      "sha256": "e7e38d7f269a6d55b0e338bb0edb6955a05c8736eaaa183ee5ca43ab39e5f14c",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/card-flip-reveal",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-card-flip-reveal-landscape.mp4",
+      "sha256": "4912a81b27fd184573a135f12c08805df4430daba089e155be970e28a60f35bd",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/card-flip-reveal",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-card-flip-reveal-portrait.mp4",
+      "sha256": "17362fbcc7e9736b63fc329afadf403891b07ece11ac4564dddfa5e3e31ce04e",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/card-flock-tumble",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-card-flock-tumble-landscape.mp4",
+      "sha256": "6f6891ec5faea02f15408cadb5d329dddff10ab59c8debd2d11861efcaf756aa",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/card-flock-tumble",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-card-flock-tumble-portrait.mp4",
+      "sha256": "c3c0c8a26a8092f71803a09623573e45c97b6789526a4a5ad45d9ed6d6827c8b",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/circle-match-iris",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-circle-match-iris-landscape.mp4",
+      "sha256": "2bc0e3950348f46c84cfc988321863682a2d9e3cc5f7dfa5bc49ebe05efb70dd",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/circle-match-iris",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-circle-match-iris-portrait.mp4",
+      "sha256": "89288cedfd67023d3a2f1ff0eea6d4177955ee9c313381a9ff96d48e66606367",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/color-block-step-wipe",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-color-block-step-wipe-landscape.mp4",
+      "sha256": "e1a874f0ba0a2b7f51f647c4d179e37c1074c2df64d938334fe3e63188d64db6",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/color-block-step-wipe",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-color-block-step-wipe-portrait.mp4",
+      "sha256": "3c832f79edddce6297a86d560a4b1cd97251f6aea54c05330da52d7e3f6fb831",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/gradient-transition",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-gradient-transition-landscape.mp4",
+      "sha256": "a55c1d86d7111b4e1bdd1067f73f2c93c3e0b221197fa03d40d761791e41e882",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/gradient-transition",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-gradient-transition-portrait.mp4",
+      "sha256": "16a7305f1065cb7eaf5ceb1933483f05e12d63cc4986b9c6779b389e5c0c3841",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/line-carry-transition",
+      "aspect": "16:9",
+      "file": "template/out/card-business-transition-batch020-v1/transition-line-carry-transition-landscape.mp4",
+      "sha256": "75c49de381d15efb05cca9bff3408f5cf3f01021b7caf0f4cc353c39942d9b67",
+      "fullDecodePassed": true
+    },
+    {
+      "card": "transition/line-carry-transition",
+      "aspect": "9:16",
+      "file": "template/out/card-business-transition-batch020-v1/transition-line-carry-transition-portrait.mp4",
+      "sha256": "8f94418fad0d9f23b0e97ffe69fbc9d64e8ceb3e518da267c8c331591048d451",
+      "fullDecodePassed": true
+    }
+  ]
+}
