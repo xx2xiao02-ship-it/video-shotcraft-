@@ -1,0 +1,37 @@
+{
+  "schema": "b-mode-real-sample-submission-v1",
+  "createdAt": "2026-09-28T02:25:55.036Z",
+  "status": "submitted",
+  "billable": true,
+  "maxDigitalHumanUnits": 2,
+  "scenes": [
+    {
+      "text": "今天用一条短片验证数字人镜头的音画同步。",
+      "subject": "person"
+    },
+    {
+      "text": "相邻的人物镜头会继续使用同一段数字人素材。",
+      "subject": "person"
+    },
+    {
+      "text": "中间的图解镜头只显示信息，不调用数字人。",
+      "subject": "graphics"
+    },
+    {
+      "text": "随后人物再次出现，使用独立裁切的配音生成新素材。",
+      "subject": "person"
+    }
+  ],
+  "avatarSources": [
+    "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\assets\\avatar.png",
+    "E:\\video-shotcraft\\director\\b-mode-runs\\05d7bd6c-14db-49e6-a22f-59a7b0b01e1a\\talkcraft\\assets\\avatar.png"
+  ],
+  "localBaseUrl": "http://127.0.0.1:8776",
+  "response": {
+    "ok": true,
+    "id": 1,
+    "runId": "e9932a54-c019-4f74-8b2d-3994de1bceba",
+    "mode": "runninghub",
+    "billable": true
+  }
+}
