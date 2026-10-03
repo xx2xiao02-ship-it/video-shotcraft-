@@ -6,7 +6,8 @@
 // ③ 尺寸/字号/位置按截图量取：卡 x=106 宽 940，词右对齐至 x≈1710，
 //    Didot 系衬线 116px，"Computer" 固定第一行，动词第二行原位灰化淡出换词。
 import React from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 const mulberry32 = (a: number) => () => {
   let t = (a += 0x6d2b79f5);
@@ -203,42 +204,62 @@ const CARDS: React.FC<{ seed: number }>[] = [
   () => <LightPortfolio />,
 ];
 
+const RealScreen: React.FC<{ src: string }> = ({ src }) => (
+  <Img
+    src={staticFile(src)}
+    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+  />
+);
+
 const DEFAULT_WORDS = ['researches', 'builds', 'codes'];
-// 切词窗口：第一个词入场 f14–30；换词 f62–78、f108–124
-const SWITCHES = [14, 62, 108];
 const SW_DUR = 16;
 const SERIF = '"Didot", "Bodoni 72", "Playfair Display", Georgia, serif';
 
-export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) => {
+export const WordRelayFilmstrip: React.FC<{ words?: string[]; screens?: string[]; skin?: TemplateSkin; durationInFrames?: number }> = ({ words, screens, skin, durationInFrames }) => {
   const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
+  const { width, height } = useVideoConfig();
+  const portrait = height > width;
+  const layoutScale = portrait ? Math.min(1, (width - 72) / CARD_W) : 1;
+  const cardWidth = CARD_W * layoutScale;
+  const cardHeight = CARD_H * layoutScale;
+  const cardStep = STEP * layoutScale;
+  const cardBaseTop = portrait ? 150 : 275;
+  const wordTop = portrait ? height - 440 : 402;
+  // Keep a complete page card above the word block in portrait mode. Limiting
+  // only the card top lets the card body slide underneath the words.
+  const cardBottom = portrait ? wordTop - cardHeight - 36 : 1200;
+  const total = Math.max(1, durationInFrames || 168);
+  const scale = total / 168;
+  const swDur = Math.max(1, Math.round(SW_DUR * scale));
+  const SWITCHES = WORDS.map((_, i) => Math.round((14 + i * (WORDS.length > 3 ? 42 : 47)) * scale));
   const frame = useCurrentFrame();
 
   // —— 滚动步进：平时静止，仅在切词窗口内滚一格（ease-in-out）——
   let stepF = 0;
   SWITCHES.forEach((s) => {
-    const p = interpolate(frame, [s, s + SW_DUR], [0, 1], {
+    const p = interpolate(frame, [s, s + swDur], [0, 1], {
       extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     });
     // easeInOutCubic
     stepF += p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
   });
-  const scroll = stepF * STEP;
+  const scroll = stepF * cardStep;
 
   // 卡片布局：中心卡顶 y=275，向两侧铺开；黑白相间
-  const total = CARDS.length * STEP;
+  const cardTotal = CARDS.length * cardStep;
   const cards: React.ReactNode[] = [];
   for (let rep = -1; rep < 2; rep++) {
     CARDS.forEach((C, i) => {
-      const y = 275 + i * STEP + rep * total - scroll;
-      if (y > 1200 || y < -CARD_H - 120) return;
+      const y = cardBaseTop + i * cardStep + rep * cardTotal - scroll;
+      if (y > cardBottom || y < -cardHeight - 120) return;
       cards.push(
         <div key={`${rep}-${i}`} style={{
-          position: 'absolute', top: y, left: 106, width: CARD_W, height: CARD_H,
+          position: 'absolute', top: y, left: portrait ? (width - cardWidth) / 2 : 106, width: cardWidth, height: cardHeight,
           borderRadius: 12, overflow: 'hidden',
           boxShadow: '0 12px 40px rgba(30,26,20,0.14)',
           border: '1px solid rgba(0,0,0,0.06)', background: '#fff',
         }}>
-          <C seed={(i + 1) * 733} />
+          {screens?.length ? <RealScreen src={screens[i % screens.length]} /> : <C seed={(i + 1) * 733} />}
         </div>,
       );
     });
@@ -246,8 +267,8 @@ export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) =>
 
   // —— 右侧词接力：原位交叉淡（旧词灰化淡出，新词淡入，不位移）——
   const wordStyle: React.CSSProperties = {
-    fontFamily: SERIF, fontWeight: 400, fontSize: 116, lineHeight: 1.18,
-    letterSpacing: '0.002em', textAlign: 'right', whiteSpace: 'nowrap',
+    fontFamily: SERIF, fontWeight: 400, fontSize: portrait ? 88 : 116, lineHeight: 1.18,
+    letterSpacing: '0.002em', textAlign: portrait ? 'center' : 'right', whiteSpace: 'nowrap',
   };
   // 每个词的生命周期：入场淡入（黑）→ 常驻黑 → 下个切点前 14 帧灰化
   //（截图 4/6 捕捉到的就是"旧词已灰、新词未现"的状态）→ 切点起淡出。
@@ -256,11 +277,11 @@ export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) =>
     const sIn = SWITCHES[i];
     const sOut = i + 1 < SWITCHES.length ? SWITCHES[i + 1] : null;
     // 新词后半窗口淡入（避免与旧词叠影）
-    const pIn = interpolate(frame, [sIn + 7, sIn + SW_DUR], [0, 1], {
+    const pIn = interpolate(frame, [sIn + Math.round(7 * scale), sIn + swDur], [0, 1], {
       extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     });
     if (i === 0 ? frame < sIn : pIn <= 0) return null;
-    const pInEff = i === 0 ? interpolate(frame, [sIn, sIn + 12], [0, 1], {
+    const pInEff = i === 0 ? interpolate(frame, [sIn, sIn + Math.round(12 * scale)], [0, 1], {
       extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     }) : pIn;
     // 灰化：切点前 14 帧开始，切点时已全灰
@@ -277,8 +298,8 @@ export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) =>
     const ch = Math.round(0x19 + (0x9d - 0x19) * mix);
     return (
       <div key={w} style={{
-        ...wordStyle, position: 'absolute', right: 0, top: 0,
-        color: `rgb(${ch},${Math.round(0x19 + (0x98 - 0x19) * mix)},${Math.round(0x19 + (0x8e - 0x19) * mix)})`,
+        ...wordStyle, position: 'absolute', ...(portrait ? { left: 0, right: 0 } : { right: 0 }), top: 0,
+      color: skin?.text || `rgb(${ch},${Math.round(0x19 + (0x98 - 0x19) * mix)},${Math.round(0x19 + (0x8e - 0x19) * mix)})`,
         opacity: op,
       }}>
         {w}
@@ -287,13 +308,15 @@ export const WordRelayFilmstrip: React.FC<{ words?: string[] }> = ({ words }) =>
   });
 
   return (
-    <AbsoluteFill style={{ background: '#faf8f3' }}>
+    <AbsoluteFill style={{ background: skinBackground(skin, '#faf8f3') }}>
       <div style={{ position: 'absolute', inset: 0 }}>{cards}</div>
       {/* 右侧词组：Computer 固定第一行，动词第二行原位换词。
           v3：块总高≈137(Computer 行)+140(词行容器)=277，垂直中心须对齐
           当前页面卡中点 y=540（卡顶 275 + 卡高 530/2）→ top=540-277/2≈402 */}
-      <div style={{ position: 'absolute', right: 210, top: 402 }}>
-        <div style={{ ...wordStyle, color: '#191919' }}>Computer</div>
+      <div style={portrait
+        ? { position: 'absolute', left: 0, top: wordTop, width: '100%', textAlign: 'center' }
+        : { position: 'absolute', right: 210, top: wordTop }}>
+        <div style={{ ...wordStyle, color: skin?.text || '#191919' }}>Computer</div>
         <div style={{ position: 'relative', height: 140 }}>{wordNodes}</div>
       </div>
     </AbsoluteFill>

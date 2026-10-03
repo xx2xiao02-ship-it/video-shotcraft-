@@ -9,6 +9,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const FLOATING_GLOSSY_LABEL_PILLS_DURATION = 120; // 4000ms @30fps
 
@@ -172,6 +173,7 @@ const GROUPS: { txt: string; Body: React.FC }[] = [
   { txt: 'Feature C', Body: BTable },
   { txt: 'Feature D', Body: BForm },
 ];
+const DEFAULT_LABELS = GROUPS.map(group => group.txt);
 
 // 雾块静态参数（位置 / 颜色）
 const FOGS = [
@@ -188,7 +190,7 @@ const BEATS = [
   { b: 0.688, d: 0.150, tail: 0 },    // 第 3 位 → 第 4 位
 ];
 
-export const FloatingGlossyLabelPills: React.FC = () => {
+export const FloatingGlossyLabelPills: React.FC<{labels?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({labels = DEFAULT_LABELS, skin}) => {
   const t = useT();
   // 开场有上一拍的收尾余量：t=0 时轨道偏左 11px，t≈0.19 归位
   let trackX = -11 * (1 - seg(t, 0, 0.19, E.outQuart));
@@ -198,12 +200,13 @@ export const FloatingGlossyLabelPills: React.FC = () => {
       : seg(t, B.b, B.b + B.d, E.inOutCubic);
     trackX += p * SP;
   }
-  const N = GROUPS.length, RING = N * SP;
+  const groups = GROUPS.map((group, index) => ({...group, txt: labels[index] ?? group.txt}));
+  const N = groups.length, RING = N * SP;
   // 光标：t≈0.717 于右上（x≈403,y≈36）一帧硬现，减速斜滑向左下，
   // t≈0.90 抵达末位胶囊右端附近（x≈281,y≈56）后几乎静止
   const cp = seg(t, 0.717, 0.90, E.outQuart);
   return (
-    <DesignStage bg="#fbfbfc">
+    <DesignStage bg={skinBackground(skin, '#fbfbfc')}>
       <div
         style={{
           position: 'absolute',
@@ -233,7 +236,7 @@ export const FloatingGlossyLabelPills: React.FC = () => {
           />
         ))}
 
-        {GROUPS.map(({ txt, Body }, i) => {
+        {groups.map(({ txt, Body }, i) => {
           // 环形轨道：面板绕 4 位循环，保证任一拍都有左右邻居各露一截在画面边缘
           let wx = trackX - i * SP;
           wx = ((wx % RING) + RING * 1.5) % RING - RING / 2;

@@ -3,14 +3,17 @@
 // 入框放大清晰、出框缩小淡化，角色标签同步更换，两侧文字不动。
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
+import { Img, staticFile, useCurrentFrame } from 'remotion';
 import { DesignStage, E, seg, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const AVATAR_BRACKET_CAROUSEL_DURATION = 156; // 5200ms @30fps
 
 const ACCENT = '#3b82f6';
 
 // 头像底色走中性灰阶梯度（仅用于区分队列项），强调色只留在对焦框上
-const AV = [
+type AvatarItem = {src?: string; role: string; c?: string; e?: string};
+const DEFAULT_AV: AvatarItem[] = [
   { c: '#4a4d59', e: '🎨', role: 'Designer' },
   { c: '#5b6070', e: '💬', role: 'Support' },
   { c: '#6d7383', e: '📊', role: 'Analyst' },
@@ -23,8 +26,15 @@ const CORNERS = ['M4,26 L4,4 L26,4', 'M66,4 L88,4 L88,26', 'M88,66 L88,88 L66,88
 const STEP = 76;
 const SWITCHES = [0.24, 0.46, 0.68]; // 三次切换起点
 
-export const AvatarBracketCarousel: React.FC = () => {
-  const t = useT();
+export const AvatarBracketCarousel: React.FC<{avatars?: Array<{src: string; role: string}>; durationInFrames?: number; skin?: TemplateSkin}> = ({avatars, durationInFrames, skin}) => {
+  const frame = useCurrentFrame();
+  const normalizedT = useT();
+  const t = durationInFrames ? Math.min(1, frame / Math.max(1, durationInFrames - 1)) : normalizedT;
+  const AV: AvatarItem[] = avatars?.length
+    ? avatars.map((avatar, index) => ({...avatar, c: DEFAULT_AV[index % DEFAULT_AV.length].c, e: DEFAULT_AV[index % DEFAULT_AV.length].e}))
+    : DEFAULT_AV;
+  const switchCount = Math.max(1, AV.length - 1);
+  const SWITCHES = Array.from({length: switchCount}, (_, i) => 0.2 + i * (0.55 / Math.max(1, switchCount - 1)));
 
   // 三次切换：0.24 / 0.46 / 0.68，spring 手感
   let pos = 0;
@@ -39,12 +49,12 @@ export const AvatarBracketCarousel: React.FC = () => {
   });
 
   return (
-    <DesignStage bg="#0b0c12">
+    <DesignStage bg={skinBackground(skin, '#0b0c12')}>
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: '#0b0c12',
+          background: skinBackground(skin, '#0b0c12'),
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
@@ -82,8 +92,8 @@ export const AvatarBracketCarousel: React.FC = () => {
                     opacity: op * seg(t, 0.02 + k * 0.03, 0.12 + k * 0.03),
                     filter: `blur(${Math.min(3, d * 2.4)}px)`,
                   }}
-                >
-                  {a.e}
+                  >
+                  {a.src ? <Img src={staticFile(a.src)} style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%'}} /> : a.e}
                 </div>
               );
             })}
@@ -99,7 +109,7 @@ export const AvatarBracketCarousel: React.FC = () => {
           >
             <svg width={92} height={92} viewBox="0 0 92 92">
               {CORNERS.map((d, i) => (
-                <path key={i} d={d} fill="none" stroke={ACCENT} strokeWidth={4} strokeLinecap="round" />
+                <path key={i} d={d} fill="none" stroke={skin?.accent || ACCENT} strokeWidth={4} strokeLinecap="round" />
               ))}
             </svg>
           </div>

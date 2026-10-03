@@ -10,6 +10,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const CW = 560;
 const CH = 380;
@@ -17,7 +19,7 @@ const CX = (1920 - CW) / 2; // 680
 const CY = (1080 - CH) / 2; // 350
 const PEN = 0.045; // 笔头 dash 长度（占整圈比例）
 
-export const DrawSvgTrace: React.FC = () => {
+export const DrawSvgTrace: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // 轮廓描边进度：8–48，40f，inOut cubic
@@ -39,7 +41,7 @@ export const DrawSvgTrace: React.FC = () => {
   });
   const flash = frame < 50 ? flashUp : flashDown;
   const strokeW = 4 + flash * 4;
-  const strokeColor = flash > 0.5 ? '#000000' : G.ink;
+  const strokeColor = skin ? flash > .5 ? skin.text : skin.accent : flash > 0.5 ? '#000000' : G.ink;
 
   // 内容淡入：48–56（8f）
   const contentOp = interpolate(frame, [48, 56], [0, 1], {
@@ -67,10 +69,10 @@ export const DrawSvgTrace: React.FC = () => {
   const upenOp = up > 0.03 && up < 0.97 ? 1 : 0;
   const UW = 300; // 下划线长度
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="DRAW SVG TRACE" size={54} />
+        {skin ? <div style={{fontFamily:skin.fontFamily,fontSize:54,fontWeight:800,color:skin.text}}>{words?.[0]}</div> : <TitleBlock text="DRAW SVG TRACE" size={54} />}
       </div>
 
       {/* 卡片内容（手写灰阶块：标题条/下划线位/文字行/头像行），闭合后 8f 淡入 */}
@@ -82,7 +84,7 @@ export const DrawSvgTrace: React.FC = () => {
           width: CW,
           height: CH,
           borderRadius: 14,
-          background: G.card,
+          background: skin?.surface || G.card,
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
           padding: 32,
           boxSizing: 'border-box',
@@ -92,6 +94,10 @@ export const DrawSvgTrace: React.FC = () => {
           opacity: contentOp,
         }}
       >
+        {skin ? <>
+          <div style={{height:56,flexShrink:0,marginBottom:12,fontFamily:skin.fontFamily,fontSize:44,lineHeight:1.2,fontWeight:800,color:skin.text}}>{words?.[1]}</div>
+          {words?.slice(2).map((word,i)=><div key={i} style={{fontFamily:skin.fontFamily,fontSize:32,lineHeight:1.2,color:skin.text}}>{word}</div>)}
+        </> : <>
         <div style={{ height: 24, width: 340, background: G.bar, borderRadius: 10 }} />
         {/* 下划线占位：由下方 SVG 画出，这里留 6px 空隙 */}
         <div style={{ height: 6 }} />
@@ -102,6 +108,7 @@ export const DrawSvgTrace: React.FC = () => {
           <div style={{ width: 34, height: 34, borderRadius: 17, background: G.mid }} />
           <div style={{ height: 12, width: 96, background: G.line, borderRadius: 6 }} />
         </div>
+        </>}
       </div>
 
       {/* 卡片自身 border：描边淡出时接棒 */}
@@ -113,7 +120,7 @@ export const DrawSvgTrace: React.FC = () => {
           width: CW,
           height: CH,
           borderRadius: 14,
-          border: `2px solid ${G.border}`,
+          border: `2px solid ${skin?.muted || G.border}`,
           boxSizing: 'border-box',
           opacity: borderOp,
         }}
@@ -148,7 +155,7 @@ export const DrawSvgTrace: React.FC = () => {
               height={CH - 2}
               rx={14}
               fill="none"
-              stroke={G.ink}
+              stroke={skin?.accent || G.ink}
               strokeWidth={7}
               pathLength={1}
               strokeDasharray={`${PEN} ${1 - PEN}`}
@@ -164,14 +171,14 @@ export const DrawSvgTrace: React.FC = () => {
         <svg
           width={UW}
           height={8}
-          style={{ position: 'absolute', left: CX + 32, top: CY + 32 + 24 + 10, overflow: 'visible' }}
+          style={{ position: 'absolute', left: CX + 32, top: CY + 32 + (skin ? 56 : 24) + 10, overflow: 'visible' }}
         >
           <line
             x1={0}
             y1={4}
             x2={UW}
             y2={4}
-            stroke={G.ink}
+            stroke={skin?.accent || G.ink}
             strokeWidth={4}
             pathLength={1}
             strokeDasharray="1"
@@ -184,7 +191,7 @@ export const DrawSvgTrace: React.FC = () => {
               y1={4}
               x2={UW}
               y2={4}
-              stroke={G.ink}
+              stroke={skin?.accent || G.ink}
               strokeWidth={7}
               pathLength={1}
               strokeDasharray={`${PEN * 2} ${1 - PEN * 2}`}
@@ -196,4 +203,5 @@ export const DrawSvgTrace: React.FC = () => {
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

@@ -11,8 +11,9 @@
 // 短视频放到项目的 public/clips/clipcard-demo.mp4（建议 30fps、方形）。
 // 三个场景共用同一段素材,但用不同参数驱动,方便对照回放。
 import React from 'react';
-import { AbsoluteFill, Sequence } from 'remotion';
+import { AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
 import { ClipCard } from '../../../assets/lib/ClipCard';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const CLIPCARD_LOOPING_DURATION = 120; // 4s @30fps
 const CLIP = 'clips/clipcard-demo.mp4';
@@ -22,18 +23,20 @@ export const ClipCardLooping: React.FC<{
   src?: string;
   caption?: string;
   durationInFrames?: number;
-}> = ({ src, caption, durationInFrames }) => {
+  playbackRate?: number;
+  skin?: TemplateSkin;
+}> = ({ src, caption, durationInFrames, playbackRate = 1, skin }) => {
+  const {width, height} = useVideoConfig();
   if (src) {
     const d = durationInFrames || 120;
     return (
-      <AbsoluteFill style={{ background: '#0b0b0f', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <AbsoluteFill style={{ background: skinBackground(skin, '#0b0b0f'), display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <ClipCard
           src={src}
           muted
-          loopDurationInFrames={Math.max(30, Math.min(60, Math.round(d * 0.5)))}
-          loopCrossfadeInFrames={10}
+          playbackRate={playbackRate}
           durationInFrames={d}
-          size={Math.max(360, Math.min(640, Math.round(d * 4.2)))}
+          size={height > width ? Math.round(width * 0.78) : Math.max(360, Math.min(640, Math.round(d * 4.2)))}
           caption={caption || ''}
           captionSize={Math.min(22, Math.max(14, Math.round(d / 8)))}
         />

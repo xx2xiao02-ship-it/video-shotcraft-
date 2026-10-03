@@ -5,6 +5,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const W = 1920;
 const CARD_W = 380;
@@ -35,7 +37,7 @@ const posAt = (f: number, start: number, targetX: number): number =>
     extrapolateRight: 'clamp',
   });
 
-const FlyCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
+const FlyCard: React.FC<{ i: number; frame: number; label?:string;skin?:TemplateSkin }> = ({ i, frame,label,skin }) => {
   const start = FIRST + i * STAGGER;
   const targetX = ROW_X0 + i * (CARD_W + GAP);
   const land = start + FLIGHT;
@@ -71,22 +73,25 @@ const FlyCard: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
         transformOrigin: '100% 50%',
       }}
     >
-      <Card w={CARD_W} h={CARD_H} seed={i + 1} />
+      {skin ? <div style={{width:CARD_W,height:CARD_H,boxSizing:'border-box',background:skin.surface,border:`2px solid ${skin.muted}`,
+        borderRadius:8,display:'flex',flexDirection:'column',justifyContent:'center',padding:32,gap:20,fontFamily:skin.fontFamily}}>
+        <div style={{fontSize:30,color:skin.muted}}>{i+1}</div><div style={{fontSize:48,fontWeight:700,color:skin.accent}}>{label}</div>
+      </div> : <Card w={CARD_W} h={CARD_H} seed={i + 1} />}
     </div>
   );
 };
 
-export const AxialStretch: React.FC = () => {
+export const AxialStretch: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const titleOp = interpolate(frame, [0, 10], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 120, width: '100%', textAlign: 'center', opacity: titleOp }}>
-        <TitleBlock text="AXIAL STRETCH" size={72} />
+        {skin ? <div style={{font:`700 72px ${skin.fontFamily}`,color:skin.text}}>{words?.[0]}</div> : <TitleBlock text="AXIAL STRETCH" size={72} />}
       </div>
       {/* 落位虚线槽，标出目标位置 */}
       {[0, 1, 2].map((i) => (
@@ -98,15 +103,16 @@ export const AxialStretch: React.FC = () => {
             top: ROW_Y,
             width: CARD_W,
             height: CARD_H,
-            border: `2px dashed ${G.bar}`,
+            border: `2px dashed ${skin?.muted || G.bar}`,
             borderRadius: 14,
             boxSizing: 'border-box',
           }}
         />
       ))}
       {[0, 1, 2].map((i) => (
-        <FlyCard key={i} i={i} frame={frame} />
+        <FlyCard key={i} i={i} frame={frame} label={words?.[i+1]} skin={skin} />
       ))}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

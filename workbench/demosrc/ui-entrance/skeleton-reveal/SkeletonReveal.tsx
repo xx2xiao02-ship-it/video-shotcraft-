@@ -11,6 +11,8 @@ import {
   spring,
   Easing,
 } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const mulberry32 = (a: number) => () => {
   let t = (a += 0x6d2b79f5);
@@ -119,10 +121,10 @@ const MSGS = [
   'Love it. Can we make it pink?',
 ];
 
-const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => number }> = ({
-  i, dev, wordAt,
+const Row: React.FC<{ i: number; dev: number; message?:string;skin?:TemplateSkin; wordAt: (w: number, n: number) => number }> = ({
+  i, dev, wordAt,message,skin,
 }) => {
-  const words = MSGS[i].split(' ');
+  const words = skin ? [...(message || '')] : MSGS[i].split(' ');
   return (
     <div style={{ position: 'relative', height: 96 }}>
       {/* 骨架层 */}
@@ -137,20 +139,20 @@ const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => 
       <div style={{ position: 'absolute', inset: 0, display: 'flex', gap: 22, opacity: dev > 0.02 ? 1 : 0 }}>
         <div
           style={{
-            width: 72, height: 72, borderRadius: 16, background: AVA[i],
-            color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 72, height: 72, borderRadius: 16, background: skin?.accent || AVA[i],
+            color: skin?.surface || 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 32, fontWeight: 800, opacity: dev,
             transform: `scale(${0.7 + 0.3 * dev})`,
           }}
         >
-          {NAMES[i][0]}
+          {skin ? i+1 : NAMES[i][0]}
         </div>
         <div style={{ flex: 1, paddingTop: 2 }}>
-          <div style={{ fontSize: 26, fontWeight: 800, color: INK, opacity: dev }}>
-            {NAMES[i]}
-            <span style={{ fontWeight: 400, fontSize: 19, color: 'var(--text-dim)', marginLeft: 12 }}>9:0{i + 1} AM</span>
+          <div style={{ fontSize: 26, fontWeight: 800, color: skin?.muted || INK, opacity: dev }}>
+            {skin ? i+1 : NAMES[i]}
+            {!skin&&<span style={{ fontWeight: 400, fontSize: 19, color: 'var(--text-dim)', marginLeft: 12 }}>9:0{i + 1} AM</span>}
           </div>
-          <div style={{ fontSize: 27, color: '#3a3a3a', marginTop: 8 }}>
+          <div style={{ fontSize: skin ? 40 : 27, color: skin?.text || '#3a3a3a', marginTop: 8 }}>
             {words.map((w, wi) => {
               const p = wordAt(wi, words.length);
               return (
@@ -158,7 +160,7 @@ const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => 
                   key={wi}
                   style={{
                     display: 'inline-block',
-                    marginRight: 9,
+                    marginRight: skin ? 0 : 9,
                     opacity: p,
                     transform: `translateY(${(1 - p) * 14}px)`,
                   }}
@@ -174,7 +176,7 @@ const Row: React.FC<{ i: number; dev: number; wordAt: (w: number, n: number) => 
   );
 };
 
-export const SkeletonReveal: React.FC = () => {
+export const SkeletonReveal: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -199,7 +201,7 @@ export const SkeletonReveal: React.FC = () => {
     });
 
   // 镜头推近
-  const zoom = interpolate(f, [66, 142], [1, 1.34], {
+  const zoom = interpolate(f, [66, 142], [1, skin ? 1.12 : 1.34], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.cubic),
   });
@@ -221,8 +223,8 @@ export const SkeletonReveal: React.FC = () => {
     });
   };
 
-  return (
-    <AbsoluteFill style={{ background: PAPER, fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,PAPER), fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', overflow: 'hidden' }}>
       {/* 第三/二拍：骨架 UI 窗口 */}
       {f >= SWAP && (
         <AbsoluteFill
@@ -234,7 +236,7 @@ export const SkeletonReveal: React.FC = () => {
           <div
             style={{
               position: 'absolute', left: 250, top: 140, width: 1420, height: 800,
-              background: '#ffffff', border: '2px solid #d8d8d6', borderRadius: 22,
+              background: skin?.surface || '#ffffff', border: `2px solid ${skin?.muted || '#d8d8d6'}`, borderRadius: 22,
               overflow: 'hidden', display: 'flex',
               boxShadow: '0 12px 40px rgba(0,0,0,0.10)',
               opacity: Math.min(1, winIn * 2),
@@ -244,19 +246,19 @@ export const SkeletonReveal: React.FC = () => {
             {/* 侧栏 */}
             <div style={{ width: 300, background: '#3a3a3a', padding: '30px 26px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: 22 }}>
               <div style={{ width: 46, height: 46, borderRadius: 12, background: '#5a5a58' }} />
-              {Array.from({ length: 7 }).map((_, i) => (
+              {skin ? words?.slice(1).map((word,i)=><div key={i} style={{color:skin.muted,fontSize:28}}>{word}</div>) : Array.from({ length: 7 }).map((_, i) => (
                 <div key={i} style={{ height: 13, width: `${55 + ((i * 37) % 40)}%`, background: '#5a5a58', borderRadius: 7 }} />
               ))}
             </div>
             {/* 主区 */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div style={{ height: 72, borderBottom: '2px solid #1a1d24', display: 'flex', alignItems: 'center', padding: '0 34px' }}>
-                <div style={{ height: 18, width: 230, background: '#d5d5d3', borderRadius: 9 }} />
+                {skin ? <div style={{color:skin.text,fontSize:36,fontWeight:700}}>{words?.[0]}</div> : <div style={{ height: 18, width: 230, background: '#d5d5d3', borderRadius: 9 }} />}
               </div>
               <div style={{ flex: 1, padding: '30px 40px', display: 'flex', flexDirection: 'column', gap: 32, overflow: 'hidden' }}>
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} style={{ transform: `translateY(${rowSlide(i)}px)`, opacity: rowSlide(i) > 500 ? 0 : 1 }}>
-                    <Row i={i} dev={devAt(i)} wordAt={wordAt(i)} />
+                    <Row i={i} dev={devAt(i)} wordAt={wordAt(i)} message={words?.[i+1]} skin={skin} />
                   </div>
                 ))}
               </div>
@@ -269,7 +271,7 @@ export const SkeletonReveal: React.FC = () => {
       {doodleVisible && (
         <AbsoluteFill
           style={{
-            background: PAPER,
+            background: skinBackground(skin,PAPER),
             opacity: 1 - doodleOut,
             transform: `scale(${1 - doodleOut * 0.14})`,
             transformOrigin: '50% 50%',
@@ -280,4 +282,5 @@ export const SkeletonReveal: React.FC = () => {
       )}
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:1920,height:1080,left:192,top:0,transform:'scale(0.8)',transformOrigin:'top left'}}>{scene}</div></BusinessTextStage> : scene;
 };

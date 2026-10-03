@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const CARD_W = 560;
 const CARD_H = 350;
@@ -96,7 +98,7 @@ const Tape: React.FC<{
   );
 };
 
-export const MaskingTapeSlap: React.FC = () => {
+export const MaskingTapeSlap: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // 卡片飘入：从上方 -120px 缓落
@@ -131,10 +133,10 @@ export const MaskingTapeSlap: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene = (
+    <div style={{ width: 1920, height: 1080, background: skin?.bg || G.bg, position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="MASKING TAPE SLAP" size={72} />
+        {words ? <div style={{fontFamily:skin?.fontFamily,color:skin?.text,fontSize:72,fontWeight:700}}>{words[0]}</div> : <TitleBlock text="MASKING TAPE SLAP" size={72} />}
       </div>
 
       <div
@@ -147,12 +149,15 @@ export const MaskingTapeSlap: React.FC = () => {
           opacity: floatOp,
         }}
       >
-        <Card
+        {words ? <div style={{width:CARD_W,height:CARD_H,boxSizing:'border-box',background:skin?.surface,border:`2px solid ${skin?.muted}`,borderRadius:16,padding:'85px 95px',boxShadow:`0 ${shOff}px ${shBlur}px rgba(0,0,0,${shAlpha})`,fontFamily:skin?.fontFamily,color:skin?.text}}>
+          <div style={{fontSize:48,lineHeight:1.25,fontWeight:800,marginBottom:18}}>{words[1]}</div>
+          {words.slice(2).map((word,i)=><div key={i} style={{fontSize:32,lineHeight:1.4}}>{word}</div>)}
+        </div> : <Card
           w={CARD_W}
           h={CARD_H}
           seed={3}
           style={{ boxShadow: `0 ${shOff}px ${shBlur}px rgba(0,0,0,${shAlpha})` }}
-        />
+        />}
       </div>
 
       {/* 两条胶带钉在卡片对角（世界坐标，卡片在其下滑动微晃） */}
@@ -160,4 +165,5 @@ export const MaskingTapeSlap: React.FC = () => {
       <Tape frame={frame} land={SLAP2} cx={CX + CARD_W - 55} cy={CY + CARD_H - 40} rot={-45} fromX={170} fromY={130} />
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

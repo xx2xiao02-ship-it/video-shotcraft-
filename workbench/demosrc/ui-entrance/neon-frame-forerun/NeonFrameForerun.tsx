@@ -5,6 +5,8 @@
 // 两头奔画、面板原地由暗转亮、背景霓虹管框群中亮尾熄。
 import React, { useId } from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const easeFall = Easing.bezier(0.5, 0.05, 0.6, 1); // 加速下落、末端软着陆
 
@@ -64,8 +66,15 @@ const Chip: React.FC<{ w: number }> = ({ w }) => (
 
 /* t = 贴落进程(0..1)。各组件按页面展示顺序（侧栏自上而下、主区自上而下）
  * 错峰从空中贴落，悬空时投同形软影（对标截图③虚影→④⑤贴合） */
-const GrayHome: React.FC<{ t?: number; words?: string[] }> = ({ t = 1, words = DEFAULT_WORDS }) => {
+const GrayHome: React.FC<{ t?: number; words?: string[];skin?:TemplateSkin }> = ({ t = 1, words = DEFAULT_WORDS,skin }) => {
   const L = (land: number, H = 72) => liftOf(t, land, H * 1.7);
+  if(skin) return <div style={{width:PW,height:PH,background:skin.surface,boxSizing:'border-box',padding:70,fontFamily:skin.fontFamily}}>
+    <FloatWrap h={L(0.26,90)}><div style={{color:skin.text,fontSize:72,fontWeight:700,marginBottom:50}}>{words[0]}</div></FloatWrap>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:34}}>{words.slice(1).map((word,i)=><FloatWrap key={i} h={L(0.42+i*0.1,76)}>
+      <div style={{height:170,display:'flex',alignItems:'center',padding:'0 36px',boxSizing:'border-box',border:`2px solid ${skin.muted}`,borderRadius:8,
+        color:skin.accent,fontSize:56,fontWeight:700}}>{word}</div>
+    </FloatWrap>)}</div>
+  </div>;
   return (
   <div style={{ width: PW, height: PH, background: '#f5f5f4', borderRadius: 6, display: 'flex', overflow: 'hidden', boxSizing: 'border-box' }}>
     <div style={{ width: 290, borderRight: `2px solid ${line}`, padding: '26px 24px', boxSizing: 'border-box' }}>
@@ -147,7 +156,7 @@ const BG_FRAMES: BgFrame[] = Array.from({ length: 18 }).map(() => ({
   skew: -14 + rng() * 10,
 }));
 
-export const NeonFrameForerun: React.FC<{ words?: string[] }> = ({ words }) => {
+export const NeonFrameForerun: React.FC<{ words?: string[];skin?:TemplateSkin;durationInFrames?:number }> = ({ words,skin }) => {
   const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const frame = useCurrentFrame();
   // 滤镜/渐变 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
@@ -189,8 +198,8 @@ export const NeonFrameForerun: React.FC<{ words?: string[] }> = ({ words }) => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   });
 
-  return (
-    <AbsoluteFill style={{ background: '#060509', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,'#060509'), overflow: 'hidden' }}>
       {/* 背景霓虹管框群 */}
       <svg width={1920} height={1080} style={{ position: 'absolute' }}>
         <defs>
@@ -220,7 +229,7 @@ export const NeonFrameForerun: React.FC<{ words?: string[] }> = ({ words }) => {
         }}>
           {/* 面板：原地由暗转亮（无位移缩放） */}
           <div style={{ opacity: trace > 0.55 ? 1 : 0, filter: `brightness(${Math.max(0.05, lit)})` }}>
-            <GrayHome t={drop} words={WORDS} />
+            <GrayHome t={drop} words={WORDS} skin={skin} />
             {/* 未点亮时的冷色压暗罩 */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 6,
@@ -280,4 +289,5 @@ export const NeonFrameForerun: React.FC<{ words?: string[] }> = ({ words }) => {
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

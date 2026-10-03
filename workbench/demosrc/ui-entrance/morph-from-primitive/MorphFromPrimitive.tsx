@@ -4,6 +4,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_WORDS = ['Card Title', 'Body line one here', 'Body line two here'];
 
@@ -128,7 +130,7 @@ const morphPath = (t: number): string => {
 // ---- 时间轴（30fps，总 140f）----
 // 0–10 静置圆 | 10–30 呼吸一拍 scale 1→1.06→1 | 30–54 变形 24f
 // | 56–68 内容条淡入 12f | 68–140 真静止 72f
-export const MorphFromPrimitive: React.FC<{ words?: string[] }> = ({ words }) => {
+export const MorphFromPrimitive: React.FC<{ words?: string[]; skin?:TemplateSkin; durationInFrames?:number }> = ({ words,skin }) => {
   const WORDS = words && words.length > 0 ? words : DEFAULT_WORDS;
   const frame = useCurrentFrame();
 
@@ -152,8 +154,8 @@ export const MorphFromPrimitive: React.FC<{ words?: string[] }> = ({ words }) =>
 
   const d = morphPath(t);
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative',fontFamily:skin?.fontFamily }}>
       <svg
         width={1920}
         height={1080}
@@ -161,7 +163,7 @@ export const MorphFromPrimitive: React.FC<{ words?: string[] }> = ({ words }) =>
         style={{ position: 'absolute', inset: 0 }}
       >
         <g transform={`translate(${CX} ${CY}) scale(${breath}) translate(${-CX} ${-CY})`}>
-          <path d={d} fill="none" stroke={G.ink} strokeWidth={3} />
+          <path d={d} fill={skin?.surface || 'none'} stroke={skin?.accent || G.ink} strokeWidth={3} />
         </g>
       </svg>
       {/* 卡片内容条（参考 line-boil 描边卡内容），变形完成后淡入 */}
@@ -180,15 +182,16 @@ export const MorphFromPrimitive: React.FC<{ words?: string[] }> = ({ words }) =>
           opacity: contentOpacity,
         }}
       >
-        <div style={{ height: 26, width: '58%', color: G.ink, fontWeight: 700, fontSize: 26, lineHeight: 1 }}>{WORDS[0]}</div>
+        <div style={{ height: skin ? 48 : 26, width: skin ? '100%' : '58%', color: skin?.text || G.ink, fontWeight: 700, fontSize: skin ? 40 : 26, lineHeight: 1 }}>{WORDS[0]}</div>
         {WORDS.slice(1).map((w, i) => (
-          <div key={i} style={{ height: 16, width: '72%', color: G.line, fontSize: 16, lineHeight: 1 }}>{w}</div>
+          <div key={i} style={{ height: skin ? 36 : 16, width: skin ? '100%' : '72%', color: skin?.muted || G.line, fontSize: skin ? 30 : 16, lineHeight: 1 }}>{w}</div>
         ))}
-        <div style={{ marginTop: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
+        {!skin && <div style={{ marginTop: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
           <div style={{ width: 40, height: 40, borderRadius: 20, background: G.mid }} />
           <div style={{ height: 16, width: 120, background: G.line, borderRadius: 8 }} />
-        </div>
+        </div>}
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

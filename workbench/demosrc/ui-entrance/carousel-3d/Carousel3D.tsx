@@ -5,18 +5,20 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const CAROUSEL_3D_DURATION = 168; // 5600ms @30fps
 
 const N = 8;
 const RADIUS = 190;
 const ICONS = ['◆', '●', '▲', '■', '✦', '◗', '⬢', '◉'];
+const DEFAULT_LABELS = ['收入', '成本', '现金', '增长', '风险', '团队', '客户', '结果'];
 
-export const Carousel3D: React.FC = () => {
+export const Carousel3D: React.FC<{labels?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({labels = DEFAULT_LABELS, skin}) => {
   const t = useT();
   const spin = t * 360; // 整片正好公转 1 圈可循环
   return (
-    <DesignStage bg="#0d0f14">
+    <DesignStage bg={skinBackground(skin, '#0d0f14')}>
       {/* 3D 场景：perspective 950px + 径向渐变夜幕 */}
       <div
         style={{
@@ -71,7 +73,7 @@ export const Carousel3D: React.FC = () => {
                 <>
                   <div style={{ fontSize: 24 }}>{ICONS[i]}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1, marginTop: 34 }}>
-                    CARD 0{i + 1}
+                    {labels[i] ?? DEFAULT_LABELS[i]}
                   </div>
                   <div
                     style={{

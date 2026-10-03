@@ -6,6 +6,8 @@
 // 框群；镜头视角 rotateY 从左侧(+38°) 连续弧线旋到右侧(-26°)。
 import React, { useId } from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Easing } from 'remotion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const easeFall = Easing.bezier(0.5, 0.05, 0.6, 1); // 加速下落、末端软着陆
 
@@ -65,8 +67,15 @@ const Chip: React.FC<{ w: number }> = ({ w }) => (
 );
 
 /* 与 v3 同款灰面板；t=贴落进程，各组件错峰空中贴落（重叠并行） */
-const GrayHome: React.FC<{ t?: number }> = ({ t = 1 }) => {
+const GrayHome: React.FC<{ t?: number;words?:string[];skin?:TemplateSkin }> = ({ t = 1,words=[],skin }) => {
   const L = (land: number, H = 72) => liftOf(t, land, H * 1.7);
+  if(skin) return <div style={{width:PW,height:PH,background:skin.surface,boxSizing:'border-box',padding:'180px 70px 70px',fontFamily:skin.fontFamily}}>
+    <FloatWrap h={L(0.26,90)}><div style={{color:skin.text,fontSize:72,fontWeight:700,marginBottom:50}}>{words[0]}</div></FloatWrap>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:34}}>{words.slice(1).map((word,i)=><FloatWrap key={i} h={L(0.42+i*0.1,76)}>
+      <div style={{height:120,display:'flex',alignItems:'center',padding:'0 36px',boxSizing:'border-box',border:`2px solid ${skin.muted}`,borderRadius:8,
+        color:skin.accent,fontSize:56,fontWeight:700}}>{word}</div>
+    </FloatWrap>)}</div>
+  </div>;
   return (
   <div style={{ width: PW, height: PH, background: '#1a1d24', borderRadius: 6, display: 'flex', overflow: 'hidden', boxSizing: 'border-box' }}>
     <div style={{ width: 290, borderRight: `2px solid ${line}`, padding: '26px 24px', boxSizing: 'border-box' }}>
@@ -147,7 +156,7 @@ const BG_FRAMES: BgFrame[] = Array.from({ length: 18 }).map(() => ({
   skew: -14 + rng() * 10,
 }));
 
-export const NeonFrameForerunOrbit: React.FC = () => {
+export const NeonFrameForerunOrbit: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   // 滤镜/渐变 ID 按实例生成，多实例同场不串引（useId 的 «:» 在 url() 里非法，需清洗）
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -188,8 +197,8 @@ export const NeonFrameForerunOrbit: React.FC = () => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   });
 
-  return (
-    <AbsoluteFill style={{ background: '#060509', overflow: 'hidden' }}>
+  const scene=(
+    <AbsoluteFill style={{ background: skinBackground(skin,'#060509'), overflow: 'hidden' }}>
       {/* 背景霓虹管框群（同款） */}
       <svg width={1920} height={1080} style={{ position: 'absolute' }}>
         <defs>
@@ -218,7 +227,7 @@ export const NeonFrameForerunOrbit: React.FC = () => {
           transformStyle: 'preserve-3d',
         }}>
           <div style={{ opacity: trace > 0.4 ? 1 : 0, filter: `brightness(${Math.max(0.05, lit)})` }}>
-            <GrayHome t={drop} />
+            <GrayHome t={drop} words={words} skin={skin} />
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 6,
               background: 'linear-gradient(150deg, rgba(30,20,60,0.5), rgba(0,0,0,0.78))',
@@ -272,4 +281,5 @@ export const NeonFrameForerunOrbit: React.FC = () => {
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

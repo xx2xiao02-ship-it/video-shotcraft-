@@ -4,23 +4,24 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const LIST_REVEAL_DURATION = 108; // 3600ms @30fps
 
 const DEFAULT_LABELS = ['Dashboard', 'Projects', 'Analytics', 'Messages', 'Settings', 'Sign out'];
 const HUES = [225, 250, 275, 300, 210, 340];
 
-export const ListReveal: React.FC<{ labels?: string[] }> = ({ labels }) => {
+export const ListReveal: React.FC<{ labels?: string[]; skin?: TemplateSkin }> = ({ labels, skin }) => {
   const LABELS = labels && labels.length > 0 ? labels : DEFAULT_LABELS;
   const t = useT();
   return (
-    <DesignStage bg="#0a0b10">
+    <DesignStage bg={skinBackground(skin, '#0a0b10')}>
       {/* 居中容器：flex 撑起列表垂直水平居中 */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: '#0a0b10',
+          background: skinBackground(skin, '#0a0b10'),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -51,7 +52,7 @@ export const ListReveal: React.FC<{ labels?: string[] }> = ({ labels }) => {
                   gap: 11,
                   padding: '9px 13px',
                   borderRadius: 10,
-                  background: '#161a26',
+                  background: skin?.surface || '#161a26',
                   border: '1px solid #262c40',
                   opacity: Math.min(1, p * 2.2),
                   transform: `scale(${0.78 + Math.max(0, p) * 0.22}) translateY(${lerp(Math.max(0, p), 14, 0)}px)`,
@@ -63,16 +64,16 @@ export const ListReveal: React.FC<{ labels?: string[] }> = ({ labels }) => {
                     height: 15,
                     borderRadius: 5,
                     flex: 'none',
-                    background: `linear-gradient(140deg,hsl(${HUES[i]},75%,64%),hsl(${HUES[i]},70%,46%))`,
+                    background: skin?.accent || `linear-gradient(140deg,hsl(${HUES[i]},75%,64%),hsl(${HUES[i]},70%,46%))`,
                   }}
                 />
                 <div
                   style={{
-                    fontFamily: '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+                    fontFamily: skin?.fontFamily || '-apple-system,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
                     fontWeight: 500,
                     fontSize: 13,
                     lineHeight: 1,
-                    color: '#c6cde2',
+                    color: skin?.text || '#c6cde2',
                   }}
                 >
                   {s}
