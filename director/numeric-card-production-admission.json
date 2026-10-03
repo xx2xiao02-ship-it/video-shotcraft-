@@ -1,0 +1,542 @@
+{
+  "schema": "numeric-card-production-admission-v1",
+  "cards": [
+    "data/counter-confetti",
+    "data/odometer-digit-roll"
+  ],
+  "localReview": "passed",
+  "actualModelValidated": false,
+  "userAcceptance": "pending",
+  "shortVersion": "not-accepted",
+  "scope": "180帧/30fps真实业务指标：counter-confetti=94个、odometer-digit-roll=74张；当前源码、DynamicVideo、精确组件props、编导消费、横竖渲染及完整解码复验；未调用收费模型或生产服务",
+  "sourceHashes": {
+    "template/accept-business-text-batch004.mjs": "4db48c05b0fab850b3fa9027b6eb6025e3fa00e7242917f4bacd922ec8f76572",
+    "template/cached-still-renderer.mjs": "67d8a07ca33880aad65d68772ef21d25d958c7c5615db2db23e586e4470dd2e4",
+    "template/package.json": "7ca1a23c6fad1f21debc3c89186284176a44eed0f5d1fcbdde622fd5153db477",
+    "package-lock.json": "0b2dab5225d30dc653013e606f130c8a71da599c959376153f6db8139c0c2490",
+    "template/fixtures/card-business-data-batch014-v2.json": "183cdabc5125efe4ec91be3486131c477fb7bf4f75e5669d1187519c0dac22c1",
+    "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+    "template/fixtures/card-business-data-batch014-source.json": "67c8223a042afeb780d57a37f82c863ae60ef56baf2b8e0c183b06abdd18f4b0",
+    "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+    "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+    "template/src/CardAcceptance.tsx": "d19896a093b3fd2d6734239e6770599523b97ee31df98557fe96c575a5bdebdc",
+    "template/src/TemplateAdapter.tsx": "93e13d2cc9bdc2472b005c27b39af8a62215e3fcd745aed76b655614b2ee1769",
+    "director/card-source-audit.mjs": "bc342efd02aebf189ff58f135ac22f21259a7ec4a7cccf8b6750c50807af7a64",
+    "director/card-runtime-choice.mjs": "7c9c550b67db8c25cbee47ce66dcc1ef09b562466a57a86be7ddd83991599121",
+    "director/a-mode-run.mjs": "73b117403110e222a74df7ef856aa5a51420281770651d16b01221ea39b75f9f",
+    "director/theme-contract.mjs": "da0862c35ff3cae47cc52ddc626262648de4dfaa02f3825969d3154e3f5d9a46",
+    "director/background-policy.mjs": "199478535524e30d2601603c7999f7269523d3f6bc876af42ea525dc2c2f6fee",
+    "director/video-material-policy.mjs": "eb8e9304cfda3b41a66648a539125bee6f11ba52e5f84b582fde67386afed940",
+    "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+    "director/graphic-contracts.mjs": "3c21810a58bff00f193b492fe6aa4a99490dcb3b2f20965da50138fb319187bb",
+    "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+    "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081",
+    "director/text-card-contracts.mjs": "1404f9d5036b208eeec6d8d5c8f4c55a4c2e79de0c06f7a921dfcb0e0b7a43fa",
+    "director/karaoke-timing.mjs": "8ace480c7b99fee165c6da56a45ef74416fa5d0187d2e84bacdb8d18df39d0a0",
+    "director/a-mode-render-preflight.mjs": "bc845834562222f969b124aa9632516ebf06ad0a4fdeeb99d64fac77de877a31",
+    "demos/_fixtures/BusinessTextStage.tsx": "4487d545f14c901902bb07de87243cebc9e03c795cfcebf79060094c98819ca1",
+    "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+    "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+    "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+    "demos/_fixtures/PageCam2D.tsx": "66cea00b806c1d3292495e1ada12bd9be6b30230b7bae2ba547443932a8e9947",
+    "demos/_textures/live-layout.json": "e8d2e6a76fbc1e1fa0cd56a9acc341279683cd2452a1a667d420c31931b520fd",
+    "demos/data/counter-confetti/CounterConfetti.tsx": "7859f3ea1c999a4c57794a8b51227bf95470121aa88eaca59ba875b271bb511e",
+    "demos/data/odometer-digit-roll/OdometerDigitRoll.tsx": "9d37ce60ecf8b2e809fb690d72718192fdad531c6c67202d907e28003304816a",
+    "director/numeric-card-admission.mjs": "8e97a84c109c415d2772791ef358eca241aae92c482b0d6d1f15cb826ae2c147",
+    "demos/data/odometer-digit-roll/odometer-contract.mjs": "c1e9e6a59346c044bcdf87721485852138e2657c150267d0a440476ac4a95779",
+    "demos/data/odometer-digit-roll/odometer-contract.d.mts": "bb356a805f523b99d5c26994b78f1d77fd8c5b7385307493bfcd9267b16b7bc2"
+  },
+  "evidence": [
+    {
+      "card": "data/counter-confetti",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch014-v2/case-0-landscape.mp4",
+      "sha256": "ebf65affbb5e63d0a55ea30add793b3d540618735ee2c1d8400d1b24bdf06674",
+      "fullDecodePassed": true,
+      "stream": {
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "review": [
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-landscape-f20.png",
+          "frame": 20,
+          "sha256": "047b768bcffec2ab37f025566c29ebfb948a527e5cc563d7811ff5e0176e2b11"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-landscape-f92.png",
+          "frame": 92,
+          "sha256": "f0bfef5f00a019778c3144f80b77ad490c3734110edc1de7693a306fa985a1c9"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-landscape-f147.png",
+          "frame": 147,
+          "sha256": "d8cb6aa513b9785fbf812bb9f7626fa4a0c5f2951cb8748333d04645a97fdd29"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-landscape-f179.png",
+          "frame": 179,
+          "sha256": "765e47397eb6c813bbae770d1aa2917d3f76bbd9a325f80e1e55a3cac11d60ea"
+        }
+      ]
+    },
+    {
+      "card": "data/counter-confetti",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch014-v2/case-0-portrait.mp4",
+      "sha256": "9adb726534b5b2243a7794112df596fb0f6575f3b13febfd64a07f6d6149c1e1",
+      "fullDecodePassed": true,
+      "stream": {
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "review": [
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-portrait-f20.png",
+          "frame": 20,
+          "sha256": "e0d3d4d953d611aabad6eb24f6504123ed430feb017f6664505d1cc64308769f"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-portrait-f92.png",
+          "frame": 92,
+          "sha256": "214ccba1f091c73958f786f459f6661a74b3eeb45fffbad440643b7052694d45"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-portrait-f147.png",
+          "frame": 147,
+          "sha256": "e011b32ddc2d05580a63e8619fa0389ce27f369fcdb640f170d8c08bd1d5654a"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-0-portrait-f179.png",
+          "frame": 179,
+          "sha256": "9978a06994875c52d6f0462e0a600f535769d5cf9436827765070307822f5e11"
+        }
+      ]
+    },
+    {
+      "card": "data/odometer-digit-roll",
+      "aspect": "16:9",
+      "file": "template/out/card-business-data-batch014-v2/case-1-landscape.mp4",
+      "sha256": "3ea99187ed9bce1be284aeef1bd616fe6f1878a2b1effd53e0809078601cea7c",
+      "fullDecodePassed": true,
+      "stream": {
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "review": [
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-landscape-f35.png",
+          "frame": 35,
+          "sha256": "91bd1d03531da98f99cfbc9e3decac0d82234e1abed3f246c40c8d5cdd34e80a"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-landscape-f84.png",
+          "frame": 84,
+          "sha256": "614be6e98806d540482939b0df5dbdfd05c84c769290776a301fa4f30d05aa91"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-landscape-f125.png",
+          "frame": 125,
+          "sha256": "2e9cf81f5aa0be78391b8ceeffac92522a234aa39f9ed3571739536c1d6b7003"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-landscape-f179.png",
+          "frame": 179,
+          "sha256": "81f79cd6ffdd8598f2f0efdda33a97db3c823593a6f3fdfc28190821a472edb6"
+        }
+      ]
+    },
+    {
+      "card": "data/odometer-digit-roll",
+      "aspect": "9:16",
+      "file": "template/out/card-business-data-batch014-v2/case-1-portrait.mp4",
+      "sha256": "308d3588581a98c39e81156fdfb07dc2175b9e2969eb40b4fecf368ef7cb0ac5",
+      "fullDecodePassed": true,
+      "stream": {
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "nb_frames": "180",
+        "side_data_list": [
+          {}
+        ]
+      },
+      "review": [
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-portrait-f35.png",
+          "frame": 35,
+          "sha256": "455841fc8bd9073204b20998e00b78cf850185e80e3e3b403bbbf6312c74d6a4"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-portrait-f84.png",
+          "frame": 84,
+          "sha256": "fc9d3d09f4f57460e276b76524af0867f089ac53e12237082ef38912631253da"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-portrait-f125.png",
+          "frame": 125,
+          "sha256": "cecbee766a58e85a9acfdfe30ef3340bf492b9f4e31b241bd16343d0d4e20fd4"
+        },
+        {
+          "file": "template/out/card-business-data-batch014-v2/case-1-portrait-f179.png",
+          "frame": 179,
+          "sha256": "79ae5f4eb66bcf992be8e3882d9921dc9b746119f1145c4e3a518400d2fcb031"
+        }
+      ]
+    }
+  ],
+  "report": "template/out/card-business-data-batch014-v2/acceptance.json",
+  "reportSha256": "49d700974029ec5260a59d101b8eee34d97c2955e8c2b696594840b3ec2af99e",
+  "isolatedReport": "template/out/card-business-data-batch014-v2/acceptance.json",
+  "isolatedReportSha256": "49d700974029ec5260a59d101b8eee34d97c2955e8c2b696594840b3ec2af99e",
+  "priorEvidence": [
+    {
+      "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-0-landscape.mp4",
+      "sha256": "4823cbf995a10cc545b4f8788d195a42279230cfb9ad800d257f4524de0cc667"
+    },
+    {
+      "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-0-portrait.mp4",
+      "sha256": "4a7422438b167a603df9348bca3f8a0108186bd4a849315e403a1c8b75db0003"
+    },
+    {
+      "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-1-landscape.mp4",
+      "sha256": "17cfbe306a95d4f20ef3c5d647c8346d3e330dfda0759ca7e61cbf1fb68c4aae"
+    },
+    {
+      "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-1-portrait.mp4",
+      "sha256": "4378f440e8a364c2170f279a7f39c0978ca415a7e75318168794e5d59386b8ef"
+    }
+  ],
+  "compatibility": {
+    "report": "template/out/card-business-data-batch014-v2/acceptance.json",
+    "sha256": "6e0f26f3f6bad35f33635529037abe04f46794e51391a5a61219eb997a26befb",
+    "review": "passed",
+    "localVisualReview": "passed",
+    "actualModelValidated": false,
+    "userAcceptance": "pending",
+    "shortVersion": "not-accepted",
+    "frames": 180,
+    "fps": 30,
+    "cases": 4
+  },
+  "runtimeCompatibility": {
+    "report": "template/out/card-business-data-batch014-runtime-compatibility-20261002/compatibility-reviewed.json",
+    "sha256": "b34a3a1e90bfbaef6adc7ba1113088d1385514a556e8919fc2cb17d30ffed8f3",
+    "review": "passed",
+    "localVisualReview": "passed",
+    "actualModelValidated": false,
+    "userAcceptance": "pending",
+    "shortVersion": "not-accepted",
+    "exactPixelMatches": 23,
+    "visuallyReviewedRasterDifferences": 1,
+    "previousVideoHashesVerified": 6,
+    "videosRerendered": 0
+  },
+  "addedCardAcceptance": {
+    "data/odometer-digit-roll": {
+      "localReview": "passed",
+      "actualModelValidated": false,
+      "userAcceptance": "pending",
+      "minFrames": 180,
+      "fps": 30,
+      "report": "template/out/card-business-data-batch014-v1/acceptance.json"
+    },
+    "data/counter-confetti": {
+      "localReview": "passed",
+      "actualModelValidated": false,
+      "userAcceptance": "pending",
+      "minFrames": 180,
+      "fps": 30,
+      "report": "template/out/card-business-data-batch014-v1/acceptance.json"
+    }
+  },
+  "productionAdmission": "not-recorded",
+  "history": [
+    {
+      "recordType": "superseded-current-admission",
+      "supersededAt": "2026-10-02T22:49:43.860Z",
+      "supersededBy": "template/out/card-business-data-batch014-v2/acceptance.json",
+      "report": "template/out/card-business-data-batch014-v1/acceptance.json",
+      "reportSha256": "2ca788f62e622cf2287b6cd1839fc27174059e2016d3c2aca888d9949d31272b",
+      "sourceHashes": {
+        "template/accept-business-text-batch004.mjs": "a390a3e44df5f3994641fb1ae45d842314d3e6c7dd16c99b1aa44f3209b04bc4",
+        "template/cached-still-renderer.mjs": "67d8a07ca33880aad65d68772ef21d25d958c7c5615db2db23e586e4470dd2e4",
+        "template/package.json": "7ca1a23c6fad1f21debc3c89186284176a44eed0f5d1fcbdde622fd5153db477",
+        "package-lock.json": "0b2dab5225d30dc653013e606f130c8a71da599c959376153f6db8139c0c2490",
+        "template/fixtures/card-business-data-batch014-v1.json": "34d7306db2ce81966591c9e06c333f8e42248bba90b71b6374bd75647fa61220",
+        "director/a-mode-runs/f4f78a6c-aa2b-4917-9bed-66398863f3f9/props.json": "6f1c7f70d64f42c6a141ab0337ad1db191b64a0fc9dbdc1aa729df29baeb239a",
+        "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
+        "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
+        "template/src/CardAcceptance.tsx": "d19896a093b3fd2d6734239e6770599523b97ee31df98557fe96c575a5bdebdc",
+        "template/src/TemplateAdapter.tsx": "26e1d9a2a9e22900c38011f0f24c0da31559df2a875047761ae9a435308a3955",
+        "director/card-source-audit.mjs": "251dc0475ba4e597486e2bd1ff14b517b612e0db0454bfb61f11e5989a68bf42",
+        "director/card-runtime-choice.mjs": "7c9c550b67db8c25cbee47ce66dcc1ef09b562466a57a86be7ddd83991599121",
+        "director/a-mode-run.mjs": "8ef9161bd8ece375650a6f781bc4f005ad025c5f17f005c3ebfe6d90d81c17b9",
+        "director/theme-contract.mjs": "da0862c35ff3cae47cc52ddc626262648de4dfaa02f3825969d3154e3f5d9a46",
+        "director/background-policy.mjs": "199478535524e30d2601603c7999f7269523d3f6bc876af42ea525dc2c2f6fee",
+        "director/video-material-policy.mjs": "eb8e9304cfda3b41a66648a539125bee6f11ba52e5f84b582fde67386afed940",
+        "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+        "director/graphic-contracts.mjs": "241ec555f213acce5e29f76ae3b63937c112db8ba963c643d44f82492286e7b2",
+        "director/current-theme.json": "1099e8ac700e8625033ce26918ad61e04cb09212d85ece2fa1dbb2646ea83929",
+        "director/text-card-contracts.mjs": "1404f9d5036b208eeec6d8d5c8f4c55a4c2e79de0c06f7a921dfcb0e0b7a43fa",
+        "director/karaoke-timing.mjs": "8ace480c7b99fee165c6da56a45ef74416fa5d0187d2e84bacdb8d18df39d0a0",
+        "director/a-mode-render-preflight.mjs": "23eedd1e440d948dfa197615168a7969a309ea1ced418555d1a6c7db2695c794",
+        "demos/_fixtures/BusinessTextStage.tsx": "4487d545f14c901902bb07de87243cebc9e03c795cfcebf79060094c98819ca1",
+        "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+        "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8",
+        "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+        "demos/_fixtures/PageCam2D.tsx": "66cea00b806c1d3292495e1ada12bd9be6b30230b7bae2ba547443932a8e9947",
+        "demos/_textures/live-layout.json": "e8d2e6a76fbc1e1fa0cd56a9acc341279683cd2452a1a667d420c31931b520fd",
+        "demos/data/counter-confetti/CounterConfetti.tsx": "7859f3ea1c999a4c57794a8b51227bf95470121aa88eaca59ba875b271bb511e",
+        "demos/data/odometer-digit-roll/OdometerDigitRoll.tsx": "9d37ce60ecf8b2e809fb690d72718192fdad531c6c67202d907e28003304816a",
+        "demos/data/hatch-depth/HatchDepth.tsx": "9529bff18cfd4d4fb200afe1f24c65805d75479848560912b7ed3b26f2247e65",
+        "director/numeric-card-admission.mjs": "8e97a84c109c415d2772791ef358eca241aae92c482b0d6d1f15cb826ae2c147",
+        "director/admission-source-policy.mjs": "e4429520bd47417bc5083e0ac58f1abdf376e31faa687e099354e75d661fd081"
+      },
+      "evidence": [
+        {
+          "card": "data/counter-confetti",
+          "aspect": "16:9",
+          "file": "template/out/card-business-data-batch014-v1/case-0-landscape.mp4",
+          "sha256": "2255dd43755e0329e799cb2e191f05aad36fc61f395f8008042723508230cbef",
+          "fullDecodePassed": true,
+          "stream": {
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "30/1",
+            "nb_frames": "180",
+            "side_data_list": [
+              {}
+            ]
+          },
+          "review": {
+            "card": "data/counter-confetti",
+            "aspect": "16:9",
+            "file": "template/out/card-business-data-batch014-v1/review-video-case-0-landscape.png",
+            "frames": [
+              20,
+              92,
+              179
+            ],
+            "sha256": "cff036da2296c25e983714dc2bc2a5adfe06209c3c725360c3b9b9c78c12c206"
+          }
+        },
+        {
+          "card": "data/counter-confetti",
+          "aspect": "9:16",
+          "file": "template/out/card-business-data-batch014-v1/case-0-portrait.mp4",
+          "sha256": "92d4a26c5af63a68637deeb6f9f9395b18f389dc505c591505c8dab311e32f79",
+          "fullDecodePassed": true,
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "30/1",
+            "nb_frames": "180",
+            "side_data_list": [
+              {}
+            ]
+          },
+          "review": {
+            "card": "data/counter-confetti",
+            "aspect": "9:16",
+            "file": "template/out/card-business-data-batch014-v1/review-video-case-0-portrait.png",
+            "frames": [
+              20,
+              92,
+              179
+            ],
+            "sha256": "22fc012d8e76ed589b68fc712cc02da1951b626c6bd0986aa2162923c97ad23c"
+          }
+        },
+        {
+          "card": "data/odometer-digit-roll",
+          "aspect": "16:9",
+          "file": "template/out/card-business-data-batch014-v1/case-1-landscape.mp4",
+          "sha256": "d42dec7f50b4f5fb487b61f3026e46a7ac09f110aacb8d6106eb9fb2530ef40c",
+          "fullDecodePassed": true,
+          "stream": {
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "30/1",
+            "nb_frames": "180",
+            "side_data_list": [
+              {}
+            ]
+          },
+          "review": {
+            "card": "data/odometer-digit-roll",
+            "aspect": "16:9",
+            "file": "template/out/card-business-data-batch014-v1/review-video-case-1-landscape.png",
+            "frames": [
+              35,
+              84,
+              179
+            ],
+            "sha256": "3c9d0552fe29c44dea46ab336836cb0461209c190a2f900bf8df4f1ef1866305"
+          }
+        },
+        {
+          "card": "data/odometer-digit-roll",
+          "aspect": "9:16",
+          "file": "template/out/card-business-data-batch014-v1/case-1-portrait.mp4",
+          "sha256": "d43d05b4aa88286574d2c7f5d8a4e5b36540858949b6919606efc4097a702ee4",
+          "fullDecodePassed": true,
+          "stream": {
+            "width": 1080,
+            "height": 1920,
+            "r_frame_rate": "30/1",
+            "nb_frames": "180",
+            "side_data_list": [
+              {}
+            ]
+          },
+          "review": {
+            "card": "data/odometer-digit-roll",
+            "aspect": "9:16",
+            "file": "template/out/card-business-data-batch014-v1/review-video-case-1-portrait.png",
+            "frames": [
+              35,
+              84,
+              179
+            ],
+            "sha256": "f48ead591e5e2f565265d0fbffb0a4932a4c7d63903cc7d0f16df8a380cb3d13"
+          }
+        }
+      ],
+      "localReview": "passed"
+    },
+    {
+      "report": "template/out/card-governance-batch-002-integration/evidence.json",
+      "reportSha256": "5a4f0c38284afb2e71ea851bf873e986efbe5de4b86b2aba05c76162c6e7350e",
+      "isolatedReport": "template/out/card-governance-batch-001-v3/acceptance.json",
+      "isolatedReportSha256": "4341c8dcff8d21c185de22f976ec2febc0bdeb4a01d700560baa2c132164c38b",
+      "sourceHashes": {
+        "template/src/DynamicVideo.tsx": "a01a115a913a7553331a16b0d8e3f00d68005033296246e7149871f0e7b75aac",
+        "template/src/TemplateAdapter.tsx": "b03fffa585f523f4d2fa9b667adfa43517fdafef2a63972b5bd96c88e2e5ace0",
+        "demos/data/counter-confetti/CounterConfetti.tsx": "7859f3ea1c999a4c57794a8b51227bf95470121aa88eaca59ba875b271bb511e",
+        "demos/_fixtures/Motion.tsx": "4f8cab4833ea3d87c06481f1908e52481460e032cc6e0d0366321f9359368493",
+        "demos/_fixtures/TemplateSkin.ts": "7d704924a0975e1bc719d2d184b3b85fc6355d23faecd8a58f06d06f80d07100",
+        "director/numeric-card-contracts.mjs": "9b76f0ccb62c035faf7a645dd13a075e5dfaa1b3cbbcdabcf3a3b608f1f169b9",
+        "director/numeric-card-admission.mjs": "8212a23f9c3d36e5bbcf5fb8d60b401ed38ed4df9c4c11c9386ad5dac1df2160",
+        "director/a-mode-run.mjs": "a0b1d74e3587accdbf708e876bed93a23baef7a681c8671121139e4becb9f16e",
+        "director/a-mode-render-preflight.mjs": "8f60481a57e8b2549b8e18697ab5c669156bf560fd48da76aad83f0a0321bd5d",
+        "director/a-mode-shot.schema.json": "ade371c65fe38ea9e7787cf4f6b5f1c64e9c6a9539c4fa21c7fadc477dea71ce",
+        "demos/data/odometer-digit-roll/OdometerDigitRoll.tsx": "9d37ce60ecf8b2e809fb690d72718192fdad531c6c67202d907e28003304816a",
+        "demos/data/odometer-digit-roll/odometer-contract.mjs": "c1e9e6a59346c044bcdf87721485852138e2657c150267d0a440476ac4a95779",
+        "demos/data/odometer-digit-roll/odometer-contract.d.mts": "bb356a805f523b99d5c26994b78f1d77fd8c5b7385307493bfcd9267b16b7bc2",
+        "demos/_fixtures/Fixtures.tsx": "0db66b38ee2882a6b86c36e176ead791f8ee7710461e343d4685c09cfae389a8"
+      },
+      "evidence": [
+        {
+          "file": "template/out/card-governance-batch-002-integration/counter-0.mp4",
+          "sha256": "27da0d3191fe6a702c0df4de610b12f459037283d67c7a683c8e61376b5c277e"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/counter-1.mp4",
+          "sha256": "5a14328e2fa26825b19cf8db7ebb46f0b1af2eb22c88364cc2d68551e1332d70"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/counter-2.mp4",
+          "sha256": "60e6e9b33ff8d65fda0740b452b413aeb365ada32ff259b08d8de93ef54e521f"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/counter-3.mp4",
+          "sha256": "675657217ceb6ff7cbd47a5976d349d671b1cd5a80b5cf4b33116957d5a7d3ef"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-0-landscape.mp4",
+          "sha256": "81844005a9eca91478c88f26310c159c1a85024eab80f6b81a8f7c80728bcb32"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-0-portrait.mp4",
+          "sha256": "66a11e97a2700b59fffaf001bfd3d6f55e260af0089a081637a32e9b0504c856"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-1-landscape.mp4",
+          "sha256": "810720c40eb5d71a79bfdda258a8c4c096f010626c68f659095b06ef4d11126f"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-1-portrait.mp4",
+          "sha256": "8c88044dc5ae0b038b3de0866364d482317a26445134a3018e7c4bc48e4fa0ae"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-2-landscape.mp4",
+          "sha256": "916bbee1a60fa6b549a93decd0d0a922154749c84e7efdb31b9a4eddb39831d9"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-2-portrait.mp4",
+          "sha256": "a190438999428a9e17c68722afea24c4f46b7436da79650609ace5ae8e21ebcf"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-3-landscape.mp4",
+          "sha256": "decbc1471b0a6e447386db8fd9633fbc0840c3ff087724a7dd9aa1072e30d642"
+        },
+        {
+          "file": "template/out/card-governance-batch-002-integration/odometer-3-portrait.mp4",
+          "sha256": "9d2639a983dc1a13762b5c09370cc126101338978eb5bbdf72885abc8badb205"
+        }
+      ],
+      "priorEvidence": [
+        {
+          "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-0-landscape.mp4",
+          "sha256": "4823cbf995a10cc545b4f8788d195a42279230cfb9ad800d257f4524de0cc667"
+        },
+        {
+          "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-0-portrait.mp4",
+          "sha256": "4a7422438b167a603df9348bca3f8a0108186bd4a849315e403a1c8b75db0003"
+        },
+        {
+          "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-1-landscape.mp4",
+          "sha256": "17cfbe306a95d4f20ef3c5d647c8346d3e330dfda0759ca7e61cbf1fb68c4aae"
+        },
+        {
+          "file": "template\\out\\card-governance-batch-001-v3\\integration\\numeric-1-portrait.mp4",
+          "sha256": "4378f440e8a364c2170f279a7f39c0978ca415a7e75318168794e5d59386b8ef"
+        }
+      ],
+      "compatibility": {
+        "report": "template/out/card-governance-batch-002-integration/evidence.json",
+        "sha256": "5a4f0c38284afb2e71ea851bf873e986efbe5de4b86b2aba05c76162c6e7350e",
+        "review": "passed",
+        "oldGraphicSamples": 12,
+        "shortVideos": 8,
+        "oldNumericVideos": 4,
+        "newNumericVideos": 8,
+        "snapshot": {
+          "file": ".isolated/card-governance-batch-002-integration/manifest.json",
+          "sha256": "ffc700f577201de85a1d153dad7c16195978ac27379320c1199bdcbee1b547b2"
+        },
+        "reviewer": "Codex actual DynamicVideo sample review and same-environment frozen-source pixel comparison"
+      },
+      "addedCardAcceptance": {
+        "data/odometer-digit-roll": {
+          "localReview": "passed",
+          "actualModelValidated": false,
+          "userAcceptance": "pending",
+          "minFrames": 144,
+          "fps": 30
+        }
+      },
+      "scope": "native counter 138f and odometer 144f at 30fps, real DynamicVideo composition and frozen-source compatibility; no paid model call"
+    }
+  ],
+  "historicalEvidenceTools": [
+    "template/accept-business-text-batch004.mjs",
+    "template/cached-still-renderer.mjs"
+  ]
+}

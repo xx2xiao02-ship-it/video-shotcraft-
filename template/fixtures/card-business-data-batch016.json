@@ -1,0 +1,680 @@
+{
+  "schema": "business-card-data-batch-v1",
+  "batch": 16,
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "asOf": "2026-10-03",
+  "sourceSnapshot": {
+    "file": "template/fixtures/card-business-data-batch016-source.json",
+    "sha256": "fac47a60884ff305e9cdb6282b0ca27357f28017139e902fd36f76c8ce0a12cf"
+  },
+  "gridSourceIds": [
+    "interaction/ai-stream-response",
+    "effects/assemble-then-type-flyin",
+    "effects/aurora-bloom-bg-flip",
+    "interaction/autolayout-gap-dial",
+    "ui-entrance/avatar-bracket-carousel",
+    "data/avatar-grid-radial-build-colorize",
+    "camera/basic-3d-scene",
+    "rhythm/beat-cut-moves",
+    "rhythm/beat-step-list-theme-cycle",
+    "data/before-after-slider-scrub",
+    "ui-entrance/bezier-source-converge-merge",
+    "typography/blur-slide",
+    "transition/bottom-push-stack-wipe",
+    "typography/brace-expand",
+    "effects/brand-frame-snap",
+    "opening/brand-ink-open",
+    "transition/bubble-swarm-takeover",
+    "interaction/canvas-materialize-moves",
+    "transition/card-flip-reveal",
+    "transition/card-flock-tumble",
+    "ui-entrance/card-stack",
+    "ui-entrance/carousel-3d",
+    "typography/cel-flash-stomp",
+    "data/chart-live-moves",
+    "interaction/chip-grid-single-select-blackout",
+    "interaction/chip-lift-to-user-pill",
+    "transition/circle-match-iris",
+    "ui-entrance/cloner-depth-echo",
+    "interaction/collab-cursor-moves",
+    "transition/color-block-step-wipe",
+    "interaction/command-palette-summon",
+    "typography/countdown-arc-scatter",
+    "data/counter-confetti",
+    "opening/crane-rise-reveal",
+    "camera/crash-zoom-punch",
+    "transition/cube-navigation",
+    "camera/cursor-flyover",
+    "data/cycle-glass-node-morph",
+    "effects/dashboard-glow-highlight-pill",
+    "opening/dataviz-landscape-open",
+    "ui-entrance/deck-deal-flyin",
+    "camera/depth-layer-moves",
+    "ui-entrance/doc-park-left-pill-deal",
+    "typography/document-typewriter-reveal",
+    "ui-entrance/draw-svg-trace",
+    "outro/edit-hook-moves",
+    "ui-entrance/element-body-moves",
+    "ui-entrance/floating-glossy-label-pills",
+    "typography/flying-words",
+    "opening/fracture",
+    "effects/fui-hud-moves",
+    "data/gauge-readout-moves",
+    "interaction/glass-pill-dictation-typing",
+    "typography/glitch-cycle",
+    "effects/glow-flyline-moves",
+    "transition/gradient-transition"
+  ],
+  "cards": [
+    {
+      "id": "ui-entrance/bezier-source-converge-merge",
+      "kind": "graphic",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：四路业务阶段本身构成汇聚关系。"
+      },
+      "sourceBindings": {
+        "templateParams.sources": "source.records.relayWords"
+      },
+      "lines": [
+        "流程汇聚"
+      ],
+      "narration": "第16批把检索、构建、渲染、验收四路业务阶段汇聚成可交付证据。",
+      "templateParams": {
+        "sources": [
+          "检索",
+          "构建",
+          "渲染",
+          "验收"
+        ],
+        "target": "可交付"
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "typography/word-relay-filmstrip",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：四张真实页面截图是本镜证据主体。"
+      },
+      "sourceBindings": {
+        "templateParams.words": "source.records.relayWords"
+      },
+      "lines": [
+        "真实阶段"
+      ],
+      "narration": "本批治理依次完成检索、构建、渲染、验收，四个阶段均绑定真实页面证据。",
+      "templateParams": {
+        "words": [
+          "检索",
+          "构建",
+          "渲染",
+          "验收"
+        ],
+        "screens": [
+          "textures/live/card1.png",
+          "textures/live/card2.png",
+          "textures/live/card3.png",
+          "textures/live/card4.png"
+        ]
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "outro/ui-to-brand-morph/icon-flip-bloom-logo",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：准入结果由原组件完成品牌收束。"
+      },
+      "sourceBindings": {
+        "templateParams.word": "source.records.iconWord"
+      },
+      "lines": [
+        "准入结果"
+      ],
+      "narration": "第16批以准入作为真实业务结果标记，随后收束到品牌结尾。",
+      "templateParams": {
+        "word": "准入"
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "outro/ui-to-brand-morph/input-morphs-into-logo",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：批次输入由原组件完整变形为品牌标记。"
+      },
+      "sourceBindings": {
+        "templateParams.word": "source.records.inputWord"
+      },
+      "lines": [
+        "批次收束"
+      ],
+      "narration": "第16批输入已经完成真实参数核对，原组件把第16批收束为品牌标记。",
+      "templateParams": {
+        "word": "第16批"
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "interaction/ai-stream-response/stream-response",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：本地页面截图作为面板背板由组件直接消费。"
+      },
+      "sourceBindings": {
+        "templateParams.summary": "source.records.streamSummary"
+      },
+      "lines": [
+        "执行结果"
+      ],
+      "narration": "第16批真实参数已进入渲染前校验，精确组件注册、素材路径、横竖样帧、编导消费和完整视频验收依次留下证据。",
+      "templateParams": {
+        "summary": "第16批真实参数已进入渲染前校验",
+        "rows": [
+          {
+            "title": "精确组件注册",
+            "meta": "8 cards"
+          },
+          {
+            "title": "真实素材路径",
+            "meta": "27 files"
+          },
+          {
+            "title": "横竖样帧准备",
+            "meta": "16 cases"
+          },
+          {
+            "title": "编导参数消费",
+            "meta": "DynamicVideo"
+          },
+          {
+            "title": "完整视频验收",
+            "meta": "180 frames"
+          }
+        ],
+        "backplate": "textures/live/detail-experiments.png"
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "interaction/type-and-filter",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：真实项目页纹理和筛选目标由组件直接消费。"
+      },
+      "sourceBindings": {
+        "templateParams.query": "source.records.filterQuery",
+        "templateParams.targetId": "source.records.filterTargetId"
+      },
+      "lines": [
+        "搜索定位"
+      ],
+      "narration": "在真实项目页搜索 nano-lab，定位目标项目后进入详情并保留页面纹理。",
+      "templateParams": {
+        "query": "nano-lab",
+        "targetId": "nano-lab",
+        "texture": "textures/live/projects-empty.png"
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "ui-entrance/avatar-bracket-carousel",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：真实页面截图承担角色队列的素材证据。"
+      },
+      "sourceBindings": {
+        "templateParams.avatars": "source.records.avatarRoles"
+      },
+      "lines": [
+        "协作角色"
+      ],
+      "narration": "第16批把检索、构建、渲染、验收四个真实工作角色按队列轮换。",
+      "templateParams": {
+        "avatars": [
+          {
+            "src": "textures/live/card5.png",
+            "role": "检索"
+          },
+          {
+            "src": "textures/live/card6.png",
+            "role": "构建"
+          },
+          {
+            "src": "textures/live/card7.png",
+            "role": "渲染"
+          },
+          {
+            "src": "textures/live/card8.png",
+            "role": "验收"
+          }
+        ]
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    },
+    {
+      "id": "data/avatar-grid-radial-build-colorize",
+      "kind": "business",
+      "backgroundPolicy": {
+        "role": "none",
+        "reason": "特殊强调免背景：56条真实源码审计记录由网格本身完整呈现。"
+      },
+      "sourceBindings": {
+        "templateParams.title": "source.records.gridTitle",
+        "templateParams.items": "source.gridSourceIds"
+      },
+      "lines": [
+        "真实样本"
+      ],
+      "narration": "第16批网格逐项呈现56条真实源码审计记录，状态图例保留已实现、待验收和未接入三类。",
+      "templateParams": {
+        "title": "第16批真实业务样本",
+        "items": [
+          {
+            "label": "V01 ai-stream-response",
+            "status": "inactive",
+            "src": "textures/live/card1.png",
+            "initials": "V1"
+          },
+          {
+            "label": "V02 assemble-then-type-f",
+            "status": "active",
+            "src": "textures/live/card2.png",
+            "initials": "V2"
+          },
+          {
+            "label": "V03 aurora-bloom-bg-flip",
+            "status": "active",
+            "src": "textures/live/card3.png",
+            "initials": "V3"
+          },
+          {
+            "label": "V04 autolayout-gap-dial",
+            "status": "active",
+            "src": "textures/live/card4.png",
+            "initials": "V4"
+          },
+          {
+            "label": "V05 avatar-bracket-carou",
+            "status": "inactive",
+            "src": "textures/live/card5.png",
+            "initials": "V5"
+          },
+          {
+            "label": "V06 avatar-grid-radial-b",
+            "status": "inactive",
+            "src": "textures/live/card6.png",
+            "initials": "V6"
+          },
+          {
+            "label": "V07 basic-3d-scene",
+            "status": "inactive",
+            "src": "textures/live/card7.png",
+            "initials": "V7"
+          },
+          {
+            "label": "V08 beat-cut-moves",
+            "status": "inactive",
+            "src": "textures/live/card8.png",
+            "initials": "V8"
+          },
+          {
+            "label": "V09 beat-step-list-theme",
+            "status": "active",
+            "src": "textures/live/card9.png",
+            "initials": "V9"
+          },
+          {
+            "label": "V10 before-after-slider-",
+            "status": "inactive",
+            "src": "textures/live/card10.png",
+            "initials": "V10"
+          },
+          {
+            "label": "V11 bezier-source-conver",
+            "status": "pending",
+            "src": "textures/live/card4-hires.png",
+            "initials": "V11"
+          },
+          {
+            "label": "V12 blur-slide",
+            "status": "active",
+            "src": "textures/live/detail-experiments.png",
+            "initials": "V12"
+          },
+          {
+            "label": "V13 bottom-push-stack-wi",
+            "status": "inactive",
+            "src": "textures/live/detail-full.png",
+            "initials": "V13"
+          },
+          {
+            "label": "V14 brace-expand",
+            "status": "active",
+            "src": "textures/live/float-filter.png",
+            "initials": "V14"
+          },
+          {
+            "label": "V15 brand-frame-snap",
+            "status": "active",
+            "src": "textures/live/float-search.png",
+            "initials": "V15"
+          },
+          {
+            "label": "V16 brand-ink-open",
+            "status": "active",
+            "src": "textures/live/float-section.png",
+            "initials": "V16"
+          },
+          {
+            "label": "V17 bubble-swarm-takeove",
+            "status": "inactive",
+            "src": "textures/live/float-stats.png",
+            "initials": "V17"
+          },
+          {
+            "label": "V18 canvas-materialize-m",
+            "status": "active",
+            "src": "textures/live/nav.png",
+            "initials": "V18"
+          },
+          {
+            "label": "V19 card-flip-reveal",
+            "status": "inactive",
+            "src": "textures/live/paper1.png",
+            "initials": "V19"
+          },
+          {
+            "label": "V20 card-flock-tumble",
+            "status": "inactive",
+            "src": "textures/live/paper2.png",
+            "initials": "V20"
+          },
+          {
+            "label": "V21 card-stack",
+            "status": "inactive",
+            "src": "textures/live/paper3.png",
+            "initials": "V21"
+          },
+          {
+            "label": "V22 carousel-3d",
+            "status": "inactive",
+            "src": "textures/live/paper4.png",
+            "initials": "V22"
+          },
+          {
+            "label": "V23 cel-flash-stomp",
+            "status": "active",
+            "src": "textures/live/paper5.png",
+            "initials": "V23"
+          },
+          {
+            "label": "V24 chart-live-moves",
+            "status": "active",
+            "src": "textures/live/papers-full.png",
+            "initials": "V24"
+          },
+          {
+            "label": "V25 chip-grid-single-sel",
+            "status": "active",
+            "src": "textures/live/projects-empty.png",
+            "initials": "V25"
+          },
+          {
+            "label": "V26 chip-lift-to-user-pi",
+            "status": "active",
+            "src": "textures/live/projects-full.png",
+            "initials": "V26"
+          },
+          {
+            "label": "V27 circle-match-iris",
+            "status": "inactive",
+            "src": "textures/live/wbr-full.png",
+            "initials": "V27"
+          },
+          {
+            "label": "V28 cloner-depth-echo",
+            "status": "active",
+            "src": "textures/live/card1.png",
+            "initials": "V28"
+          },
+          {
+            "label": "V29 collab-cursor-moves",
+            "status": "active",
+            "src": "textures/live/card2.png",
+            "initials": "V29"
+          },
+          {
+            "label": "V30 color-block-step-wip",
+            "status": "inactive",
+            "src": "textures/live/card3.png",
+            "initials": "V30"
+          },
+          {
+            "label": "V31 command-palette-summ",
+            "status": "active",
+            "src": "textures/live/card4.png",
+            "initials": "V31"
+          },
+          {
+            "label": "V32 countdown-arc-scatte",
+            "status": "active",
+            "src": "textures/live/card5.png",
+            "initials": "V32"
+          },
+          {
+            "label": "V33 counter-confetti",
+            "status": "active",
+            "src": "textures/live/card6.png",
+            "initials": "V33"
+          },
+          {
+            "label": "V34 crane-rise-reveal",
+            "status": "inactive",
+            "src": "textures/live/card7.png",
+            "initials": "V34"
+          },
+          {
+            "label": "V35 crash-zoom-punch",
+            "status": "inactive",
+            "src": "textures/live/card8.png",
+            "initials": "V35"
+          },
+          {
+            "label": "V36 cube-navigation",
+            "status": "inactive",
+            "src": "textures/live/card9.png",
+            "initials": "V36"
+          },
+          {
+            "label": "V37 cursor-flyover",
+            "status": "inactive",
+            "src": "textures/live/card10.png",
+            "initials": "V37"
+          },
+          {
+            "label": "V38 cycle-glass-node-mor",
+            "status": "active",
+            "src": "textures/live/card4-hires.png",
+            "initials": "V38"
+          },
+          {
+            "label": "V39 dashboard-glow-highl",
+            "status": "inactive",
+            "src": "textures/live/detail-experiments.png",
+            "initials": "V39"
+          },
+          {
+            "label": "V40 dataviz-landscape-op",
+            "status": "inactive",
+            "src": "textures/live/detail-full.png",
+            "initials": "V40"
+          },
+          {
+            "label": "V41 deck-deal-flyin",
+            "status": "inactive",
+            "src": "textures/live/float-filter.png",
+            "initials": "V41"
+          },
+          {
+            "label": "V42 depth-layer-moves",
+            "status": "inactive",
+            "src": "textures/live/float-search.png",
+            "initials": "V42"
+          },
+          {
+            "label": "V43 doc-park-left-pill-d",
+            "status": "inactive",
+            "src": "textures/live/float-section.png",
+            "initials": "V43"
+          },
+          {
+            "label": "V44 document-typewriter-",
+            "status": "inactive",
+            "src": "textures/live/float-stats.png",
+            "initials": "V44"
+          },
+          {
+            "label": "V45 draw-svg-trace",
+            "status": "active",
+            "src": "textures/live/nav.png",
+            "initials": "V45"
+          },
+          {
+            "label": "V46 edit-hook-moves",
+            "status": "active",
+            "src": "textures/live/paper1.png",
+            "initials": "V46"
+          },
+          {
+            "label": "V47 element-body-moves",
+            "status": "active",
+            "src": "textures/live/paper2.png",
+            "initials": "V47"
+          },
+          {
+            "label": "V48 floating-glossy-labe",
+            "status": "inactive",
+            "src": "textures/live/paper3.png",
+            "initials": "V48"
+          },
+          {
+            "label": "V49 flying-words",
+            "status": "active",
+            "src": "textures/live/paper4.png",
+            "initials": "V49"
+          },
+          {
+            "label": "V50 fracture",
+            "status": "active",
+            "src": "textures/live/paper5.png",
+            "initials": "V50"
+          },
+          {
+            "label": "V51 fui-hud-moves",
+            "status": "active",
+            "src": "textures/live/papers-full.png",
+            "initials": "V51"
+          },
+          {
+            "label": "V52 gauge-readout-moves",
+            "status": "active",
+            "src": "textures/live/projects-empty.png",
+            "initials": "V52"
+          },
+          {
+            "label": "V53 glass-pill-dictation",
+            "status": "active",
+            "src": "textures/live/projects-full.png",
+            "initials": "V53"
+          },
+          {
+            "label": "V54 glitch-cycle",
+            "status": "active",
+            "src": "textures/live/wbr-full.png",
+            "initials": "V54"
+          },
+          {
+            "label": "V55 glow-flyline-moves",
+            "status": "active",
+            "src": "textures/live/card1.png",
+            "initials": "V55"
+          },
+          {
+            "label": "V56 gradient-transition",
+            "status": "inactive",
+            "src": "textures/live/card2.png",
+            "initials": "V56"
+          }
+        ],
+        "legend": [
+          {
+            "status": "active",
+            "label": "已实现"
+          },
+          {
+            "status": "pending",
+            "label": "待验收"
+          },
+          {
+            "status": "inactive",
+            "label": "未接入"
+          }
+        ]
+      },
+      "inspectFrames": [
+        12,
+        60,
+        120,
+        179
+      ]
+    }
+  ]
+}
