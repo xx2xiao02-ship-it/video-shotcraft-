@@ -1,8 +1,9 @@
 // ring-diagram-annotation-reveal — 全屏主体收束成同心环图解，再左移让出注释栏。
 // 保留原 motion-blocking 的圆窗收缩、分段外环、向心箭头、旋转、错峰标签与收尾 hold。
 import React from 'react';
-import { Easing, interpolate, useCurrentFrame } from 'remotion';
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import { DesignStage } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const RING_DIAGRAM_ANNOTATION_REVEAL_DURATION = 190;
 
@@ -13,11 +14,13 @@ const p = (frame: number, start: number, end: number) =>
     easing: Easing.bezier(0.16, 1, 0.3, 1),
   });
 
-const TitleBlock: React.FC<{ frame: number; start: number; shade: string; index: number }> = ({
+const TitleBlock: React.FC<{ frame: number; start: number; shade: string; index: number;label?:string;skin?:TemplateSkin }> = ({
   frame,
   start,
   shade,
   index,
+  label,
+  skin,
 }) => {
   const k = p(frame, start, start + 8);
   const echo = interpolate(frame, [start - 1, start, start + 2, start + 8], [0, 0.32, 0.32, 0], CLAMP);
@@ -36,26 +39,32 @@ const TitleBlock: React.FC<{ frame: number; start: number; shade: string; index:
         style={{
           position: 'absolute',
           inset: 0,
-          background: shade,
+          background: skin?.surface || shade,
+          ...(skin ? {border:`1px solid ${skin.accent}`,boxSizing:'border-box' as const} : {}),
           opacity: k,
           clipPath: `inset(${interpolate(k, [0, 1], [100, 0])}% 0 0 0)`,
           transform: `translateY(${interpolate(k, [0, 1], [9, 0])}px)`,
           display: 'grid',
           placeItems: 'center',
-          color: '#1a1d24',
-          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-          fontSize: 8,
+          color: skin?.text || '#1a1d24',
+          fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontSize: label ? 12 : 8,
           fontWeight: 800,
         }}
       >
-        {index + 1}
+        {label || index + 1}
       </div>
     </div>
   );
 };
 
-export const RingDiagramAnnotationReveal: React.FC = () => {
-  const frame = useCurrentFrame();
+export const RingDiagramAnnotationReveal: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  const currentFrame = useCurrentFrame();
+  const {durationInFrames} = useVideoConfig();
+  if(words && (words.length!==8 || words.slice(0,2).some(word=>[...word].length>4) || words.slice(2,6).some(word=>[...word].length>2) || [...words[6]].length>8 || [...words[7]].length>6))
+    throw new Error('RingDiagram requires two subject labels, four short title blocks and two annotations');
+  const revealEnd = Math.max(1,durationInFrames-30);
+  const frame = words ? currentFrame<=revealEnd ? currentFrame*160/revealEnd : 160+currentFrame-revealEnd : currentFrame;
   const aperture = p(frame, 11, 50);
   const ringIn = p(frame, 18, 60);
   const coilsIn = p(frame, 30, 50);
@@ -81,13 +90,13 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
   });
 
   return (
-    <DesignStage bg="#1a1d24" raster="zoom">
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <DesignStage bg={skin?.bg || '#1a1d24'} raster="zoom">
+      <div style={{ position: 'absolute', ...(words ? {left:0,top:'50%',width:480,height:270,transform:'translateY(-50%)'} : {inset:0}), overflow: 'hidden', fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: '#c7c7c4',
+            background: skin?.surface || '#c7c7c4',
             clipPath: `circle(${apertureRadius * scale}px at ${centerX}px 123px)`,
           }}
         />
@@ -110,7 +119,7 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               width: 148,
               height: 148,
               borderRadius: '50%',
-              border: '1px solid #8a8a87',
+              border: `1px solid ${skin?.muted || '#8a8a87'}`,
               opacity: ringIn,
               transform: `scale(${interpolate(ringIn, [0, 1], [3.8, 1])})`,
             }}
@@ -123,7 +132,7 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               width: 204,
               height: 204,
               borderRadius: '50%',
-              border: '7px dashed #999995',
+              border: `7px dashed ${skin?.muted || '#999995'}`,
               boxSizing: 'border-box',
               opacity: coilsIn,
               transform: `rotate(${rotate}deg) scale(${interpolate(coilsIn, [0, 1], [1.08, 1])})`,
@@ -132,10 +141,10 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
           <svg viewBox="0 0 480 270" style={{ position: 'absolute', left: -130, top: -12, width: 480, height: 270 }}>
             <defs>
               <marker id="ring-arrow-head" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
-                <path d="M0,0 L5,2.5 L0,5 Z" fill="#303032" />
+                <path d="M0,0 L5,2.5 L0,5 Z" fill={skin?.accent || '#303032'} />
               </marker>
             </defs>
-            <g stroke="#454548" strokeWidth="0.75" markerEnd="url(#ring-arrow-head)" opacity={arrowsIn}>
+            <g stroke={skin?.accent || '#454548'} strokeWidth="0.75" markerEnd="url(#ring-arrow-head)" opacity={arrowsIn}>
               {arrows.map(({ x1, y1, x2, y2 }) => (
                 <line
                   key={`${x1}-${y1}`}
@@ -155,18 +164,18 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               width: 106,
               height: 106,
               borderRadius: '50%',
-              background: '#c7c7c4',
+              background: skin?.surface || '#c7c7c4',
               display: 'grid',
               placeItems: 'start center',
-              paddingTop: 28,
+              paddingTop: words ? 8 : 28,
               boxSizing: 'border-box',
-              color: '#57575a',
-              fontSize: 8,
+              color: skin?.text || '#57575a',
+              fontSize: words ? 12 : 8,
               fontWeight: 800,
-              letterSpacing: 0.5,
+              letterSpacing: words ? 0 : 0.5,
             }}
           >
-            CONTENT
+            {words?.[0] || 'CONTENT'}
           </div>
           <div
             style={{
@@ -176,21 +185,21 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
               width: 62,
               height: 62,
               borderRadius: '50%',
-              background: '#5b5b5e',
+              background: skin?.accent || '#5b5b5e',
               display: 'grid',
               placeItems: 'center',
-              color: 'var(--text)',
-              fontSize: 8,
+              color: skin?.bg || 'var(--text)',
+              fontSize: words ? 12 : 8,
               fontWeight: 800,
             }}
           >
-            SUBJECT
+            {words?.[1] || 'SUBJECT'}
           </div>
         </div>
 
         <div style={{ position: 'absolute', left: 321, top: 93, display: 'flex', gap: 1.5 }}>
           {['#59595c', '#69696c', '#858588', '#a7a7aa'].map((shade, i) => (
-            <TitleBlock key={shade} frame={frame} start={112 + i * 3} shade={shade} index={i} />
+            <TitleBlock key={shade} frame={frame} start={112 + i * 3} shade={shade} index={i} label={words?.[i+2]} skin={skin} />
           ))}
         </div>
         <div
@@ -200,19 +209,19 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
             top: 132,
             width: 122,
             height: 16,
-            background: '#929295',
+            background: skin?.surface || '#929295',
             transformOrigin: 'left center',
             transform: `scaleX(${label})`,
             opacity: label,
             display: 'grid',
             placeItems: 'center',
-            color: '#f9f9f7',
-            fontSize: 8,
+            color: skin?.text || '#f9f9f7',
+            fontSize: words ? 12 : 8,
             fontWeight: 800,
-            letterSpacing: 0.8,
+            letterSpacing: words ? 0 : 0.8,
           }}
         >
-          EXPLANATION
+          {words?.[6] || 'EXPLANATION'}
         </div>
         <div
           style={{
@@ -221,17 +230,17 @@ export const RingDiagramAnnotationReveal: React.FC = () => {
             top: 154,
             width: 92,
             height: 15,
-            background: '#d0d0cd',
+            background: skin?.surface || '#d0d0cd',
             opacity: definition,
             transform: `translateY(${interpolate(definition, [0, 1], [5, 0])}px)`,
             display: 'grid',
             placeItems: 'center',
-            color: '#626265',
-            fontSize: 8,
+            color: skin?.text || '#626265',
+            fontSize: words ? 12 : 8,
             fontWeight: 700,
           }}
         >
-          SUPPORTING DETAIL
+          {words?.[7] || 'SUPPORTING DETAIL'}
         </div>
       </div>
     </DesignStage>

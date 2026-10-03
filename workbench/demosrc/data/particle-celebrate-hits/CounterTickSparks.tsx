@@ -7,35 +7,43 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
-const TARGET = 12847;
 const COUNT_END = 78; // 计数结束帧
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-const valueAt = (f: number) => Math.round(TARGET * easeOutCubic(Math.min(Math.max(f / COUNT_END, 0), 1)));
+const valueAt = (f: number,target:number) => Math.round(target * easeOutCubic(Math.min(Math.max(f / COUNT_END, 0), 1)));
 
 const frac = (x: number) => x - Math.floor(x);
 const rnd = (i: number, salt: number) => frac(Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453);
 
 // 预解析 tick 帧：跳过整千的那一帧 + 终值揭晓帧
-const TICKS: { f: number; big: boolean }[] = (() => {
+const buildTicks = (target:number,tickEvery:number): { f: number; big: boolean }[] => {
   const out: { f: number; big: boolean }[] = [];
   let prev = 0;
   for (let f = 1; f <= COUNT_END; f++) {
-    const v = valueAt(f);
-    if (Math.floor(v / 1000) > Math.floor(prev / 1000)) out.push({ f, big: false });
+    const v = valueAt(f,target);
+    if (Math.floor(v / tickEvery) > Math.floor(prev / tickEvery)) out.push({ f, big: false });
     prev = v;
   }
-  out.push({ f: COUNT_END, big: true }); // 终值揭晓
+  if(!out.some(tick=>tick.f===COUNT_END)) out.push({ f: COUNT_END, big: true });
+  else out[out.length-1]={f:COUNT_END,big:true};
   return out;
-})();
+};
 
 const SPARK_LIFE = 18;
 const GRAV = 0.9;
 
-export const CounterTickSparks: React.FC = () => {
+type BusinessRow = {label:string;value:number;evidence:string};
+type SparkProps = {rows?:BusinessRow[];unit?:string;tickEvery?:number;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
+export const CounterTickSparks: React.FC<SparkProps> = ({rows,unit='',tickEvery=1000,title,skin}) => {
   const frame = useCurrentFrame();
-  const value = valueAt(frame);
+  const metric=rows?.[0];
+  const target=metric?.value ?? 12847;
+  const ticks=buildTicks(target,tickEvery);
+  const value = valueAt(frame,target);
 
   // 终值揭晓弹 1.1x 回落
   const popScale =
@@ -50,10 +58,10 @@ export const CounterTickSparks: React.FC = () => {
   const TOP_Y = 452; // 数字顶缘（火星发射线）
   const CX = 960;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="COUNTER TICK SPARKS" size={72} />
+        <TitleBlock text={title || 'COUNTER TICK SPARKS'} size={72} />
       </div>
 
       {/* 计数卡 */}
@@ -71,11 +79,12 @@ export const CounterTickSparks: React.FC = () => {
         }}>
           {value.toLocaleString('en-US')}
         </div>
-        <div style={{ height: 10, width: 150, background: G.line, borderRadius: 5 }} />
+        {metric ? <div style={{color:skin?.muted || G.mid,fontFamily:skin?.fontFamily,fontSize:23,fontWeight:700}}>{metric.label} · {unit}</div> :
+          <div style={{ height: 10, width: 150, background: G.line, borderRadius: 5 }} />}
       </div>
 
       {/* 火星：每个 tick 一簇，寿命耗尽条件卸载 */}
-      {TICKS.map((tick, t) => {
+      {ticks.map((tick, t) => {
         const age = frame - tick.f;
         if (age <= 0 || age >= SPARK_LIFE) return null;
         const n = tick.big ? 20 : 6 + Math.floor(rnd(t, 21) * 5); // 6–10，终跳 20
@@ -100,4 +109,5 @@ export const CounterTickSparks: React.FC = () => {
       })}
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

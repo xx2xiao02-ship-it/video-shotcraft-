@@ -8,6 +8,8 @@
 import React from 'react';
 import { useCurrentFrame, spring, interpolate } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessDataStage} from '../../_fixtures/BusinessDataStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const AMBER = '#d4a853';
 const FPS = 30;
@@ -105,6 +107,38 @@ const digit = (i: number): [number, number] => {
   return [p[0] + jx, p[1] + jy];
 };
 
+const DIGIT_SEGMENTS: Record<string,string[]> = {
+  '0':['a','b','c','d','e','f'],'1':['b','c'],'2':['a','b','g','e','d'],
+  '3':['a','b','g','c','d'],'4':['f','g','b','c'],'5':['a','f','g','c','d'],
+  '6':['a','f','g','e','c','d'],'7':['a','b','c'],'8':['a','b','c','d','e','f','g'],
+  '9':['a','b','c','d','f','g'],
+};
+const DIGIT_LINES:Record<string,[[number,number],[number,number]]>={
+  a:[[20,0],[80,0]],b:[[90,10],[90,90]],c:[[90,110],[90,190]],
+  d:[[20,200],[80,200]],e:[[10,110],[10,190]],f:[[10,10],[10,90]],g:[[20,100],[80,100]],
+};
+const buildBusinessDigitPoints=(value:number,count:number):[number,number][]=>{
+  const digits=[...String(value)],segments=digits.flatMap((digit,index)=>
+    (DIGIT_SEGMENTS[digit] || DIGIT_SEGMENTS['0']).map(name=>{
+      const [[x0,y0],[x1,y1]]=DIGIT_LINES[name];
+      const offset=960-(digits.length*100+(digits.length-1)*34)/2+index*134;
+      return {x0:x0+offset,y0:y0+360,x1:x1+offset,y1:y1+360,length:Math.hypot(x1-x0,y1-y0)};
+    }));
+  const totalLength=segments.reduce((sum,segment)=>sum+segment.length,0);
+  const allocations=segments.map(segment=>Math.floor(count*segment.length/totalLength));
+  let remaining=count-allocations.reduce((sum,size)=>sum+size,0);
+  const remainders=segments.map((segment,index)=>({index,part:count*segment.length/totalLength-allocations[index]}))
+    .sort((a,b)=>b.part-a.part);
+  for(let i=0;i<remaining;i++) allocations[remainders[i].index]++;
+  return segments.flatMap((segment,index)=>Array.from({length:allocations[index]},(_,dot)=>{
+    const t=(dot+0.5)/Math.max(allocations[index],1);
+    return [segment.x0+(segment.x1-segment.x0)*t,segment.y0+(segment.y1-segment.y0)*t] as [number,number];
+  }));
+};
+
+type BusinessRow={label:string;value:number;evidence:string};
+type SwarmProps={rows?:BusinessRow[];unit?:string;title?:string;skin?:TemplateSkin;durationInFrames?:number};
+
 const lerp = (a: [number, number], b: [number, number], t: number): [number, number] => [
   a[0] + (b[0] - a[0]) * t,
   a[1] + (b[1] - a[1]) * t,
@@ -119,10 +153,42 @@ const fade = (frame: number, inA: number, inB: number, outA?: number, outB?: num
 
 const LABEL_FONT = 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
-export const UnitDotSwarmRegroupV2: React.FC = () => {
+export const UnitDotSwarmRegroupV2: React.FC<SwarmProps> = ({rows,unit='customers',title,skin}) => {
   const frame = useCurrentFrame();
+  const business=Boolean(rows?.length);
+  const counts=rows?.map(row=>row.value) || GROUP_N;
+  const total=counts.reduce((sum,value)=>sum+value,0);
+  const labels=rows?.map(row=>`${row.label} · ${row.value.toLocaleString('en-US')}${unit}`) || GROUP_LABEL;
+  const clusterRadius=counts.map(value=>value>0?58+Math.sqrt(value)*4:40);
+  const ink=skin?.text || G.ink;
+  const muted=skin?.muted || G.mid;
+  const accent=skin?.accent || AMBER;
+  const largestGroup=counts.indexOf(Math.max(...counts));
+  const groupOfPoint=(i:number)=>{
+    let sum=0;
+    for(let group=0;group<counts.length;group++){
+      sum+=counts[group];
+      if(i<sum)return group;
+    }
+    return counts.length-1;
+  };
+  const idxInBusinessGroup=(i:number)=>i-counts.slice(0,groupOfPoint(i)).reduce((sum,value)=>sum+value,0);
+  const dotCount=business ? total : N;
+  const digitTargets=business ? buildBusinessDigitPoints(total,dotCount) : DIGIT_PTS;
+  const targetLabel=business ? total.toLocaleString('en-US') : '12,847';
+  const labelColor=(group:number)=>business ? (group===largestGroup?accent:muted) : (group===1?AMBER:group===2?G.ink:G.mid);
+  const clusterFor=(i:number):[number,number]=>{
+    if(!business)return cluster(i);
+    const group=groupOfPoint(i),radius=Math.sqrt(rnd(i,3))*clusterRadius[group],angle=rnd(i,4)*Math.PI*2;
+    return [CLUSTER_C[group][0]+radius*Math.cos(angle),CLUSTER_C[group][1]+radius*Math.sin(angle)];
+  };
+  const barFor=(i:number):[number,number]=>{
+    if(!business)return bar(i);
+    const group=groupOfPoint(i),within=idxInBusinessGroup(i),col=within%8,row=Math.floor(within/8);
+    return [BAR_X[group]+(col-3.5)*SPACING,BAR_BASE-row*SPACING];
+  };
 
-  const dots = Array.from({ length: N }, (_, i) => {
+  const dots = Array.from({ length: dotCount }, (_, i) => {
     const stag = rnd(i, 7) * STAG;
     const mig = (start: number) =>
       spring({
@@ -133,9 +199,10 @@ export const UnitDotSwarmRegroupV2: React.FC = () => {
         durationRestThreshold: 0.0001,
       });
     let p = scatter(i);
-    p = lerp(p, cluster(i), mig(M1));
-    p = lerp(p, bar(i), mig(M2));
-    p = lerp(p, digit(i), mig(M3));
+    p = lerp(p, clusterFor(i), mig(M1));
+    p = lerp(p, barFor(i), mig(M2));
+    const target=digitTargets[i%digitTargets.length];
+    p = lerp(p, business ? [target[0]+(rnd(i,5)-0.5)*3,target[1]+(rnd(i,6)-0.5)*3] : digit(i), mig(M3));
     return p;
   });
 
@@ -144,34 +211,37 @@ export const UnitDotSwarmRegroupV2: React.FC = () => {
   const barLabelOp = fade(frame, 72, 80, M3, M3 + 8);
   const captionOp = fade(frame, 114, 126);
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', top: 110, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="UNIT DOT SWARM REGROUP V2" size={72} />
+        <TitleBlock text={title || 'UNIT DOT SWARM REGROUP V2'} size={72} />
       </div>
 
       {/* 图例：每点的含义（全程挂角） */}
       <div
         style={{
           position: 'absolute',
-          left: 90,
+          left: business ? 300 : 90,
+          width: business ? 1320 : undefined,
           bottom: 70,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: business ? 'center' : undefined,
           gap: 12,
+          boxSizing: 'border-box',
           fontFamily: LABEL_FONT,
           fontSize: 24,
           fontWeight: 600,
-          color: G.mid,
+          color: muted,
         }}
       >
-        <div style={{ width: 18, height: 18, borderRadius: 9, background: G.mid }} />
-        Each dot ≈ 40 customers
+        <div style={{ width: 18, height: 18, borderRadius: 9, background: accent }} />
+        {business ? `每个点代表1${unit}准入变体` : 'Each dot ≈ 40 customers'}
       </div>
 
       <svg width={1920} height={1080} style={{ position: 'absolute', inset: 0 }}>
         {dots.map((p, i) => (
-          <circle key={i} cx={p[0]} cy={p[1]} r={DOT_R} fill={groupOf(i) === 1 ? AMBER : groupOf(i) === 2 ? G.ink : G.mid} />
+          <circle key={i} cx={p[0]} cy={p[1]} r={business?5.5:DOT_R} fill={labelColor(groupOfPoint(i))} />
         ))}
       </svg>
 
@@ -183,17 +253,17 @@ export const UnitDotSwarmRegroupV2: React.FC = () => {
             style={{
               position: 'absolute',
               left: c[0] - 200,
-              top: c[1] - CLUSTER_R[g] - 66,
+              top: c[1] - (business?clusterRadius[g]:CLUSTER_R[g]) - 66,
               width: 400,
               textAlign: 'center',
               fontFamily: LABEL_FONT,
               fontSize: 30,
               fontWeight: 700,
-              color: g === 1 ? AMBER : G.ink,
+              color: labelColor(g),
               opacity: clusterLabelOp,
             }}
           >
-            {GROUP_LABEL[g]}
+            {labels[g]}
           </div>
         ))}
 
@@ -213,11 +283,11 @@ export const UnitDotSwarmRegroupV2: React.FC = () => {
                 fontFamily: LABEL_FONT,
                 fontSize: 28,
                 fontWeight: 700,
-                color: g === 1 ? AMBER : G.mid,
+                color: labelColor(g),
                 opacity: barLabelOp,
               }}
             >
-              {['Free', 'Pro', 'Enterprise'][g]}
+              {business ? `${rows![g].label} · ${rows![g].value}${unit}` : ['Free', 'Pro', 'Enterprise'][g]}
             </div>
           ))}
         </>
@@ -235,14 +305,15 @@ export const UnitDotSwarmRegroupV2: React.FC = () => {
             fontFamily: LABEL_FONT,
             fontSize: 34,
             fontWeight: 600,
-            color: G.mid,
+            color: muted,
             opacity: captionOp,
             letterSpacing: 2,
           }}
         >
-          Total customers
+          {business ? `当前有效准入 ${targetLabel}${unit}` : 'Total customers'}
         </div>
       )}
     </div>
   );
+  return skin ? <BusinessDataStage skin={skin}>{scene}</BusinessDataStage> : scene;
 };

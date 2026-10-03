@@ -58,8 +58,9 @@ export const DesignStage: React.FC<{
   raster?: 'scale' | 'zoom';
   children: React.ReactNode;
 }> = ({ w = 480, h = 270, bg, raster = 'scale', children }) => {
-  const { width } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const scale = width / w;
+  const stageHeight = width < height ? height / scale : h;
   return (
     <AbsoluteFill style={{ background: bg ?? '#000', overflow: 'hidden' }}>
       <div
@@ -68,7 +69,7 @@ export const DesignStage: React.FC<{
           left: 0,
           top: 0,
           width: w,
-          height: h,
+          height: stageHeight,
           overflow: 'hidden',
           ...(raster === 'zoom'
             ? { zoom: scale }

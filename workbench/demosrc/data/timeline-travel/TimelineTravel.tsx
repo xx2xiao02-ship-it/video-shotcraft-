@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing, spring } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const W = 1920;
 const AXIS_Y = 700;
@@ -49,9 +51,9 @@ const popFrameOf = (tickX: number): number => {
 const CARD_W = 360;
 const CARD_H = 240;
 
-const TickStop: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
+const TickStop: React.FC<{ i: number; frame: number;words?:string[];skin?:TemplateSkin }> = ({ i, frame,words,skin }) => {
   const tick = TICKS[i];
-  const pop = popFrameOf(tick.x) - 6; // 提前 6f 起弹，掠过时正好立起
+  const pop = popFrameOf(tick.x) - (words && i>0 ? 18 : 6);
   const s = spring({
     frame: frame - pop,
     fps: 30,
@@ -63,10 +65,10 @@ const TickStop: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
   return (
     <div style={{ position: 'absolute', left: tick.x, top: 0 }}>
       {/* 刻度竖线 */}
-      <div style={{ position: 'absolute', left: -3, top: AXIS_Y - 28, width: 6, height: 56, background: G.ink, borderRadius: 3 }} />
+      <div style={{ position: 'absolute', left: -3, top: AXIS_Y - 28, width: 6, height: 56, background: skin?.accent || G.ink, borderRadius: 3 }} />
       {/* 刻度标签 */}
-      <div style={{ position: 'absolute', left: -80, top: AXIS_Y + 44, width: 160, textAlign: 'center', fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: 40, color: G.ink }}>
-        {tick.label}
+      <div style={{ position: 'absolute', left: -80, top: AXIS_Y + 44, width: 160, textAlign: 'center', fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif', fontWeight: 800, fontSize: words ? 32 : 40, color: skin?.text || G.ink }}>
+        {words?.[1+i*2] || tick.label}
       </div>
       {/* 卡片从刻度线弹立：以底边为轴 scaleY 0→1（带过冲），伴随上移 */}
       {appeared && (
@@ -80,44 +82,54 @@ const TickStop: React.FC<{ i: number; frame: number }> = ({ i, frame }) => {
             opacity: Math.min(1, s * 2),
           }}
         >
-          <Card w={CARD_W} h={CARD_H} seed={i + 2} />
+          {words ? <div style={{width:CARD_W,height:CARD_H,boxSizing:'border-box',padding:'38px 26px',background:skin?.surface,border:`2px solid ${skin?.accent}`,borderRadius:8,color:skin?.text,fontFamily:skin?.fontFamily,display:'flex',flexDirection:'column',justifyContent:'center',gap:20}}>
+            <div style={{fontSize:42,fontWeight:800}}>{words[1+i*2]}</div>
+            <div style={{fontSize:34,lineHeight:1.4}}>{words[2+i*2]}</div>
+          </div> : <Card w={CARD_W} h={CARD_H} seed={i + 2} />}
         </div>
       )}
     </div>
   );
 };
 
-export const TimelineTravel: React.FC = () => {
+export const TimelineTravel: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
+  if(words && (words.length!==9 || !skin || words.some((word,i)=>!word.trim()||[...word].length>(i===0?8:i%2?4:6)))) throw new Error('TimelineTravel requires a title and four label/detail pairs');
   const frame = useCurrentFrame();
-  const camX = camXAt(frame);
+  const motionFrame = words ? interpolate(frame,[0,12,130,140],[0,12,104,114],{
+    extrapolateLeft:'clamp',extrapolateRight:'clamp',
+  }) : frame;
+  const camX = camXAt(motionFrame);
 
   // 急停后推近末刻度：scale 1 → 1.28，中心对准 Today 刻度
-  const zoom = interpolate(frame, [TRAVEL_END, ZOOM_END], [1, 1.28], {
+  const zoom = interpolate(motionFrame, [TRAVEL_END, ZOOM_END], [1, 1.28], {
     easing: Easing.out(Easing.cubic),
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  return (
-    <div style={{ width: W, height: 1080, background: G.bg, overflow: 'hidden', position: 'relative' }}>
+  const scene = (
+    <div style={{ width: W, height: 1080, background: skin?.bg || G.bg, overflow: 'hidden', position: 'relative' }}>
+      <div style={words ? {position:'absolute',inset:0,transform:'scale(0.8)',transformOrigin:'50% 50%'} : {position:'absolute',inset:0}}>
       {/* 推近层：以画面中央偏下（末刻度落点）为原点放大 */}
       <div style={{ width: W, height: 1080, transform: `scale(${zoom})`, transformOrigin: '50% 62%' }}>
         {/* 世界层：唯一横移的容器 */}
         <div style={{ position: 'absolute', left: 0, top: 0, width: WORLD_W, height: 1080, transform: `translateX(${-camX}px)` }}>
           {/* 主轴线 */}
-          <div style={{ position: 'absolute', left: 200, top: AXIS_Y - 3, width: WORLD_W - 400, height: 6, background: G.bar, borderRadius: 3 }} />
+          <div style={{ position: 'absolute', left: 200, top: AXIS_Y - 3, width: WORLD_W - 400, height: 6, background: skin?.muted || G.bar, borderRadius: 3 }} />
           {/* 次刻度（小点，增强速度感） */}
           {Array.from({ length: 22 }).map((_, i) => (
-            <div key={i} style={{ position: 'absolute', left: 960 + i * (TICK_GAP / 5) - 2, top: AXIS_Y - 12, width: 4, height: 24, background: G.bar, borderRadius: 2 }} />
+            <div key={i} style={{ position: 'absolute', left: 960 + i * (TICK_GAP / 5) - 2, top: AXIS_Y - 12, width: 4, height: 24, background: skin?.muted || G.bar, borderRadius: 2 }} />
           ))}
           {TICKS.map((_, i) => (
-            <TickStop key={i} i={i} frame={frame} />
+            <TickStop key={i} i={i} frame={motionFrame} words={words} skin={skin} />
           ))}
         </div>
       </div>
       <div style={{ position: 'absolute', top: 90, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="TIMELINE TRAVEL" size={64} />
+        {words ? <div style={{fontSize:64,fontWeight:800,fontFamily:skin?.fontFamily,color:skin?.text}}>{words[0]}</div> : <TitleBlock text="TIMELINE TRAVEL" size={64} />}
+      </div>
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

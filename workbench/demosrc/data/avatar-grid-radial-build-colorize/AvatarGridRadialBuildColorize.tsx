@@ -5,7 +5,9 @@
 // 中央 3×6 区域 visibility:hidden 占位留给标题与图例，标题层始终 100% 不透明。
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
+import { Img, staticFile, useCurrentFrame } from 'remotion';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const AVATAR_GRID_RADIAL_BUILD_COLORIZE_DURATION = 168; // 5600ms @30fps
 
@@ -60,19 +62,39 @@ const CELLS = Array.from({ length: ROWS * COLS }, (_, i) => {
   return { hidden, kind, ini, icon, h, delay, flagged, at };
 });
 
-const LEGEND: Array<[string, string]> = [
+const DEFAULT_LEGEND: Array<[string, string]> = [
   ['Active', '#37C46B'],
   ['Pending', '#F5A524'],
   ['Inactive', '#F0453A'],
 ];
 
-export const AvatarGridRadialBuildColorize: React.FC = () => {
-  const t = useT();
+type GridItem = {label: string; status: 'active' | 'pending' | 'inactive'; src?: string; initials: string};
+type LegendItem = {status: 'active' | 'pending' | 'inactive'; label: string};
+type RenderCell = (typeof CELLS)[number] & {label: string; status: GridItem['status']; src?: string};
+
+export const AvatarGridRadialBuildColorize: React.FC<{
+  title?: string;
+  items?: GridItem[];
+  legend?: LegendItem[];
+  durationInFrames?: number;
+  skin?: TemplateSkin;
+}> = ({title, items, legend, durationInFrames, skin}) => {
+  const frame = useCurrentFrame();
+  const normalizedT = useT();
+  const t = durationInFrames ? Math.min(1, frame / Math.max(1, durationInFrames - 1)) : normalizedT;
+  const cells: RenderCell[] = items?.length
+    ? items.map((item, i) => {
+        const base = CELLS[i];
+        return {...base, ini: item.initials, label: item.label, src: item.src, status: item.status,
+          kind: item.src ? 2 : base.kind, flagged: item.status === 'inactive'};
+      })
+    : CELLS.map((cell) => ({...cell, label: cell.ini, status: cell.flagged ? 'inactive' as const : 'active' as const, src: undefined}));
+  const legendItems = legend?.length ? legend : DEFAULT_LEGEND.map(([status, label]) => ({status: status.toLowerCase() as LegendItem['status'], label}));
   // 标题淡入 + 轻微 scale；图例随后浮现
   const tIn = seg(t, 0.02, 0.1, E.outQuad);
   const legendIn = seg(t, 0.26, 0.36, E.outQuad);
   return (
-    <DesignStage bg={PAPER} raster="zoom">
+    <DesignStage bg={skinBackground(skin, PAPER)} raster="zoom">
       <div
         style={{
           position: 'absolute',
@@ -82,7 +104,7 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
         }}
       >
         <div style={{ position: 'absolute', inset: 16 }}>
-          {CELLS.map((cl, i) => {
+          {cells.map((cl, i) => {
             const r = Math.floor(i / COLS);
             const c = i % COLS;
             const f = 0.09 + cl.delay;
@@ -90,6 +112,9 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
             const sc = seg(t, f, f + 0.03, E.outQuad);
             // 异常卡：底色染浅红、边框染粉、状态点转红
             const cT = cl.flagged ? seg(t, cl.at, cl.at + 0.036, E.outQuad) : 0;
+            const pendingT = cl.status === 'pending' ? seg(t, cl.at * 0.7, cl.at * 0.7 + 0.036, E.outQuad) : 0;
+            const statusColor = cl.status === 'inactive' ? mix('#37C46B', '#F0453A', cT) :
+              cl.status === 'pending' ? mix('#37C46B', '#F5A524', pendingT) : '#37C46B';
             return (
               <div
                 key={i}
@@ -101,8 +126,8 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
                   height: CELL_H,
                   boxSizing: 'border-box', // 等价 grid stretch：边框计入轨道尺寸
                   borderRadius: 8,
-                  background: cl.flagged ? mix(CARD_WHITE, FLAG_BG, cT) : CARD_WHITE,
-                  border: `1px solid ${cl.flagged ? mix('#E7E7E4', '#F6CFCF', cT) : '#E7E7E4'}`,
+                  background: cl.flagged ? mix(CARD_WHITE, FLAG_BG, cT) : cl.status === 'pending' ? mix(CARD_WHITE, '#FFF6DF', pendingT) : CARD_WHITE,
+                  border: `1px solid ${cl.flagged ? mix('#E7E7E4', '#F6CFCF', cT) : cl.status === 'pending' ? mix('#E7E7E4', '#F4D79A', pendingT) : '#E7E7E4'}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -119,7 +144,10 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
                 }}
               >
                 {cl.kind === 0 ? cl.ini : cl.kind === 1 ? cl.icon : null}
-                {cl.kind === 2 && (
+                {cl.kind === 2 && cl.src && (
+                  <Img src={staticFile(cl.src)} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+                )}
+                {cl.kind === 2 && !cl.src && (
                   <div
                     style={{
                       position: 'absolute',
@@ -139,7 +167,7 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
                     width: 5,
                     height: 5,
                     borderRadius: '50%',
-                    background: cl.flagged ? mix('#37C46B', '#F0453A', cT) : '#37C46B',
+                    background: statusColor,
                   }}
                 />
               </div>
@@ -157,14 +185,14 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
             lineHeight: 1.2,
             fontFamily: "-apple-system,'Helvetica Neue',sans-serif",
             letterSpacing: -1.2,
-            color: INK,
+            color: skin?.text || INK,
             textAlign: 'center',
             zIndex: 5,
             whiteSpace: 'nowrap',
             opacity: tIn,
           }}
         >
-          Let's bring them back in
+          {title || "Let's bring them back in"}
         </div>
         <div
           style={{
@@ -181,9 +209,12 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
             whiteSpace: 'nowrap',
           }}
         >
-          {LEGEND.map(([txt, col]) => (
+          {legendItems.map((item) => {
+            const col = item.status === 'active' ? '#37C46B' : item.status === 'pending' ? '#F5A524' : '#F0453A';
+            const txt = item.label;
+            return (
             <div
-              key={txt}
+              key={item.status}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -200,7 +231,8 @@ export const AvatarGridRadialBuildColorize: React.FC = () => {
               />
               <span>{txt}</span>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </DesignStage>

@@ -5,6 +5,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const AURORA_BLOOM_BG_FLIP_DURATION = 156; // 5200ms @30fps
 
@@ -22,14 +24,16 @@ const WB = 'everything changed'.split(' ');
 
 const FONT = '600 26px -apple-system,system-ui,"Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif';
 
-export const AuroraBloomBgFlip: React.FC = () => {
+export const AuroraBloomBgFlip: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const wa=skin ? (words?.[0] || '').split(' ') : WA;
+  const wb=skin ? (words?.[1] || '').split(' ') : WB;
+  if(skin && (wa.length!==3 || wb.length!==2)) throw new Error('Aurora requires three spaced words before flip and two after flip');
   // blob 升起 + 放大
   const rise = seg(t, 0.04, 0.62, E.outCubic);
   const flip = seg(t, 0.63, 0.7, E.inOutQuad); // 快速压暗，故意只 ~0.35s
 
-  return (
-    <DesignStage bg={mix(LIGHT, DARK, flip)}>
+  const scene=(<>
       {/* 柔焦 blob 组：整体 translateY 升起 + scale 放大，flip 后压成余晖 */}
       <div
         style={{
@@ -49,7 +53,7 @@ export const AuroraBloomBgFlip: React.FC = () => {
             bottom: '-45%',
             width: '90%',
             height: '85%',
-            background: 'radial-gradient(circle,rgba(107,79,224,.85) 0%,rgba(107,79,224,0) 68%)',
+            background: skin ? `radial-gradient(circle,color-mix(in srgb, ${skin.accent} 85%, transparent) 0%,transparent 68%)` : 'radial-gradient(circle,rgba(107,79,224,.85) 0%,rgba(107,79,224,0) 68%)',
           }}
         />
         {/* 橙色核心：横向慢漂 */}
@@ -62,7 +66,7 @@ export const AuroraBloomBgFlip: React.FC = () => {
             bottom: '-32%',
             width: '44%',
             height: '46%',
-            background: 'radial-gradient(circle,rgba(217,122,74,.9) 0%,rgba(217,122,74,0) 66%)',
+            background: skin ? `radial-gradient(circle,color-mix(in srgb, ${skin.muted} 90%, transparent) 0%,transparent 66%)` : 'radial-gradient(circle,rgba(217,122,74,.9) 0%,rgba(217,122,74,0) 66%)',
             transform: `translateX(${Math.sin(t * Math.PI * 2.2) * 8}%)`,
           }}
         />
@@ -89,12 +93,12 @@ export const AuroraBloomBgFlip: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          font: FONT,
+          font: skin ? `600 26px ${skin.fontFamily}` : FONT,
         }}
       >
         {/* 文案 A：blob 上升期逐词 blur-out */}
         <div style={{ position: 'absolute' }}>
-          {WA.map((w, i) => {
+          {wa.map((w, i) => {
             const out = seg(t, 0.46 + i * 0.04, 0.56 + i * 0.04, E.inQuad);
             return (
               <span
@@ -114,7 +118,7 @@ export const AuroraBloomBgFlip: React.FC = () => {
         </div>
         {/* 空档后文案 B：逐词 blur-in + 紫→白收色 */}
         <div style={{ position: 'absolute' }}>
-          {WB.map((w, i) => {
+          {wb.map((w, i) => {
             const d0 = 0.76 + i * 0.06;
             const a = seg(t, d0, d0 + 0.11, E.outQuint);
             const c = seg(t, d0 + 0.1, d0 + 0.26, E.outQuad);
@@ -126,7 +130,7 @@ export const AuroraBloomBgFlip: React.FC = () => {
                   margin: '0 .18em',
                   opacity: a,
                   filter: `blur(${(1 - a) * 8}px)`,
-                  color: mix(DEEPP, WHITE, c),
+                  color: skin ? `color-mix(in srgb, ${skin.text} ${c*100}%, ${skin.accent})` : mix(DEEPP, WHITE, c),
                 }}
               >
                 {w}
@@ -135,6 +139,7 @@ export const AuroraBloomBgFlip: React.FC = () => {
           })}
         </div>
       </div>
-    </DesignStage>
+    </>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,background:mix(LIGHT,DARK,flip),transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg={mix(LIGHT,DARK,flip)}>{scene}</DesignStage>;
 };

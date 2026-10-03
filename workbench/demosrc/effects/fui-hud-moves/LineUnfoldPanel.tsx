@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const PANEL_W = 760;
 const PANEL_H = 460;
@@ -26,7 +28,7 @@ const OFF = SHRINK_END + 4; // 点熄灭 f95
 
 const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
-export const LineUnfoldPanel: React.FC = () => {
+export const LineUnfoldPanel: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
 
   // 入场：scaleX（线抽出）快进快停，入场后保持 1
@@ -70,22 +72,22 @@ export const LineUnfoldPanel: React.FC = () => {
   // 面板阶段（sy 足够大）显示卡片内容；线/点阶段显示发光条
   const isPanel = sy > 0.15;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: '#1c1c1b', overflow: 'hidden', position: 'relative' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,'#1c1c1b'), overflow: 'hidden', position: 'relative' }}>
       <div
         style={{
           position: 'absolute',
           top: 120,
           width: '100%',
           textAlign: 'center',
-          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
           fontWeight: 800,
           fontSize: 52,
-          color: G.mid,
-          letterSpacing: 2,
+          color: skin?.text || G.mid,
+          letterSpacing: skin ? 0 : 2,
         }}
       >
-        LINE UNFOLD PANEL
+        {skin ? words?.[0] : 'LINE UNFOLD PANEL'}
       </div>
       {alive && (
         <div
@@ -102,14 +104,16 @@ export const LineUnfoldPanel: React.FC = () => {
         >
           {isPanel ? (
             <>
-              <Card w={PANEL_W} h={PANEL_H} seed={3} style={{ border: `2px solid ${G.mid}`, boxShadow: '0 0 40px rgba(255,255,255,0.18)' }} />
+              {skin ? <div style={{position:'absolute',inset:0,border:`2px solid ${skin.accent}`,borderRadius:12,background:skin.surface,boxShadow:'0 0 40px rgba(255,255,255,0.18)',boxSizing:'border-box',padding:'70px 56px',fontFamily:skin.fontFamily,color:skin.text}}>
+                {words?.slice(1).map((word,i)=><div key={i} style={{fontSize:i===0 ? 64 : 40,lineHeight:1.3,marginBottom:24,fontWeight:i===0 ? 800 : 500}}>{word}</div>)}
+              </div> : <Card w={PANEL_W} h={PANEL_H} seed={3} style={{ border: `2px solid ${G.mid}`, boxShadow: '0 0 40px rgba(255,255,255,0.18)' }} />}
               {/* 内容层单独控 opacity：盖一层暗板模拟"内容未亮" */}
               <div
                 style={{
                   position: 'absolute',
                   inset: 2,
                   borderRadius: 12,
-                  background: G.card,
+                  background: skin?.surface || G.card,
                   opacity: 1 - Math.min(contentOp, contentOutOp),
                 }}
               />
@@ -122,4 +126,5 @@ export const LineUnfoldPanel: React.FC = () => {
       )}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

@@ -8,18 +8,18 @@
 // 减速 + 6f 回弹，锁定于 42/49/56/63）→ 63–71 整体加深脉冲（ink→#000→ink，
 // 附 1.035 微缩放加码）→ 66–84 下方标签条淡入 → 84–150 全静止（66f ≥45f）。
 import React from 'react';
-import { useCurrentFrame, interpolate, interpolateColors, Easing } from 'remotion';
+import { useCurrentFrame, useVideoConfig, interpolate, interpolateColors, Easing } from 'remotion';
 import { G, TitleBlock } from '../../_fixtures/Fixtures';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
+import {odometerValue, odometerTiming, validateOdometerProps} from './odometer-contract.mjs';
 
 const ROW = 210; // 数位行高（overflow 盒高）
 const DW = 126; // 数位盒宽
 const FS = 190; // 字号
 const SPIN = 0.85; // 高速滚动速度：行/帧
-const DIGITS = [9, 9, 9, 8]; // 目标数位（"99.98" 中可滚的四位）
 
 // 位 i 的 strip 位置（单位：行，连续值）。纯帧函数，天然确定性。
-const posAt = (f: number, i: number): number => {
-  const d = DIGITS[i];
+const posAt = (f: number, i: number, d: number): number => {
   const s = 20 + i * 7; // 开始减速帧
   const p0 = SPIN * s;
   // 最小再走 6 行后，落在个位 = d 的最近整数位置
@@ -78,15 +78,15 @@ const Strip: React.FC<{ pos: number; color: string; opacity?: number; dy?: numbe
 );
 
 // 单个数位盒：本体 strip + 滚动期 2 个错帧残影（速度门控，停稳即摘）
-const DigitReel: React.FC<{ frame: number; i: number; color: string }> = ({ frame, i, color }) => {
-  const pos = posAt(frame, i);
-  const speed = Math.abs(pos - posAt(frame - 1, i));
+const DigitReel: React.FC<{ frame: number; i: number; digit: number; color: string }> = ({ frame, i, digit, color }) => {
+  const pos = posAt(frame, i, digit);
+  const speed = Math.abs(pos - posAt(frame - 1, i, digit));
   const gate = interpolate(speed, [0.06, 0.5], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
   return (
-    <div style={{ position: 'relative', width: DW, height: ROW, overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: DW, height: ROW, overflow: 'hidden', flexShrink:0 }}>
       {gate > 0.001 && (
         <>
           <Strip pos={pos} color={color} opacity={0.25 * gate} dy={ROW * 0.5} />
@@ -103,6 +103,7 @@ const StaticGlyph: React.FC<{ ch: string; color: string; w?: number }> = ({ ch, 
   <div
     style={{
       width: w,
+      flexShrink:0,
       height: ROW,
       lineHeight: `${ROW}px`,
       textAlign: 'center',
@@ -116,53 +117,77 @@ const StaticGlyph: React.FC<{ ch: string; color: string; w?: number }> = ({ ch, 
   </div>
 );
 
-export const OdometerDigitRoll: React.FC = () => {
+export type OdometerDigitRollProps = {
+  value?: number | string;
+  unit?: string;
+  label?: string;
+  title?: string;
+  skin?: TemplateSkin;
+  durationInFrames?: number;
+};
+
+export const OdometerDigitRoll: React.FC<OdometerDigitRollProps> = ({value, unit, label, title, skin, durationInFrames}) => {
   const frame = useCurrentFrame();
-  // 全位锁定于 63f：整体加深脉冲 ink→#000→ink（8f），附微缩放加码可感性
-  const inkNow = interpolateColors(frame, [63, 67, 71], [G.ink, '#000000', G.ink]);
-  const pulseScale = interpolate(frame, [63, 67, 71], [1, 1.035, 1], {
+  const config = useVideoConfig();
+  const business = value !== undefined || unit !== undefined || label !== undefined || title !== undefined || skin !== undefined;
+  const text = business ? validateOdometerProps({value,unit,label,title},durationInFrames ?? config.durationInFrames,config.fps).text : odometerValue();
+  const timing = odometerTiming(text.replace('.', '').length);
+  const width = business ? config.width : 1920;
+  const height = business ? config.height : 1080;
+  const portrait = height > width;
+  const color = skin?.text || G.ink;
+  // CSS variables are resolved by the browser; Remotion's color parser only accepts concrete colors.
+  const pulseWeight = interpolate(frame,[timing.lock,timing.lock+4,timing.pulseEnd],[0,100,0],{
+    extrapolateLeft:'clamp',extrapolateRight:'clamp',
+  });
+  const inkNow = skin ? interpolateColors(frame, [timing.lock, timing.lock+4, timing.pulseEnd],
+    [skin.text, skin.accent, skin.text]) : pulseWeight===0 ? color : `color-mix(in srgb, ${color}, #000000 ${pulseWeight}%)`;
+  const pulseScale = interpolate(frame, [timing.lock, timing.lock+4, timing.pulseEnd], [1, 1.035, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.inOut(Easing.quad),
   });
-  const labelOp = interpolate(frame, [66, 84], [0, 1], {
+  const labelOp = interpolate(frame, [timing.lock+3, timing.labelEnd], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.out(Easing.quad),
   });
 
+  const displayUnit = unit === undefined ? (business ? '' : '%') : unit;
+  const naturalWidth = text.replace('.', '').length * DW + (text.includes('.') ? 70 : 0) + [...displayUnit].length * FS;
+  const fitScale = business ? Math.min(1.65, width * 0.8 / Math.max(naturalWidth, 1)) : 1;
+  let digitIndex = 0;
   return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: 120, top: 96 }}>
-        <TitleBlock text="ODOMETER DIGIT ROLL" size={54} />
+    <div style={{ width, height, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden', fontFamily:skin?.fontFamily }}>
+      <div style={business ? {position:'absolute',left:width*0.1,top:height*(portrait ? 0.23 : 0.14),width:width*0.8,
+        color,fontSize:Math.min(54,width*0.8/Math.max([...(title || '')].length,1)),fontWeight:800,lineHeight:1.4,textAlign:'center',letterSpacing:0} : { position: 'absolute', left: 120, top: 96 }}>
+        {business ? title : <TitleBlock text="ODOMETER DIGIT ROLL" size={54} />}
       </div>
       <div
         style={{
           position: 'absolute',
           left: 0,
-          top: 400,
-          width: 1920,
+          top: business ? height*0.45-ROW/2 : 400,
+          width,
           display: 'flex',
           justifyContent: 'center',
-          fontFamily: 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-          transform: `scale(${pulseScale})`,
-          transformOrigin: '960px 105px',
+          fontFamily: skin?.fontFamily || 'Helvetica, Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          transform: `scale(${pulseScale*fitScale})`,
+          transformOrigin: `${width/2}px ${ROW/2}px`,
+          letterSpacing:0,
         }}
       >
-        <DigitReel frame={frame} i={0} color={inkNow} />
-        <DigitReel frame={frame} i={1} color={inkNow} />
-        <StaticGlyph ch="." color={inkNow} w={70} />
-        <DigitReel frame={frame} i={2} color={inkNow} />
-        <DigitReel frame={frame} i={3} color={inkNow} />
-        <StaticGlyph ch="%" color={inkNow} />
+        {[...text].map((ch,index)=>ch==='.' ? <StaticGlyph key={index} ch="." color={inkNow} w={70} /> :
+          <DigitReel key={index} frame={frame} i={digitIndex++} digit={Number(ch)} color={inkNow} />)}
+        {displayUnit && <StaticGlyph ch={displayUnit} color={inkNow} w={business ? [...displayUnit].length*FS : undefined} />}
       </div>
       {/* 下方标签条：全部锁定后淡入 */}
       <div
         style={{
           position: 'absolute',
           left: 0,
-          top: 680,
-          width: 1920,
+          top: business ? height*0.45+ROW*fitScale/2+height*0.06 : 680,
+          width,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -170,8 +195,11 @@ export const OdometerDigitRoll: React.FC = () => {
           opacity: labelOp,
         }}
       >
-        <div style={{ width: 520, height: 22, background: G.bar, borderRadius: 11 }} />
-        <div style={{ width: 320, height: 14, background: G.line, borderRadius: 7 }} />
+        {business ? <div style={{color,fontSize:Math.min(48,width*0.8/Math.max([...(label || '')].length,1)),
+          lineHeight:1.4,fontWeight:700,letterSpacing:0,whiteSpace:'nowrap'}}>{label}</div> : <>
+          <div style={{ width: 520, height: 22, background: G.bar, borderRadius: 11 }} />
+          <div style={{ width: 320, height: 14, background: G.line, borderRadius: 7 }} />
+        </>}
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
 // cycle-glass-node-morph — 单主体缩入机制图，循环标签随后被上升的玻璃节点接管。
 // 运动顺序：上下文主体 → 对角擦除 → 循环箭头与标签 → 连续推近 → 节点托起 → 诊断标记。
 import React from 'react';
-import { Easing, interpolate, useCurrentFrame } from 'remotion';
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import { DesignStage, E, lerp } from '../../_fixtures/Motion';
+import {type TemplateSkin} from '../../_fixtures/TemplateSkin';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
 
 export const CYCLE_GLASS_NODE_MORPH_DURATION = 257;
 
@@ -84,7 +86,8 @@ const GlassNode: React.FC<{
   left: number;
   top: number;
   label: string;
-}> = ({ frame, start, end, left, top, label }) => {
+  skin?:TemplateSkin;
+}> = ({ frame, start, end, left, top, label,skin }) => {
   const k = frameSeg(frame, start, end, E.outBack);
   const opacity = frameSeg(frame, start, start + 2, E.outQuad);
   return (
@@ -96,19 +99,19 @@ const GlassNode: React.FC<{
         width: 64,
         height: 64,
         borderRadius: '50%',
-        background: 'rgba(64,64,68,.88)',
-        border: '1px solid rgba(255,255,255,.48)',
+        background: skin?.surface || 'rgba(64,64,68,.88)',
+        border: `1px solid ${skin?.accent || 'rgba(255,255,255,.48)'}`,
         boxShadow: '0 10px 24px rgba(18,18,20,.18), inset 0 1px 6px rgba(255,255,255,.28)',
         backdropFilter: 'blur(10px)',
         opacity,
         transform: `translate(-50%, ${lerp(k, 86, -32)}px) scale(${lerp(k, 0.82, 1)})`,
         display: 'grid',
         placeItems: 'center',
-        color: 'var(--text)',
-        fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-        fontSize: 8.5,
+        color: skin?.text || 'var(--text)',
+        fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontSize: skin ? 12 : 8.5,
         fontWeight: 850,
-        letterSpacing: 0.2,
+        letterSpacing: skin ? 0 : 0.2,
       }}
     >
       {label}
@@ -147,8 +150,10 @@ const Marker: React.FC<{ frame: number; start: number; end: number; left: number
   );
 };
 
-export const CycleGlassNodeMorph: React.FC = () => {
+export const CycleGlassNodeMorph: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin,durationInFrames}) => {
   const frame = useCurrentFrame();
+  const {fps}=useVideoConfig();
+  if(words && (words.length!==6 || !skin || durationInFrames!==CYCLE_GLASS_NODE_MORPH_DURATION || fps!==30 || words.some((word,i)=>!word.trim()||[...word].length>(i<3?6:4)))) throw new Error('CycleGlassNodeMorph requires six business labels and exactly 257 frames at 30fps');
   const wipe = frameSeg(frame, 66, 90, E.inOutCubic);
   const vehicle = frameSeg(frame, 62, 94, E.inOutCubic);
   const disk = frameSeg(frame, 66, 110, E.outCubic);
@@ -162,23 +167,22 @@ export const CycleGlassNodeMorph: React.FC = () => {
   const wipeStop = interpolate(wipe, [0, 1], [-40, 140]);
 
   const labelData = [
-    { label: 'SENSE', left: 147, top: 92, start: 124 },
-    { label: 'MODEL', left: 240, top: 63, start: 129 },
-    { label: 'ACT', left: 333, top: 92, start: 134 },
+    { label: words?.[3] || 'SENSE', left: 147, top: 92, start: 124 },
+    { label: words?.[4] || 'MODEL', left: 240, top: 63, start: 129 },
+    { label: words?.[5] || 'ACT', left: 333, top: 92, start: 134 },
   ];
 
-  return (
-    <DesignStage bg="#f5f5f2" raster="zoom">
+  const content = (
       <div
         style={{
           position: 'absolute',
-          inset: 0,
+          inset:0,
           overflow: 'hidden',
           isolation: 'isolate',
-          background: `linear-gradient(135deg, #f5f5f2 0%, #f5f5f2 ${wipeStop}%, #c8c8c5 ${
+          background: `linear-gradient(135deg, ${skin?.bg || '#f5f5f2'} 0%, ${skin?.bg || '#f5f5f2'} ${wipeStop}%, ${skin?.surface || '#c8c8c5'} ${
             wipeStop + 0.2
-          }%, #c8c8c5 100%)`,
-          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          }%, ${skin?.surface || '#c8c8c5'} 100%)`,
+          fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div
@@ -188,17 +192,17 @@ export const CycleGlassNodeMorph: React.FC = () => {
             right: 36,
             top: 13,
             height: 47,
-            background: '#a4a4a1',
+            background: skin?.surface || '#a4a4a1',
             display: 'grid',
             placeItems: 'center',
-            color: '#f8f8f6',
+            color: skin?.text || '#f8f8f6',
             fontSize: 15,
             fontWeight: 850,
-            letterSpacing: 1,
+            letterSpacing: words ? 0 : 1,
             opacity: 1 - wipe,
           }}
         >
-          CONTEXT
+          {words?.[0] || 'CONTEXT'}
         </div>
 
         <div
@@ -209,7 +213,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             width: 218,
             height: 218,
             borderRadius: '50%',
-            background: '#cececb',
+            background: skin?.bg || '#cececb',
             opacity: disk,
             transform: `translate(-50%,-50%) scale(${lerp(disk, 0.3, 1)})`,
             transformOrigin: '50% 50%',
@@ -224,19 +228,19 @@ export const CycleGlassNodeMorph: React.FC = () => {
             top: 112,
             width: 118,
             height: 14,
-            background: '#999996',
+            background: skin?.surface || '#999996',
             opacity: title * (1 - frameSeg(frame, 176, 192, E.outQuad)),
             transform: `translate(-50%, ${lerp(title, 8, 0)}px)`,
             display: 'grid',
             placeItems: 'center',
-            color: '#1a1d24',
+            color: skin?.text || '#1a1d24',
             fontSize: 8.5,
             fontWeight: 850,
-            letterSpacing: 0.8,
+            letterSpacing: words ? 0 : 0.8,
             zIndex: 4,
           }}
         >
-          SYSTEM LOOP
+          {words?.[2] || 'SYSTEM LOOP'}
         </div>
 
         <svg
@@ -252,18 +256,18 @@ export const CycleGlassNodeMorph: React.FC = () => {
             overflow: 'visible',
           }}
         >
-          <polygon points="56,27 96,0 236,0 276,27 332,47 332,134 0,134 0,47" fill="#5a5a5d" />
+          <polygon points="56,27 96,0 236,0 276,27 332,47 332,134 0,134 0,47" fill={skin?.surface || '#5a5a5d'} />
           <text
             x="166"
             y="82"
             textAnchor="middle"
             dominantBaseline="middle"
-            fill="#fff"
-            fontFamily="Arial, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif"
+            fill={skin?.text || '#fff'}
+            fontFamily={skin?.fontFamily || "Arial, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif"}
             fontSize="18"
             fontWeight="850"
           >
-            SUBJECT
+            {words?.[1] || 'SUBJECT'}
           </text>
         </svg>
 
@@ -283,7 +287,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             <path
               d="M68 98 Q185 4 302 98"
               fill="none"
-              stroke="#4d4d50"
+              stroke={skin?.accent || '#4d4d50'}
               strokeWidth="1.3"
               strokeDasharray="300"
               strokeDashoffset={300 * (1 - arrows)}
@@ -291,7 +295,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             <path
               d="M302 100 Q185 190 68 100"
               fill="none"
-              stroke="#4d4d50"
+              stroke={skin?.accent || '#4d4d50'}
               strokeWidth="1.3"
               strokeDasharray="300"
               strokeDashoffset={300 * (1 - arrows)}
@@ -299,7 +303,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             <path
               d="M-9 -5 L0 0 L-9 5"
               fill="none"
-              stroke="#4d4d50"
+              stroke={skin?.accent || '#4d4d50'}
               strokeWidth="1.3"
               opacity={frameSeg(arrows, 0.02, 0.08, E.outQuad)}
               transform={`translate(${topArrow.x} ${topArrow.y}) rotate(${topArrow.angle})`}
@@ -307,7 +311,7 @@ export const CycleGlassNodeMorph: React.FC = () => {
             <path
               d="M-9 -5 L0 0 L-9 5"
               fill="none"
-              stroke="#4d4d50"
+              stroke={skin?.accent || '#4d4d50'}
               strokeWidth="1.3"
               opacity={frameSeg(arrows, 0.02, 0.08, E.outQuad)}
               transform={`translate(${bottomArrow.x} ${bottomArrow.y}) rotate(${bottomArrow.angle})`}
@@ -328,8 +332,8 @@ export const CycleGlassNodeMorph: React.FC = () => {
                   top: item.top,
                   width: 110,
                   textAlign: 'center',
-                  color: '#353538',
-                  fontSize: 10,
+                  color: skin?.text || '#353538',
+                  fontSize: words ? 12 : 10,
                   fontWeight: 850,
                   opacity: opacity * (1 - nodeTakeover),
                   transform: `translateY(${lerp(nodeTarget, 0, -4)}px)`,
@@ -340,15 +344,15 @@ export const CycleGlassNodeMorph: React.FC = () => {
             );
           })}
 
-          <GlassNode frame={frame} start={184} end={192} left={92} top={98} label="SENSE" />
-          <GlassNode frame={frame} start={192} end={200} left={185} top={69} label="MODEL" />
-          <GlassNode frame={frame} start={200} end={208} left={278} top={98} label="ACT" />
+          <GlassNode frame={frame} start={184} end={192} left={92} top={98} label={labelData[0].label} skin={skin} />
+          <GlassNode frame={frame} start={192} end={200} left={185} top={69} label={labelData[1].label} skin={skin} />
+          <GlassNode frame={frame} start={200} end={208} left={278} top={98} label={labelData[2].label} skin={skin} />
 
           <Marker frame={frame} start={208} end={214} left={48} top={119} rotate={-90} />
           <Marker frame={frame} start={213} end={218} left={181} top={30} rotate={0} />
           <Marker frame={frame} start={217} end={222} left={314} top={119} rotate={90} />
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:144,top:0,width:480,height:270,transform:'scale(3.4)',transformOrigin:'top left'}}>{content}</div></BusinessTextStage> : <DesignStage bg="#f5f5f2" raster="zoom">{content}</DesignStage>;
 };

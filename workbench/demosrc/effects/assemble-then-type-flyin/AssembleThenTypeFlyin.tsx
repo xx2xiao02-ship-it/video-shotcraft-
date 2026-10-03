@@ -5,6 +5,8 @@
 // 内容为中性占位模板，强调色可按项目替换。设计坐标 480×270（DesignStage 等比放大）。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const ASSEMBLE_THEN_TYPE_FLYIN_DURATION = 156; // 5200ms @30fps
 
@@ -62,8 +64,21 @@ const CHAR_PARAMS: CharP[][][] = BLOCKS.map((b) =>
   )
 );
 
-export const AssembleThenTypeFlyin: React.FC = () => {
+export const AssembleThenTypeFlyin: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  const blocks:Block[]=skin ? [
+    {x:22,y:64,font:`600 29px ${skin.fontFamily}`,color:skin.text,ls:0,start:.34,segs:[{s:words?.[0] || ''}]},
+    {x:22,y:100,font:`600 29px ${skin.fontFamily}`,color:skin.text,ls:0,start:.4,segs:[{s:words?.[1] || ''}]},
+    {x:41,y:32,font:`500 13px ${skin.fontFamily}`,color:skin.text,ls:0,start:.47,segs:[{s:words?.[2] || ''}]},
+    {x:308,y:96,font:`600 22px ${skin.fontFamily}`,color:skin.text,ls:0,start:.5,segs:[{s:words?.[3] || ''}]},
+    {x:30,y:172,font:`600 12px ${skin.fontFamily}`,color:skin.text,ls:0,start:.58,segs:[{s:words?.[4] || ''}]},
+    {x:22,y:195,font:`500 13px ${skin.fontFamily}`,color:skin.text,ls:0,start:.74,segs:[{s:words?.[5] || ''}]},
+  ] : BLOCKS;
+  let seed=0;
+  const params=skin ? blocks.map(b=>b.segs.map(sg=>Array.from(sg.s,()=>{const k=seed++;return {
+    dx:(rand(k)-.5)*340,dy:(rand(k+50)-.5)*260,dz:-120-rand(k+99)*300,
+    rx:(rand(k+7)-.5)*340,ry:(rand(k+13)-.5)*380,rz:(rand(k+23)-.5)*240,
+  };}))) : CHAR_PARAMS;
 
   // 阶段一：骨架四方飞入（无字）——outBack 回弹 + 运动残余 blur
   const shell = ({ from, rot, ft }: Shell): React.CSSProperties => {
@@ -77,9 +92,8 @@ export const AssembleThenTypeFlyin: React.FC = () => {
     };
   };
 
-  return (
-    <DesignStage bg="#0a0b0e">
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,#101116,#0c0d11)' }}>
+  const scene=(
+      <div style={{ position: 'absolute', inset: 0, background: skinBackground(skin,'linear-gradient(180deg,#101116,#0c0d11)') }}>
         {/* 底层网格 */}
         <div
           style={{
@@ -92,7 +106,7 @@ export const AssembleThenTypeFlyin: React.FC = () => {
           }}
         />
         {/* 顶栏 url pill + 右侧短线 */}
-        <div style={{ ...shell(SH.urlPill), left: 18, top: 11, width: 78, height: 14, border: '1px solid #2a2c33', borderRadius: 9 }} />
+        <div style={{ ...shell(SH.urlPill), left: 18, top: 11, width: 78, height: 14, border: `1px solid ${skin?.muted || '#2a2c33'}`, borderRadius: 9 }} />
         <div style={{ ...shell(SH.topLine), right: 18, top: 16, width: 52, height: 5, background: '#1d1f26', borderRadius: 2 }} />
         {/* logo 点阵 */}
         <div style={{ ...shell(SH.mark), left: 24, top: 37, width: 10, height: 10 }}>
@@ -104,7 +118,7 @@ export const AssembleThenTypeFlyin: React.FC = () => {
                 width: 4,
                 height: 4,
                 borderRadius: '50%',
-                background: '#1a1d24',
+                background: skin?.accent || '#1a1d24',
                 left: (i % 2) * 6,
                 top: (i >> 1) * 6,
               }}
@@ -119,8 +133,8 @@ export const AssembleThenTypeFlyin: React.FC = () => {
             top: 52,
             width: 162,
             height: 150,
-            background: '#121319',
-            border: '1px solid #23252d',
+            background: skin?.surface || '#121319',
+            border: `1px solid ${skin?.muted || '#23252d'}`,
             borderRadius: 5,
           }}
         >
@@ -129,18 +143,18 @@ export const AssembleThenTypeFlyin: React.FC = () => {
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              style={{ position: 'absolute', left: 10 + i * 30, top: 124, width: 24, height: 16, background: '#1a1c23', borderRadius: 2 }}
+              style={{ position: 'absolute', left: 10 + i * 30, top: 124, width: 24, height: 16, background: skin?.accent || '#1a1c23', borderRadius: 2 }}
             />
           ))}
         </div>
         {/* CTA pill 骨架 */}
-        <div style={{ ...shell(SH.cta), left: 22, top: 166, width: 74, height: 24, border: '1px solid #3a3a3a', borderRadius: 12 }} />
+        <div style={{ ...shell(SH.cta), left: 22, top: 166, width: 74, height: 24, border: `1px solid ${skin?.accent || '#3a3a3a'}`, borderRadius: 12 }} />
         {/* 社交 x 方块 */}
-        <div style={{ ...shell(SH.social), left: 352, top: 241, width: 11, height: 11, border: '1px solid #3a3a3a', borderRadius: 2 }} />
+        <div style={{ ...shell(SH.social), left: 352, top: skin ? 210 : 241, width: 11, height: 11, border: `1px solid ${skin?.muted || '#3a3a3a'}`, borderRadius: 2 }} />
 
         {/* 阶段二：文字逐字 3D 旋转落位（间隔按块长自适应，保证 t≈0.95 前全部落位） */}
-        {BLOCKS.map((b, bi) => {
-          const n = CHAR_PARAMS[bi].reduce((acc, sgp) => acc + sgp.length, 0);
+        {blocks.map((b, bi) => {
+          const n = params[bi].reduce((acc, sgp) => acc + sgp.length, 0);
           const step = Math.min(0.012, Math.max(0.002, (0.94 - b.start - 0.13) / n));
           let ci = 0; // 块内字符序号（跨段累计，决定各字的错峰起飞）
           return (
@@ -160,7 +174,7 @@ export const AssembleThenTypeFlyin: React.FC = () => {
               {b.segs.map((sg, si) => (
                 <span key={si} style={sg.i ? { fontStyle: 'italic' } : undefined}>
                   {Array.from(sg.s, (ch, k) => {
-                    const c = CHAR_PARAMS[bi][si][k];
+                    const c = params[bi][si][k];
                     const ft = b.start + ci++ * step;
                     const a = seg(t, ft, ft + 0.13, E.outCubic);
                     return (
@@ -186,6 +200,6 @@ export const AssembleThenTypeFlyin: React.FC = () => {
           );
         })}
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:480,height:270,transform:'scale(4)',transformOrigin:'0 0'}}>{scene}</div></BusinessTextStage> : <DesignStage bg="#0a0b0e">{scene}</DesignStage>;
 };
