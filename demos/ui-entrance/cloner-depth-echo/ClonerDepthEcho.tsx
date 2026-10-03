@@ -6,6 +6,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, spring, Easing } from 'remotion';
 import { G, Card, TitleBlock } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const FPS = 30;
 const N = 7; // 克隆数
@@ -15,8 +17,14 @@ const SPREAD_START = 18; // 排开起始帧
 const HOLD_END = 18 + 12 + 25; // f55：停留结束
 const MERGE_DUR = 10; // 吸回时长
 
-export const ClonerDepthEcho: React.FC = () => {
+export const ClonerDepthEcho: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
+  const businessCard=(shadow?:string)=>skin ? <div style={{width:520,height:340,background:skin.surface,
+    border:`2px solid ${skin.accent}`,borderRadius:8,boxSizing:'border-box',padding:40,boxShadow:shadow,
+    fontFamily:skin.fontFamily,display:'flex',flexDirection:'column',justifyContent:'center',gap:22}}>
+    <div style={{color:skin.accent,fontSize:42,fontWeight:700}}>{words?.[1]}</div>
+    <div style={{color:skin.text,fontSize:36}}>{words?.[2]}</div>
+  </div> : <Card w={520} h={340} seed={3} style={shadow?{boxShadow:shadow}:undefined} />;
 
   // 吸回进度（全体同步，ease-in 加速）
   const merge = interpolate(frame, [HOLD_END, HOLD_END + MERGE_DUR], [0, 1], {
@@ -34,10 +42,10 @@ export const ClonerDepthEcho: React.FC = () => {
   });
   const heroScale = frame >= HOLD_END + MERGE_DUR ? 1 + 0.08 * Math.sin(popS * Math.PI) : 1;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, overflow: 'hidden', position: 'relative' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'absolute', top: 100, width: '100%', textAlign: 'center' }}>
-        <TitleBlock text="CLONER DEPTH ECHO" size={72} />
+        {skin ? <div style={{font: `700 64px ${skin.fontFamily}`,color:skin.text}}>{words?.[0]}</div> : <TitleBlock text="CLONER DEPTH ECHO" size={72} />}
       </div>
 
       <div style={{ position: 'absolute', inset: 0, perspective: 1600, perspectiveOrigin: '58% 46%' }}>
@@ -75,16 +83,17 @@ export const ClonerDepthEcho: React.FC = () => {
                   opacity: op,
                 }}
               >
-                <Card w={520} h={340} seed={3} />
+                {businessCard()}
               </div>
             );
           })}
           {/* 本体 */}
           <div style={{ position: 'absolute', transform: `translateZ(0px) scale(${heroScale.toFixed(4)})` }}>
-            <Card w={520} h={340} seed={3} style={{ boxShadow: '0 10px 36px rgba(31,28,23,0.22)' }} />
+            {businessCard('0 10px 36px rgba(31,28,23,0.22)')}
           </div>
         </div>
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

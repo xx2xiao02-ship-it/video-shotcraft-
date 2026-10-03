@@ -10,6 +10,8 @@ import React from 'react';
 import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, Easing } from 'remotion';
 import { PageCam2D, CamKey2D } from '../../_fixtures/PageCam2D';
 import layout from '../../_textures/live-layout.json';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const LIST_STACK_PRESS_DURATION = 88; // 18–88f 落在 shot 内 offset 0
 
@@ -57,9 +59,19 @@ const DigitRoll: React.FC<{ pos: number; lineH: number; color: string }> = ({ po
   </span>
 );
 
-export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
+export const ListStackPress: React.FC<{ labels?: string[];skin?:TemplateSkin;durationInFrames?:number }> = ({ labels,skin }) => {
   const LABELS = labels && labels.length > 0 ? labels : DEFAULT_LABELS;
   const frame = useCurrentFrame();
+  const Page:React.FC<{children:React.ReactNode}>=({children})=>{
+    if(!skin) return <PageCam2D src="textures/live/papers-full.png" pageH={PAGE_H} keys={CAM_KEYS}>{children}</PageCam2D>;
+    const end=CAM_KEYS.findIndex(key=>key.frame>=frame);
+    const a=end>0?CAM_KEYS[end-1]:end===0?CAM_KEYS[0]:CAM_KEYS.at(-1)!;
+    const b=end>=0?CAM_KEYS[end]:a;
+    const p=a.frame===b.frame?1:interpolate(frame,[a.frame,b.frame],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp',easing:Easing.bezier(0.33,0,0.15,1)});
+    const zoom=a.zoom+(b.zoom-a.zoom)*p,cx=a.cx+(b.cx-a.cx)*p,cy=a.cy+(b.cy-a.cy)*p;
+    return <AbsoluteFill style={{overflow:'hidden'}}><div style={{position:'absolute',width:1920,height:PAGE_H,
+      transform:`translate(${960-cx*zoom}px,${540-cy*zoom}px) scale(${zoom})`,transformOrigin:'top left'}}>{children}</div></AbsoluteFill>;
+  };
   // 计数器连续位置：每张卡落地（cue+DUR）时向前滚一格，8f 滚定。
   // 最后一张 f76 落地、f84 滚定，早于 f88 镜头结束。
   let rollPos = 0;
@@ -98,11 +110,11 @@ export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
   });
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: '#faf7f2' }}>
-      <PageCam2D src="textures/live/papers-full.png" pageH={PAGE_H} keys={CAM_KEYS}>
+  const scene=(
+    <AbsoluteFill style={{ backgroundColor: skinBackground(skin,'#faf7f2') }}>
+      <Page>
         {/* cover the printed cards so blank slots stack in */}
-        {cards.map((c, i) => (
+        {!skin && cards.map((c, i) => (
           <div
             key={`slot-${i}`}
             style={{
@@ -145,14 +157,17 @@ export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
                 transformOrigin: 'center center', boxShadow: shadow, borderRadius: 12,
               }}
             >
-              <Img src={staticFile(`textures/live/${FILES[i]}`)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />
+              {skin ? <div style={{width:'100%',height:'100%',boxSizing:'border-box',padding:'44px 54px',background:skin.surface,
+                color:skin.text,font:`700 58px ${skin.fontFamily}`,display:'flex',alignItems:'center',gap:36,border:`2px solid ${skin.muted}`,borderRadius:8}}>
+                <span style={{color:skin.accent,fontVariantNumeric:'tabular-nums'}}>{i+1}</span><span>{LABELS[i]}</span>
+              </div> : <Img src={staticFile(`textures/live/${FILES[i]}`)} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }} />}
               {hlGrow > 0 && hlFade > 0 ? (
                 <div
                   style={{
                     position: 'absolute', left: 20, top: c.h * 0.72,
                     width: `${hlGrow * 40}%`, height: 30,
-                    background: 'oklch(97% 0.028 85)', opacity: 0.6 * hlFade,
-                    borderRight: `2px solid ${AMBER}`, pointerEvents: 'none',
+                    background: skin?.accent || 'oklch(97% 0.028 85)', opacity: 0.6 * hlFade,
+                    borderRight: `2px solid ${skin?.accent || AMBER}`, pointerEvents: 'none',
                   }}
                 />
               ) : null}
@@ -169,7 +184,7 @@ export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
             pointerEvents: 'none',
           }}
         />
-      </PageCam2D>
+      </Page>
 
       {/* screen-space counter, top-right — lands one digit per card */}
       <div
@@ -180,15 +195,16 @@ export const ListStackPress: React.FC<{ labels?: string[] }> = ({ labels }) => {
         }}
       >
         <div style={{ fontFamily: MONO, fontSize: 24, letterSpacing: '0.16em', color: 'oklch(50% 0.006 82)', textTransform: 'uppercase' }}>
-          {LABELS[0] ?? DEFAULT_LABELS[0]}
+          {skin ? '' : LABELS[0] ?? DEFAULT_LABELS[0]}
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
-          <DigitRoll pos={rollPos} lineH={96 * 1.15} color={AMBER} />
+          <DigitRoll pos={rollPos} lineH={96 * 1.15} color={skin?.accent || AMBER} />
         </div>
         <div style={{ fontFamily: MONO, fontSize: 20, letterSpacing: '0.12em', color: 'oklch(50% 0.006 82)', marginTop: 4, textTransform: 'uppercase' }}>
-          {LABELS[1] ?? DEFAULT_LABELS[1]}
+          {skin ? '' : LABELS[1] ?? DEFAULT_LABELS[1]}
         </div>
       </div>
     </AbsoluteFill>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',width:1920,height:1080,left:240,top:0,transform:'scale(0.75)',transformOrigin:'top left'}}>{scene}</div></BusinessTextStage> : scene;
 };

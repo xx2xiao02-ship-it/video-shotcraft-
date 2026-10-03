@@ -5,6 +5,7 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const RESEARCH_CARD_STACK_SCROLL_DURATION = 144; // 4800ms @30fps
 
@@ -41,15 +42,16 @@ const TITLES = [
   'Signal Propagation in Deep Residual Agents',
   'A Note on Deterministic Replay of Motion',
 ];
+const DEFAULT_TITLES = TITLES.slice(0, 8);
 const CW = 296;
 const CH = 96;
 
-export const ResearchCardStackScroll: React.FC = () => {
+export const ResearchCardStackScroll: React.FC<{titles?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({titles = DEFAULT_TITLES, skin}) => {
   const t = useT();
   const f = t * F;
   const focus = Math.floor(f / PER); // 只有最上一张卡渲染正文
   return (
-    <DesignStage bg="#FAFAFA">
+    <DesignStage bg={skinBackground(skin, '#FAFAFA')}>
       {/* 背景横向 grid：随滚流同步下移做速度参照 */}
       <div
         style={{
@@ -72,7 +74,7 @@ export const ResearchCardStackScroll: React.FC = () => {
           transform: `scale(${S})`,
         }}
       >
-        {TITLES.map((tt, i) => {
+        {titles.map((tt, i) => {
           const e = f - i * PER; // 该卡的本地帧
           const p = seg(Math.max(0, Math.min(1, (e + 6) / 6)), 0, 1, E.outCubic); // 6 帧入场
           const drift = (Math.max(0, e) / PER) * GAP; // 叠压后随流下移

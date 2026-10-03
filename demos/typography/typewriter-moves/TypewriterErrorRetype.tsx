@@ -8,6 +8,8 @@
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { G } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const DEFAULT_TEXT1 = 'just a dashboard'; // 16 chars
 const DEFAULT_KEEP = 5; // "just " 保留
@@ -19,19 +21,22 @@ const CURSOR_OFF = 115; // 两个 10f 闪烁周期后熄灭（最后一次视觉
 
 const CHAR_W = 58; // fontSize 96 的等宽感字符宽
 
-export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => {
-  const TEXT1 = text || DEFAULT_TEXT1;
-  const KEEP = Math.min(DEFAULT_KEEP, TEXT1.length);
+export const TypewriterErrorRetype: React.FC<{ text?: string; words?: string[]; skin?: TemplateSkin; durationInFrames?: number }> = ({ text, words, skin }) => {
+  const TEXT1 = words?.[0] || text || DEFAULT_TEXT1;
+  const KEEP = words ? 0 : Math.min(DEFAULT_KEEP, TEXT1.length);
   const DEL = TEXT1.length - KEEP;
-  const TEXT2 = DEFAULT_TEXT2;
+  const TEXT2 = words?.[1] || DEFAULT_TEXT2;
   const PAUSE_START = T1 + (TEXT1.length - 1) * 2;
   const DS = PAUSE_START + 16;
-  const TYPE2_END = RS + (TEXT2.length - 1) * 1.5;
+  const retypeStart = words ? DS + DEL * 1.5 + 4 : RS;
+  const TYPE2_END = retypeStart + (TEXT2.length - 1) * 1.5;
+  const cursorOff = words ? TYPE2_END + 20 : CURSOR_OFF;
+  const charWidth = skin ? Math.min(96, 1440 / Math.max(TEXT1.length, TEXT2.length)) : CHAR_W;
   const f = useCurrentFrame();
 
   // 光标可见性：打字/删除时常亮；停顿段 8f 周期闪两下；打完后 10f 周期闪两下；之后永灭
   const cursorOn = (frame: number): boolean => {
-    if (frame >= CURSOR_OFF) return false;
+    if (frame >= cursorOff) return false;
     if (frame >= TYPE2_END) {
       return Math.floor((frame - TYPE2_END) / 5) % 2 === 0;
     }
@@ -47,7 +52,7 @@ export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => 
   // 已删除字符数（从尾部删）
   const removed = f < DS ? 0 : Math.min(DEL, Math.floor((f - DS) / 1.5) + 1);
   // 第二遍已打出字符数
-  const n2 = f < RS ? 0 : Math.min(TEXT2.length, Math.floor((f - RS) / 1.5) + 1);
+  const n2 = f < retypeStart ? 0 : Math.min(TEXT2.length, Math.floor((f - retypeStart) / 1.5) + 1);
 
   const shown =
     TEXT1.slice(0, Math.max(KEEP, n1 - removed)).slice(0, n1) +
@@ -55,12 +60,12 @@ export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => 
 
   const chars = shown.split('');
 
-  return (
+  const content = (
     <div
       style={{
         width: 1920,
         height: 1080,
-        background: G.bg,
+        background: skin ? 'transparent' : G.bg,
         position: 'relative',
       }}
     >
@@ -69,7 +74,7 @@ export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => 
       <div
         style={{
           position: 'absolute',
-          left: 264,
+          left: skin ? (1920 - Math.max(TEXT1.length, TEXT2.length) * charWidth) / 2 : 264,
           top: 490,
           display: 'flex',
           alignItems: 'center',
@@ -80,12 +85,12 @@ export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => 
             key={i}
             style={{
               display: 'inline-block',
-              width: CHAR_W,
+              width: charWidth,
               textAlign: 'center',
-              fontFamily: '"Courier New", Courier, monospace',
-              fontSize: 96,
+              fontFamily: skin?.fontFamily || '"Courier New", Courier, monospace',
+              fontSize: skin ? charWidth : 96,
               fontWeight: 700,
-              color: G.ink,
+              color: skin?.text || G.ink,
               lineHeight: 1.1,
             }}
           >
@@ -100,11 +105,12 @@ export const TypewriterErrorRetype: React.FC<{ text?: string }> = ({ text }) => 
               width: 7,
               height: 100,
               marginLeft: 4,
-              background: G.ink,
+              background: skin?.accent || G.ink,
             }}
           />
         )}
       </div>
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{content}</BusinessTextStage> : content;
 };

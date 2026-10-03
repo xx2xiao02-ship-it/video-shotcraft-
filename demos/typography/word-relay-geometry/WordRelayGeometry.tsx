@@ -4,6 +4,7 @@
 // 背景漂浮微尘粒子。设计坐标 480×270（DesignStage 等比放大），参数以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const WORD_RELAY_GEOMETRY_DURATION = 180; // 6000ms @30fps
 
@@ -34,15 +35,15 @@ const DEFAULT_SLOTS: { label: string; geom: Geom[]; t0: number; t1: number }[] =
   { label: 'Stronger', geom: [], t0: 0.64, t1: 1.0 },
 ];
 
-export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => {
+export const WordRelayGeometry: React.FC<{ words?: string[]; skin?: TemplateSkin }> = ({ words, skin }) => {
   // 由注入 words 替换各 slot 的 label，几何配置与时段(t0/t1)原样保留
   const SLOTS =
     words && words.length > 0
-      ? DEFAULT_SLOTS.map((s, i) => ({ ...s, label: words[i] ?? s.label }))
+      ? DEFAULT_SLOTS.slice(0, words.length).map((s, i) => ({ ...s, label: words[i] }))
       : DEFAULT_SLOTS;
   const t = useT();
   return (
-    <DesignStage bg="#07080c">
+    <DesignStage bg={skinBackground(skin, '#07080c')}>
       {/* 微尘粒子：缓慢上浮 loop + 呼吸闪烁 */}
       {PARTS.map((p, i) => {
         const y = (1 - ((t * p.sp + p.ph) % 1)) * 110 - 5;
@@ -54,7 +55,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
               width: p.size,
               height: p.size,
               borderRadius: '50%',
-              background: '#fff',
+              background: skin?.accent || '#fff',
               left: `${p.x}%`,
               top: `${y}%`,
               opacity: 0.12 + 0.18 * Math.sin((t * 3 + p.ph) * Math.PI * 2) ** 2,
@@ -66,7 +67,8 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
       {SLOTS.map(({ label, geom, t0, t1 }, i) => {
         const isLast = i === SLOTS.length - 1;
         const tin = seg(t, t0, t0 + 0.07, E.outCubic);
-        const tout = isLast ? 0 : seg(t, t1 - 0.05, t1, E.inQuad);
+        const textOutEnd = skin && !isLast ? SLOTS[i + 1].t0 : t1;
+        const tout = isLast ? 0 : seg(t, textOutEnd - 0.05, textOutEnd, E.inQuad);
         const alive = tin > 0 && tout < 1;
 
         // Faster/Better：outline→fill 左起 clip 揭示
@@ -93,7 +95,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                       cy={0}
                       r={g.r}
                       fill="none"
-                      stroke="#565e78"
+                      stroke={skin?.accent || '#565e78'}
                       strokeWidth={1.1}
                       strokeDasharray="5 7"
                       opacity={grow * (1 - tout)}
@@ -112,7 +114,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                     cy={0}
                     r={g.r}
                     fill="none"
-                    stroke="#565e78"
+                    stroke={skin?.accent || '#565e78'}
                     strokeWidth={1.1}
                     pathLength={1}
                     strokeDasharray="1"
@@ -129,16 +131,17 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                 left: '50%',
                 top: '50%',
                 transform: `translate(-50%,-52%) scale(${lerp(tout, 1, 0.86)})`,
-                fontFamily: '-apple-system,"Helvetica Neue",sans-serif',
-                fontSize: 56,
+                fontFamily: skin?.fontFamily || '-apple-system,"Helvetica Neue",sans-serif',
+                fontSize: Math.min(56, 400 / Math.max([...label].length, 1)),
                 fontWeight: 800,
                 lineHeight: 1,
+                whiteSpace: 'nowrap',
               }}
             >
               <div
                 style={{
                   color: 'transparent',
-                  WebkitTextStroke: '1px #6a7186',
+                  WebkitTextStroke: `1px ${skin?.accent || '#6a7186'}`,
                   opacity: isLast ? 1 - sh : 1 - fillp * 0.75,
                 }}
               >
@@ -150,7 +153,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                     style={{
                       position: 'absolute',
                       inset: 0,
-                      color: 'var(--text)',
+                      color: skin?.text || 'var(--text)',
                       opacity: white,
                       textShadow: `0 0 ${white * 18}px rgba(255,255,255,.3)`,
                     }}
@@ -180,7 +183,7 @@ export const WordRelayGeometry: React.FC<{ words?: string[] }> = ({ words }) => 
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    color: 'var(--text)',
+                    color: skin?.text || 'var(--text)',
                     clipPath: `inset(-20% ${(1 - fillp) * 100}% -20% 0)`,
                   }}
                 >

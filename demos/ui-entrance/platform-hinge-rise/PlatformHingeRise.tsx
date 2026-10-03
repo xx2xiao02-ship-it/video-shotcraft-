@@ -3,6 +3,8 @@
 import React from 'react';
 import { Easing, interpolate, useCurrentFrame } from 'remotion';
 import { DesignStage } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const PLATFORM_HINGE_RISE_DURATION = 104;
 
@@ -30,7 +32,9 @@ const SubjectPanel: React.FC<{
   side: 'left' | 'right';
   progress: number;
   wobble: number;
-}> = ({ side, progress, wobble }) => {
+  label?:string;
+  skin?:TemplateSkin;
+}> = ({ side, progress, wobble,label,skin }) => {
   const isLeft = side === 'left';
   const x = isLeft ? 165 : 249;
   const w = isLeft ? 92 : 78;
@@ -46,7 +50,7 @@ const SubjectPanel: React.FC<{
         width: w,
         height: h,
         clipPath: 'polygon(8% 10%,92% 0,100% 100%,0 100%)',
-        background: isLeft ? '#5f6064' : '#77787c',
+        background: skin ? (isLeft ? skin.surface : skin.accent) : isLeft ? '#5f6064' : '#77787c',
         boxShadow: '0 10px 22px rgba(0,0,0,.12)',
         transformOrigin: isLeft ? '100% 100%' : '0% 100%',
         transform: `translateY(${interpolate(progress, [0, 1], [rise, 0])}px) rotate(${interpolate(
@@ -56,19 +60,19 @@ const SubjectPanel: React.FC<{
         ) + wobble}deg)`,
         display: 'grid',
         placeItems: 'center',
-        color: '#1a1d24',
-        fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
-        fontSize: 10,
+        color: skin ? (isLeft ? skin.text : skin.surface) : '#1a1d24',
+        fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+        fontSize: skin ? 13 : 10,
         fontWeight: 800,
-        letterSpacing: 1,
+        letterSpacing: skin ? 0 : 1,
       }}
     >
-      SUBJECT
+      {skin ? label : 'SUBJECT'}
     </div>
   );
 };
 
-export const PlatformHingeRise: React.FC = () => {
+export const PlatformHingeRise: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const platform = ease(frame, 0, 15, 0.012, 1);
   const context = ease(frame, 12, 32);
@@ -78,14 +82,13 @@ export const PlatformHingeRise: React.FC = () => {
   const leftWobble = dampedWobble(frame, 30, 16, 1.5);
   const rightWobble = dampedWobble(frame, 31, 16, -1.2);
 
-  return (
-    <DesignStage bg="#f4f4f1" raster="zoom">
+  const content=(
       <div
         style={{
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',
-          fontFamily: 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
+          fontFamily: skin?.fontFamily || 'Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif',
         }}
       >
         <div
@@ -96,7 +99,7 @@ export const PlatformHingeRise: React.FC = () => {
             width: 100,
             height: 100,
             borderRadius: '50%',
-            background: '#d2d2cf',
+            background: skin?.surface || '#d2d2cf',
             opacity: context,
             transform: `translateY(${interpolate(context, [0, 1], [18, 0])}px) scale(${interpolate(
               context,
@@ -107,13 +110,13 @@ export const PlatformHingeRise: React.FC = () => {
             placeItems: 'start center',
             paddingTop: 17,
             boxSizing: 'border-box',
-            color: '#77787a',
-            fontSize: 9,
+            color: skin?.muted || '#77787a',
+            fontSize: skin ? 12 : 9,
             fontWeight: 800,
-            letterSpacing: 0.8,
+            letterSpacing: skin ? 0 : 0.8,
           }}
         >
-          CONTEXT
+          {skin ? words?.[0] : 'CONTEXT'}
         </div>
 
         <div
@@ -124,15 +127,15 @@ export const PlatformHingeRise: React.FC = () => {
             width: 182,
             height: 16,
             clipPath: 'polygon(5% 0,95% 0,100% 100%,0 100%)',
-            background: '#92928f',
+            background: skin?.muted || '#92928f',
             transformOrigin: '50% 50%',
             transform: `scaleX(${platform})`,
           }}
         />
 
         <div style={{ position: 'absolute', inset: 0, clipPath: 'inset(0 0 79px 0)' }}>
-          <SubjectPanel side="left" progress={left} wobble={leftWobble} />
-          <SubjectPanel side="right" progress={right} wobble={rightWobble} />
+          <SubjectPanel side="left" progress={left} wobble={leftWobble} label={words?.[1]} skin={skin} />
+          <SubjectPanel side="right" progress={right} wobble={rightWobble} label={words?.[2]} skin={skin} />
         </div>
 
         <div
@@ -143,22 +146,22 @@ export const PlatformHingeRise: React.FC = () => {
             width: 264,
             height: 74,
             clipPath: 'polygon(18% 0,82% 0,100% 100%,0 100%)',
-            background: '#d9d9d6',
+            background: skin?.surface || '#d9d9d6',
             opacity: interpolate(conclusion, [0, 0.18, 1], [0, 0.45, 1], CLAMP),
             transform: `translateY(${interpolate(conclusion, [0, 1], [96, 0])}px)`,
             display: 'grid',
             placeItems: 'start center',
             paddingTop: 19,
             boxSizing: 'border-box',
-            color: '#4f5053',
-            fontSize: 20,
+            color: skin?.text || '#4f5053',
+            fontSize: skin ? 16 : 20,
             fontWeight: 850,
-            letterSpacing: 1.8,
+            letterSpacing: skin ? 0 : 1.8,
           }}
         >
-          OUTCOME
+          {skin ? words?.[3] : 'OUTCOME'}
         </div>
       </div>
-    </DesignStage>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{position:'absolute',left:144,top:0,width:480,height:270,transform:'scale(3.4)',transformOrigin:'top left'}}>{content}</div></BusinessTextStage> : <DesignStage bg="#f4f4f1" raster="zoom">{content}</DesignStage>;
 };

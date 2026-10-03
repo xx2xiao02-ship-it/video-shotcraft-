@@ -4,17 +4,19 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, lerp, rand, seg, useT } from '../../_fixtures/Motion';
+import { skinBackground, type TemplateSkin } from '../../_fixtures/TemplateSkin';
 
 export const CARD_STACK_DURATION = 126; // 4200ms @30fps
 
 const N = 8;
 const HUES = [222, 238, 254, 270, 286, 302, 318, 334];
 const GLYPHS = ['◆', '●', '▲', '■', '✦', '◐', '◇', '○'];
+const DEFAULT_LABELS = ['收入', '成本', '现金', '增长', '风险', '团队', '客户', '结果'];
 
-export const CardStack: React.FC = () => {
+export const CardStack: React.FC<{labels?: string[]; skin?: TemplateSkin; durationInFrames?: number}> = ({labels = DEFAULT_LABELS, skin}) => {
   const t = useT();
   return (
-    <DesignStage bg="#0d0f14">
+    <DesignStage bg={skinBackground(skin, '#0d0f14')}>
       {/* 3D 场景容器：perspective 900px 供卡片 translateZ 递退产生纵深 */}
       <div
         style={{
@@ -92,6 +94,10 @@ export const CardStack: React.FC = () => {
                 }}
               >
                 {GLYPHS[i]}
+              </div>
+              <div style={{position:'absolute',left:8,right:8,top:'78%',textAlign:'center',fontSize:11,
+                fontWeight:700,color:`hsla(${hue},80%,90%,.95)`,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                {labels[i] ?? DEFAULT_LABELS[i]}
               </div>
             </div>
           );

@@ -4,6 +4,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const RADIAL_WAVE_DURATION = 114; // 3800ms @30fps
 
@@ -23,10 +25,11 @@ const DOTS = Array.from({ length: ROWS * COLS }, (_, i) => {
   };
 });
 
-export const RadialWave: React.FC = () => {
+export const RadialWave: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
-  return (
-    <DesignStage bg="#0d0f14">
+  const content=(<>
+      {skin&&<div style={{position:'absolute',top:8,width:'100%',textAlign:'center',font:`700 18px ${skin.fontFamily}`,color:skin.text}}>{words?.[0]}</div>}
+      <div style={{position:'absolute',inset:skin?'45px 24px 85px':'0'}}>
       {DOTS.map(({ left, top, dist }, i) => {
         // 第一道波：扩散点亮；第二道波：反向脉冲
         const w1 = seg(t, dist * 0.35, dist * 0.35 + 0.18, E.outCubic);
@@ -44,7 +47,7 @@ export const RadialWave: React.FC = () => {
               left,
               top,
               margin: -5,
-              background: pulse2 > 0.3 ? '#b9f2ff' : '#4ecdc4',
+              background: skin ? (pulse2>0.3?skin.text:skin.accent) : pulse2 > 0.3 ? '#b9f2ff' : '#4ecdc4',
               transform: `scale(${s})`,
               opacity: 0.25 + w1 * 0.5 + pulse2 * 0.25,
               boxShadow: pulse2 > 0.3 ? '0 0 12px #7fd8ff' : 'none',
@@ -52,6 +55,9 @@ export const RadialWave: React.FC = () => {
           />
         );
       })}
-    </DesignStage>
+      </div>
+      {skin&&<div style={{position:'absolute',bottom:60,width:'100%',textAlign:'center',font:`14px ${skin.fontFamily}`,color:skin.text}}>{words?.[1]}</div>}
+    </>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{width:480,height:270,position:'relative',transform:'scale(4)',transformOrigin:'top left'}}>{content}</div></BusinessTextStage> : <DesignStage bg="#0d0f14">{content}</DesignStage>;
 };

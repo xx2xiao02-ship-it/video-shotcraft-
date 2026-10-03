@@ -4,7 +4,9 @@
 // 路径滑行，吞并完成后曲线从左端反向擦除，只留圆形徽标 + 逐词加深字幕。
 // 设计坐标 480×270（DesignStage 等比放大），440×240 定尺画布居中排版。
 import React from 'react';
+import {useCurrentFrame} from 'remotion';
 import { DesignStage, E, lerp, seg, useT } from '../../_fixtures/Motion';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const BEZIER_SOURCE_CONVERGE_MERGE_DURATION = 168; // 5600ms @30fps
 
@@ -93,47 +95,53 @@ const DEFAULT_CAP_WORDS = 'Four sources unified'.split(' ');
 const BADGE_SIZE = 34;
 const BADGE_SVG = Number((BADGE_SIZE * 0.52).toFixed(1));
 
-export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ capWords }) => {
-  const t = useT();
+export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[]; sources?:string[]; target?:string; skin?:TemplateSkin; durationInFrames?:number }> = ({ capWords,sources,target,skin,durationInFrames }) => {
+  const compositionT = useT();
+  const frame = useCurrentFrame();
+  const short = Boolean(sources && durationInFrames === 60);
+  const t = durationInFrames ? Math.min(1,frame / Math.max(1,durationInFrames - 1)) : compositionT;
+  const nodes = sources ? sources.map((tag,i) => ({...SRCS[i],tag})) : SRCS;
   const CAP_WORDS = capWords && capWords.length > 0 ? capWords : DEFAULT_CAP_WORDS;
   const CAP_ST = 0.78 / CAP_WORDS.length;
   const CAP_WIN = CAP_ST * 1.5;
-  const conv = seg(t, 0.34, 0.74, E.inOutCubic);            // 汇聚主进度
-  const erase = seg(t, 0.78, 0.9, E.outQuad);               // 从起点擦除
+  // Short version keeps the source labels readable before merging and gives
+  // the final result 18 stable frames; it does not compress the long timeline.
+  const conv = short ? seg(frame, 24, 36, E.inOutCubic) : seg(t, 0.34, 0.74, E.inOutCubic);
+  const erase = short ? seg(frame, 36, 42, E.outQuad) : seg(t, 0.78, 0.9, E.outQuad);
   const pkCycle = (seg(t, 0.1, 0.74, E.linear) * 2) % 1;    // 数据包循环（t=1 时整数周期）
 
   // 徽标呼吸：入场淡入 + 吞并完成瞬间 outBack 顶起再回落
-  const bp = seg(t, 0.16, 0.26, E.outCubic);
-  const badgeScale = lerp(bp, 0.7, 1) * (1 + seg(t, 0.7, 0.78, E.outBack) * 0.12 - seg(t, 0.78, 0.86, E.outQuad) * 0.12);
-  const capShow = seg(t, 0.84, 0.9);
-  const capInn = seg(t, 0.84, 1);
+  const bp = short ? seg(frame, 0, 8, E.outCubic) : seg(t, 0.16, 0.26, E.outCubic);
+  const badgeScale = short ? lerp(bp, 0.7, 1) : lerp(bp, 0.7, 1) * (1 + seg(t, 0.7, 0.78, E.outBack) * 0.12 - seg(t, 0.78, 0.86, E.outQuad) * 0.12);
+  const capShow = short ? seg(frame, 36, 42) : seg(t, 0.84, 0.9);
+  const capInn = short ? seg(frame, 36, 42) : seg(t, 0.84, 1);
 
   return (
-    <DesignStage bg={BG}>
+    <DesignStage bg={skinBackground(skin,BG)}>
       {/* 页面 + 440×240 定尺画布（居中） */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: BG,
+          background: skinBackground(skin,BG),
           overflow: 'hidden',
-          fontFamily: SANS,
+          fontFamily: skin?.fontFamily || SANS,
           WebkitFontSmoothing: 'antialiased',
         }}
       >
         <div style={{ position: 'absolute', left: '50%', top: '50%', width: 440, height: 240, margin: '-120px 0 0 -220px' }}>
           {/* 四条贝塞尔曲线：dashoffset 正向 draw-on，erase 阶段反向擦除 */}
           <svg width={440} height={240} viewBox="0 0 440 240" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-            {SRCS.map((s, i) => {
+            {nodes.map((s, i) => {
               const { len } = GEOMS[i];
-              const draw = seg(t, 0.04 + i * 0.045, 0.04 + i * 0.045 + 0.17, E.outQuad);
+              const draw = short ? seg(frame, i * 2, 8 + i * 2, E.outQuad) : seg(t, 0.04 + i * 0.045, 0.04 + i * 0.045 + 0.17, E.outQuad);
               const off = erase > 0 ? -erase * len : len * (1 - draw);
               return (
                 <path
                   key={i}
                   d={`M -22,${s.y} L 74,${s.y} C 186,${s.y} 214,${YC} ${XC},${YC}`}
                   fill="none"
-                  stroke={TXT}
+                  stroke={skin?.text || TXT}
                   strokeWidth={1.2}
                   strokeDasharray={len}
                   strokeDashoffset={off.toFixed(1)}
@@ -145,18 +153,18 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
 
           {/* 来源节点 + 数据包层 */}
           <div style={{ position: 'absolute', left: 0, top: 0, width: 440, height: 240 }}>
-            {SRCS.map((s, i) => {
+            {nodes.map((s, i) => {
               const { len, pointAt, f0 } = GEOMS[i];
               // 节点沿路径滑向汇聚点，三段式缩小（44→15→0，像被吸进去）
               const tt = conv;
               const frac = f0 + (1 - f0) * tt;
               const pt = pointAt(len * frac);
               const size = tt < 0.75 ? lerp(tt / 0.75, 44, 15) : lerp((tt - 0.75) / 0.25, 15, 0);
-              const appear = seg(t, 0.02 + i * 0.04, 0.02 + i * 0.04 + 0.1, E.outCubic);
+              const appear = short ? seg(frame, 0, 6, E.outCubic) : seg(t, 0.02 + i * 0.04, 0.02 + i * 0.04 + 0.1, E.outCubic);
               // 数据包（相位偏移，恒定尺寸）
               const pf = f0 + (1 - f0) * ((pkCycle + i * 0.13) % 1);
               const q = pointAt(len * pf);
-              const pkOn = seg(t, 0.1, 0.16) * (1 - seg(t, 0.7, 0.76));
+              const pkOn = short ? seg(frame, 6, 12) * (1 - seg(frame, 32, 36)) : seg(t, 0.1, 0.16) * (1 - seg(t, 0.7, 0.76));
               return (
                 <React.Fragment key={i}>
                   <div
@@ -174,14 +182,14 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
                       justifyContent: 'center',
                       fontWeight: 700,
                       lineHeight: 1,
-                      fontFamily: SANS,
-                      color: s.c,
-                      letterSpacing: 0.3,
+                      fontFamily: skin?.fontFamily || SANS,
+                      color: skin ? skin.bg : s.c,
+                      letterSpacing: 0,
                       willChange: 'transform',
                       width: Math.max(0.1, size),
                       height: Math.max(0.1, size),
                       transform: `translate(${(pt.x - size / 2).toFixed(2)}px,${(pt.y - size / 2).toFixed(2)}px) scale(${appear.toFixed(3)})`,
-                      fontSize: `${Math.max(4, size * 0.26).toFixed(1)}px`,
+                      fontSize: `${Math.max(4, sources ? size / Math.max([...s.tag].length,2) * 0.82 : size * 0.26).toFixed(1)}px`,
                       opacity: (appear * (tt > 0.92 ? clamp01((1 - tt) / 0.08) : 1)).toFixed(3),
                     }}
                   >
@@ -195,7 +203,7 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
                       width: 7,
                       height: 7,
                       borderRadius: '50%',
-                      border: `1.5px solid ${ACCENT}`,
+                      border: `1.5px solid ${skin?.accent || ACCENT}`,
                       boxSizing: 'border-box',
                       background: ACCENT_WASH,
                       transform: `translate(${(q.x - 3.5).toFixed(2)}px,${(q.y - 3.5).toFixed(2)}px)`,
@@ -211,9 +219,9 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
           <div
             style={{
               position: 'absolute',
-              width: BADGE_SIZE,
-              height: BADGE_SIZE,
-              borderRadius: '50%',
+              width: target ? 110 : BADGE_SIZE,
+              height: target ? 44 : BADGE_SIZE,
+              borderRadius: target ? 6 : '50%',
               background: '#fff',
               border: `1px solid ${LINE}`,
               boxSizing: 'border-box',
@@ -221,15 +229,15 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              left: XC - 17,
-              top: YC - 17,
+              left: XC - (target ? 55 : 17),
+              top: YC - (target ? 22 : 17),
               opacity: bp,
               transform: `scale(${badgeScale})`,
             }}
           >
-            <svg width={BADGE_SVG} height={BADGE_SVG} viewBox="0 0 24 24">
+            {target ? <span style={{fontFamily:skin?.fontFamily,fontWeight:700,fontSize:Math.min(18,96 / [...target].length),color:skin?.bg || TXT,textAlign:'center',whiteSpace:'nowrap'}}>{target}</span> : <svg width={BADGE_SVG} height={BADGE_SVG} viewBox="0 0 24 24">
               <path d="M12 0.8 L14.3 9.7 L23.2 12 L14.3 14.3 L12 23.2 L9.7 14.3 L0.8 12 L9.7 9.7 Z" fill={TXT} />
-            </svg>
+            </svg>}
           </div>
 
           {/* 结尾字幕：逐词加深（浅灰占位 → 黑），整行透明度随 show 淡入 */}
@@ -238,8 +246,11 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
               position: 'absolute',
               display: 'flex',
               alignItems: 'baseline',
-              whiteSpace: 'nowrap',
-              left: XC - 60,
+              whiteSpace: sources ? 'normal' : 'nowrap',
+              flexWrap: sources ? 'wrap' : 'nowrap',
+              width: sources ? 330 : undefined,
+              justifyContent: sources ? 'center' : undefined,
+              left: sources ? 55 : XC - 60,
               top: YC + 30,
               opacity: capShow,
             }}
@@ -250,9 +261,9 @@ export const BezierSourceConvergeMerge: React.FC<{ capWords?: string[] }> = ({ c
                 <span
                   key={i}
                   style={{
-                    font: `600 12px/1.25 ${SANS}`,
-                    color: mix(q, DIM, TXT),
-                    letterSpacing: (-0.03 * (1 - q)).toFixed(4) + 'em',
+                    font: `600 ${sources ? 20 : 12}px/1.25 ${skin?.fontFamily || SANS}`,
+                    color: skin?.text || mix(q, DIM, TXT),
+                    letterSpacing: 0,
                     marginRight: i === CAP_WORDS.length - 1 ? 0 : 4.5,
                   }}
                 >

@@ -5,6 +5,8 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, Easing } from 'remotion';
 import { G, Card } from '../../_fixtures/Fixtures';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import {skinBackground, type TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 const outCubic = Easing.out(Easing.cubic);
 const inCubic = Easing.in(Easing.cubic);
@@ -56,20 +58,20 @@ const CARD_H = 220;
 const GAP = 120;
 const STARTS = [2, 42, 82]; // 三张卡依次点名，间隔 40f；末次动画止于 f125，留 35f 真静止
 
-export const ContactShadowLift: React.FC = () => {
+export const ContactShadowLift: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const frame = useCurrentFrame();
   const rowW = CARD_W * 3 + GAP * 2;
   const left0 = (1920 - rowW) / 2;
   const top = (1080 - CARD_H) / 2 - 20;
 
-  return (
-    <div style={{ width: 1920, height: 1080, background: G.bg, position: 'relative', overflow: 'hidden' }}>
+  const scene=(
+    <div style={{ width: 1920, height: 1080, background: skinBackground(skin,G.bg), position: 'relative', overflow: 'hidden' }}>
       {/* 假 dashboard 式顶栏，给浅底一点场景感 */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 84, background: G.panel, borderBottom: `2px solid ${G.line}`, display: 'flex', alignItems: 'center', padding: '0 48px', gap: 24, boxSizing: 'border-box' }}>
+      {skin ? <div style={{position:'absolute',top:120,width:'100%',textAlign:'center',font:`700 72px ${skin.fontFamily}`,color:skin.text}}>{words?.[0]}</div> : <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 84, background: G.panel, borderBottom: `2px solid ${G.line}`, display: 'flex', alignItems: 'center', padding: '0 48px', gap: 24, boxSizing: 'border-box' }}>
         <div style={{ width: 40, height: 40, borderRadius: 10, background: G.side }} />
         <div style={{ height: 18, width: 220, background: G.bar, borderRadius: 9 }} />
         <div style={{ marginLeft: 'auto', width: 36, height: 36, borderRadius: 18, background: G.mid }} />
-      </div>
+      </div>}
 
       {[0, 1, 2].map((i) => {
         const t = frame - STARTS[i];
@@ -97,7 +99,11 @@ export const ContactShadowLift: React.FC = () => {
                 opacity: shOpacity,
               }}
             />
-            <Card
+            {skin ? <div style={{position:'absolute',left:x,top,width:CARD_W,height:CARD_H,boxSizing:'border-box',padding:32,
+              background:skin.surface,border:`2px solid ${skin.muted}`,borderRadius:8,fontFamily:skin.fontFamily,
+              display:'flex',flexDirection:'column',justifyContent:'center',gap:20,transform:`translateY(${y}px) scale(${s})`}}>
+              <div style={{fontSize:30,color:skin.muted}}>{i+1}</div><div style={{fontSize:48,fontWeight:700,color:skin.accent}}>{words?.[i+1]}</div>
+            </div> : <Card
               w={CARD_W}
               h={CARD_H}
               seed={i + 2}
@@ -108,10 +114,11 @@ export const ContactShadowLift: React.FC = () => {
                 boxShadow: 'none',
                 transform: `translateY(${y}px) scale(${s})`,
               }}
-            />
+            />}
           </React.Fragment>
         );
       })}
     </div>
   );
+  return skin ? <BusinessTextStage skin={skin}>{scene}</BusinessTextStage> : scene;
 };

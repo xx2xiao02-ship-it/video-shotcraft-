@@ -4,6 +4,8 @@
 // 设计坐标 480×270（DesignStage 等比放大），参数表数值以此坐标系标定。
 import React from 'react';
 import { DesignStage, E, seg, useT } from '../../_fixtures/Motion';
+import {BusinessTextStage} from '../../_fixtures/BusinessTextStage';
+import type {TemplateSkin} from '../../_fixtures/TemplateSkin';
 
 export const TYPING_CODE_BLOCK_DURATION = 138; // 4600ms @30fps
 
@@ -28,10 +30,11 @@ LINES.forEach((line, row) => {
 });
 
 // 代码面板容器：左右两块共用的外框 + 顶部小标签
-const Panel: React.FC<{ x: number; label: string; children: React.ReactNode }> = ({
+const Panel: React.FC<{ x: number; label: string; skin?:TemplateSkin; children: React.ReactNode }> = ({
   x,
   label,
   children,
+  skin,
 }) => (
   <div
     style={{
@@ -40,30 +43,37 @@ const Panel: React.FC<{ x: number; label: string; children: React.ReactNode }> =
       top: '14%',
       width: '45%',
       height: '72%',
-      background: '#10121a',
-      border: '1px solid #1c2030',
+      background: skin?.surface || '#10121a',
+      border: `1px solid ${skin?.muted || '#1c2030'}`,
       borderRadius: 8,
       padding: '10px 12px',
       boxSizing: 'border-box',
-      fontFamily: '"SF Mono",Menlo,monospace',
+      fontFamily: skin?.fontFamily || '"SF Mono",Menlo,monospace',
       fontSize: 12,
       lineHeight: 1.9,
     }}
   >
-    <div style={{ fontSize: 8, letterSpacing: 2, color: '#4a5270', marginBottom: 6 }}>{label}</div>
+    <div style={{ fontSize: 8, letterSpacing: skin ? 0 : 2, color: skin?.muted || '#4a5270', marginBottom: 6 }}>{label}</div>
     {children}
   </div>
 );
 
-export const TypingCodeBlock: React.FC = () => {
+export const TypingCodeBlock: React.FC<{words?:string[];skin?:TemplateSkin;durationInFrames?:number}> = ({words,skin}) => {
   const t = useT();
+  if(skin&&(!words||words.length!==3||!words.slice(0,1).concat(words[2]).every(w=>/^[\p{L}_$][\p{L}\p{N}_$]*$/u.test(w))||!/^\d{1,6}$/.test(words[1])))
+    throw new Error('代码卡需要合法变量名、整数值和函数名');
+  const lines: [string,string][][]=skin ? [
+    [['const ',K],[words![0],skin.text],[' = ',PU],[words![1],ST],[';',PU]],
+    [[words![2],FN],['(',PU],[words![0],skin.text],[');',PU]],
+    [['// ',CM],[words![0],skin.muted]],
+  ] : LINES;
+  const flat=skin ? lines.flatMap((line,row)=>line.flatMap(([text,color])=>[...text].map(ch=>({ch,color,row})))) : FLAT;
   // 右侧打字进度：t∈[0.08,0.9] 线性推进到全部字符
-  const typed = Math.floor(seg(t, 0.08, 0.9) * FLAT.length);
-  return (
-    <DesignStage bg="#0d0f14">
+  const typed = Math.floor(seg(t, 0.08, 0.9) * flat.length);
+  const content=(<>
       {/* 左：逐行淡入上浮（行级 stagger） */}
-      <Panel x={3.5} label="LINE FADE-IN">
-        {LINES.map((line, i) => {
+      <Panel x={3.5} label={skin ? words![0] : 'LINE FADE-IN'} skin={skin}>
+        {lines.map((line, i) => {
           const k = seg(t, 0.08 + i * 0.14, 0.08 + i * 0.14 + 0.3, E.outCubic);
           return (
             <div key={i} style={{ opacity: k, transform: `translateY(${(1 - k) * 8}px)` }}>
@@ -77,10 +87,10 @@ export const TypingCodeBlock: React.FC = () => {
         })}
       </Panel>
       {/* 右：逐字符打字（保色），当前字符位带方块光标底色 */}
-      <Panel x={51.5} label="CHAR TYPING">
-        {LINES.map((_, row) => (
+      <Panel x={51.5} label={skin ? words![2] : 'CHAR TYPING'} skin={skin}>
+        {lines.map((_, row) => (
           <div key={row} style={{ minHeight: '1.9em' }}>
-            {FLAT.map((c, i) =>
+            {flat.map((c, i) =>
               c.row === row ? (
                 <span
                   key={i}
@@ -88,7 +98,7 @@ export const TypingCodeBlock: React.FC = () => {
                     color: c.color,
                     // 光标位字符以底色块形式提示（保持可见）
                     opacity: i < typed || i === typed ? 1 : 0,
-                    background: i === typed && typed < FLAT.length ? '#3a4468' : 'transparent',
+                    background: i === typed && typed < flat.length ? '#3a4468' : 'transparent',
                   }}
                 >
                   {c.ch}
@@ -98,6 +108,7 @@ export const TypingCodeBlock: React.FC = () => {
           </div>
         ))}
       </Panel>
-    </DesignStage>
+    </>
   );
+  return skin ? <BusinessTextStage skin={skin}><div style={{width:480,height:270,position:'relative',transform:'scale(4)',transformOrigin:'top left'}}>{content}</div></BusinessTextStage> : <DesignStage bg="#0d0f14">{content}</DesignStage>;
 };
