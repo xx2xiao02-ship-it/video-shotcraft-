@@ -1,0 +1,16 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "fps":30,"durationInFrames":180,"aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"effects/light-play-moves/spotlight-sweep-reveal","lines":["先核对收支","再安排储备"],"narration":"先核对收支，再安排储备。","inspectFrames":[25,70,120,179]},
+    {"id":"effects/light-play-moves/sheen-sweep-retry","lines":["每周复盘","核对支出","保留储备"],"narration":"每周复盘，核对支出，保留储备。","inspectFrames":[25,50,70,179]},
+    {"id":"effects/light-play-moves/halation-bloom","lines":["本周重点","留足储备"],"narration":"本周重点是留足储备。","inspectFrames":[15,21,56,179]},
+    {"id":"effects/fui-hud-moves/line-unfold-panel","lines":["核对清单","收支复盘","核对必要支出","留足应急储备"],"narration":"核对清单展开，收支复盘，核对必要支出，留足应急储备。","inspectFrames":[17,45,83,179]},
+    {"id":"outro/grain-dissolve","lines":["收支复盘正式开始","收支复盘"],"narration":"收支复盘正式开始，所有记录凝聚为收支复盘的依据。","inspectFrames":[15,75,130,179]},
+    {"id":"ui-entrance/draw-svg-trace","lines":["先核对记录","收支复盘","核对必要支出","留足应急储备","安排每周复盘"],"narration":"先核对记录，再展开收支复盘，核对必要支出，留足应急储备，安排每周复盘。","inspectFrames":[30,55,86,179]},
+    {"id":"effects/riso-print-hits/riso-misregistration-hit","lines":["核对预算"],"narration":"核对预算，把错位的记录重新对齐。","inspectFrames":[28,50,74,179]},
+    {"id":"opening/stroke-segment-build","lines":["HIP"],"narration":"HIP是本次验收设定的栏目字标，用断笔逐步揭晓。","inspectFrames":[45,95,112,179]},
+    {"id":"effects/icon-performance-moves/pop-burst-confirm","lines":["记录已核对"],"narration":"用记录已核对作为确认动效的验收文案，此镜头不执行保存操作。","inspectFrames":[23,32,55,179]},
+    {"id":"effects/icon-performance-moves/attention-bounce","lines":["每周提醒","收支复盘","核对必要支出","留足应急储备"],"narration":"每周提醒，进行收支复盘，核对必要支出，留足应急储备。","inspectFrames":[39,84,110,179]}
+  ]
+}

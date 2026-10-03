@@ -1,0 +1,77 @@
+{
+  "status": "local-waveform-verified-awaiting-encoded-av-review",
+  "records": [
+    {
+      "id": "rhythm/beat-step-list-theme-cycle",
+      "file": "template/public/audio/card-batch012-beat-step-v2.wav",
+      "sha256": "d2b2277f27e64fa2653a6ada505b609a08a59a4fb91a44cd90b32b701958c2cf",
+      "fps": 30,
+      "sampleRate": 48000,
+      "source": "assets/audio/sfx/impact/bass-hit-short.mp3",
+      "sourceSha256": "8bd0c7fd63fbb8a4442ffe1176aa41b260d1fafbcf728e3c63648eb5bcd4e16b",
+      "sourceUrl": "https://assets.mixkit.co/active_storage/sfx/2299/2299-preview.mp3",
+      "sourceTrimStartSample": 2859,
+      "durationSamples": 288000,
+      "checks": [
+        {
+          "frame": 30,
+          "expectedSample": 48000,
+          "observedSample": 48000,
+          "offsetSamples": 0
+        },
+        {
+          "frame": 48,
+          "expectedSample": 76800,
+          "observedSample": 76800,
+          "offsetSamples": 0
+        },
+        {
+          "frame": 66,
+          "expectedSample": 105600,
+          "observedSample": 105600,
+          "offsetSamples": 0
+        }
+      ],
+      "filters": "[0:a]aresample=48000,aformat=channel_layouts=mono,atrim=start_sample=2859:end_sample=17259,asetpts=N/SR/TB,afade=t=out:st=0.24:d=0.06,volume=0.5,asplit=3[s0][s1][s2];[s0]adelay=48000S[d0];[s1]adelay=76800S[d1];[s2]adelay=105600S[d2];[d0][d1][d2]amix=inputs=3:normalize=0,asetpts=N/SR/TB,apad=whole_len=288000,atrim=end_sample=288000[out]"
+    },
+    {
+      "id": "effects/riso-print-hits/riso-beat-pump",
+      "file": "template/public/audio/card-batch012-riso-pump-v2.wav",
+      "sha256": "141b678768bf449f54692b136bbfbe16015f01f7bc6cbf91e8a358ec4ac221eb",
+      "fps": 30,
+      "sampleRate": 48000,
+      "source": "assets/audio/sfx/impact/bass-hit-short.mp3",
+      "sourceSha256": "8bd0c7fd63fbb8a4442ffe1176aa41b260d1fafbcf728e3c63648eb5bcd4e16b",
+      "sourceUrl": "https://assets.mixkit.co/active_storage/sfx/2299/2299-preview.mp3",
+      "sourceTrimStartSample": 2859,
+      "durationSamples": 288000,
+      "checks": [
+        {
+          "frame": 30,
+          "expectedSample": 48000,
+          "observedSample": 48000,
+          "offsetSamples": 0
+        },
+        {
+          "frame": 54,
+          "expectedSample": 86400,
+          "observedSample": 86400,
+          "offsetSamples": 0
+        },
+        {
+          "frame": 78,
+          "expectedSample": 124800,
+          "observedSample": 124800,
+          "offsetSamples": 0
+        },
+        {
+          "frame": 102,
+          "expectedSample": 163200,
+          "observedSample": 163200,
+          "offsetSamples": 0
+        }
+      ],
+      "filters": "[0:a]aresample=48000,aformat=channel_layouts=mono,atrim=start_sample=2859:end_sample=17259,asetpts=N/SR/TB,afade=t=out:st=0.24:d=0.06,volume=0.5,asplit=4[s0][s1][s2][s3];[s0]adelay=48000S[d0];[s1]adelay=86400S[d1];[s2]adelay=124800S[d2];[s3]adelay=163200S[d3];[d0][d1][d2][d3]amix=inputs=4:normalize=0,asetpts=N/SR/TB,apad=whole_len=288000,atrim=end_sample=288000[out]"
+    }
+  ]
+}

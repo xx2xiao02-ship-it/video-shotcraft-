@@ -1,0 +1,14 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "fps":30,"durationInFrames":180,"aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"opening/fracture","lines":["收支复盘"],"narration":"收支复盘，先聚合事实，再展开判断。","inspectFrames":[45,90,130,179]},
+    {"id":"outro/neon-triple-marquee","lines":["核对收入","归类支出","保留储备"],"narration":"核对收入，归类支出，保留储备。","inspectFrames":[25,75,120,179]},
+    {"id":"effects/line-boil","lines":["每周复盘","收支记录","核对必要支出","留足应急储备"],"narration":"每周复盘收支记录，核对必要支出，留足应急储备。","inspectFrames":[25,65,110,179]},
+    {"id":"interaction/segmented-thumb-hero","lines":["人工核对","自动核对"],"narration":"从人工核对切换到自动核对。","inspectFrames":[25,55,70,179]},
+    {"id":"interaction/picker-carousel-feature-cycle","lines":["收入归类","支出核对","负债清点","储备计划","预算调整","每周复盘","行动清单"],"narration":"依次查看收入归类、支出核对、负债清点、储备计划和预算调整，停在每周复盘，下方保留行动清单。","inspectFrames":[25,75,140,179]},
+    {"id":"effects/scan-bracket-sweep","lines":["收支核对","收入已核","支出已核","负债待查","储备待补"],"narration":"扫描收支核对记录，收入已核，支出已核，负债待查，储备待补。","inspectFrames":[25,65,110,179]},
+    {"id":"interaction/autolayout-gap-dial","lines":["导航间距","收入","支出","负债","储备","复盘"],"narration":"调整收入、支出、负债、储备和复盘导航的间距，读数表示布局像素。","inspectFrames":[25,55,90,179]},
+    {"id":"effects/aurora-bloom-bg-flip","lines":["长期 忽略 预算","现在 留足储备"],"narration":"长期忽略预算，现在留足储备。","inspectFrames":[25,85,150,179]}
+  ]
+}

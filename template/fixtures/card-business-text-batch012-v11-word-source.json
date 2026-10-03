@@ -1,0 +1,160 @@
+{
+  "schema": "local-asr-karaoke-source-v1",
+  "text": "你收藏了上千条干货，为什么能力还是一点没涨？",
+  "words": [
+    {
+      "text": "你",
+      "start": 0,
+      "end": 0.34
+    },
+    {
+      "text": "收",
+      "start": 0.34,
+      "end": 0.52
+    },
+    {
+      "text": "藏",
+      "start": 0.52,
+      "end": 0.64
+    },
+    {
+      "text": "了",
+      "start": 0.64,
+      "end": 0.76
+    },
+    {
+      "text": "上",
+      "start": 0.76,
+      "end": 0.92
+    },
+    {
+      "text": "千",
+      "start": 0.92,
+      "end": 1.12
+    },
+    {
+      "text": "条",
+      "start": 1.12,
+      "end": 1.28
+    },
+    {
+      "text": "干",
+      "start": 1.28,
+      "end": 1.44
+    },
+    {
+      "text": "货",
+      "start": 1.44,
+      "end": 1.85
+    },
+    {
+      "text": "为",
+      "start": 2.26,
+      "end": 2.373
+    },
+    {
+      "text": "什",
+      "start": 2.373,
+      "end": 2.487
+    },
+    {
+      "text": "么",
+      "start": 2.487,
+      "end": 2.6
+    },
+    {
+      "text": "能",
+      "start": 2.6,
+      "end": 2.82
+    },
+    {
+      "text": "力",
+      "start": 2.82,
+      "end": 3.06
+    },
+    {
+      "text": "还",
+      "start": 3.06,
+      "end": 3.28
+    },
+    {
+      "text": "是",
+      "start": 3.28,
+      "end": 3.5
+    },
+    {
+      "text": "一",
+      "start": 3.5,
+      "end": 3.63
+    },
+    {
+      "text": "点",
+      "start": 3.63,
+      "end": 3.76
+    },
+    {
+      "text": "没",
+      "start": 3.76,
+      "end": 3.96
+    },
+    {
+      "text": "涨",
+      "start": 3.96,
+      "end": 4.1
+    }
+  ],
+  "groups": [
+    {
+      "text": "你收藏了",
+      "start": 0,
+      "end": 23,
+      "line": 0
+    },
+    {
+      "text": "上千条",
+      "start": 23,
+      "end": 38,
+      "line": 0
+    },
+    {
+      "text": "干货",
+      "start": 38,
+      "end": 56,
+      "line": 0
+    },
+    {
+      "text": "为什么",
+      "start": 68,
+      "end": 78,
+      "line": 1
+    },
+    {
+      "text": "能力还是",
+      "start": 78,
+      "end": 105,
+      "line": 1
+    },
+    {
+      "text": "一点没涨",
+      "start": 105,
+      "end": 123,
+      "line": 1
+    }
+  ],
+  "asrAnchorCoverage": 0.95,
+  "audioStartSeconds": 0,
+  "audioEndSeconds": 4.7125,
+  "frameUnit": "shot-local frames at 30fps",
+  "wordUnit": "original audio seconds",
+  "sourceHashes": {
+    "director/b-mode-runs/006ece4b-3d9b-4f26-b669-6feb54b861d3/talkcraft/audio/full.mp3": "a09c3e9151c9890495b98faa535985c2e791440ac74171fbbde9b15aa4854664",
+    "director/b-mode-runs/006ece4b-3d9b-4f26-b669-6feb54b861d3/talkcraft/audio/timestamps.json": "2a43eada555a9f29bb94765b3ef85fddab21f2af3f111204f1ba9d613679fbf8",
+    "director/b-mode-runs/006ece4b-3d9b-4f26-b669-6feb54b861d3/talkcraft/audio/voice-timing.boundary.jsonl": "a938251553ba7aac5c0cac1c44daca2423057ae0a56dcf4d12a8c3b8e6977277",
+    "template/prepare-karaoke-business-fixture.mjs": "ecea84ac417686ca060539196f66069ca176ac243a29395d1e3aa7f72e6d0851"
+  },
+  "tailSilencePassed": true,
+  "decodedAudioSamples": 288000,
+  "outputAudio": "template/public/audio/card-batch012-karaoke-voice-v2.wav",
+  "outputAudioSha256": "3c7e08831110e32a878cb460a7e3d1303648e7ce605fb54a8fe537bc5766dfc9",
+  "listeningAcceptance": "pending"
+}

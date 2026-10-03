@@ -1,0 +1,139 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "cards": [
+    {
+      "id": "typography/type-rhythm-sync/karaoke-fill-sync",
+      "lines": [
+        "你收藏了",
+        "上千条",
+        "干货",
+        "为什么",
+        "能力还是",
+        "一点没涨"
+      ],
+      "narration": "你收藏了上千条干货，为什么能力还是一点没涨？",
+      "words": [
+        {
+          "text": "你",
+          "start": 0,
+          "end": 0.34
+        },
+        {
+          "text": "收",
+          "start": 0.34,
+          "end": 0.52
+        },
+        {
+          "text": "藏",
+          "start": 0.52,
+          "end": 0.64
+        },
+        {
+          "text": "了",
+          "start": 0.64,
+          "end": 0.76
+        },
+        {
+          "text": "上",
+          "start": 0.76,
+          "end": 0.92
+        },
+        {
+          "text": "千",
+          "start": 0.92,
+          "end": 1.12
+        },
+        {
+          "text": "条",
+          "start": 1.12,
+          "end": 1.28
+        },
+        {
+          "text": "干",
+          "start": 1.28,
+          "end": 1.44
+        },
+        {
+          "text": "货",
+          "start": 1.44,
+          "end": 1.85
+        },
+        {
+          "text": "为",
+          "start": 2.26,
+          "end": 2.373
+        },
+        {
+          "text": "什",
+          "start": 2.373,
+          "end": 2.487
+        },
+        {
+          "text": "么",
+          "start": 2.487,
+          "end": 2.6
+        },
+        {
+          "text": "能",
+          "start": 2.6,
+          "end": 2.82
+        },
+        {
+          "text": "力",
+          "start": 2.82,
+          "end": 3.06
+        },
+        {
+          "text": "还",
+          "start": 3.06,
+          "end": 3.28
+        },
+        {
+          "text": "是",
+          "start": 3.28,
+          "end": 3.5
+        },
+        {
+          "text": "一",
+          "start": 3.5,
+          "end": 3.63
+        },
+        {
+          "text": "点",
+          "start": 3.63,
+          "end": 3.76
+        },
+        {
+          "text": "没",
+          "start": 3.76,
+          "end": 3.96
+        },
+        {
+          "text": "涨",
+          "start": 3.96,
+          "end": 4.1
+        }
+      ],
+      "wordSource": "template/fixtures/card-business-text-batch012-v11-word-source.json",
+      "audio": {
+        "src": "audio/card-batch012-karaoke-voice-v2.wav",
+        "volume": 0.7
+      },
+      "inspectFrames": [
+        5,
+        24,
+        48,
+        75,
+        100,
+        124,
+        179
+      ]
+    }
+  ]
+}

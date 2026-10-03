@@ -1,0 +1,18 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "fps":30,"durationInFrames":180,"aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"effects/glow-flyline-moves/glow-orb-ambient","lines":["每周复盘","核对必要支出","留足应急储备"],"narration":"每周复盘，核对必要支出，留足应急储备。","inspectFrames":[20,60,105,179]},
+    {"id":"effects/glow-flyline-moves/orb-flyline-relay","lines":["记录收支","保留依据","核对支出","查漏补缺","安排储备","每周复盘"],"narration":"记录收支保留依据，核对支出查漏补缺，再安排储备，每周复盘。","inspectFrames":[25,42,76,179]},
+    {"id":"effects/glow-flyline-moves/flyline-arc","lines":["记录收支","保留依据","核对支出","查漏补缺","安排储备","每周复盘"],"narration":"飞线表示人工设定的复盘流程：记录收支、核对支出、安排储备，并非真实后台事件。","inspectFrames":[22,32,57,179]},
+    {"id":"interaction/chip-lift-to-user-pill","lines":["林","陈","王","吴","李","周","赵","郑","何","孙","黄","刘","周小雨","从周小雨开始"],"narration":"本次使用人工虚构名单演示选中周小雨；绿点只是动画状态，不代表真实在线认证。","inspectFrames":[8,46,78,179]},
+    {"id":"interaction/collab-cursor-moves/cursor-dialogue-duet","lines":["编导","审核"],"narration":"编导与审核两种角色通过光标交接表达协作，此镜头不连接多人服务。","inspectFrames":[38,70,84,179]},
+    {"id":"interaction/collab-cursor-moves/cursor-cast-ensemble","lines":["小林","小周","小陈","小吴","小李","复盘共识","先核对收支","留依据","查遗漏","分必要","留储备"],"narration":"五个人工虚构验收角色共同整理复盘共识：先核对收支，留依据、查遗漏、分必要、留储备。","inspectFrames":[38,72,105,179]},
+    {"id":"ui-entrance/svg-shape-morph","lines":["回看原计划","尝试新安排"],"narration":"抽象轮廓表达原计划与新安排之间的可逆变化，不表示真实产品形状。","inspectFrames":[20,80,128,179]},
+    {"id":"ui-entrance/value-stagger-gradient","lines":["逐项整理收支","集中核对重点"],"narration":"逐项整理收支，再集中核对重点；柱形只表达先后与重点，不代表实际统计数值。","inspectFrames":[25,80,128,179]},
+    {"id":"interaction/canvas-materialize-moves/diagram-cascade-build","lines":["整理收支","收支","收入","支出","工资","副业","固定","可变"],"narration":"整理收支：收入分为工资与副业，支出分为固定与可变。此处是人工设定的分类示例。","inspectFrames":[30,60,100,179]},
+    {"id":"interaction/canvas-materialize-moves/panel-to-canvas-materialize","lines":["复盘清单","三项记录","收入","核对来源","支出","区分必要","储备","留足应急","移到画布"],"narration":"将复盘清单中的收入、支出、储备三条记录移到画布；行与卡内容一致，动画不执行保存。","inspectFrames":[35,54,80,179]},
+    {"id":"outro/logo-shrink-wordmark-lockup","lines":["收支复盘","每周留足储备"],"narration":"收支复盘是本次设定的栏目字标，标语为每周留足储备；圆环是抽象标记。","inspectFrames":[25,70,118,179]},
+    {"id":"ui-entrance/paper-craft-moves/masking-tape-slap","lines":["复盘笔记","本周重点","核对必要支出","留足应急储备"],"narration":"复盘笔记中的本周重点：核对必要支出，留足应急储备。","inspectFrames":[30,58,82,179]}
+  ]
+}

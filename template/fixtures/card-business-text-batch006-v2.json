@@ -1,0 +1,16 @@
+{
+  "schema":"card-business-text-fixtures-v1",
+  "baselineFixture":"template/fixtures/card-business-text-batch006-baseline.json",
+  "fps":30,"durationInFrames":180,"aspects":["16:9","9:16"],
+  "cards":[
+    {"id":"typography/typewriter-moves/terminal-typewriter","lines":["打开城市素材"],"narration":"打开城市素材，核对实际画面。","inspectFrames":[15,30,65,179]},
+    {"id":"typography/typewriter-moves/typewriter-error-retype","lines":["只看账面资产","先看可用现金"],"narration":"只看账面资产容易误判，先看可用现金。","inspectFrames":[16,40,85,179]},
+    {"id":"typography/pill-chip-slot-cycle-handled","lines":["把","收入","支出","负债","储备","理清"],"narration":"把收入、支出、负债、储备理清。","inspectFrames":[15,65,105,179]},
+    {"id":"typography/pill-slot-cycle","lines":["先核对","收入来源","固定支出","到期负债","应急储备","再做决定"],"narration":"先核对收入来源、固定支出、到期负债和应急储备，再做决定。","inspectFrames":[25,60,100,179]},
+    {"id":"typography/split-flap-title","lines":["留足应急储备"],"narration":"留足应急储备。","inspectFrames":[25,40,85,179]},
+    {"id":"typography/title-demote-to-label","lines":["现金流复盘","先核对稳定收入","再清点固定支出"],"narration":"现金流复盘，先核对稳定收入，再清点固定支出。","inspectFrames":[20,45,85,179]},
+    {"id":"opening/brand-ink-open","lines":["现金流工作台","每周核对收支"],"narration":"现金流工作台，每周核对收支。","inspectFrames":[25,55,110,165],"nativeFrame":45},
+    {"id":"typography/countdown-arc-scatter","lines":["3","分钟","复盘"],"narration":"用3分钟复盘收支。","inspectFrames":[35,100,145,179]},
+    {"id":"typography/text-column-converge","lines":["守住","收入","支出","储备","现金流","先站稳再向前"],"narration":"守住收入、支出、储备，守住现金流，先站稳再向前。","inspectFrames":[15,50,115,179]}
+  ]
+}

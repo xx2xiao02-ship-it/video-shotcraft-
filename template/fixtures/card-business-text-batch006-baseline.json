@@ -1,0 +1,511 @@
+{
+  "schema": "card-business-text-fixtures-v1",
+  "fps": 30,
+  "durationInFrames": 180,
+  "aspects": [
+    "16:9",
+    "9:16"
+  ],
+  "cards": [
+    {
+      "id": "typography/cel-flash-stomp",
+      "lines": [
+        "先存钱",
+        "再投资",
+        "留退路"
+      ],
+      "narration": "先存钱，再投资，留退路。",
+      "inspectFrames": [
+        15,
+        45,
+        85,
+        150
+      ]
+    },
+    {
+      "id": "typography/blur-slide",
+      "lines": [
+        "资产不等于现金",
+        "先保留应急储备"
+      ],
+      "narration": "资产不等于现金，先保留应急储备。",
+      "inspectFrames": [
+        30,
+        90,
+        150,
+        179
+      ]
+    },
+    {
+      "id": "typography/scramble",
+      "lines": [
+        "现金决定选择权"
+      ],
+      "narration": "现金决定选择权。",
+      "inspectFrames": [
+        20,
+        85,
+        165,
+        179
+      ]
+    },
+    {
+      "id": "typography/outline-word-fill",
+      "lines": [
+        "保留选择权"
+      ],
+      "narration": "保留选择权。",
+      "inspectFrames": [
+        25,
+        85,
+        135,
+        179
+      ]
+    },
+    {
+      "id": "typography/lead-word-zoom-assemble",
+      "lines": [
+        "现金 留住 选择权"
+      ],
+      "narration": "现金留住选择权。",
+      "inspectFrames": [
+        20,
+        55,
+        120,
+        165
+      ]
+    },
+    {
+      "id": "typography/word-relay-geometry",
+      "lines": [
+        "储备",
+        "现金",
+        "选择权"
+      ],
+      "narration": "储备现金，保留选择权。",
+      "inspectFrames": [
+        30,
+        90,
+        145,
+        170
+      ]
+    },
+    {
+      "id": "typography/brace-expand",
+      "lines": [
+        "资产不等于现金",
+        "留足应急储备"
+      ],
+      "narration": "资产不等于现金，留足应急储备。",
+      "inspectFrames": [
+        25,
+        80,
+        135,
+        179
+      ]
+    },
+    {
+      "id": "ui-entrance/list-reveal",
+      "lines": [
+        "保留应急储备",
+        "降低固定支出",
+        "分散收入来源"
+      ],
+      "narration": "保留应急储备，降低固定支出，分散收入来源。",
+      "inspectFrames": [
+        30,
+        90,
+        140,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-assembly-moves/split-text-stagger",
+      "lines": [
+        "先降低固定支出"
+      ],
+      "narration": "先降低固定支出。",
+      "inspectFrames": [
+        20,
+        50,
+        110,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-assembly-moves/letterform-drift-assembly",
+      "lines": [
+        "给未来留出余地"
+      ],
+      "narration": "给未来留出余地。",
+      "inspectFrames": [
+        20,
+        65,
+        100,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-assembly-moves/tracking-expand-reveal",
+      "lines": [
+        "慢下来再做决定"
+      ],
+      "narration": "慢下来再做决定。",
+      "inspectFrames": [
+        5,
+        25,
+        60,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-assembly-moves/text-on-path",
+      "lines": [
+        "积累带来选择权"
+      ],
+      "narration": "积累带来选择权。",
+      "inspectFrames": [
+        25,
+        60,
+        100,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-entrance-moves/letter-drop-physics",
+      "lines": [
+        "先站稳再向前"
+      ],
+      "narration": "先站稳再向前。",
+      "inspectFrames": [
+        25,
+        60,
+        115,
+        179
+      ]
+    },
+    {
+      "id": "typography/type-entrance-moves/scramble-decode",
+      "lines": [
+        "看清现金流向"
+      ],
+      "narration": "看清现金流向。",
+      "inspectFrames": [
+        10,
+        40,
+        90,
+        179
+      ]
+    },
+    {
+      "id": "typography/paper-title-card",
+      "lines": [
+        "留足储备",
+        "才有选择权"
+      ],
+      "narration": "留足储备，才有选择权。",
+      "inspectFrames": [
+        10,
+        35,
+        100,
+        160
+      ],
+      "nativeFrame": 45
+    },
+    {
+      "id": "typography/marker-underline-title",
+      "lines": [
+        "先保留",
+        "应急储备",
+        "再考虑投资"
+      ],
+      "narration": "先保留应急储备，再考虑投资。",
+      "inspectFrames": [
+        15,
+        35,
+        60,
+        179
+      ]
+    },
+    {
+      "id": "typography/gradient-word-sweep",
+      "lines": [
+        "选择权",
+        "来自储备",
+        "先守住现金流"
+      ],
+      "narration": "选择权来自储备，先守住现金流。",
+      "inspectFrames": [
+        15,
+        30,
+        65,
+        150
+      ]
+    },
+    {
+      "id": "typography/flying-words",
+      "lines": [
+        "储备 收入 支出",
+        "预算 现金 负债",
+        "风险 投资 退路"
+      ],
+      "narration": "储备收入支出，预算现金负债，风险投资退路。",
+      "inspectFrames": [
+        20,
+        65,
+        110,
+        160
+      ]
+    },
+    {
+      "id": "typography/glitch-cycle",
+      "lines": [
+        "核对收入来源",
+        "清点固定支出",
+        "留下应急储备"
+      ],
+      "narration": "核对收入来源，清点固定支出，留下应急储备。",
+      "inspectFrames": [
+        35,
+        95,
+        155,
+        179
+      ]
+    },
+    {
+      "id": "typography/vertical-word-roll-blur-cycle",
+      "lines": [
+        "先保留",
+        "应急资金",
+        "选择余地"
+      ],
+      "narration": "先保留应急资金与选择余地。",
+      "inspectFrames": [
+        10,
+        40,
+        100,
+        179
+      ]
+    }
+  ],
+  "compatibility": {
+    "previousReport": "template/out/card-business-text-batch005/acceptance.json",
+    "adapterSha256": "b03fffa585f523f4d2fa9b667adfa43517fdafef2a63972b5bd96c88e2e5ace0",
+    "adapters": [
+      {
+        "id": "typography/cel-flash-stomp",
+        "adapter": {
+          "shotCard": "typography/cel-flash-stomp",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          },
+          "note": "三个大字逐词拍落，words 传字符串数组"
+        }
+      },
+      {
+        "id": "typography/blur-slide",
+        "adapter": {
+          "shotCard": "typography/blur-slide",
+          "propsMap": {
+            "text": "headline",
+            "subText": "subhead",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "headline",
+          "note": "标题逐词模糊入场，headline 为标题词数组，subhead 为副标题"
+        }
+      },
+      {
+        "id": "typography/flying-words",
+        "adapter": {
+          "shotCard": "typography/flying-words",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          },
+          "note": "单词飞入"
+        }
+      },
+      {
+        "id": "typography/gradient-word-sweep",
+        "adapter": {
+          "shotCard": "typography/gradient-word-sweep",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/lead-word-zoom-assemble",
+        "adapter": {
+          "shotCard": "typography/lead-word-zoom-assemble",
+          "propsMap": {
+            "text": "text",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/marker-underline-title",
+        "adapter": {
+          "shotCard": "typography/marker-underline-title",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/outline-word-fill",
+        "adapter": {
+          "shotCard": "typography/outline-word-fill",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/paper-title-card",
+        "adapter": {
+          "shotCard": "typography/paper-title-card",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/scramble",
+        "adapter": {
+          "shotCard": "typography/scramble",
+          "propsMap": {
+            "text": "text",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/type-assembly-moves/letterform-drift-assembly",
+        "adapter": {
+          "shotCard": "typography/type-assembly-moves/letterform-drift-assembly",
+          "propsMap": {
+            "text": "word",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/type-assembly-moves/split-text-stagger",
+        "adapter": {
+          "shotCard": "typography/type-assembly-moves/split-text-stagger",
+          "propsMap": {
+            "text": "text",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/type-assembly-moves/text-on-path",
+        "adapter": {
+          "shotCard": "typography/type-assembly-moves/text-on-path",
+          "propsMap": {
+            "text": "text",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/type-assembly-moves/tracking-expand-reveal",
+        "adapter": {
+          "shotCard": "typography/type-assembly-moves/tracking-expand-reveal",
+          "propsMap": {
+            "text": "word",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/type-entrance-moves/letter-drop-physics",
+        "adapter": {
+          "shotCard": "typography/type-entrance-moves/letter-drop-physics",
+          "propsMap": {
+            "text": "word",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw",
+          "note": "单字物理掉落"
+        }
+      },
+      {
+        "id": "typography/type-entrance-moves/scramble-decode",
+        "adapter": {
+          "shotCard": "typography/type-entrance-moves/scramble-decode",
+          "propsMap": {
+            "text": "text",
+            "durationInFrames": "durationInFrames"
+          },
+          "textAs": "raw"
+        }
+      },
+      {
+        "id": "typography/vertical-word-roll-blur-cycle",
+        "adapter": {
+          "shotCard": "typography/vertical-word-roll-blur-cycle",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/word-relay-geometry",
+        "adapter": {
+          "shotCard": "typography/word-relay-geometry",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/brace-expand",
+        "adapter": {
+          "shotCard": "typography/brace-expand",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "typography/glitch-cycle",
+        "adapter": {
+          "shotCard": "typography/glitch-cycle",
+          "propsMap": {
+            "text": "words",
+            "durationInFrames": "durationInFrames"
+          }
+        }
+      },
+      {
+        "id": "ui-entrance/list-reveal",
+        "adapter": {
+          "shotCard": "ui-entrance/list-reveal",
+          "propsMap": {
+            "text": "labels",
+            "durationInFrames": "durationInFrames"
+          },
+          "note": "列表逐项揭示，labels 传字符串数组"
+        }
+      }
+    ]
+  }
+}
