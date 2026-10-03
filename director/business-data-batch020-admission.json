@@ -19,11 +19,11 @@
     "transition/line-carry-transition"
   ],
   "fixtureFile": "template/fixtures/card-business-transition-batch020-v1.json",
-  "fixtureSha256": "90503164a4e4bc3e52d2b380218a0e7a1aff849ed055f9ec979bdc3c5a1c9173",
+  "fixtureSha256": "d7fc092edb337e373f94421bf0918250238a385485119b32ec71ba2bed78530b",
   "report": "template/out/card-business-transition-batch020-v1/acceptance.json",
-  "reportSha256": "b48d9326674faba498d0d028b57ff98e69775f1c65ba6695fe33e4f483890458",
+  "reportSha256": "a45e9f04be93e5fe291005b7f467f92b5d9fd5ff4bbe051b46ceb3b52756a74c",
   "sourceHashes": {
-    "template/fixtures/card-business-transition-batch020-v1.json": "90503164a4e4bc3e52d2b380218a0e7a1aff849ed055f9ec979bdc3c5a1c9173",
+    "template/fixtures/card-business-transition-batch020-v1.json": "d7fc092edb337e373f94421bf0918250238a385485119b32ec71ba2bed78530b",
     "template/src/Root.tsx": "50a318446bdee0b4e6fe3f78934f5e5af4f29f84bdcd32b2ef58dce774c2a62f",
     "template/src/DynamicVideo.tsx": "68e2340e01e2dd68aed0c412d5b7473b93397d6a064a0f3aaeee99cabc7a3f4e",
     "template/src/TemplateAdapter.tsx": "01ef82ae04b157225e6e4a9606e61a3abb83afe6d71f47b53553a59a2805beda",
