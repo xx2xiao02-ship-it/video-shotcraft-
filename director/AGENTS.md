@@ -1,5 +1,7 @@
 # B 模式 TalkCraft 任务
 
+本仓库还提供 `.agents/skills/b-mode-github-governance/SKILL.md`。涉及 B 模式分镜、模板、渲染或样片时一并加载，用它执行基线对账和本项目已确认的节奏/数字人规则；它补充上游规则，不替换 `_audit/video-talkcraft/SKILL.md`。
+
 处理数字人口播、口播视频、B 模式编导或 `director/b-mode-runs/*/talkcraft/` 时，先阅读本机已安装的 `video-talkcraft/SKILL.md`。当前源位于 `E:\video-shotcraft\_audit\video-talkcraft`；可通过 `TALKCRAFT_SKILL_ROOT` 指向同版本的其他安装路径。按其 ①–⑧ 阶段执行，勿把旧的 `b-mode-semantic-annotate.mjs`、固定卡池或 `BModeBaseline` 称为完整 TalkCraft 编导。
 
 - 新任务经 `/api/talkcraft/create` 隔离保存输入；`talkcraft-stages.mjs bootstrap <run-id>` 生成配音、时间轴和语义骨架。页面“火山生成分镜”经 `/api/talkcraft/stage` 的 `editorial` 阶段，复用已配置的火山方舟 API；用户确认模型费用后生成逐句 `sem/need/weight/entities` 和分镜初稿。结果必须经过原稿对应、连续时间覆盖、`semantic-apply`、`semantic-check` 校验，不用 Codex 指令复制代替 API 调用。不把初稿或候选生成标为素材、预检和成片通过。
