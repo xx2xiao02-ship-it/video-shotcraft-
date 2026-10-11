@@ -11,3 +11,4 @@
 - 最终片跑 `qa`，独立审片报告绑定成片哈希、P0/P1 归零后才 `deliver`。没有真实扬声器试听、数字人口型或 RunningHub 任务时，分别标记待用户听验、静态角色占位和外部服务未验；不得用视频能播替代这些验收。
 - 保留原 B 基线入口、旧运行目录、用户修改与成功资产。任何付费数字人生成、声音复刻或生产重试按用户的单次授权执行。
 - 画面卡片与工作台文案按 `source-run.json.visualTextLocale` 编写；默认及兼容旧任务时使用 `zh-CN`（简体中文）。仅用户明确要求时才使用繁体。不要因此改写口播稿、配音、时间戳或来源引用。
+- 成片交付后的修复迭代（文字贴边、暗底字色、动效抖动等 P0/P1）按 `.agents/skills/b-mode-post-delivery-fix/SKILL.md` 执行：快照 → 修复 → preflight → 布局审计 → 逐拍修正 → 独立视觉复核 → 绑定校验 → 底片替换导出（工具：`director/layout-audit.mjs` + `director/render-revised-film.mjs`）。修正不等于用户接受新片，不覆盖原成片。
