@@ -59,3 +59,23 @@ docs/_shots/
 /director/packaging-runs/
 # 视频外包装 vendored skill（可按 packaging-design.md 指引重新克隆）
 /director/packaging-skill/
+
+# 本地隔离/参考副本与运行时产物（第三方代码副本与 QA 证据，不入库）
+.isolated/
+_audit/
+.mimosa/
+.codex/
+.zcode/
+.npm-cache/
+graphify-out/
+exports/
+foundation-evidence/
+qa-check-frames/
+.qa-governance-test/
+.qa-governed-frames/
+.qa-sample-frames/
+.tmp-*
+.shotcraft-output.json
+director/render-progress.json
+director/audit/
+template/public/textures/
