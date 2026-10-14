@@ -7,6 +7,13 @@ import {talkcraftProject} from './talkcraft-status.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = file => existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
 
+export function taskStageLabel(name) {
+  return ({'talkcraft-bootstrap':'配音和时间轴处理', 'talkcraft-editorial':'分镜生成',
+    'talkcraft-editorial-revision':'分镜重新生成', 'talkcraft-editorial-check':'分镜校验',
+    'talkcraft-qa':'机器质检', 'talkcraft-preflight':'分镜预检',
+    'talkcraft-render-all':'整片渲染', 'talkcraft-sample':'样板渲染'})[name] || '任务执行';
+}
+
 export function buildTalkcraftFailureReport(root, runId, task) {
   const project = talkcraftProject(root, runId);
   const source = readJson(path.join(project, 'source-run.json')) || {};
@@ -16,6 +23,7 @@ export function buildTalkcraftFailureReport(root, runId, task) {
   const matches = sentences.map(sentence => sentence.match).filter(Number.isFinite);
   const logs = (task.logs || []).join('\n');
   const edgeNoAudio = /Edge TTS failed \(NoAudioReceived:/u.test(logs);
+  const processLaunchBlocked = /spawn(?:Sync)?[^\r\n]*EPERM|Windows 拒绝启动任务进程/u.test(logs);
   const wordTimingRequired = /WORD_TIMING_REQUIRED/u.test(logs);
   const alignmentFailed = /Aligned sentence \d+ failed|match<0\.90/u.test(logs) || low.length > 0;
   const failedChecks = logs.split(/\r?\n/u).map(line => line.trim())
@@ -25,11 +33,12 @@ export function buildTalkcraftFailureReport(root, runId, task) {
   const script = existsSync(path.join(project, 'input.txt')) ? readFileSync(path.join(project, 'input.txt'), 'utf8') : '';
   const contentWarning = /显著降低你真正学习它的概率|记忆通道全部关闭/u.test(script)
     ? '本次输入仍含此前已确认需要修正的研究表述，不能直接进入成片。' : null;
-  const code = wordTimingRequired ? 'WORD_TIMING_REQUIRED' : alignmentFailed ? 'ALIGNMENT_QUALITY_GATE' : edgeNoAudio ? 'VOICE_PROVIDER_NO_AUDIO' :
+  const code = wordTimingRequired ? 'WORD_TIMING_REQUIRED' : alignmentFailed ? 'ALIGNMENT_QUALITY_GATE' : edgeNoAudio ? 'VOICE_PROVIDER_NO_AUDIO' : processLaunchBlocked ? 'PROCESS_LAUNCH_BLOCKED' :
     preflightFailed ? 'TALKCRAFT_PREFLIGHT_FAILED' : 'TASK_FAILED';
   const cause = wordTimingRequired ? '当前时间轴可用于文案和分镜；制作词语动效前还需补充精确时间定位，已有配音无需重做。' : alignmentFailed
     ? `时间轴校验未通过：${low.length}/${sentences.length} 句匹配率低于 0.90。`
     : edgeNoAudio ? '在线配音未返回音频，任务未取得可用配音。'
+    : processLaunchBlocked ? `Windows 拒绝启动${taskStageLabel(task.name)}子进程，当前操作台启动环境无法执行任务。`
     : preflightFailed ? `分镜预检未通过：${failedChecks.length} 项检查失败。`
     : '任务未通过当前阶段的校验。';
   const actions = wordTimingRequired ? [
@@ -46,7 +55,7 @@ export function buildTalkcraftFailureReport(root, runId, task) {
   ];
   return {schema:'talkcraft-failure-report-v1', runId, createdAt:new Date().toISOString(),
     task:{id:task.id ?? null, name:task.name || 'talkcraft', exitCode:task.exitCode ?? null},
-    code, title:wordTimingRequired ? '需要补充时间定位' : alignmentFailed ? '时间轴校验失败' : edgeNoAudio ? '配音服务未返回音频' :
+    code, title:wordTimingRequired ? '需要补充时间定位' : alignmentFailed ? '时间轴校验失败' : edgeNoAudio ? '配音服务未返回音频' : processLaunchBlocked ? `${taskStageLabel(task.name)}进程未能启动` :
       preflightFailed ? '分镜预检未通过' : '任务处理失败',
     cause, evidence:{edgeTtsNoAudio:edgeNoAudio, voiceEngine:source.voiceEngine || null,
       fallbackVoice:source.voiceEngine === 'windows-offline-zh-CN' ? source.voiceEngine : null,
@@ -75,7 +84,13 @@ export function latestTalkcraftFailureReport(root, runId) {
     .sort((a,b) => statSync(path.join(directory,b)).mtimeMs-statSync(path.join(directory,a)).mtimeMs)) {
     try {
       const report = readJson(path.join(directory, file));
-      if (report?.schema === 'talkcraft-failure-report-v1' && report.runId === runId) return report;
+      if (report?.schema === 'talkcraft-failure-report-v1' && report.runId === runId) {
+        // 兼容旧报告的错误阶段名称；保留原始证据文件。
+        if (report.code === 'PROCESS_LAUNCH_BLOCKED') return {...report,
+          title:`${taskStageLabel(report.task?.name)}进程未能启动`,
+          cause:`Windows 拒绝启动${taskStageLabel(report.task?.name)}子进程，当前操作台启动环境无法执行任务。`};
+        return report;
+      }
     } catch {}
   }
   return null;

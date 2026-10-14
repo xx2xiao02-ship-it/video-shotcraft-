@@ -1,5 +1,6 @@
 // Video ShotCraft console server
 import http from "node:http";
+import {probeTaskExecution} from "./director/task-execution-readiness.mjs";
 import crypto from "node:crypto";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -38,6 +39,7 @@ import {readRenderProgress} from './director/render-runtime.mjs';
 import {assertProductionOutputDirectory} from './director/governance-output-guard.mjs';
 
 const ROOT = process.env.SHOTCRAFT_ROOT || "E:\\video-shotcraft";
+const taskExecution = await probeTaskExecution({cwd:ROOT});
 const PORT = Number(process.env.PORT || 8765);
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, "template", "out");
 const OUTPUT_CONFIG_FILE = path.join(ROOT, ".shotcraft-output.json");
@@ -103,9 +105,19 @@ function writeOutputDir(value) {
   return outputDir;
 }
 
+function parseDirectNodeCommand(command) {
+  const match = /^node\s+([^\s]+)(?:\s+(.+))?$/u.exec(String(command || '').trim());
+  if (!match) return null;
+  const tail = match[2] ? [...match[2].matchAll(/"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'|([^\s]+)/gu)]
+    .map(item => item[1] ?? item[2] ?? item[3]) : [];
+  return {file:process.execPath, args:[match[1], ...tail]};
+}
+
 function startTask(name, cmd, cwd, extraEnv = {}) {
+  if (!taskExecution.ok) throw new Error(taskExecution.error);
   const id = ++taskId;
-  const task = { id, name, cmd, status: "starting", logs: [], startedAt: Date.now(), proc: null, error: null };
+  const inferredRunId = String(cmd || "").match(/[0-9a-f]{8}-[0-9a-f-]{27,}/iu)?.[0] || null;
+  const task = { id, name, cmd, status: "starting", logs: [], startedAt: Date.now(), proc: null, error: null, runId:inferredRunId };
   tasks.set(id, task);
   const markStartFailure = (error) => {
     const code = String(error?.code || "");
@@ -129,7 +141,10 @@ function startTask(name, cmd, cwd, extraEnv = {}) {
     }
   };
   try {
-    const proc = spawn(cmd, { cwd, shell: true, env: {...process.env, PYTHONIOENCODING: "utf-8", ...extraEnv} });
+    const direct = parseDirectNodeCommand(cmd);
+    const proc = direct
+      ? spawn(direct.file, direct.args, {cwd, shell:false, windowsHide:true, env:{...process.env, PYTHONIOENCODING:'utf-8', ...extraEnv}})
+      : spawn(cmd, { cwd, shell: true, windowsHide:true, env: {...process.env, PYTHONIOENCODING: "utf-8", ...extraEnv} });
     task.proc = proc;
     task.status = "running";
     if (['a-director', 'render'].includes(name) && proc.pid) {
@@ -1581,8 +1596,21 @@ const server = http.createServer(async (req, res) => {
   const p = url.pathname;
   const method = req.method;
 
+  if (method === 'GET' && p === '/api/runtime-health') {
+    return sendJson(res, {ok:true, schema:'shotcraft-runtime-health-v1', pid:process.pid,
+      instance:process.env.SHOTCRAFT_INSTANCE || null,
+      version:process.env.SHOTCRAFT_RELEASE_VERSION || 'development', taskExecution});
+  }
+
   const key = `${method} ${p}`;
   if (apis[key]) {
+    // 在保存新运行、写入审核结果或调用外部服务前拦截不可执行环境。
+    const taskRoutes = new Set(['/api/talkcraft/create', '/api/talkcraft/revise',
+      '/api/talkcraft/recover-timing', '/api/talkcraft/stage', '/api/talkcraft/approve-sample',
+      '/api/talkcraft/storyboard-regenerate', '/api/talkcraft/workbench', '/api/mode-c/create']);
+    if (method === 'POST' && taskRoutes.has(p) && !taskExecution.ok)
+      return sendJson(res, {ok:false, code:'TASK_EXECUTION_UNAVAILABLE', error:taskExecution.error});
+
     try { await apis[key](req, res, url); }
     catch (e) { sendJson(res, { error: e.message }); }
     return;

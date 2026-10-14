@@ -5193,14 +5193,18 @@ async function renderBProductionAudit(runId, knownRun = null) {
       const status = await statusResponse.json();
       if (statusResponse.ok && status.ok) run = status.run;
     }
-    const response = await fetch(`/api/talkcraft/audit?id=${encodeURIComponent(runId)}`);
+    const [response, runtimeResponse] = await Promise.all([
+      fetch(`/api/talkcraft/audit?id=${encodeURIComponent(runId)}`), fetch('/api/runtime-health')]);
+    const runtime = runtimeResponse.ok ? await runtimeResponse.json() : null;
     const audit = await response.json();
     if (inputRevision !== bInputRevision) return;
     bAuditRunStatus = run || null;
     if (activeProductionMode === "B" && run) setProductionStartState(bModeBusy ? "running" : "complete");
     if (!response.ok || !audit.ok) throw new Error(audit.error || "审核数据读取失败");
     const failure = currentTalkcraftFailure(run);
-    $("#b-production-audit-state").textContent = failure ? "处理失败" : audit.contentWarning ? "内容待核对" :
+    const launchRecovered = failure?.code === "PROCESS_LAUNCH_BLOCKED" && runtime?.taskExecution?.ok === true;
+    if (launchRecovered) setBProgress(0, "上次启动失败；当前执行环境已恢复，可重试当前阶段");
+    $("#b-production-audit-state").textContent = launchRecovered ? "上次启动失败 · 当前可重试" : failure ? "处理失败" : audit.contentWarning ? "内容待核对" :
       audit.alignmentPassed ? "时间轴已就绪" : audit.sentenceCount ? "时间轴待修复" : "等待时间轴";
     const metrics = $("#b-production-audit-metrics");
     metrics.replaceChildren();
@@ -5210,7 +5214,12 @@ async function renderBProductionAudit(runId, knownRun = null) {
     const warning = failure?.contentWarning || audit.contentWarning || "";
     $("#b-production-audit-warning").hidden = !warning;
     $("#b-production-audit-warning").textContent = warning;
-    populateBProductionFailure(failure);
+    const displayedFailure = launchRecovered ? {...failure,
+      cause:`上次记录：${failure.title}。当前操作台已通过真实子进程检查，可以重试该阶段。`,
+      actions:['已有成功素材已保留。', failure.task?.name === 'talkcraft-editorial'
+        ? '点击下方“火山生成分镜”，确认模型费用后继续本次运行；无需重新配音。'
+        : '通过下方当前阶段的操作继续；涉及外部生成时先确认费用。']} : failure;
+    populateBProductionFailure(displayedFailure);
     if (bAuditRunId !== runId) {
       bAuditRunId = runId;
       bAuditOriginalScript = audit.script || "";
@@ -5335,35 +5344,45 @@ async function restoreBWorkflowState() {
     return;
   }
   const inputRevision = bInputRevision;
-  let runId = selectRequestedRun ? requestedRunId : localStorage.getItem("shotcraft-b-talkcraft-run");
-  if (selectRequestedRun) localStorage.setItem("shotcraft-b-talkcraft-run", runId);
+  // 未通过 URL 明确指定运行记录时，后端 latest 是唯一权威入口。
+  // 旧版先读 localStorage，导致页面在重启后继续展示历史 EPERM 失败记录，
+  // 即使后端已经创建了新的、可继续运行的任务，前台仍会停在“进程未启动”。
+  let runId = selectRequestedRun ? requestedRunId : null;
   try {
     let run = null;
-    if (runId) {
+    if (selectRequestedRun) {
       const response = await fetch(`/api/talkcraft/status?id=${encodeURIComponent(runId)}`);
       const data = await response.json();
       if (inputRevision !== bInputRevision) return;
       if (response.ok && data.ok && data.run) run = data.run;
+      if (!run) throw new Error('指定运行记录不可用，未切换到其他运行');
     }
     if (!run) {
       const response = await fetch("/api/talkcraft/latest");
       const data = await response.json();
       if (inputRevision !== bInputRevision) return;
-      if (!response.ok || !data.ok || !data.run) return;
-      run = data.run;
-      runId = run.runId;
-      localStorage.setItem("shotcraft-b-talkcraft-run", runId);
+      if (response.ok && data.ok && data.run) {
+        run = data.run;
+        runId = run.runId;
+        localStorage.setItem("shotcraft-b-talkcraft-run", runId);
+      }
     }
-    if (run.inputReady && !run.shotbook && !run.preflightCompleted) {
-      bModeBusy = true;
-      $("#b-production-audit").hidden = true;
-      try {
-        await startBAutoEditorial(runId);
-        return;
-      } catch (error) {
-        setBProgress(0, error.failureReport?.title || "火山分镜生成失败");
-      } finally { bModeBusy = false; }
+    // latest 暂不可用时才回退到本地记录；回退记录仅用于恢复页面，不能覆盖
+    // 后端已经返回的最新运行。
+    if (!run && !selectRequestedRun) {
+      const savedRunId = localStorage.getItem("shotcraft-b-talkcraft-run");
+      if (savedRunId) {
+        const response = await fetch(`/api/talkcraft/status?id=${encodeURIComponent(savedRunId)}`);
+        const data = await response.json();
+        if (inputRevision !== bInputRevision) return;
+        if (response.ok && data.ok && data.run) {
+          run = data.run;
+          runId = savedRunId;
+        }
+      }
     }
+    if (!run || !runId) return;
+    // 页面恢复只查询，不自动重试可能计费的分镜任务。
     const failure=currentTalkcraftFailure(run);
     if (failure) setBProgress(0, failure.title);
     else if (run.sentences) {
