@@ -32,6 +32,15 @@ test('浅底白字幕自动取可读色，已有合格字色保持，黑白底�
  }
  assert.equal(subtitleSkin({surface:'#ffffff',background:'#ffffff',captionColor:'#111817'}).color,'#111817');
 });
+
+test('可读性蒙皮只在分镜明确声明后生效，不改输入参数或原卡运动',()=>{
+ const base={shotId:'s11',cardId:'step-timeline-vertical',humanLayout:'none',cardProps:{titleSize:34}};
+ assert.doesNotMatch(nativeCardSkin(base),/font-size/);
+ const css=nativeCardSkin({...base,readabilityLayout:'mobile-readable-v1'});
+ assert.match(css,/font-size:42px/);assert.doesNotMatch(css,/opacity|transform|animation|visibility/);
+ assert.equal(base.cardProps.titleSize,34);
+ assert.throws(()=>nativeCardSkin({...base,readabilityLayout:'unknown'}),/未知/);
+});
 test('恢复已有工程时仅升级识别出的公共容器与字幕，不覆盖用户代码，重复安装幂等',t=>{
  const project=fs.mkdtempSync(path.join(os.tmpdir(),'talkcraft-skin-'));t.after(()=>fs.rmSync(project,{recursive:true,force:true}));
  const src=path.join(project,'remotion/src');fs.mkdirSync(path.join(src,'scenes'),{recursive:true});

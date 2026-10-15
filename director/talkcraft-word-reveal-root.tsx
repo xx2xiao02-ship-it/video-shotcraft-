@@ -2,9 +2,7 @@ import React,{useLayoutEffect,useRef} from 'react';
 import {useCurrentFrame} from 'remotion';
 import reveals from '../word-reveals.json';
 import readability from '../text-readability.json';
-import {textOccurrences} from './text-occurrences.mjs';
-
-const clean=(s:string)=>s.replace(/[\s*・，。！？：；、,.!?;:「」《》“”‘’]/gu,'');
+import {textOccurrences,normalizeVisibleText as clean,includeMatchedPunctuation} from './text-occurrences.mjs';
 const SVG_NS='http://www.w3.org/2000/svg';
 const wrapText=(node:Text)=>node.parentElement?.namespaceURI===SVG_NS
   ? document.createElementNS(SVG_NS,'tspan') : document.createElement('span');
@@ -42,12 +40,13 @@ export const WordRevealRoot:React.FC<{beatId:string;hiddenTexts?:string[];mobile
         }
         if(!found&&!container.querySelector('[data-word-reveal="'+e.id+'"]'))container.setAttribute('data-missing-'+e.id,'true');
       }
-      for(const [node,positions] of assign){
+      for(const [node,matchedPositions] of assign){
+        const positions=includeMatchedPunctuation(node.data,matchedPositions);
         // Split in reverse so each original offset still refers to its original text segment.
         let end=node.length;for(let at=node.length-1;at>=0;){
           const id=positions.get(at);let start=at;while(start>0&&positions.get(start-1)===id)start--;
           if(id){if(end<node.length)node.splitText(end);const piece=start>0?node.splitText(start):node;
-            const span=wrapText(piece);span.dataset.wordReveal=id;span.style.visibility='hidden';span.style.position='relative';span.style.zIndex='1';
+            const span=wrapText(piece);span.dataset.wordReveal=id;span.dataset.wordField=events.find(e=>e.id===id)?.field||'';span.style.visibility='hidden';span.style.position='relative';span.style.zIndex='1';
             piece.parentNode!.insertBefore(span,piece);span.appendChild(piece);}
           end=start;at=start-1;
         }

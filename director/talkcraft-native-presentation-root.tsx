@@ -22,7 +22,7 @@ export const NativePresentationRoot:React.FC<{shotId:string;cardProps?:Record<st
     nextStartFrame:index+1<plannedShots.length?Math.round(plannedShots[index+1].start*FPS):null,
   });
   const hiddenTexts=row.textFields.filter(f=>f.visibility==='hidden').flatMap(f=>String(cardProps[f.key]||'').split('\n')).filter(Boolean);
-  const css=nativeCardSkin({shotId,cardId:row.cardId,humanLayout:row.humanLayout,cardProps,
+  const css=nativeCardSkin({shotId,cardId:row.cardId,humanLayout:row.humanLayout,cardProps,readabilityLayout:row.readabilityLayout,
     keywordEventId:reveals.events.find(e=>e.beatId===shotId&&e.field==='keyword')?.id});
   return <><style>{css}</style><WordRevealRoot beatId={shotId} hiddenTexts={hiddenTexts} mobileMinTextPx={row.mobileMinTextPx} cardId={row.cardId}>
     <Freeze frame={nativeFrame}>{children}</Freeze>

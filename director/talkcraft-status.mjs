@@ -1,3 +1,4 @@
+import {nativeGovernanceStatus} from './talkcraft-native-governance.mjs';
 import {createHash} from 'node:crypto';
 import {copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
@@ -141,7 +142,8 @@ export function readTalkcraftStatus(root, runId) {
   const preflightResult = has('qa/preflight-result.json') ? json(path.join(project, 'qa', 'preflight-result.json')) : null;
   const preflightCompleted = !!inputs && preflightResult?.schema === 'talkcraft-preflight-result-v1' &&
     Object.keys(inputs).every(name => preflightResult.inputs?.[name] === inputs[name]);
-  const preflightPassed = preflight || (preflightCompleted && preflightResult.passed === true);
+  const nativeGovernance = nativeGovernanceStatus(project);
+  const preflightPassed = (preflight || (preflightCompleted && preflightResult.passed === true)) && nativeGovernance.passed;
   const storyboardGate = has('qa/storyboard-approved.json') ? json(path.join(project, 'qa/storyboard-approved.json')) : null;
   const storyboardAdjustment = has('qa/storyboard-adjustment-request.json') ? json(path.join(project, 'qa/storyboard-adjustment-request.json')) : null;
   const storyboardApprovalInputs = storyboardInputs(project);
@@ -182,8 +184,10 @@ export function readTalkcraftStatus(root, runId) {
     semanticReady:!!semantics?.sentences?.length && semantics.sentences.every(sentence =>
       sentence.shot && sentence.weight && Array.isArray(sentence.sem) && sentence.sem.length),
     semanticPassed, shotbook:has('SHOTBOOK.md'), preflight, preflightPassed, preflightCompleted,
-    preflightIssues:preflightCompleted && Array.isArray(preflightResult.issues) && preflightResult.issues.length
-      ? preflightResult.issues : (!preflightResult?.passed ? latestPreflightIssues(project) : []),
+    nativeGovernance,
+    preflightIssues:[...(preflightCompleted && Array.isArray(preflightResult.issues) && preflightResult.issues.length
+      ? preflightResult.issues : (!preflightResult?.passed ? latestPreflightIssues(project) : [])),
+      ...nativeGovernance.issues.map(i=>`${i.shotId||'全局'}：[${i.code}] ${i.message}`)],
     preflightAdjustments:preflightCompleted && Array.isArray(preflightResult.adjustments) ? preflightResult.adjustments : [],
     storyboardApproved, storyboardAdjustmentPending:!!storyboardAdjustment?.request,
     workbenchReady:has('remotion/src/index.ts'),

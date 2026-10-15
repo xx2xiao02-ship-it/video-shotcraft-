@@ -42,3 +42,32 @@ export function backgroundsUnderGlyphs(row,normal,background,width,height){
   }
  return [...colors.values()];
 }
+
+// A color-font pictogram has no single CSS ink color. Evidence is a contiguous
+// 2x2 core region from the actual glyph/background render pair. Isolated noise,
+// unchanged pixels and low-contrast artwork cannot qualify. The same 4.5 gate
+// applies; do not recolor artwork with a text-color guess.
+export function pictogramWitness(row,normal,background,width,height){
+ const r=row.rect,left=Math.max(0,Math.floor(r.left)),top=Math.max(0,Math.floor(r.top));
+ const right=Math.min(width,Math.ceil(r.left+r.width)),bottom=Math.min(height,Math.ceil(r.top+r.height));
+ let best=null,bestRatio=0;
+ for(let y=top;y<bottom-1;y++)for(let x=left;x<right-1;x++){
+  const pixels=[];
+  for(const [dx,dy] of [[0,0],[1,0],[0,1],[1,1]]){
+   const at=((y+dy)*width+x+dx)*3,foreground=[...normal.subarray(at,at+3)],back=[...background.subarray(at,at+3)];
+   if(Math.max(...foreground.map((v,i)=>Math.abs(v-back[i])))<4)break;
+   pixels.push({foreground,background:back});
+  }
+  if(pixels.length!==4)continue;
+  const ratio=Math.min(...pixels.map(p=>contrastRatio(p.foreground,p.background)));
+  if(ratio>bestRatio){bestRatio=ratio;best={x,y,pixels};}
+ }
+ return best;
+}
+export function sampledContrast(row){
+ if(row.glyphKind!=='pictogram')return minimumContrast(row.color,row.backgrounds,row.opacity,row.brightness??1);
+ const witness=row.pictogramWitness;
+ if(!witness||!Number.isInteger(witness.x)||!Number.isInteger(witness.y)||witness.pixels?.length!==4)
+  throw Error('彩色图标缺少实际像素证据');
+ return Math.min(...witness.pixels.map(p=>contrastRatio(p.foreground,p.background)));
+}

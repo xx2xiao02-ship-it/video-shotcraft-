@@ -2,11 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {minimumContrast} from './talkcraft-color-contrast.mjs';
+import {minimumContrast,sampledContrast} from './talkcraft-color-contrast.mjs';
+import {normalizeVisibleText,isPictogram} from './talkcraft-text-occurrences.mjs';
 import * as nativeTiming from './talkcraft-native-timing.mjs';
 import {isNativePresentation,nativeRevealUnits,checkNativeGovernance} from './talkcraft-native-governance.mjs';
 import {nativeBridgeAuditPoints} from './talkcraft-native-bridge-audit.mjs';
-import {validateWordRuntime} from './talkcraft-word-runtime-validation.mjs';
+import {validateWordRuntime,validateTextBindings} from './talkcraft-word-runtime-validation.mjs';
 import {installPresentationSkin} from './talkcraft-presentation-install.mjs';
 const wordTimingFile=project=>{
   if(typeof nativeTiming.wordTimingFile==='function')return nativeTiming.wordTimingFile(project);
@@ -43,7 +44,7 @@ export const normalizeText=s=>String(s).replace(/[\s*・，。！？：；、,.!
 // `rows: "前提|结果"`). They are not visible text, so the binding check
 // must compare the spoken phrase with the rendered labels rather than with
 // the DSL separators themselves.
-export const normalizeCardText=s=>normalizeText(s).replace(/[|｜]/gu,'');
+export const normalizeCardText=normalizeVisibleText;
 export function wordRevealUnits(project){
   return isNativePresentation(project)?nativeRevealUnits(project):read(path.join(project,'remotion/visual-beats.json'));
 }
@@ -218,6 +219,18 @@ export function wordRevealSourceBinding(project){
   for(const asset of assets){const f=path.resolve(remotion,'public',asset),relative=path.relative(path.join(remotion,'public'),f);if(relative.startsWith('..')||path.isAbsolute(relative)||!fs.existsSync(f))throw Error('背景/素材绑定失效：'+asset);files.push(f);}
   return Object.fromEntries(files.sort().map(f=>[path.relative(remotion,f).replaceAll('\\','/'),sha(f)]));
 }
+export function assertTextBindingProof(project,{only}={}){
+ const suffix=only?'-'+[...only].sort().join('-'):'',file=path.join(project,'qa/text-binding-runtime'+suffix+'.json');
+ if(!fs.existsSync(file))throw Error('TEXT_BINDING_REQUIRED：镜头实现后须先核对全部计划文字与实际画面的绑定');
+ const report=read(file),events=assertWordReveals(project).events.filter(e=>!only||only.includes(e.beatId));
+ if(report.schema!=='talkcraft-text-binding-v1'||!report.passed||report.events!==events.length||
+   JSON.stringify(report.scope??null)!==JSON.stringify(only?[...only].sort():null)||
+   JSON.stringify(report.binding)!==JSON.stringify(wordRevealSourceBinding(project))||
+   !Array.isArray(report.rows)||report.rows.length!==report.frames||
+   validateTextBindings({frames:report.rows.map(r=>r.frame),rows:report.rows,events}).length)
+   throw Error('TEXT_BINDING_STALE：文字绑定检查未通过或源码/参数已变化，不能进入颜色校验及整片编码');
+ return report;
+}
 export function assertWordRevealProof(project,{only}={}){
   if(!isNativePresentation(project)&&!fs.existsSync(path.join(project,'remotion/visual-beats.json')))return {enabled:false};
   const plan=assertWordReveals(project);if(!plan.enabled)throw Error('WORD_REVEAL_PLAN_REQUIRED：大字卡缺少字级落点计划，禁止渲染/导出');
@@ -274,7 +287,8 @@ export function assertTextContrastProof(project,{only}={}){
  const report=read(file),events=assertWordReveals(project).events.filter(e=>!e.deferredTo&&(!only||only.includes(e.beatId)));
  if(JSON.stringify(report.scope??null)!==JSON.stringify(only?[...only].sort():null))throw Error('颜色校对范围不符：局部样板不能替代全片校对');
  if(!report.passed||report.events!==events.length||JSON.stringify(report.binding)!==JSON.stringify(wordRevealSourceBinding(project)))throw Error('TEXT_CONTRAST_STALE：颜色检查失败或背景/字色/源码已改变');
- for(const e of events){const rows=report.samples?.filter(r=>r.id===e.id);if(!rows?.length||rows.some(r=>minimumContrast(r.color,r.backgrounds,r.opacity,r.brightness??1)<4.5))throw Error('实际背景对比度不足或缺少文字记录：'+e.id);}
+ for(const e of events){const rows=report.samples?.filter(r=>r.id===e.id);if(!rows?.length||rows.some(r=>
+   (r.glyphKind==='pictogram')!==isPictogram(e.text)||sampledContrast(r)<4.5))throw Error('实际背景对比度不足或缺少文字记录：'+e.id);}
  return report;
 }
 export function bindWordRevealVideo(project,video){

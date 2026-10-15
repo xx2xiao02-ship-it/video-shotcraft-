@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {normalizeVisibleText as clean} from './talkcraft-text-occurrences.mjs';
+import {READABILITY_LAYOUT} from './talkcraft-presentation-skin.mjs';
 export {nativeFrameAt} from './talkcraft-native-time-map.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -8,7 +10,6 @@ const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex')
 // separators that are structural, not visible copy. Normalize them before
 // comparing word events with rendered content so the governance check does
 // not demand that a literal `|` appear on screen.
-const clean=value=>String(value||'').replace(/[\s*|・，。！？：；、,.!?;:「」《》“”‘’]/gu,'');
 const files=['remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json','audio/full.mp3'];
 
 export function isNativePresentation(project) {
@@ -80,6 +81,8 @@ export function checkNativeGovernance(project,{catalog,write=false}={}) {
       for(const message of validateNativeTimeline(row,unit.endFrame-unit.startFrame,row.nativeFrames))add('NATIVE_CONTENT_SPAN',unit.id,message);
       if(!['none','person'].includes(row.humanLayout)||!Number.isFinite(row.mobileMinTextPx)||row.mobileMinTextPx<12)
         add('NATIVE_LAYOUT_REQUIRED',unit.id,'必须声明人物布局和至少 12 像素的手机正文目标');
+      if(row.readabilityLayout&&row.readabilityLayout!==READABILITY_LAYOUT)
+        add('NATIVE_LAYOUT_UNKNOWN',unit.id,'未知可读性蒙皮，必须重新核对声明和实现');
       const events=words.events.filter(e=>e.beatId===unit.id);
       if(!events.length)add('NATIVE_WORD_COVERAGE',unit.id,'镜头没有任何大字落点计划');
       if(!Array.isArray(row.textFields)||!row.textFields.length)add('NATIVE_TEXT_FIELDS_REQUIRED',unit.id,'缺少内容字段与可见性清单');

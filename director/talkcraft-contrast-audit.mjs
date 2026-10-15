@@ -1,5 +1,5 @@
 import fs from 'node:fs';import path from 'node:path';import {createRequire} from 'node:module';import {execFileSync} from 'node:child_process';
-import {minimumContrast,chooseReadableText,backgroundsUnderGlyphs} from './talkcraft-color-contrast.mjs';
+import {chooseReadableText,backgroundsUnderGlyphs,pictogramWitness,sampledContrast} from './talkcraft-color-contrast.mjs';
 import {assertWordReveals,wordRevealSourceBinding,wordRevealUnits} from './talkcraft-word-reveal.mjs';
 import {loadProjectBundleOptions,projectRenderOptions} from '../_audit/video-talkcraft/scripts/remotion_project_config.mjs';
 const project=path.resolve(process.argv[2]),remotion=path.join(project,'remotion'),work=path.resolve(process.argv[3]);
@@ -17,9 +17,15 @@ const decode=(file,width,height)=>execFileSync('ffmpeg',['-v','error','-i',file,
 // Only glyph pixels change between these deterministic renders. Empty corners of
 // rotated text bounds must not be mistaken for the background directly under letters.
 const reuse=process.argv.find(s=>s.startsWith('--reuse='))?.slice(8),samples=[];
+function collect(row,normal,background,width,height,frame){
+ if(row.glyphKind==='pictogram'){
+  const witness=pictogramWitness(row,normal,background,width,height);
+  if(witness)samples.push({...row,frame,pictogramWitness:witness});
+ }else{const colors=backgroundsUnderGlyphs(row,normal,background,width,height);if(colors.length)samples.push({...row,frame,backgrounds:colors});}
+}
 if(reuse){const file=path.resolve(reuse),saved=JSON.parse(fs.readFileSync(file));if(JSON.stringify(saved.binding)!==JSON.stringify(sourceBinding))throw Error('取色缓存已过期');
  for(const frame of [...new Set(saved.samples.map(r=>r.frame))]){const normal=decode(path.join(path.dirname(file),`frame-${frame}.png`),1920,1080),background=decode(path.join(path.dirname(file),`background-${frame}.png`),1920,1080);
-  for(const row of saved.samples.filter(r=>r.frame===frame)){const colors=backgroundsUnderGlyphs(row,normal,background,1920,1080);if(colors.length)samples.push({...row,backgrounds:colors});}
+  for(const row of saved.samples.filter(r=>r.frame===frame))collect(row,normal,background,1920,1080,frame);
  }
 }
 else {
@@ -36,9 +42,8 @@ try{
   // Hide glyphs only; the plate, footage, alpha overlays and camera stay unchanged.
   await capture(true,maskFile);
   const raw=decode(maskFile,composition.width,composition.height),normal=decode(path.join(work,`frame-${frame}.png`),composition.width,composition.height);
-  for(const row of record.rows){const colors=backgroundsUnderGlyphs(row,normal,raw,composition.width,composition.height);
-   if(colors.length)samples.push({...row,frame,backgrounds:colors});
-  }console.log('contrast frame '+frame);
+  for(const row of record.rows)collect(row,normal,raw,composition.width,composition.height,frame);
+  console.log('contrast frame '+frame);
  }
 }finally{await browser.close({silent:true});}
 fs.writeFileSync(path.join(work,'capture.json'),JSON.stringify({samples,binding:sourceBinding},null,2)+'\n');
@@ -49,10 +54,11 @@ const checkedEvents=[...reveals.events.filter(e=>!e.deferredTo),...(samples.some
 const maxOpacity=Object.fromEntries(checkedEvents.map(e=>[e.id,Math.max(0,...samples.filter(s=>s.id===e.id).map(s=>s.opacity))]));
 const settled=samples.filter(s=>s.opacity>=maxOpacity[s.id]-.025),failures=[],decisions={};
 for(const event of checkedEvents){
- const rows=settled.filter(s=>s.id===event.id);if(!rows.length){failures.push({id:event.id,reason:'缺少已显示文字的背景证据'});continue;}
- const ratio=Math.min(...rows.map(r=>minimumContrast(r.color,r.backgrounds,r.opacity,r.brightness??1)));
+ const rows=settled.filter(s=>s.id===event.id);if(!rows.length){failures.push({id:event.id,text:event.text,reason:'缺少已显示文字的背景证据'});continue;}
+ const ratio=Math.min(...rows.map(sampledContrast));
  if(ratio<4.5){failures.push({id:event.id,text:event.text,ratio,minimum:4.5,frames:rows.map(r=>r.frame)});
-  if(prepare){const opacity=Math.min(...rows.map(r=>r.opacity)),brightness=Math.min(...rows.map(r=>r.brightness??1)),backgrounds=rows.flatMap(r=>r.backgrounds);
+  if(prepare&&rows.some(r=>r.glyphKind==='pictogram')){failures.at(-1).blocker='彩色图标实际像素未达到可辨识对比度，需核对图标及其底衬，不能靠修改CSS字色放行';}
+  else if(prepare){const opacity=Math.min(...rows.map(r=>r.opacity)),brightness=Math.min(...rows.map(r=>r.brightness??1)),backgrounds=rows.flatMap(r=>r.backgrounds);
    try{const pick=chooseReadableText(rows[0].color,backgrounds,{opacity,brightness});decisions[event.id]={color:pick.color,...(pick.backgroundColor?{backgroundColor:pick.backgroundColor}:{}),beforeColor:rows[0].color,beforeRatio:ratio,reason:'实际文字区域背景取色后确定',sampleFrames:rows.map(r=>r.frame)};}
    catch(error){failures.at(-1).blocker=error.message;}
   }
