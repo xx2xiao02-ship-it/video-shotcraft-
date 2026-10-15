@@ -1,5 +1,6 @@
 // Video ShotCraft console server
 import http from "node:http";
+import {readTalkcraftExecutions,talkcraftExecutionView} from "./director/talkcraft-execution.mjs";
 import {probeTaskExecution} from "./director/task-execution-readiness.mjs";
 import crypto from "node:crypto";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
@@ -376,8 +377,23 @@ function readVoiceSelection(fields) {
 }
 
 function withTalkcraftWorkbench(run) {
-  return {...run, workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
-    failureReport:latestTalkcraftFailureReport(ROOT, run.runId)};
+  const project=talkcraftProject(ROOT,run.runId);
+  const executions=readTalkcraftExecutions(project);
+  const localActive=executions.find(item=>item.status==='running');
+  const active=[...tasks.values()].filter(task=>task.runId===run.runId &&
+    ['starting','running','stopping'].includes(task.status)).at(-1);
+  const activeTask=active ? {id:active.id,name:active.name,status:active.status,startedAt:active.startedAt,
+    message:localActive?.name===active.name?localActive.message:null} : localActive ? {
+      id:'execution:'+localActive.executionId,name:localActive.name,status:localActive.status,
+      startedAt:localActive.startedAt,message:localActive.message,external:true} : null;
+  const failureReport=latestTalkcraftFailureReport(ROOT,run.runId);
+  const recent=executions[0];
+  const localFailure=recent && ['error','interrupted'].includes(recent.status) &&
+    recent.startedAt>(Date.parse(failureReport?.createdAt||'')||0) ? {
+      title:'后端本地执行未通过',cause:recent.error||recent.message,task:{name:recent.name}} : null;
+  const status={...run,activeTask,lastFailure:localFailure||failureReport,
+    workbenchUrl:readTalkcraftWorkbench(ROOT,run.runId)?.url||null,failureReport};
+  return {...status,execution:talkcraftExecutionView(status)};
 }
 
 async function createModeCRun(fields, avatars) {

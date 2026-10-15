@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video ShotCraft 操作台</title>
+<link rel="stylesheet" href="/director/talkcraft-progress.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   /* P1.5 全站主题变量（黑金高级默认；applyTheme 切换时整体联动） */
@@ -794,6 +795,13 @@
   <button class="view-tab" data-view="library">🎞️ 素材库</button>
 </nav>
 
+<aside id="b-backend-monitor" hidden aria-label="后台任务状态" aria-live="polite" style="margin:12px 32px;padding:12px 16px;border:1px solid var(--ui-border);border-radius:10px;background:var(--ui-surface);color:var(--ui-ink)">
+  <strong>后台任务</strong> <span id="b-backend-summary"></span>
+  <span id="b-backend-synced" style="color:var(--ui-muted);margin-left:10px"></span>
+  <a id="b-backend-open" target="_blank" rel="noopener" style="color:var(--ui-ink);margin-left:14px">查看任务</a>
+  <div id="b-backend-draft-note" hidden style="margin-top:6px;color:var(--ui-muted)">当前正在编辑新文案；后台任务状态独立显示，草稿不会覆盖已有任务。</div>
+</aside>
+
 <main>
   <div class="view active" data-view="director">
   <div class="view-title">📝 编导台 · 文案 / 风格 / 分镜规划</div>
@@ -1253,12 +1261,13 @@
   <!-- 整体生成进度条 -->
   <div class="brief-card" id="gen-progress-card" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:14px;font-weight:600">🎬 视频生成进度</div>
+      <div id="gen-progress-title" style="font-size:14px;font-weight:600">🎬 视频生成进度</div>
       <div id="gen-pct" style="font-size:14px;font-weight:600;color:#22c55e">0%</div>
     </div>
-    <div style="height:8px;background:var(--chip);border-radius:4px;overflow:hidden">
+    <div id="gen-linear-progress" style="height:8px;background:var(--chip);border-radius:4px;overflow:hidden">
       <div id="gen-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#22c55e,var(--accent2));border-radius:4px;transition:width .3s"></div>
     </div>
+    <div id="b-node-progress" hidden></div>
     <div id="gen-status" style="font-size:12px;color:var(--mid);margin-top:8px">等待开始…</div>
     <button class="brief-submit" id="production-start-generation" type="button">开始生成视频 <span aria-hidden="true">→</span></button>
     <div id="a-mode-start-error" role="alert" hidden></div>
@@ -1466,6 +1475,7 @@
   </div>
 </div>
 
+<script src="/director/talkcraft-progress-ui.js"></script>
 <script>
 // 生产接口只返回真实结果；断网和无效响应必须报错。
 async function apiFetch(url, options = {}) {
@@ -4120,6 +4130,57 @@ $("#b-background-remove").onclick = () => {
 };
 let pendingBModeText = null;
 let bModeBusy = false;
+let bBackendRunStatus = null;
+let bBackendSnapshotAt = 0;
+let bBackendSyncPending = false;
+async function refreshBExecutionStatus() {
+  const monitor=$('#b-backend-monitor');
+  if(activeProductionMode!=='B'){monitor.hidden=true;return;}
+  if(bBackendSyncPending)return;
+  bBackendSyncPending=true;
+  const requested=initialRoute.get('runId');
+  const routeAtRequest=requested;
+  const runId=/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(requested || '')?requested:(!bFreshInput?bAuditRunId:null);
+  try {
+    const response=await fetch(runId?'/api/talkcraft/status?id='+encodeURIComponent(runId):'/api/talkcraft/latest',
+      {cache:'no-store',signal:AbortSignal.timeout(8000)});
+    const data=await response.json();
+    if(!response.ok||!data.ok)throw Error(data.error || '读取后台任务失败');
+    if(activeProductionMode!=='B'||initialRoute.get('runId')!==routeAtRequest)return;
+    const run=data.run;
+    if(!run){monitor.hidden=true;return;}
+    const preparation=await readTalkcraftParallelDisplay(run);
+    if(activeProductionMode!=='B'||initialRoute.get('runId')!==routeAtRequest)return;
+    if(run.execution?.workflow)run.execution.workflow.parallelPreparation=preparation;
+    bBackendRunStatus=run;bBackendSnapshotAt=Date.now();
+    monitor.hidden=false;
+    monitor.dataset.status=run.execution?.status || (run.activeTask?'running':run.lastFailure?'blocked':'waiting');
+    $('#b-backend-summary').textContent=`${run.runId.slice(0,8)} · ${run.execution?.label || run.waitingFor || '等待处理'}`;
+    $('#b-backend-synced').textContent='已同步 '+new Date(bBackendSnapshotAt).toLocaleTimeString();
+    $('#b-backend-open').href='/?view=produce&mode=B&runId='+encodeURIComponent(run.runId);
+    $('#b-backend-open').hidden=false;
+    $('#b-backend-draft-note').hidden=!bFreshInput;
+    $('#sb-task').textContent=run.execution?.label || run.waitingFor || '等待处理';
+    const bound=initialRoute.get('runId') || bAuditRunId;
+    if(!bFreshInput && (!bound || bound===run.runId)) {
+      bAuditRunStatus=run;
+      setBProgress(0,run.execution?.label || run.waitingFor);
+      setProductionStartState(run.activeTask?'running':run.lastFailure?'failed':'complete');
+      renderBAuditNextAction();
+    }
+  }catch(error){
+    monitor.hidden=false;monitor.dataset.status='disconnected';
+    $('#b-backend-summary').textContent='状态同步中断，暂时无法确认后台是否结束';
+    $('#b-backend-synced').textContent=bBackendSnapshotAt?'最后同步 '+new Date(bBackendSnapshotAt).toLocaleTimeString():'尚未取得任务状态';
+    if(!bBackendRunStatus)$('#b-backend-open').hidden=true;
+    if(!bFreshInput){
+      $('#gen-status').textContent='状态同步中断，暂时无法确认后台是否结束';
+      if(bBackendRunStatus?.runId===(initialRoute.get('runId') || bAuditRunId) && bBackendRunStatus.execution?.workflow)
+        renderTalkcraftProgress($('#b-node-progress'),bBackendRunStatus.execution.workflow,{disconnected:true});
+    }
+  }finally{bBackendSyncPending=false;}
+}
+
 let bStoryboardRegenerationFailed = false;
 let bAuditRunId = null;
 let bAuditOriginalScript = "";
@@ -5127,10 +5188,37 @@ async function submitBAuditNextStep() {
     renderBAuditSegments();
   }
 }
+function boundBProgressRunId(){return initialRoute.get('runId') || bAuditRunId;}
 function setBProgress(pct, status) {
+  const observed=typeof bBackendRunStatus!=='undefined'?bBackendRunStatus:null;
+  const bound=boundBProgressRunId();
+  const execution=activeProductionMode==='B'&&!bFreshInput && observed?.runId===bound &&
+    Date.now()-bBackendSnapshotAt<10000 ? observed.execution : null;
+  const nodesMode=activeProductionMode==='B'&&!bFreshInput;
+  $('#gen-linear-progress').hidden=nodesMode;
+  $('#b-node-progress').hidden=!nodesMode;
+  if(nodesMode){
+    const run=observed?.runId===bound?observed:bAuditRunStatus?.runId===bound?bAuditRunStatus:null;
+    const workflow=talkcraftProgressDisplay(run?.execution?.workflow);
+    if(!workflow && $('#b-node-progress').dataset.runId!==bound){$('#b-node-progress').replaceChildren();delete $('#b-node-progress').dataset.runId;}
+    renderTalkcraftProgress($('#b-node-progress'),workflow);
+    $('#gen-progress-card').style.display='';
+    $('#gen-progress-title').textContent='🧭 视频制作节点';
+    $('#gen-pct').textContent=workflow?`已完成 ${workflow.completed}/${workflow.total} 个节点${workflow.skipped?` · ${workflow.skipped} 个无需执行`:''}`:'正在同步节点';
+    $('#gen-pct').style.color='var(--ink)';
+    $('#gen-status').textContent=workflow?'节点状态来自后端实际产物与校验；暂停保留已有成果。':status||'正在读取后端节点状态…';
+    return;
+  }
+  if(execution){pct=execution.progress ?? 0;status=execution.label;}
   $("#gen-progress-card").style.display = "";
+  // 预检和分镜审核阶段还没有开始渲染视频；不能把阶段进度误标成成片生成。
+  const stageText = String(status || "");
+  const storyboardStage = /分镜|预检|审核|输入处理|编导/u.test(stageText) && !/首镜已确认|整片已生成|机器质检|独立审片|交付成片/u.test(stageText);
+  $("#gen-progress-title").textContent = execution ? '🧭 后台执行状态' : storyboardStage ? "🧭 分镜与审核进度" : "🎬 视频生成进度";
   $("#gen-progress-bar").style.width = `${pct}%`;
   $("#gen-pct").textContent = `${Math.round(pct)}%`;
+  if(execution?.progress==null && execution) $('#gen-pct').textContent=
+    ({running:'执行中',stopping:'停止中',blocked:'已暂停',waiting:'待处理'})[execution.status] || '待处理';
   $("#gen-status").textContent = status;
 }
 function populateBProductionFailure(report) {
@@ -5693,6 +5781,9 @@ try {
   if (routeView === "produce" && activeProductionMode === "B") restoreBWorkflowState();
 } catch {}
 restoreBWorkflowState();
+refreshBExecutionStatus();
+setInterval(refreshBExecutionStatus, 2000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshBExecutionStatus();});
 $("#console-address").textContent = location.origin;
 </script>
 </html>
