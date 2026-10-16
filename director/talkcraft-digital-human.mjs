@@ -12,6 +12,20 @@ import {prepareHostFramerate} from './talkcraft-host-framerate.mjs';
 
 const ROOT = process.env.SHOTCRAFT_ROOT || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+const SUBJECT_ALPHA_EXPRESSION = '255-clip((g(X,Y)-max(r(X,Y),b(X,Y))-6)*24,0,255)';
+const SUBJECT_EDGE_GREEN_EXPRESSION = `if(lt(${SUBJECT_ALPHA_EXPRESSION},250),min(g(X,Y),max(r(X,Y),b(X,Y))+6),g(X,Y))`;
+
+// 主体保护版绿幕抠像：
+// 1. 完全不透明的主体像素保留原始 RGB，避免全局 despill 把肤色和衣服染红；
+// 2. 只在将被判定为半透明的边缘压低绿色溢色；
+// 3. 对 alpha 做两级闭运算，填补手部、衣服等主体内部的小孔。
+export const SUBJECT_PROTECTED_KEY_FILTER = [
+  `format=rgba,geq=r='r(X,Y)':g='${SUBJECT_EDGE_GREEN_EXPRESSION}':b='b(X,Y)':a='${SUBJECT_ALPHA_EXPRESSION}',split=2[keyed][masksrc]`,
+  '[keyed]format=rgb24[rgb]',
+  '[masksrc]format=rgba,alphaextract,format=gray,dilation,dilation,erosion,erosion[mask]',
+  '[rgb][mask]alphamerge,format=yuva420p[outv]',
+].join(';');
+
 // RunningHub 输出的是带绿幕的普通 MP4。B 模式渲染前必须把绿幕转换为
 // 带 alpha 的 WebM，不能把绿幕视频直接叠到背景上造成过曝/色块。
 export function createTransparentDigitalHuman(input, output) {
@@ -19,16 +33,18 @@ export function createTransparentDigitalHuman(input, output) {
   if (existsSync(output)) throw new Error(`透明数字人素材已存在，拒绝覆盖：${output}`);
   execFileSync('ffmpeg', ['-hide_banner','-loglevel','error','-i',input,
     // Upstream host-footage.md §2: RGB-radius keys erase the dark shirt/skin.
-    // Green dominance removes the screen while preserving opaque body pixels.
-    '-vf',"format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='255-clip((g(X,Y)-max(r(X,Y),b(X,Y))-6)*24,0,255)',despill=type=green:mix=0.18:expand=0.1,boxblur=0:0:0:0:1:1,format=yuva420p",
+    // Green dominance removes the screen; the subject-protection graph keeps
+    // opaque body RGB intact and confines green suppression to keyed edges.
+    '-filter_complex',SUBJECT_PROTECTED_KEY_FILTER,'-map','[outv]',
     '-an','-c:v','libvpx-vp9','-pix_fmt','yuva420p','-auto-alt-ref','0',output],
     {stdio:'inherit'});
-  const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-select_streams','v:0',
-    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames:stream_tags=alpha_mode','-of','json',output], {encoding:'utf8'}));
+  const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-count_frames','-select_streams','v:0',
+    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames,nb_read_frames:stream_tags=alpha_mode','-of','json',output], {encoding:'utf8'}));
   const stream = probe.streams?.[0];
   if (stream?.codec_name !== 'vp9' || stream?.tags?.alpha_mode !== '1')
     throw new Error(`透明数字人素材未生成 alpha WebM：${output}`);
-  return {output, codec:stream.codec_name, pixelFormat:stream.pix_fmt, frames:Number(stream.nb_frames || 0)};
+  return {output, codec:stream.codec_name, pixelFormat:stream.pix_fmt,
+    frames:Number(stream.nb_read_frames || stream.nb_frames || 0)};
 }
 export async function generateTalkcraftDigitalHuman({root = ROOT, runId, provider = null, resumeExisting=false}) {
 if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) throw new Error('Invalid TalkCraft run ID');

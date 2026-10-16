@@ -27,18 +27,28 @@ function approveFixture(root, runId, project) {
   approveTalkcraftStoryboard(root, runId, 'isolated test fixture');
 }
 
-test('原版绿优势度键去除绿幕，同时保留黑色衣服不透明',t=>{
+test('主体保护抠图去除绿幕、保留主体原色并填补内部小孔',t=>{
   const root=mkdtempSync(path.join(os.tmpdir(),'talkcraft-alpha-'));
   t.after(()=>rmSync(root,{recursive:true,force:true}));
-  const input=path.join(root,'green.mp4'),output=path.join(root,'alpha.webm');
+  const input=path.join(root,'green.mkv'),output=path.join(root,'alpha.webm');
   execFileSync('ffmpeg',['-v','error','-f','lavfi','-i',
-    'color=c=0x00ff00:s=160x90:r=30:d=0.2,drawbox=x=60:y=25:w=40:h=40:color=0x182238:t=fill',
-    '-c:v','libx264','-pix_fmt','yuv420p',input]);
-  createTransparentDigitalHuman(input,output);
-  const alpha=execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',output,
-    '-vf','alphaextract','-frames:v','1','-f','rawvideo','-pix_fmt','gray','pipe:1']);
-  assert.equal(alpha[45*160+80],255,'黑衣必须保持实心');
-  assert.ok(alpha[5*160+5]<5,'纯绿幕必须透明');
+    'color=c=0x00ff00:s=160x90:r=30:d=0.2,drawbox=x=20:y=20:w=30:h=50:color=0x182238:t=fill,drawbox=x=80:y=20:w=50:h=50:color=0xc6906e:t=fill,drawbox=x=104:y=44:w=3:h=3:color=0x00ff00:t=fill',
+    '-c:v','ffv1','-pix_fmt','bgr0',input]);
+  const result=createTransparentDigitalHuman(input,output);
+  assert.equal(result.frames,6,'透明素材必须返回实际帧数');
+  const rgba=execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',output,
+    '-frames:v','1','-f','rawvideo','-pix_fmt','rgba','pipe:1']);
+  const sourceRgb=execFileSync('ffmpeg',['-v','error','-i',input,
+    '-frames:v','1','-f','rawvideo','-pix_fmt','rgb24','pipe:1']);
+  const pixel=(buffer,x,y,channels)=>[...buffer.subarray((y*160+x)*channels,(y*160+x)*channels+channels)];
+  const alpha=(x,y)=>pixel(rgba,x,y,4)[3];
+  assert.ok(alpha(30,40)>250,'黑衣必须保持实心');
+  assert.ok(alpha(5,5)<5,'纯绿幕必须透明');
+  assert.ok(alpha(105,45)>250,'主体内部小绿孔必须闭合');
+  const originalTan=pixel(sourceRgb,90,40,3);
+  const protectedTan=pixel(rgba,90,40,4).slice(0,3);
+  assert.ok(protectedTan.every((value,index)=>Math.abs(value-originalTan[index])<=20),
+    `主体核心原色必须保留：${originalTan} -> ${protectedTan}`);
 });
 
 for (const scenario of ['missing-storyboard','unapproved','changed-shot','failed-preflight','pending-adjustment']) {

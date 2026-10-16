@@ -41,7 +41,8 @@ function sourceBinding(project){
 export function bindMachineVideo(project,video){
   assertMachineTextRules(project);
   const report={schema:'talkcraft-machine-video-binding-v1',policy:ACCEPTANCE_POLICY,
-    finalSha256:sha(video),binding:sourceBinding(project),visualVerified:false,userAcceptance:false};
+    video:path.relative(project,video).replaceAll('\\','/'),finalSha256:sha(video),
+    binding:sourceBinding(project),visualVerified:false,userAcceptance:false};
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
   fs.writeFileSync(path.join(project,'qa/machine-video-binding.json'),JSON.stringify(report,null,2));
   return report;
@@ -49,7 +50,7 @@ export function bindMachineVideo(project,video){
 export function assertMachineVideo(project,video){
   assertMachineTextRules(project);
   const report=read(path.join(project,'qa/machine-video-binding.json'));
-  if(report.policy!==ACCEPTANCE_POLICY||report.finalSha256!==sha(video)||
+  if(report.policy!==ACCEPTANCE_POLICY||(report.video!=null&&report.video!==path.relative(project,video).replaceAll('\\','/'))||report.finalSha256!==sha(video)||
     JSON.stringify(report.binding)!==JSON.stringify(sourceBinding(project)))
     throw Error('成片与当前画面代码、参数或素材绑定不符，请重新执行机器规则检查');
   return report;

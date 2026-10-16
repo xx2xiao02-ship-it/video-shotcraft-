@@ -301,6 +301,23 @@ export function assertWordRevealVideo(project,video){
   const report=read(file);if(report.sha256!==sha(video)||report.proofSha256!==sha(path.join(project,'qa/word-reveal-runtime.json'))||report.contrastProofSha256!==sha(path.join(project,'qa/text-contrast-runtime.json')))throw Error('成片与字级/颜色校验绑定不符，禁止导出');
 }
 export function repairVideoForReview(project){
+  const machineFile=path.join(project,'qa/machine-video-binding.json');
+  if(fs.existsSync(machineFile)){
+    const machine=read(machineFile);
+    if(/^remotion\/out\/repair-[a-zA-Z0-9-]+\/final\.mp4$/.test(machine.video??'')){
+      if(machine.schema!=='talkcraft-machine-video-binding-v1'||machine.policy!=='code-rules-and-human-visual-v1'||
+        !/^[a-f\d]{64}$/i.test(machine.finalSha256??'')||machine.visualVerified!==false||machine.userAcceptance!==false)
+        throw Error('修正版机器绑定无效');
+      const video=path.join(project,machine.video);
+      if(!fs.existsSync(video)||sha(video)!==machine.finalSha256)throw Error('修正版视频与机器绑定不符');
+      const binding=wordRevealSourceBinding(project);
+      for(const name of ['source-run.json','audio/full.mp3']){
+        const file=path.join(project,name);if(fs.existsSync(file))binding[name]=sha(file);
+      }
+      if(JSON.stringify(binding)!==JSON.stringify(machine.binding))throw Error('修正版源码或素材绑定已过期');
+      return video;
+    }
+  }
   const file=path.join(project,'qa/word-reveal-video.json');
   if(!fs.existsSync(file))throw Error('修正版视频尚未绑定');
   const record=read(file);
