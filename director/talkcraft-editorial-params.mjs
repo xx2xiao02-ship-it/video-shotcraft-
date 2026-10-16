@@ -23,6 +23,18 @@ export function normalizeEditorialParams(input,catalog) {
     const card=catalog.cards.find(c=>c.cardId===shot.shotCard);
     if (!props || typeof props!=='object' || !card) continue;
     const fields=new Set(card.fields.map(f=>f.key));
+    for(const field of card.fields){
+      // Numeric JSON strings can be losslessly compiled. Range and selection
+      // legality still belong to the locked source validator.
+      const value=props[field.key];
+      if(!field.writable||field.type!=='number'||typeof value!=='string'||
+         !/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(value)||!Number.isFinite(Number(value)))continue;
+      const decimal=value.includes('.')?value.replace(/0+$/u,'').replace(/\.$/u,''):value;
+      if(String(Number(value))!==decimal||Math.abs(Number(value))>Number.MAX_SAFE_INTEGER)continue;
+      props[field.key]=Number(value);
+      repairs.push({shotId:shot.id,field:`cardProps.${field.key}`,from:value,to:props[field.key],
+        reason:'按源码声明将JSON数字字符串无损转为数字；原有范围与选中项校验继续执行'});
+    }
     for (const key of ['materialRole','materialQuery','templateMaterialQueries']) {
       if (!Object.hasOwn(props,key) || fields.has(key)) continue;
       const value=props[key], canonical=Object.hasOwn(params,key);

@@ -15,7 +15,7 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
   for (let i=0;i<full.cards.length;i++) {
     assert.deepEqual(compact.contracts[i].required,full.cards[i].required);
     assert.deepEqual(compact.contracts[i].fields.map(field=>field.key),
-      full.cards[i].fields.filter(field=>full.cards[i].required.includes(field.key)).map(field=>field.key));
+      full.cards[i].fields.filter(field=>full.cards[i].required.includes(field.key)||field.writable&&field.role!=='media').map(field=>field.key));
     assert.deepEqual(compact.contracts[i].media,full.cards[i].media);
     assert.deepEqual(compact.contracts[i].mediaAlternatives,full.cards[i].mediaAlternatives);
     assert.deepEqual(compact.contracts[i].capabilities,full.cards[i].capabilities);
@@ -23,8 +23,9 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
     assert.deepEqual(compact.contracts[i].allowedBusinessKeys,full.cards[i].fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key));
     assert.deepEqual(compact.contracts[i].frozenKeys,full.cards[i].fields.filter(f=>!f.writable).map(f=>f.key));
   }
-  // Keep capability constraints in the request even when they cost payload space.
-  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.6);
+  // All writable fields now carry types/ranges (not only required fields).
+  // Keep that additional contract while omitting source parsers and full demo rows.
+  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.75);
 });
 
 const semantics = {sentences:[{i:0,text:'第一句。'},{i:1,text:'第二句。'}]};
