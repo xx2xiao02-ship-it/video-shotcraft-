@@ -640,8 +640,7 @@ const apis = {
         generationMode:fields.generationMode || 'segments', themeSnapshot:readCurrentTheme(ROOT)});
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
-      return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences,
-        factRevisionApplied:created.factRevisionApplied,factApprovalRunId:created.factApprovalRunId});
+      return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "GET /api/mode-c/config": (_req, res) => {

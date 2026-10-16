@@ -6,7 +6,6 @@ import path from 'node:path';
 import {normalizeTheme} from './theme-contract.mjs';
 import {validateSpeechRate} from './voice-speed.mjs';
 import {assertNewVoiceSelection} from './talkcraft-voice-contract.mjs';
-import {findApprovedFactRevision} from './talkcraft-fact-review.mjs';
 
 export function splitTalkcraftSentences(text) {
   return (text.replace(/\r/gu, '').match(/[^。！？!?\n]+[。！？!?]?/gu) || [])
@@ -20,8 +19,7 @@ export function createTalkcraftInput(root, {text, voice, voiceMode, speakerId = 
   speechRate = validateSpeechRate(speechRate);
   const theme = normalizeTheme(themeSnapshot);
   const submittedScript = typeof text === 'string' ? text.replace(/\r\n/gu, '\n').trim() : '';
-  const factRevision=findApprovedFactRevision(root,submittedScript);
-  const script = factRevision?.text || submittedScript;
+  const script = submittedScript;
   const sentences = splitTalkcraftSentences(script);
   if (!script || script.length > 1200 || !sentences.length) throw new Error('TalkCraft 文案需为 1–1200 字');
   const selectedVoice=recorded?{voice:'recorded-original',speakerId:''}:assertNewVoiceSelection({voiceMode,speakerId});
@@ -48,7 +46,6 @@ export function createTalkcraftInput(root, {text, voice, voiceMode, speakerId = 
   mkdirSync(path.join(project, 'audio'), {recursive:true});
   mkdirSync(path.join(project, 'assets'), {recursive:true});
   mkdirSync(path.join(project, 'remotion', 'public', 'broll'), {recursive:true});
-  if(factRevision)mkdirSync(path.join(project,'qa'),{recursive:true});
   const avatarFiles = avatars.map((bytes, index) => {
     const name = `avatar-${String(index + 1).padStart(2, '0')}.png`;
     const target = path.join(project,'assets',name);
@@ -75,20 +72,10 @@ export function createTalkcraftInput(root, {text, voice, voiceMode, speakerId = 
     workflowPath:recorded?'recorded-host':'planned-runninghub',workflowVersion:2,
     ...(recorded?{hostInputSha256:createHash('sha256').update(hostVideoBytes).digest('hex')}:{}),
     digitalHumanMode:generationMode, avatarFiles, aspectRatio:theme.aspectRatio, themeSnapshot:theme,
-    ...(factRevision?{factRevisionApplied:true,factApprovalRunId:factRevision.approvalRunId,
-      originalScriptSha256:factRevision.record.originalScriptSha256,
-      approvedScriptSha256:factRevision.record.approvedScriptSha256}:{}),
     cardCallsRequired:true,
     visualTextLocale:'zh-CN'},null,2),'utf8');
-  if(factRevision){
-    writeFileSync(path.join(project,'qa','fact-approved-script.txt'),script+'\n','utf8');
-    writeFileSync(path.join(project,'qa','fact-script-approval.json'),JSON.stringify({
-      ...factRevision.record,appliedToRunId:runId,appliedAt:new Date().toISOString()
-    },null,2)+'\n','utf8');
-  }
   writeFileSync(path.join(project,'sources.md'), `# 素材来源\n\n- 角色图：本次用户输入；${enableDigitalHuman ? '作为数字人生成输入，生成前仅作静态预览。' : '仅作为静态角色图，不会调用数字人生成。'}\n- 其余素材：待语义标注后逐镜采集并登记。\n`,'utf8');
   if(recorded)writeFileSync(path.join(project,'sources.md'),'# 素材来源\n\n- 真人口播：用户上传 assets/host-original.mp4；使用视频原声，不合成、不变速。\n- 其他素材按语义采集。\n');
   return {runId, project, sentences:sentences.length, characters:script.length,
-    workflowPath:recorded?'recorded-host':'planned-runninghub',
-    factRevisionApplied:Boolean(factRevision),factApprovalRunId:factRevision?.approvalRunId||null};
+    workflowPath:recorded?'recorded-host':'planned-runninghub'};
 }

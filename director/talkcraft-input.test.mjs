@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
-import {createHash} from 'node:crypto';
-import {mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, readFileSync, rmSync} from 'node:fs';
 import path from 'node:path';
 import {test} from 'node:test';
 import {createTalkcraftInput, splitTalkcraftSentences} from './talkcraft-input.mjs';
@@ -46,34 +45,5 @@ test('new TalkCraft input stays isolated and preserves sentence order', () => {
   } finally {
     if (!root.startsWith(workspace + path.sep)) throw new Error('Test cleanup escaped workspace');
     rmSync(root, {recursive:true, force:true});
-  }
-});
-
-test('new input cannot fall back to text superseded by an approved fact revision',()=>{
-  mkdirSync(workspace,{recursive:true});
-  const root=mkdtempSync(path.join(workspace,'talkcraft-fact-inherit-'));
-  try{
-    const oldText='绝大多数人都会存钱。',approvedText='一部分人可能选择储蓄。';
-    const approvalProject=path.join(root,'director','b-mode-runs','11111111-1111-4111-8111-111111111111','talkcraft');
-    mkdirSync(path.join(approvalProject,'qa'),{recursive:true});
-    const digest=value=>createHash('sha256').update(value).digest('hex');
-    writeFileSync(path.join(approvalProject,'qa','fact-approved-script.txt'),approvedText+'\n');
-    writeFileSync(path.join(approvalProject,'qa','fact-script-approval.json'),JSON.stringify({
-      schema:'talkcraft-fact-script-approval-v1',approved:true,
-      originalScriptSha256:digest(oldText),approvedScriptSha256:digest(approvedText)
-    }));
-    const avatarBytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX1sAAAAASUVORK5CYII=','base64');
-    const created=createTalkcraftInput(root,{text:oldText,voiceMode:'volcengine-tts2',
-      speakerId:'zh_male_liufei_uranus_bigtts',avatarBytes});
-    assert.equal(created.factRevisionApplied,true);
-    assert.equal(created.factApprovalRunId,'11111111-1111-4111-8111-111111111111');
-    assert.equal(readFileSync(path.join(created.project,'input.txt'),'utf8').trim(),approvedText);
-    const source=JSON.parse(readFileSync(path.join(created.project,'source-run.json'),'utf8'));
-    assert.equal(source.factRevisionApplied,true);
-    assert.equal(source.factApprovalRunId,'11111111-1111-4111-8111-111111111111');
-    assert.equal(JSON.parse(readFileSync(path.join(created.project,'qa','fact-script-approval.json'),'utf8')).approved,true);
-  }finally{
-    if(!root.startsWith(workspace+path.sep))throw Error('Test cleanup escaped workspace');
-    rmSync(root,{recursive:true,force:true});
   }
 });
