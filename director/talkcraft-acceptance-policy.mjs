@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {assertWordReveals,wordRevealSourceBinding} from './talkcraft-word-reveal.mjs';
 import {isNativePresentation} from './talkcraft-native-governance.mjs';
+import {assertOpeningRhythm} from './talkcraft-template-governance.mjs';
 
 export const ACCEPTANCE_POLICY='code-rules-and-human-visual-v1';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
@@ -26,10 +27,11 @@ export function assertMachineTextRules(project,{only}={}){
   if(!needed)return {passed:true,enabled:false,scope:only||null,visualVerified:false};
   const plan=assertWordReveals(project);
   if(!plan.enabled)throw Error('WORD_REVEAL_PLAN_REQUIRED：缺少可核验的字级时间与源码绑定');
+  if(isNativePresentation(project))assertOpeningRhythm(project);
   const events=plan.events.filter(e=>!only||only.includes(e.beatId));
   if(!events.length)throw Error('文字代码规则检查范围没有事件');
   return {passed:true,enabled:true,events:events.length,scope:only||null,
-    policy:ACCEPTANCE_POLICY,checks:['voice-time-anchors','template-content','runtime-wrapper-source'],visualVerified:false};
+    policy:ACCEPTANCE_POLICY,checks:['voice-time-anchors','template-content','runtime-wrapper-source',...(isNativePresentation(project)?['opening-rhythm','content-onset']:[])],visualVerified:false};
 }
 function sourceBinding(project){
   const binding=wordRevealSourceBinding(project);

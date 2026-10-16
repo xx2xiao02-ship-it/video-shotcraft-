@@ -6,6 +6,16 @@ import {normalizeVisibleText} from './talkcraft-text-occurrences.mjs';
 export const CONTENT_ONSET_MAX_SEC=1;
 export const CONTENT_ONSET_RULES='每镜须规划起始内容：纯文字/图形镜头在首秒内应有与当前解说对应的有效文字；色块、编号、箭头和底部字幕不能作为内容承载。后置关键词必须保持真实发声锚点，之前用当前语义的已审模板内容、真实素材或人物承接。禁止把未来结论改成 context 提前显示来通过检查；无法承接须回到自然短句重新编排或重选卡，不得空等关键词。';
 
+function hasSubstantiveText(event){
+  const text=normalizeVisibleText(event.text);
+  if(text.length<2)return false;
+  if(/\p{L}/u.test(text))return true;
+  // A spoken statistical value is content; an unanchored decorative counter
+  // is not. Spoken anchors are validated against voice evidence by the compiler.
+  return /^\p{N}+$/u.test(text)&&event.role==='spoken'&&Number.isFinite(event.spokenSec)&&
+    text===normalizeVisibleText(event.anchor);
+}
+
 function hasLocalMedia(shot,project){
   if(!project)return false;
   const root=path.resolve(project,'remotion/public');
@@ -26,7 +36,7 @@ export function checkContentOnset(shots,reveals,{project=null}={}){
     const durationFrames=Math.round(shot.end*fps)-Math.round(shot.start*fps);
     const events=reveals.events.filter(e=>e.beatId===shot.id&&!e.deferredTo&&
       Number.isInteger(e.localFrame)&&e.localFrame>=0&&e.localFrame<durationFrames&&
-      normalizeVisibleText(e.text).length>=2);
+      hasSubstantiveText(e));
     const first=events.reduce((best,e)=>!best||e.localFrame<best.localFrame?e:best,null);
     const initialMedia=hasLocalMedia(shot,project),plannedHost=shot.subject==='person';
     const firstTextFrame=first?.localFrame??null;

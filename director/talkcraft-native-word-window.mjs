@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {nativeFrameAt} from './talkcraft-native-time-map.mjs';
 import {compileWordReveals} from './talkcraft-word-reveal.mjs';
+import {auditOpeningRhythm} from './talkcraft-template-governance.mjs';
 
 // Exact windows of the upstream error-retype card. Its first text is removed
 // before its second text is typed; a narration gate cannot bring erased text back.
@@ -42,6 +43,8 @@ export function recordNativeWordWindows(project, reveals) {
 export function recordPlanningWordCheck(project,{required=true}={}) {
   if(!required)return {required:false,passed:true,issues:[]};
   try {
+    const opening=auditOpeningRhythm(JSON.parse(fs.readFileSync(path.join(project,'remotion/shots.json'),'utf8')));
+    if(!opening.passed){const error=Error('开场短镜头规划未通过');error.issues=opening.issues;throw error;}
     const reveals=compileWordReveals(project);
     if(!reveals.enabled)throw Error('正式模板缺少字级落点计划');
     return {...recordNativeWordWindows(project,reveals),required:true,eventCount:reveals.events.length};

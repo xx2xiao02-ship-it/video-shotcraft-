@@ -20,9 +20,15 @@ export const OPENING_MAX_TEMPLATE_SEC = 3;
 export const OPENING_WINDOW_SEC = 8;
 export const OPENING_TARGET_SHOT_SEC = 2.4;
 export const OPENING_MAX_SHOT_SEC = 3.4;
-// 同一模板在任意连续 30 个镜头内只能正式绑定一次。使用滑动窗口，
+// 不同观点在任意连续 30 个镜头内不重复；同观点承接须逐镜记录依据。使用滑动窗口，
 // 这样跨分组边界的重复也会被拦截，而不是只检查固定的 1-30、31-60 分组。
 export const TEMPLATE_REUSE_WINDOW_SIZE = 30;
+export function templateContinuityException(previous, current) {
+  const a=previous?.templateParams?.templateContinuity,b=current?.templateParams?.templateContinuity;
+  return Boolean(a?.pointId && typeof a.pointId==='string' && a.pointId.trim() &&
+    b?.pointId===a.pointId && b.continuesShotId===previous.id &&
+    typeof b.reason==='string' && [...b.reason.replace(/\s/gu,'')].length>=4);
+}
 // 兼容现有绑定模块的导出名；实际准入仍以治理目录原始时长为准。
 export const SHORT_OPENING_POOL = new Map();
 
@@ -73,6 +79,20 @@ export function auditTemplateReuse(shots, {windowSize = TEMPLATE_REUSE_WINDOW_SI
   const size = Number.isInteger(windowSize) && windowSize > 0 ? windowSize : TEMPLATE_REUSE_WINDOW_SIZE;
   const issues = [];
   const rows = Array.isArray(shots) ? shots : [];
+  const continuityReaches=(previous,index)=>{
+    // A chain may continue the same point across multiple shots. A shared
+    // pointId alone is insufficient: every backward edge needs its own reason.
+    const visited=new Set();
+    let cursor=index;
+    while(cursor>previous&&!visited.has(cursor)){
+      visited.add(cursor);
+      const target=rows[cursor]?.templateParams?.templateContinuity?.continuesShotId;
+      const prior=rows.findIndex((s,i)=>i<cursor&&s.id===target);
+      if(prior<previous||!templateContinuityException(rows[prior],rows[cursor]))return false;
+      cursor=prior;
+    }
+    return cursor===previous;
+  };
   for (let index = 0; index < rows.length; index += 1) {
     const card = canonicalCardId(rows[index]?.shotCard, CATALOG);
     if (!card) continue;
@@ -80,40 +100,52 @@ export function auditTemplateReuse(shots, {windowSize = TEMPLATE_REUSE_WINDOW_SI
     for (let previous = first; previous < index; previous += 1) {
       const previousCard = canonicalCardId(rows[previous]?.shotCard, CATALOG);
       if (previousCard !== card) continue;
+      if (continuityReaches(previous,index)) continue;
       issues.push({
         shotId: rows[index]?.id,
         previousShotId: rows[previous]?.id,
         code: 'template_window_reuse',
         cardId: card,
         windowSize: size,
-        message: `${rows[index]?.id || '当前镜头'} 与 ${rows[previous]?.id || '前一镜'} 在连续 ${size} 镜窗口内重复使用 ${card}；正式绑定必须换用不同模板`,
+        message: `${rows[index]?.id || '当前镜头'} 与 ${rows[previous]?.id || '前一镜'} 在连续 ${size} 镜窗口内重复使用 ${card}；须换卡或登记同一观点的承接镜头和理由`,
       });
     }
   }
   return issues;
 }
 
+// Shared by planning and final binding. A cached candidate pass cannot exempt
+// an old film from the actual opening duration budget.
+export function auditOpeningRhythm(shots) {
+  const checks=[],issues=[];
+  for(const shot of shots||[]) if(isOpeningShot(shot)) {
+    const duration=shotDurationSec(shot),original=governedOriginalDurationSec(shot.shotCard);
+    checks.push({shotId:shot.id,durationSec:duration,originalTemplateSec:original});
+    if(duration==null||duration>OPENING_MAX_SHOT_SEC+1e-9)issues.push({
+      shotId:shot.id,code:'opening_shot_duration_exceeded',actualDurationSec:duration,maxDurationSec:OPENING_MAX_SHOT_SEC,
+      message:`${shot.id} 开场镜头实际持续 ${duration==null?'未知':duration.toFixed(3)} 秒（含驻留），上限 ${OPENING_MAX_SHOT_SEC} 秒；须按原配音自然短句重排，不能截断语义或伪造声明时长`});
+    if(!isOpeningTemplateEligible(shot.shotCard))issues.push({shotId:shot.id,code:'opening_template_duration_exceeded',
+      message:`${shot.id} 原卡完整时长 ${original==null?'未知':original.toFixed(3)} 秒，开场要求不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒，禁止截断或加速`});
+    if(shot.subject==='person'&&duration!=null&&duration<2.5)issues.push({shotId:shot.id,code:'opening_short_host_forbidden',
+      message:`${shot.id} 小于2.5秒，须使用无数字人的已审模板，不能重生人物绕过`});
+  }
+  return {schema:'talkcraft-opening-rhythm-v1',passed:issues.length===0,windowSec:OPENING_WINDOW_SEC,checks,issues,visualVerified:false};
+}
+export function assertOpeningRhythm(project) {
+  const report=auditOpeningRhythm(readJson(path.join(project,'remotion/shots.json')));
+  if(!report.passed){const e=Error(report.issues.map(i=>`[${i.code}] ${i.message}`).join('\n'));e.issues=report.issues;throw e;}
+  return report;
+}
+
 export function auditTalkcraftTemplateGovernance(shots,{projectRoot=ROOT}={}) {
   const issues = [];
   issues.push(...auditTemplateReuse(shots));
+  issues.push(...auditOpeningRhythm(shots).issues);
   for (const shot of shots || []) {
     const card = String(shot?.shotCard || '');
     const governedCard = canonicalCardId(card, CATALOG);
     if (!PARAMETERIZED_CARD_IDS.has(governedCard)) {
       issues.push({shotId:shot?.id, code:'non_parameterized_template', message:`${shot?.id} 使用 ${card || '空模板'}，没有当前 B 模式业务参数绑定`});
-    }
-    if (isOpeningShot(shot)) {
-      const shotDuration = shotDurationSec(shot);
-      if (shotDuration != null && shotDuration > OPENING_MAX_SHOT_SEC + 1e-9) {
-        issues.push({shotId:shot?.id, code:'opening_shot_duration_exceeded',
-          actualDurationSec:shotDuration,maxDurationSec:OPENING_MAX_SHOT_SEC,
-          message:`${shot?.id} 开场镜头实际持续 ${shotDuration.toFixed(3)} 秒（含驻留），超过 ${OPENING_MAX_SHOT_SEC} 秒；须依据真实字级时间戳在自然短句处重新编排，目标约 ${OPENING_TARGET_SHOT_SEC} 秒。不能截断语义、加速模板或仅缩短声明时长`});
-      }
-      const originalSec = governedOriginalDurationSec(governedCard, CATALOG);
-      if (!isOpeningTemplateEligible(governedCard, CATALOG)) {
-        issues.push({shotId:shot?.id,code:'opening_template_duration_exceeded',
-          message:`${shot?.id} 使用 ${governedCard}，治理目录原始完整时长 ${originalSec == null ? '未知' : `${originalSec.toFixed(3)} 秒`}，开场要求不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒；禁止截断、加速或用 templateUnitSec 冒充`});
-      }
     }
     if(shot?.templateParams?.subtitlePolicy==='visual-only') issues.push({shotId:shot.id,code:'hidden_template_content',message:`${shot.id} 使用隐藏模板文字策略，必须在内容设计阶段修正`});
     if (DUPLICATE_SUBTITLE_CARD_IDS.has(governedCard) && hasRepeatedSubtitle(shot)) {

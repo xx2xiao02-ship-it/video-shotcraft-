@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>{
@@ -86,15 +87,13 @@ export function recordReviewedCandidates(project,options={}) {
   const files=['semantics.json','SHOTBOOK.md','qa/card-candidates.json'];
   const result={schema:'talkcraft-reviewed-candidates-v1',registrySha256:reviewed.sha256,
     inputs:Object.fromEntries(files.map(f=>[f,fileHash(path.join(project,f))])),
-    selectionPolicy:'reviewed-source-and-semantic-candidate; no deviation bypass',userAcceptance:false};
+    selectionPolicy:'reviewed-source; upstream-candidates-or-documented-semantic-deviation',userAcceptance:false};
   fs.writeFileSync(path.join(project,'qa/reviewed-candidate-binding.json'),JSON.stringify(result,null,2)+'\n');
   return result;
 }
 
-// The matcher keeps a small ranked list. A formally selected card may fall
-// outside that list even though it is reviewed and has an exact semantic match.
-// Add only that exact evidence back; waivers and free-text rationales never
-// create membership.
+// Legacy diagnostic retained for historical callers. Production candidates no
+// longer invoke this: retain the upstream list and document outside selections.
 export function reconcileReviewedSelectionCandidates(project,index,{allowOpeningCard=()=>true}={}) {
   const shots=read(path.join(project,'remotion/shots.json'));
   const semantics=read(path.join(project,'semantics.json'));
@@ -137,21 +136,50 @@ export function assertReviewedSelection(project,options={}) {
   for(const name of ['semantics.json','SHOTBOOK.md','qa/card-candidates.json'])
     if(binding.inputs?.[name]!==fileHash(path.join(project,name)))throw Error('候选依据已变化，请重新生成候选：'+name);
   if(!Array.isArray(shots)||!shots.length)throw Error('分镜为空，不能验证已审选卡');
-  const ids=new Set(),issues=[];
+  const ids=new Set(),issues=[],deviations=[];
   for(let i=0;i<shots.length;i++){
     const shot=shots[i],card=reviewed.cards.get(shot.shotCard);
     if(ids.has(shot.id))issues.push('镜头编号重复：'+shot.id);ids.add(shot.id);
     if(!card)issues.push('镜头使用未经审查的模板：'+shot.id+' / '+shot.shotCard);
-    const groups=candidates[shot.id]?.candidates||{};
-    // Opening pools and free-text deviations cannot manufacture semantic fit.
+    const entry=candidates[shot.id]||candidates[String(shot.id).toLowerCase()]||{},groups=entry.candidates||{};
+    // The short-card eligibility pool is not a semantic recommendation.
     const matched=Object.entries(groups).filter(([name])=>name!=='开场短模板').some(([,list])=>
       Array.isArray(list)&&list.some(c=>c.slug===shot.shotCard));
-    if(!matched)issues.push('正式选卡不在当前语义/素材候选内，偏离说明不能放行：'+shot.id+' / '+shot.shotCard);
-    if(shots.slice(Math.max(0,i-29),i).some(previous=>previous.shotCard===shot.shotCard))
-      issues.push('连续30镜内重复使用模板：'+shot.id+' / '+shot.shotCard);
+    // `waived` is produced by upstream shotbook_parse.deviations from this
+    // exact hash-bound SHOTBOOK. Do not turn a top-k recommendation into a ban.
+    if(!matched){
+      const reasons=Object.entries(entry.waived||{}).filter(([semantic,reason])=>
+        entry.semantics?.includes(semantic)&&typeof reason==='string'&&[...reason.replace(/\s/gu,'')].length>=4);
+      if(!reasons.length)issues.push('正式选卡在推荐候选外，须按原项目在本镜写语义偏离理由（至少4字）：'+shot.id+' / '+shot.shotCard);
+      else deviations.push({shotId:shot.id,cardId:shot.shotCard,reasons:Object.fromEntries(reasons)});
+    }
   }
+  issues.push(...auditTemplateReuse(shots).map(i=>'连续30镜内重复使用模板，缺少同一观点承接依据：'+i.shotId+' / '+i.cardId));
   if(issues.length)throw Error(issues.join('\n'));
-  return {passed:true,shots:shots.length,registrySha256:reviewed.sha256,userAcceptance:false};
+  return {passed:true,shots:shots.length,deviations,registrySha256:reviewed.sha256,userAcceptance:false};
+}
+
+// Expose retrieval breadth and actual editorial choices without changing the
+// upstream ordering, adding synthetic recommendations or claiming visual QA.
+export function recordCandidateComparison(project,options={}) {
+  const reviewed=loadReviewedTemplates(options),candidates=read(path.join(project,'qa/card-candidates.json'));
+  const shots=read(path.join(project,'remotion/shots.json'));
+  const rows=shots.map((shot,i)=>{
+    const entry=candidates[shot.id]||candidates[String(shot.id).toLowerCase()]||{};
+    const groups=Object.entries(entry.candidates||{}).filter(([sem])=>sem!=='开场短模板');
+    const recommendations=[...new Set(groups.flatMap(([,list])=>list.map(c=>c.slug)))];
+    const recent=shots.slice(Math.max(0,i-29),i).map(s=>({shotId:s.id,cardId:s.shotCard}));
+    return {shotId:shot.id,selectedCard:shot.shotCard,recommendedCount:recommendations.length,
+      perSemantic:Object.fromEntries(groups.map(([sem,list])=>[sem,list.map(c=>c.slug)])),
+      recommended:recommendations.includes(shot.shotCard),semanticDeviation:entry.waived||{},
+      recentWindow:recent,unusedRecommendations:recommendations.filter(id=>!recent.some(s=>s.cardId===id)),
+      templateContinuity:shot.templateParams?.templateContinuity||null};
+  });
+  const report={schema:'talkcraft-candidate-comparison-v1',availableCards:[...reviewed.cards.keys()],
+    availableCount:reviewed.cards.size,policy:'all-reviewed-comparable; all-upstream-feasible-recommended; outside-with-upstream-reason',
+    rows,userAcceptance:false,visualVerified:false};
+  fs.writeFileSync(path.join(project,'qa/card-candidate-comparison.json'),JSON.stringify(report,null,2)+'\n');
+  return report;
 }
 
 // A read-only diagnostic also runs against old projects that have no binding.
@@ -159,7 +187,7 @@ export function assertReviewedSelection(project,options={}) {
 export function auditReviewedTemplates(project,options={}) {
   const checks=[];
   for(const [name,check,remedy] of [
-    ['selection',()=>assertReviewedSelection(project,options),'使用已审索引重新运行上游候选；编导从语义候选重新选卡并审核。'],
+    ['selection',()=>assertReviewedSelection(project,options),'用已审索引重跑上游候选；保留编导选卡，候选外在SHOTBOOK按原版格式写明理由并审核。'],
     ['drawing',()=>assertNoCustomDrawing(project),'撤回定制补画和外层版式覆盖，恢复原卡及其原生参数。'],
     ['runtime',()=>assertReviewedRuntimeSources(project,options),'从登记的同版本源码恢复模板及实际依赖，再重新预检和渲染。'],
   ]){

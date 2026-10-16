@@ -1,5 +1,5 @@
 import {ACCEPTANCE_POLICY,assertMachineTextRules,bindMachineVideo,assertMachineVideo,inspectTechnicalMedia,queueHumanVisualReview,humanVisualApprovalCurrent} from './talkcraft-acceptance-policy.mjs';
-import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection,reconcileReviewedSelectionCandidates} from './talkcraft-reviewed-templates.mjs';
+import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection,recordCandidateComparison} from './talkcraft-reviewed-templates.mjs';
 import {alignExistingVoice,recoverExistingAlignment} from './talkcraft-word-alignment.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
 import {recordScaffoldResult} from './talkcraft-scaffold-state.mjs';
@@ -150,7 +150,7 @@ function filterOpeningShortTemplateCandidates(project, catalog) {
   if (existsSync(markdownFile)) {
     const original = readFileSync(markdownFile, 'utf8').replace(/\n## 开场短模板准入过滤[\s\S]*$/u, '');
     const lines = report.map(item => `- ${item.shotId} / ${item.semantic} / ${item.slug}：原始 ${item.originalDurationSec == null ? '未知' : `${item.originalDurationSec.toFixed(3)} 秒`}，已排除（必须 <= ${OPENING_MAX_TEMPLATE_SEC} 秒）`);
-    const shortCards = openingShortPool.map(card => `- ${card.slug}：原始 ${card.originalDurationSec.toFixed(3)} 秒，已进入独立短模板候选池`);
+    const shortCards = openingShortPool.map(card => `- ${card.slug}：原始 ${card.originalDurationSec.toFixed(3)} 秒，仅具备短卡资格；不代表语义匹配`);
     writeFileSync(markdownFile, `${original.trimEnd()}\n\n## 开场短模板准入过滤\n\n- 适用窗口：前 8 秒\n- 准入条件：治理目录原始完整时长不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒；不允许截断或加速\n- 火山 API 调用次数不作为候选准入限制；传输失败重试仍保持受控，避免无限循环\n- 独立短模板池：\n${shortCards.join('\n')}\n- 被过滤候选：\n${lines.length ? lines.join('\n') : '- 没有被过滤的候选'}\n`, 'utf8');
   }
   return {file:out, removed:report.length};
@@ -286,12 +286,14 @@ function autoAdjustShotbook(project) {
   return adjustments;
 }
 
-function applyAutomaticCardChoices(project) {
+export function applyAutomaticCardChoices(project) {
   const file = path.join(project, 'SHOTBOOK.md');
   const candidatesFile = path.join(project, 'qa', 'card-candidates.json');
   if (!existsSync(file) || !existsSync(candidatesFile)) return [];
   let candidates;
   try { candidates = JSON.parse(readFileSync(candidatesFile, 'utf8')); } catch { return []; }
+  const shots=JSON.parse(readFileSync(path.join(project,'remotion/shots.json'),'utf8'));
+  const formal=new Map(shots.map(s=>[String(s.id).toLowerCase(),s.shotCard]));
   const original = readFileSync(file, 'utf8');
   const lines = original.split(/\r?\n/);
   const out = [];
@@ -304,19 +306,21 @@ function applyAutomaticCardChoices(project) {
     if (!inShot || !shotId) return;
     const entry = candidates[shotId] || candidates[shotId.toLowerCase()];
     const groups = entry?.candidates || {};
-    const slugs = [];
+    const slug=formal.get(shotId.toLowerCase());
+    if(!slug)return;
     const picks = [];
     for (const [semantic, options] of Object.entries(groups)) {
-      const slug = Array.isArray(options) && options[0]?.slug;
-      if (!slug || slugs.includes(slug)) continue;
-      slugs.push(slug);
-      picks.push(`${semantic} → ${slug}`);
+      if (semantic!=='开场短模板'&&Array.isArray(options)&&options.some(c=>c.slug===slug))picks.push(`${semantic} → ${slug}`);
     }
-    if (!hasSkin && slugs.length) {
-      out.push(`- 蒙皮行：${slugs.join(', ')} → 系统已按语义和素材自动承接，待审核`);
-      adjustments.push(`${shotId}：已自动落地 ${slugs.length} 张镜头卡`);
+    for(const [semantic,reason] of Object.entries(entry?.waived||{})){
+      if(entry.semantics?.includes(semantic)&&typeof reason==='string'&&[...reason.replace(/\s/gu,'')].length>=4)
+        picks.push(`${semantic} → ${slug}`);
     }
+    // Missing evidence stays unresolved. Never silently select options[0].
+    if(!picks.length)return;
+    if (!hasSkin) out.push(`- 蒙皮行：${slug} → 按原卡公开参数承接，待审核`);
     if (!hasPick && picks.length) out.push(`- 选卡行：${picks.join('、')}`);
+    if(!hasSkin||!hasPick)adjustments.push(`${shotId}：补录编导正式选卡 ${slug}，未改变模板选择`);
   };
   for (const line of lines) {
     const heading = line.match(/^#{2,4}\s+([SsVv]\d+[A-Za-z0-9_']*)\b/);
@@ -330,7 +334,7 @@ function applyAutomaticCardChoices(project) {
     if (inShot && /^\s*[-*]?\s*\**蒙皮(?:行)?\**\s*[:：]/.test(line) && !/待候选生成后自动选择|待实现|待人工审核/.test(line)) hasSkin = true;
     if (inShot && /^\s*[-*]?\s*\**选卡\**\s*[:：]/.test(line) && /待候选生成后审核/iu.test(line)) {
       // 候选阶段留下的占位不能在正式模板已落地后继续阻断整片渲染；
-      // flush() 会依据当前候选证据写回真实选卡行。
+      // flush() 只补录编导的正式选择，不从推荐排名自动选卡。
       continue;
     }
     if (inShot && /^\s*[-*]?\s*\**选卡行\**\s*[:：]/.test(line)) hasPick = true;
@@ -533,19 +537,19 @@ function runTalkcraftStageInternal(stage, runId) {
       const governed=loadTalkcraftGovernedCatalog(JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8')));
       run(PYTHON,[path.join(ROOT,'director','talkcraft-card-match-trace.py'),
         '--upstream-script',script('card_match.py'),'--trace-out',path.join(project,'qa/card-candidate-trace.json'),'--project',project,
-        '--index',indexFile,'--out','qa/card-candidates.md','--json','qa/card-candidates.json'],project);
+        '--index',indexFile,'--top',String(index.cards.length),'--out','qa/card-candidates.md','--json','qa/card-candidates.json'],project);
       return {indexFile,index,governed,openingFilter:filterOpeningShortTemplateCandidates(project,governed)};
     };
     let generated=generate();
-    let reconciled=reconcileReviewedSelectionCandidates(project,generated.index,
-      {allowOpeningCard:cardId=>isOpeningTemplateEligible(cardId,generated.governed)});
+    // Keep the original matcher output: outside recommendations are explained
+    // in SHOTBOOK, not inserted into the candidate list after selection.
     const cardAdjustments=applyAutomaticCardChoices(project);
     adjustments.push(...cardAdjustments);
     if(cardAdjustments.length){
       generated=generate();
-      reconciled=reconcileReviewedSelectionCandidates(project,generated.index,
-        {allowOpeningCard:cardId=>isOpeningTemplateEligible(cardId,generated.governed)});
     }
+    // Keep retrieval evidence even when a later planning/selection gate fails.
+    const comparison=recordCandidateComparison(project,{skillRoot:SKILL});
     const binding=normalizeTalkcraftBindings(project);
     const sourceFile=path.join(project,'remotion','src','shots.ts');
     let sourceSync={deferred:true,shots:0,reason:'渲染源码由第10节点在分镜审核后生成'};
@@ -562,7 +566,7 @@ function runTalkcraftStageInternal(stage, runId) {
     assertReviewedSelection(project,{skillRoot:SKILL});
     return {project,artifact:'qa/card-candidates.md',indexFile:generated.indexFile,
       governedCardCount:generated.governed.cards.length,openingFilter:generated.openingFilter,
-      adjustments,reconciled:reconciled.added,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};
+      adjustments,reconciled:[],comparison,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};
   }  if (stage === 'preflight'||stage==='planning-check') {
     const planning=stage==='planning-check';
     const state=readTalkcraftStatus(ROOT,runId);

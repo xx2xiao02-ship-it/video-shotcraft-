@@ -18,6 +18,11 @@ test('按帧核验首秒边界，标点及延期文字不能冒充初始内容',
   assert.equal(checkContentOnset([shot],{events:[e(31),e(0,'？')]}).passed,false);
   assert.equal(checkContentOnset([shot],{events:[{...e(0),deferredTo:'s05'},e(105)]}).passed,false);
 });
+test('装饰编号箭头及越界事件不能代替关键词前的主体内容',()=>{
+  for(const text of ['01','1|2','→→','★★'])assert.equal(checkContentOnset([shot],{events:[e(0,text),e(105)]}).passed,false);
+  assert.equal(checkContentOnset([shot],{events:[e(-1),e(999),e(105)]}).passed,false);
+  assert.equal(checkContentOnset([shot],{events:[{...e(0,'2026'),anchor:'2026',spokenSec:shot.start}]}).passed,true);
+});
 test('当前语义上下文可承接，但晚出现的context不能借角色声明绕过',()=>{
   assert.equal(checkContentOnset([shot],{events:[{...e(0,'过去的理解'),role:'context',reason:'当前句子话题'},e(105)]}).passed,true);
   assert.equal(checkContentOnset([shot],{events:[{...e(105),role:'context'}]}).passed,false);
