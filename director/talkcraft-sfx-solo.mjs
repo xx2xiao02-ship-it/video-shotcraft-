@@ -4,6 +4,39 @@ import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 
 const sha = value => createHash('sha256').update(value).digest('hex');
+const shaFile = file => sha(fs.readFileSync(file));
+
+export function sfxSoloInputs(project) {
+  const remotion=path.join(project,'remotion');
+  return {
+    originalMainSha256:shaFile(path.join(remotion,'src/Main.tsx')),
+    sourceSfxSha256:shaFile(path.join(remotion,'src/sfx.ts')),
+    cuesSha256:shaFile(path.join(remotion,'cues.json')),
+  };
+}
+
+export function sfxSoloCurrent(project) {
+  const output=path.join(project,'remotion/out/sfx-solo.wav');
+  const recordFile=path.join(project,'qa/sfx-solo-render.json');
+  if(!fs.existsSync(output)||!fs.existsSync(recordFile))return false;
+  try {
+    const record=JSON.parse(fs.readFileSync(recordFile,'utf8'));
+    const inputs=sfxSoloInputs(project);
+    return record.schema==='talkcraft-sfx-solo-render-v1'&&record.outputSha256===shaFile(output)&&
+      Object.entries(inputs).every(([key,value])=>record[key]===value);
+  } catch { return false; }
+}
+
+export function preserveStaleSfxSolo(project,{now=Date.now}={}) {
+  const output=path.join(project,'remotion/out/sfx-solo.wav');
+  if(!fs.existsSync(output)||sfxSoloCurrent(project))return null;
+  const archive=path.join(project,'qa/sfx-solo-history',String(now()));
+  fs.mkdirSync(archive,{recursive:true});
+  fs.renameSync(output,path.join(archive,'sfx-solo.wav'));
+  const record=path.join(project,'qa/sfx-solo-render.json');
+  if(fs.existsSync(record))fs.renameSync(record,path.join(archive,'sfx-solo-render.json'));
+  return archive;
+}
 
 // Keep the actual production Audio expressions, including timing/rate/volume.
 // Only omit visual JSX from an isolated copy: muted videos must not be decoded
@@ -47,5 +80,6 @@ export function prepareSfxSoloProject(project, skillRoot) {
   fs.symlinkSync(runtime, path.join(staging, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
   fs.writeFileSync(path.join(staging, 'src/Main.tsx'), isolated);
   return {staging, originalMainSha256:sha(original), audioMainSha256:sha(isolated),
-    sourceSfxSha256:sha(fs.readFileSync(path.join(remotion, 'src/sfx.ts')))};
+    sourceSfxSha256:sha(fs.readFileSync(path.join(remotion, 'src/sfx.ts'))),
+    cuesSha256:sha(fs.readFileSync(path.join(remotion,'cues.json')))};
 }

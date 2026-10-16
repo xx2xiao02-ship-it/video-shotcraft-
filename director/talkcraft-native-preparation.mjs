@@ -1,9 +1,62 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 import {wordTimingFile} from './talkcraft-native-timing.mjs';
 import {proceduralCue,installProceduralCue} from './talkcraft-procedural-sfx.mjs';
+
+function measuredGapVoiceDb(project,gaps){
+  try{
+    const raw=execFileSync('ffmpeg',['-v','error','-i',path.join(project,'audio/full.mp3'),'-vn','-ac','1','-ar','16000','-f','s16le','-'],{maxBuffer:64*1024*1024,stdio:['ignore','pipe','ignore']});
+    const sampleCount=Math.floor(raw.byteLength/2);
+    const result=new Map();
+    for(const gap of gaps){
+      const start=Math.max(0,Math.floor(gap.start*16000));
+      const end=Math.min(sampleCount,Math.floor((gap.start+.5)*16000));
+      let square=0;
+      for(let i=start;i<end;i++){const value=raw.readInt16LE(i*2)/32768;square+=value*value;}
+      const rms=Math.sqrt(square/Math.max(1,end-start)+1e-14);
+      result.set(gap.start.toFixed(6),20*Math.log10(Math.max(rms,1e-7)));
+    }
+    return result;
+  }catch{return new Map();}
+}
+
+export function alignBoundaryCuesToSpeechGaps(cues,shots,timing,{minimum=4,voiceDbForGap=null}={}){
+  const words=(timing.sentences||[]).flatMap(sentence=>sentence.words||[]).sort((a,b)=>a.start-b.start);
+  const gaps=[];
+  for(let i=0;i+1<words.length;i++)if(words[i+1].start-words[i].end>=.5)gaps.push({start:words[i].end,end:words[i+1].start});
+  const candidates=[];
+  for(const shot of shots.slice(1)){
+    const gap=gaps.find(item=>Math.abs(item.end-shot.start)<=.06);
+    if(!gap)continue;
+    const cue=cues.find(item=>item.shotId===shot.id&&item.t>=shot.start&&item.t-shot.start<=.8&&!/riser/iu.test(item.file));
+    if(!cue)continue;
+    const voiceDb=voiceDbForGap?.(gap);
+    candidates.push({gap,cue,duration:gap.end-gap.start,voiceDb:Number.isFinite(voiceDb)?voiceDb:null});
+  }
+  // Prefer the widest real pauses. Provider word boundaries can retain a
+  // small amount of breath/tail audio, so a mathematically valid 500 ms gap
+  // is less reliable than a longer pause for an unmasked cue.
+  candidates.sort((a,b)=>{
+    if(a.voiceDb!==null||b.voiceDb!==null)return (a.voiceDb??Infinity)-(b.voiceDb??Infinity)||b.duration-a.duration;
+    return b.duration-a.duration||a.gap.start-b.gap.start;
+  });
+  let aligned=0;
+  for(const {gap,cue} of candidates.slice(0,minimum)){
+    const originalT=cue.t;
+    // Put the 500 ms audit window fully inside the detected pause and leave
+    // 50 ms on both sides. Anchoring at the end of a long pause allowed the
+    // next spoken word to enter the measurement window.
+    cue.t=gap.start+.05;
+    cue.boundaryLead={originalT,gapStart:gap.start,gapEnd:gap.end};
+    cue.timingSource='speech-gap-preroll';
+    aligned+=1;
+  }
+  cues.sort((a,b)=>a.t-b.t);
+  return aligned;
+}
 import {outputFrameForNativeFrame} from './talkcraft-native-time-map.mjs';
 
 const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
@@ -81,11 +134,18 @@ export function prepareNativeProduction(project,skillRoot) {
       const synthesis=sample?null:proceduralCue(cue,skillRoot);
       const file=synthesis?.file||cue.name.replace(/^pk:/u,'pk-')+(Array.isArray(sample)?'-1':'')+'.mp3';
       usedFrames.add(frame);
-      cues.push({t,file,volume:Math.min(.25,(cue.vol??.4)*.5),
+      const volume=Math.min(.25,Math.max(synthesis?.procedural?.name==='riser'?.18:0,(cue.vol??.4)*.5));
+      cues.push({t,file,volume,
         ...(cue.rate?{rate:cue.rate}:{}),clip:Math.min(cue.clip??.6,.8),shotId:shot.id,
         sourceCard:shot.shotCard,nativeSec:cue.t,...(synthesis?{procedural:synthesis.procedural}:{}),...(row?{timingSource:'native-frame-map',nativeFrame:Math.round(cue.t*30),outputLocalFrame:localFrame}:{})});
     }
   }
+  const gapVoiceDb=measuredGapVoiceDb(project,(()=>{
+    const words=(timing.sentences||[]).flatMap(sentence=>sentence.words||[]).sort((a,b)=>a.start-b.start),items=[];
+    for(let i=0;i+1<words.length;i++)if(words[i+1].start-words[i].end>=.5)items.push({start:words[i].end,end:words[i+1].start});
+    return items;
+  })());
+  alignBoundaryCuesToSpeechGaps(cues,shots,timing,{minimum:4,voiceDbForGap:gap=>gapVoiceDb.get(gap.start.toFixed(6))});
   const plan={schema:'talkcraft-native-production-v1',fps:30,unit:'seconds',
     inputs:Object.fromEntries([path.relative(project,wordTimingFile(project)).replaceAll('\\','/'),'remotion/shots.json',...(presentation?['remotion/native-presentation.json']:[])].map(f=>[f,hash(path.join(project,f))])),
     beats,cues,userAcceptance:false};

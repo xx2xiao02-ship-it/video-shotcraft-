@@ -91,5 +91,8 @@ export function talkcraftWorkflowProgress(run) {
     workflowLabel:run.workflowPath==='recorded-host'?'真人视频 · 原声与 GitHub 原版流程':managed?'数字人 · 分镜审核后生成口型':'既有任务流程',
     currentNode:current?.id||null,completed:nodes.filter(n=>n.status==='done').length,total:nodes.length,
     skipped:nodes.filter(n=>n.status==='skipped').length,nodes,outOfOrderActivity,
-    parallelPreparation:run.parallelPreparation||null,parallelContract:TALKCRAFT_PARALLEL_CONTRACT};
+    // Parallel preparation is a join gate before full preflight. Once that
+    // gate passed, later render/QA artifacts may legitimately change and the
+    // old preparation fingerprint is historical rather than a live blocker.
+    parallelPreparation:run.preflightPassed===true?null:(run.parallelPreparation||null),parallelContract:TALKCRAFT_PARALLEL_CONTRACT};
 }

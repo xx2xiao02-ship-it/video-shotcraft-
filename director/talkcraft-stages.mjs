@@ -14,7 +14,7 @@ import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 import {alignNativeShotBoundaries,prepareNativeProduction,installNativeCues} from './talkcraft-native-preparation.mjs';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, constants} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, renameSync, constants} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {useAlignedTiming} from './talkcraft-project.mjs';
@@ -44,13 +44,38 @@ import {loadMaterialIndex, matchSceneVideos} from './b-mode-material-match.mjs';
 import {assertBModeGoverned} from './talkcraft-b-mode-governance.mjs';
 import {normalizeTalkcraftBindings, syncTalkcraftShotSource} from './talkcraft-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
+
+export function preserveStaleFinalArtifacts(project,{isCurrent=officialRenderCurrent,now=Date.now}={}) {
+  const finalFile=path.join(project,'remotion','out','final.mp4');
+  if(!existsSync(finalFile))return null;
+  if(isCurrent(project))throw new Error('Existing final render was preserved');
+  const archive=path.join(project,'qa','render-history',String(now()));
+  const files=[
+    ['remotion/out/final.mp4','final.mp4'],
+    ['remotion/out/final-template-usage.json','final-template-usage.json'],
+    ['qa/official-render.json','official-render.json'],
+    ['qa/passed.json','passed.json'],
+    ['review/approval.json','review-approval.json'],
+    ['remotion/out/delivery.mp4','delivery.mp4'],
+  ];
+  mkdirSync(archive,{recursive:true});
+  for(const [source,name] of files){
+    const file=path.join(project,...source.split('/'));
+    if(existsSync(file))renameSync(file,path.join(archive,name));
+  }
+  writeFileSync(path.join(archive,'archive.json'),JSON.stringify({
+    schema:'talkcraft-stale-render-archive-v1',reason:'render_inputs_changed',archivedAt:new Date().toISOString(),
+    files:files.map(([,name])=>name).filter(name=>existsSync(path.join(archive,name))),
+  },null,2));
+  return archive;
+}
 import {allocateUniqueBackgrounds} from './talkcraft-background-allocation.mjs';
 import {assertExclusiveBackgrounds} from './talkcraft-background-exclusivity.mjs';
 import {assertTalkcraftTemplateGovernance, governedOriginalDurationSec, isOpeningShot, isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC} from './talkcraft-template-governance.mjs';
 import {assertTalkcraftRuntimeFidelity} from './talkcraft-runtime-fidelity.mjs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {assertTalkcraftRenderDiskSpace} from './storage-governance.mjs';
-import {prepareSfxSoloProject} from './talkcraft-sfx-solo.mjs';
+import {prepareSfxSoloProject,preserveStaleSfxSolo,sfxSoloCurrent} from './talkcraft-sfx-solo.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -632,7 +657,12 @@ function runTalkcraftStageInternal(stage, runId) {
     const result = existsSync(path.join(project,'remotion/src/index.ts'))
       ? {project,contract:'preserved-native-scaffold'}
       : scaffoldTalkcraftProject(ROOT, SKILL, runId);
-    const sourceSync = syncTalkcraftShotSource(project);
+    const sourceSync = syncTalkcraftShotSource(project,{allowReviewedRebuild:true});
+    // The reviewed storyboard may legitimately replace a previously generated
+    // card. Rebuild generated scene parameter contracts at this gate so stale
+    // fields cannot leak into the new approved template. Custom scene code is
+    // still protected by implementNativeScenes' overwrite guard.
+    if(sourceSync.rebuilt?.length)implementNativeScenes(project, SKILL);
     const fidelity = assertTalkcraftRuntimeFidelity(project);
     const cues = installNativeCues(project, SKILL, ['s01'],{resolveAsset:createPreparedTalkcraftResolver(project)});
     // Assemble the deterministic word/audit runtime before sealing scaffold
@@ -717,9 +747,7 @@ function runTalkcraftStageInternal(stage, runId) {
     if(readTalkcraftStatus(ROOT,runId).digitalHumanGenerationPlanned)
       runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
     assertPipelineProvenance(project);
-    if (existsSync(path.join(project, 'remotion', 'out', 'final.mp4'))) {
-      throw new Error('Existing final render was preserved');
-    }
+    preserveStaleFinalArtifacts(project);
     const renderStatus = readTalkcraftStatus(ROOT, runId);
     if (!renderStatus.sampleApproved) {
       throw new Error('The first-shot sample must be approved before full rendering');
@@ -770,7 +798,8 @@ function runTalkcraftStageInternal(stage, runId) {
   }
   if (stage === 'render-sfx-solo') {
     requireFiles(project, ['remotion/cues.json', 'remotion/out/final.mp4']);
-    if (existsSync(path.join(project, 'remotion', 'out', 'sfx-solo.wav'))) {
+    preserveStaleSfxSolo(project);
+    if (sfxSoloCurrent(project)) {
       throw new Error('Existing SFX-only track was preserved');
     }
     const cli = path.join(SKILL, 'runtime', 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
@@ -809,7 +838,7 @@ function runTalkcraftStageInternal(stage, runId) {
     if (!Array.isArray(cards.slugs) || (!cards.slugs.length && cardCallsRequired)) throw new Error('Used-card manifest is empty');
     const cues = JSON.parse(readFileSync(path.join(remotion, 'cues.json'), 'utf8'));
     if (!Array.isArray(cues) || (!cues.length && cardCallsRequired)) throw new Error('Selected cards have no SFX cues');
-    if (cues.length && !existsSync(path.join(remotion, 'out', 'sfx-solo.wav'))) runTalkcraftStage('render-sfx-solo', runId);
+    if (cues.length && !sfxSoloCurrent(project)) runTalkcraftStage('render-sfx-solo', runId);
     const mediaIntegrity=inspectTechnicalMedia(path.join(remotion,'out/final.mp4'),{
       fps:sourceRun.fps||30,totalFrames:sourceRun.totalFrames});
     if (cues.length) {

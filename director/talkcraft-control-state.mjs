@@ -72,9 +72,12 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
     if(!run.digitalHuman?.ready)return state('digital-human','按已审核人物区间生成口型');
     if(!run.mediaPreflightPassed)return state('host-preflight','验收已生成的口型视频');
   }
-  if(run.parallelPreparation&&run.parallelPreparation.status!=='done')return state(null,
-    '并行支线尚未汇合：'+(run.parallelPreparation.error||run.parallelPreparation.status),['PARALLEL_PREPARATION_NOT_PASSED']);
-  if (!run.preflightPassed) return state('preflight', '执行 GitHub 原版分镜全量预检', run.preflightIssues || ['PREFLIGHT_NOT_PASSED']);  if (!(run.scaffoldReady??run.workbenchReady)) return state('scaffold', '搭建渲染工程');
+  if (!run.preflightPassed) {
+    if(run.parallelPreparation&&run.parallelPreparation.status!=='done')return state(null,
+      '并行支线尚未汇合：'+(run.parallelPreparation.error||run.parallelPreparation.status),['PARALLEL_PREPARATION_NOT_PASSED']);
+    return state('preflight', '执行 GitHub 原版分镜全量预检', run.preflightIssues || ['PREFLIGHT_NOT_PASSED']);
+  }
+  if (!(run.scaffoldReady??run.workbenchReady)) return state('scaffold', '搭建渲染工程');
   if (run.digitalHuman?.required && !run.digitalHuman.ready) return state('digital-human', '数字人素材');
   if (!run.sample) return state('sample', '首镜样板');
   if (!run.sampleApproved) return state('approve-sample', '审核首镜样板');

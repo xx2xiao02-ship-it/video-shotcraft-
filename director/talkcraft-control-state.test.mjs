@@ -87,6 +87,14 @@ test('机器规则通过后仍需人工视觉确认',()=>{
   assert.equal(talkcraftControlState({...run,sample:true,sampleApproved:true,final:true,qaPassed:true}).nextStage,'approve-final');
 });
 
+test('全量预检通过后并行准备指纹变化不再倒退阻断人工审片',()=>{
+  const stale={status:'stale',error:'输入或上游源码已变化'};
+  const state=talkcraftControlState({...run,parallelPreparation:stale,sample:true,sampleApproved:true,final:true,qaPassed:true});
+  assert.equal(state.nextStage,'approve-final');
+  assert.deepEqual(state.blockers,['HUMAN_VISUAL_REVIEW_REQUIRED']);
+  assert.equal(talkcraftControlState({...run,preflightPassed:false,parallelPreparation:stale}).nextStage,null);
+});
+
 test('视觉历史失败不能代替代码预检或样片审批',()=>{
  const r={...run,sample:true,sampleApproved:true,wordRuntimeAudit:{recorded:true,passed:false}};
  assert.equal(talkcraftControlState(r).nextStage,'render-all');

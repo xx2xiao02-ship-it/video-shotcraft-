@@ -207,7 +207,7 @@ export function normalizeTalkcraftBindings(project) {
  * 素材分配发生在 scaffold 之后，必须把更新后的 shots.json 回写到渲染源码。
  * 否则 Remotion 仍会读取 scaffold 时的旧背景路径，造成整片复用同一素材。
  */
-export function syncTalkcraftShotSource(project) {
+export function syncTalkcraftShotSource(project, {allowReviewedRebuild=false}={}) {
   const shotsFile = path.join(project, 'remotion', 'shots.json');
   const sourceFile = path.join(project, 'remotion', 'src', 'shots.ts');
   if (!fs.existsSync(shotsFile) || !fs.existsSync(sourceFile)) throw new Error('缺少 shots.json 或 src/shots.ts，无法同步渲染镜头');
@@ -231,10 +231,14 @@ export function syncTalkcraftShotSource(project) {
     throw new Error(`编导与渲染镜头不一致：源码缺少 ${missing.join('、') || '无'}；源码多出 ${extra.join('、') || '无'}。需重新生成对应工程，不能保留旧镜头继续渲染`);
   }
   const byId = new Map(rendered.map(shot => [shot.id, shot]));
+  const rebuilt = [];
   const next = planned.map((latest, index) => {
     const shot = byId.get(latest.id);
     if (shot.shotCard && canonicalCard(shot.shotCard) !== canonicalCard(latest.shotCard)) {
-      throw new Error(`镜头 ${latest.id} 模板已改变，需重新生成对应工程及参数表，不能沿用旧组件的参数字段`);
+      if (!allowReviewedRebuild) {
+        throw new Error(`镜头 ${latest.id} 模板已改变，需重新生成对应工程及参数表，不能沿用旧组件的参数字段`);
+      }
+      rebuilt.push({shotId:latest.id, from:shot.shotCard, to:latest.shotCard, reason:'template'});
     }
     const start = Number(latest.start), end = Number(latest.end);
     const nextStart = Number(planned[index + 1]?.start);
@@ -243,13 +247,17 @@ export function syncTalkcraftShotSource(project) {
         Math.abs(start - Number(shot.startSec)) > 1e-9 ||
         Math.abs(visualEnd - start - Number(shot.durationSec)) > 1e-9 ||
         !Number.isFinite(Number(shot.startSec)) || !Number.isFinite(Number(shot.durationSec))) {
-      throw new Error(`镜头 ${latest.id} 编导与渲染时间轴不一致，需重新生成对应工程；禁止仅替换素材后继续使用旧时间轴`);
+      if (!allowReviewedRebuild) {
+        throw new Error(`镜头 ${latest.id} 编导与渲染时间轴不一致，需重新生成对应工程；禁止仅替换素材后继续使用旧时间轴`);
+      }
+      rebuilt.push({shotId:latest.id, reason:'timeline'});
     }
-    return {...shot, subject:latest.subject || 'other', shotCard:latest.shotCard || null, templateParams:latest.templateParams || {}};
+    return {...shot, subject:latest.subject || 'other', shotCard:latest.shotCard || null,
+      templateParams:latest.templateParams || {}, startSec:start, durationSec:visualEnd-start};
   });
   const updated = source.replace(match[1], JSON.stringify(next, null, 2));
   fs.writeFileSync(sourceFile, updated, 'utf8');
-  return {shots:next.length, sourceFile};
+  return {shots:next.length, sourceFile, rebuilt};
 }
 
 export function readFormalBindings(project) {

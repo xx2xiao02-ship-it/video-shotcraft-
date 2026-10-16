@@ -4149,7 +4149,9 @@ async function refreshBExecutionStatus() {
     if(activeProductionMode!=='B'||initialRoute.get('runId')!==routeAtRequest)return;
     const run=data.run;
     if(!run){monitor.hidden=true;return;}
-    const preparation=await readTalkcraftParallelDisplay(run);
+    const workflowHasPreparation=run.execution?.workflow&&
+      Object.prototype.hasOwnProperty.call(run.execution.workflow,'parallelPreparation');
+    const preparation=workflowHasPreparation?run.execution.workflow.parallelPreparation:(run.parallelPreparation||null);
     if(activeProductionMode!=='B'||initialRoute.get('runId')!==routeAtRequest)return;
     if(run.execution?.workflow)run.execution.workflow.parallelPreparation=preparation;
     bBackendRunStatus=run;bBackendSnapshotAt=Date.now();

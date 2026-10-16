@@ -93,6 +93,12 @@ test('并行支线只能在审核后启动并在全量预检前汇合',()=>{
     ['digital-human','template-runtime','materials','scaffold-shell']);
 });
 
+test('全量预检汇合后隐藏过期并行准备状态',()=>{
+  const stale={status:'stale',error:'输入或上游源码已变化'};
+  assert.equal(talkcraftWorkflowProgress({...base,parallelPreparation:stale}).parallelPreparation,null);
+  assert.equal(talkcraftWorkflowProgress({...base,preflightPassed:false,parallelPreparation:stale}).parallelPreparation,stale);
+});
+
 class Element{constructor(){this.dataset={};this.children=[];this.hidden=true;this.attrs={};}append(...x){this.children.push(...x)}replaceChildren(...x){this.children=x}setAttribute(k,v){this.attrs[k]=v}}
 const renderer=readFileSync(new URL('./talkcraft-progress-ui.js',import.meta.url),'utf8');
 test('前端不再合并或重编号后端节点',()=>{
