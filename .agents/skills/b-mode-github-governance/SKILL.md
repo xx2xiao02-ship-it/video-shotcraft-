@@ -51,3 +51,12 @@ metadata:
 只处理 B 模式。不要修改生产端口 `8769`，不要擅自删除旧代码、历史运行、成功资产或治理证据，不要自动调用付费服务，不要提交、推送或覆盖远程 Git 历史。删除或大范围迁移必须先列出精确路径、影响和保留边界，获得确认后再做。
 
 详细的阶段产物、阻断条件和验收字段见 [references/workflow-contract.md](references/workflow-contract.md)。
+
+
+## 已审模板复用门禁（用户 2026-10-16 确认）
+
+执行 `docs/workflows/b-mode-reviewed-templates.md`，使用 `director/talkcraft-reviewed-templates.json` 登记的精确源码及依赖版本。模板只有目录登记、没有真实横竖版媒体、参数绑定与布局检查证据时不得入选。上游 `card_match.py` 仅接收已审索引；最终选卡必须在当前语义/素材候选内，连续30镜不重复。语义偏离说明或开场短模板池不能绕过此门禁。
+
+禁止新造图解、临时G5组件、SVG补画，以及外层CSS覆盖原卡几何。只通过原卡公开参数适配本片；放不下时回到编导重选卡，不给模板补画。配音和成功数字人素材复用。输入或源码变化后重做候选与对应审核；历史模板技术审查不等于本片验收。
+
+运行 `node director/talkcraft-stages.mjs reviewed-template-check <run-id>` 可生成独立阻断清单；门禁失败仍须保留原结果，不自动调用付费服务。实现、样片、整片和交付入口必须重新核验，不提供关闭开关。

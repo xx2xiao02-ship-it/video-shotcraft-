@@ -1,10 +1,37 @@
+import {loadReviewedTemplates,recordReviewedCandidates} from './talkcraft-reviewed-templates.mjs';
+import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import {randomUUID} from 'node:crypto';
-import {scaffoldTalkcraftProject} from './talkcraft-scaffold.mjs';
+import {scaffoldTalkcraftProject as scaffoldProject} from './talkcraft-scaffold.mjs';
+
+
+// These tests exercise scaffold dimensions/container handling, not semantic
+// selection or film acceptance. Give their controlled inputs version-bound
+// candidate fixtures; production still uses the upstream matcher.
+function scaffoldTalkcraftProject(root, skill, runId) {
+  const project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
+  const {registry}=loadReviewedTemplates();
+  const installed=resolveTalkcraftSkillRoot(path.resolve());
+  for(const relative of Object.keys(registry.sources)) {
+    const destination=path.join(skill,relative);
+    if(!fs.existsSync(destination)) {
+      fs.mkdirSync(path.dirname(destination),{recursive:true});
+      fs.copyFileSync(path.join(installed,relative),destination);
+    }
+  }
+  fs.mkdirSync(path.join(project,'qa'),{recursive:true});
+  const shots=JSON.parse(fs.readFileSync(path.join(project,'remotion/shots.json'),'utf8'));
+  for(const [name,value] of [['semantics.json','{"sentences":[]}'],['SHOTBOOK.md','# Unit fixture']])
+    if(!fs.existsSync(path.join(project,name)))fs.writeFileSync(path.join(project,name),value);
+  fs.writeFileSync(path.join(project,'qa/card-candidates.json'),JSON.stringify(Object.fromEntries(
+    shots.map(shot=>[shot.id,{candidates:{fixture:[{slug:shot.shotCard}]}}]))));
+  recordReviewedCandidates(project,{skillRoot:skill});
+  return scaffoldProject(root,skill,runId);
+}
 
 function fixture(t, aspectRatio) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shotcraft-b-aspect-'));
@@ -18,7 +45,7 @@ function fixture(t, aspectRatio) {
   }
   fs.writeFileSync(path.join(project, 'source-run.json'), JSON.stringify({runId, fps:30, totalFrames:90,
     ...(aspectRatio ? {aspectRatio, themeSnapshot:{aspectRatio}} : {})}));
-  fs.writeFileSync(path.join(remotion, 'shots.json'), JSON.stringify([{id:'s01', start:0, end:3}]));
+  fs.writeFileSync(path.join(remotion, 'shots.json'), JSON.stringify([{id:'s01', start:0, end:3,shotCard:'impact-open-title'}]));
   fs.writeFileSync(path.join(remotion, 'timing.json'), JSON.stringify({scenes:[{text:'测试', chars:[]}]}));
   fs.writeFileSync(path.join(project, 'audio', 'full.mp3'), 'fixture');
   fs.writeFileSync(path.join(skill, 'runtime', 'package.json'), JSON.stringify({dependencies:{remotion:'4.0.484', react:'19.2.7', 'react-dom':'19.2.7', '@remotion/cli':'4.0.484'}, devDependencies:{typescript:'6.0.3'}}));

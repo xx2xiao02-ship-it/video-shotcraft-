@@ -1,3 +1,4 @@
+import {assertReviewedSelection} from './talkcraft-reviewed-templates.mjs';
 import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -11,6 +12,7 @@ const RUN_ID = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i;
 export function scaffoldTalkcraftProject(root, skillRoot, runId) {
   if (!RUN_ID.test(runId)) throw new Error('Invalid B run ID');
   const project = path.join(root, 'director', 'b-mode-runs', runId, 'talkcraft');
+  assertReviewedSelection(project,{skillRoot});
   const remotion = path.join(project, 'remotion');
   const src = path.join(remotion, 'src');
   if (existsSync(src)) throw new Error('TalkCraft source already exists; existing work was preserved');
