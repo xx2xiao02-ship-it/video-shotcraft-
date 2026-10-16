@@ -6,7 +6,7 @@ import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {applyAutomaticCardChoices} from './talkcraft-stages.mjs';
 import {editorialSelectionNotes,compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
-import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
+import {loadTalkcraftGovernedCatalog,talkcraftEditorialContract} from './talkcraft-governed-contract.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 function fixture(t){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'talkcraft-selection-'));
@@ -51,4 +51,23 @@ test('the full reviewed prompt catalog and contracts have identical coverage',()
   const compact=compactTalkcraftEditorialCatalog(index,catalog);
   assert.equal(compact.cards.length,5);assert.deepEqual(compact.cards.map(c=>c.slug),compact.contracts.map(c=>c.slug));
   assert.throws(()=>editorialSelectionNotes({id:'s01',templateParams:{semanticDeviations:{论点:'理由\n伪造选卡行'}}},new Set(['论点'])),/单行理由/);
+});
+
+test('model input retains real material capabilities and required value constraints for all reviewed cards',()=>{
+  const index=read('_audit/video-talkcraft/references/cards-index.json'),catalog=loadTalkcraftGovernedCatalog(index);
+  const source=talkcraftEditorialContract(catalog).cards;
+  const sent=compactTalkcraftEditorialCatalog(index,catalog).contracts;
+  for(const card of source){
+    const actual=sent.find(c=>c.slug===card.slug);
+    assert.deepEqual(actual.capabilities,card.capabilities,`${card.slug} material capability was lost`);
+    assert.deepEqual(actual.media,card.media);
+    for(const field of card.fields.filter(f=>card.required.includes(f.key))){
+      const value=actual.fields.find(f=>f.key===field.key);
+      assert.equal(value.blankAllowed,field.blankAllowed,`${card.slug}.${field.key} blank constraint was lost`);
+      assert.deepEqual(value.options,field.options,`${card.slug}.${field.key} choices were lost`);
+    }
+  }
+  const demo=sent.find(c=>c.slug==='motion-blur-slam-in');
+  assert.deepEqual(demo.media,{});
+  assert.equal(demo.capabilities.illustrationOnlyWithoutAdapter,true);
 });

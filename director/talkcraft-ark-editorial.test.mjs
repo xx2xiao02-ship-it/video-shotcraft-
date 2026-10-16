@@ -18,11 +18,13 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
       full.cards[i].fields.filter(field=>full.cards[i].required.includes(field.key)).map(field=>field.key));
     assert.deepEqual(compact.contracts[i].media,full.cards[i].media);
     assert.deepEqual(compact.contracts[i].mediaAlternatives,full.cards[i].mediaAlternatives);
+    assert.deepEqual(compact.contracts[i].capabilities,full.cards[i].capabilities);
     assert.deepEqual(compact.contracts[i].dsl,full.cards[i].dsl);
     assert.deepEqual(compact.contracts[i].allowedBusinessKeys,full.cards[i].fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key));
     assert.deepEqual(compact.contracts[i].frozenKeys,full.cards[i].fields.filter(f=>!f.writable).map(f=>f.key));
   }
-  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)/2);
+  // Keep capability constraints in the request even when they cost payload space.
+  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.6);
 });
 
 const semantics = {sentences:[{i:0,text:'第一句。'},{i:1,text:'第二句。'}]};

@@ -72,11 +72,14 @@ export function compactTalkcraftEditorialCatalog(index, catalog) {
       frozenKeys:card.fields.filter(f=>!f.writable).map(f=>f.key),
       fields:card.fields.filter(field => required.has(field.key)).map(field => ({
         key:field.key, type:field.type,
+        ...(field.blankAllowed !== undefined ? {blankAllowed:field.blankAllowed} : {}),
+        ...(field.options !== undefined ? {options:field.options} : {}),
         ...(field.min !== undefined ? {min:field.min} : {}),
         ...(field.max !== undefined ? {max:field.max} : {}),
         ...(field.step !== undefined ? {step:field.step} : {}),
       })),
-      media:card.media, mediaAlternatives:card.mediaAlternatives, dsl:card.dsl,
+      media:card.media, mediaAlternatives:card.mediaAlternatives,
+      capabilities:card.capabilities, dsl:card.dsl,
       lockedDsl:editorialDslLocks(catalog.cards.find(c=>c.cardId===card.slug)),
     };
   });
@@ -359,6 +362,7 @@ subject 只能取 person 或 other；${sourceRun.isDigitalHuman === true ? '本�
 模板内部图片/视频需求与背景分开：在 templateParams.templateMaterialQueries 中按真实素材字段名填写具体对象检索词；例如 srcs 对应图片列表的主题。不要把背景的办公/商务/科技风格描述当作内部素材查询；联网查询优先给出 2～3 个英文视觉概念词，涉及证据时标明真实来源需求。hostSrc 必须绑定与本镜配音时间范围一致的成功数字人，不能从图库代替。
 完整 GitHub 模板目录（108 卡的名称、语义与输入能力）：${JSON.stringify(promptCatalog.cards)}
 逐卡必填业务字段、范围、素材槽位和 DSL（完整契约仍由程序验证）：${JSON.stringify(promptCatalog.contracts)}
+capabilities 是模板真实源码能力：nativeMedia=false 表示没有原生真实素材入口；illustrationOnlyWithoutAdapter=true 表示仅为演示示意，不能描述成已接入本片照片、视频或证据。按 materialDifference 和 media 槽位判断，不从卡名猜测能力；不得自行添加适配组件补画。
 只填写必填非素材业务字段，键必须属于该卡 allowedBusinessKeys；其他字段交给原组件默认值。frozenKeys 列出的时序/运动字段禁止传入，照抄源码默认值也不允许；DSL 固定列用 lockedDsl，不得自改。素材字段在未知真实文件时留待采集，不得编造路径；素材和数字来源证据未核验，不得声称预检通过。语义硬规则：我是X须标自我介绍、点赞订阅须标号召、数量词须标数据；逐句原文完全一致，每镜恰好一个 main。
 镜头设计规范：${readFileSync(path.join(skill,'references/shot-design.md'),'utf8')}
 输入：${JSON.stringify(semantics.sentences.map(({i,text}) => ({i,text})))}
