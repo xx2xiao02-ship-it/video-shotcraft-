@@ -1,0 +1,70 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {loadReviewedTemplates,reviewedTemplateIndex,recordReviewedCandidates,assertReviewedSelection,
+  assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates} from './talkcraft-reviewed-templates.mjs';
+const hash=x=>createHash('sha256').update(x).digest('hex');
+function fixture(t){
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'reviewed-cards-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+  const project=path.join(dir,'project'),skillRoot=path.join(dir,'skill'),registryFile=path.join(dir,'reviewed.json');
+  const write=(name,value)=>{const f=path.join(project,name);fs.mkdirSync(path.dirname(f),{recursive:true});
+    fs.writeFileSync(f,typeof value==='string'?value:JSON.stringify(value));};
+  const source='export const reviewed=true;\n',relative='workbench/src/cards/gen/approved.tsx';
+  fs.mkdirSync(path.dirname(path.join(skillRoot,relative)),{recursive:true});fs.writeFileSync(path.join(skillRoot,relative),source);
+  const registry={schema:'talkcraft-reviewed-templates-v1',sources:{[relative]:hash(source)},cards:[{
+    cardId:'approved',reviewStatus:'technical-reviewed',sourceFiles:[relative],reviews:['wide','portrait'].map(orientation=>({orientation,mediaSha256:'a'.repeat(64),fullDecode:true,bindingChecked:true,layoutChecked:true}))}]};
+  const save=()=>fs.writeFileSync(registryFile,JSON.stringify(registry));save();
+  write('semantics.json',{sentences:[]});write('SHOTBOOK.md','## s01\n- 选卡行：论点 → approved\n');
+  write('remotion/shots.json',[{id:'s01',shotCard:'approved'}]);write('qa/card-candidates.json',{s01:{candidates:{论点:[{slug:'approved'}]}}});
+  write('remotion/src/parameterized-cards/gen/approved.tsx',source);
+  write('remotion/src/scenes/s01.tsx','export const S=()=> <TemplateScene/>;');
+  const options={skillRoot,registryFile};recordReviewedCandidates(project,options);
+  return {project,skillRoot,registry,registryFile,write,save,options,source,relative};
+}
+test('only exact reviewed source versions enter candidate index',t=>{const f=fixture(t);
+  assert.deepEqual(reviewedTemplateIndex({cards:[{slug:'approved'},{slug:'unknown'}]},f.options).cards,[{slug:'approved'}]);
+  assert.equal(assertReviewedSelection(f.project,f.options).shots,1);
+});
+test('catalog presence without review cannot admit a card',t=>{const f=fixture(t);f.registry.cards[0].reviewStatus='registered';f.save();assert.throws(()=>loadReviewedTemplates(f.options),/审查证据/);});
+test('missing portrait review is blocking',t=>{const f=fixture(t);f.registry.cards[0].reviews.pop();f.save();assert.throws(()=>loadReviewedTemplates(f.options),/横竖版/);});
+test('changed reviewed dependency requires a new review',t=>{const f=fixture(t);fs.appendFileSync(path.join(f.skillRoot,f.relative),'changed');assert.throws(()=>loadReviewedTemplates(f.options),/源码版本已变化/);});
+test('candidate outside approved source set cannot pass',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'unknown'}]);assert.throws(()=>assertReviewedSelection(f.project,f.options),/未经审查/);});
+test('semantic deviation cannot bypass candidate membership',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{s01:{waived:{论点:'有四个字理由'},candidates:{论点:[]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/偏离说明不能放行/);});
+test('opening short pool cannot manufacture semantic fit',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{s01:{candidates:{开场短模板:[{slug:'approved'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/语义\/素材候选/);});
+test('changed book invalidates candidates even if cards still match',t=>{const f=fixture(t);f.write('SHOTBOOK.md','changed');assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
+test('candidate JSON cannot be changed after binding',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{});assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
+test('changed registry invalidates saved selection',t=>{const f=fixture(t);f.registry.note='revised';f.save();assert.throws(()=>assertReviewedSelection(f.project,f.options),/当前已审模板/);});
+test('30 shot window duplicate is blocking',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'approved'},{id:'s02',shotCard:'approved'}]);f.write('qa/card-candidates.json',{s01:{candidates:{论点:[{slug:'approved'}]}},s02:{candidates:{论点:[{slug:'approved'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/连续30镜/);});
+test('renamed custom composition import is blocking',t=>{const f=fixture(t);f.write('remotion/src/Main.tsx',"import {Extra} from './MyDiagram'; export const Main=()=> <Extra/>;");assert.throws(()=>assertNoCustomDrawing(f.project),/未经登记的扩展/);});
+test('inline SVG in renderer cannot inherit template review',t=>{const f=fixture(t);f.write('remotion/src/Main.tsx','export const Main=()=> <svg/>;');assert.throws(()=>assertNoCustomDrawing(f.project),/补画/);});
+test('a scene must use TemplateScene without added drawings',t=>{const f=fixture(t);f.write('remotion/src/scenes/s01.tsx','export const S=()=> <div/>;');assert.throws(()=>assertNoCustomDrawing(f.project),/必须调用已审模板/);});
+test('CSS geometry override is rejected instead of inherited',t=>{const f=fixture(t);f.write('remotion/src/NativePresentationRoot.tsx','const css=nativeCardSkin({});');assert.throws(()=>assertNoCustomDrawing(f.project),/覆盖版式/);});
+test('old readability plan requires replanning',t=>{const f=fixture(t);f.write('remotion/native-presentation.json',{shots:[{readabilityLayout:'mobile-readable-v1'}]});assert.throws(()=>assertNoCustomDrawing(f.project),/展示计划仍含/);});
+test('unchanged reviewed runtime passes, overwritten runtime fails',t=>{const f=fixture(t);assert.equal(assertReviewedRuntimeSources(f.project,f.options).files,1);f.write('remotion/src/parameterized-cards/gen/approved.tsx','new drawing');assert.throws(()=>assertReviewedRuntimeSources(f.project,f.options),/运行模板被改写/);});
+test('render admission always runs even with legacy disable environment',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'unknown'}]);const old=process.env.TALKCRAFT_REVIEWED_TEMPLATES;process.env.TALKCRAFT_REVIEWED_TEMPLATES='0';try{assert.throws(()=>enforceReviewedTemplateStage('render-all',f.project,f.options),/未经审查/);}finally{if(old===undefined)delete process.env.TALKCRAFT_REVIEWED_TEMPLATES;else process.env.TALKCRAFT_REVIEWED_TEMPLATES=old;}});
+test('no review registry fails closed rather than using full catalog',t=>{const f=fixture(t);fs.unlinkSync(f.registryFile);assert.throws(()=>loadReviewedTemplates(f.options),/缺少证据/);});
+test('evidence source path cannot escape skill directory',t=>{const f=fixture(t);f.registry.sources['../escape']='b'.repeat(64);f.registry.cards[0].sourceFiles=['../escape'];f.save();assert.throws(()=>loadReviewedTemplates(f.options),/路径越界/);});
+
+test('diagnostic reports all independent defects without granting acceptance',t=>{const f=fixture(t);
+  f.write('SHOTBOOK.md','stale');f.write('remotion/src/Main.tsx','export const S=()=> <svg/>;');
+  f.write('remotion/src/parameterized-cards/gen/approved.tsx','changed');
+  const result=auditReviewedTemplates(f.project,f.options);
+  assert.equal(result.passed,false);assert.equal(result.userAcceptance,false);
+  assert.equal(result.checks.filter(c=>!c.passed).length,3);
+  assert.ok(result.checks.every(c=>c.reason&&c.remedy));
+});
+
+test('missing registered scene cannot silently use a fallback drawing',t=>{const f=fixture(t);
+  fs.unlinkSync(path.join(f.project,'remotion/src/scenes/s01.tsx'));
+  assert.throws(()=>assertNoCustomDrawing(f.project),/场景缺失/);
+});
+test('legacy fallback drawing is blocked even if all scene files exist',t=>{const f=fixture(t);
+  f.write('remotion/src/Main.tsx','const DefaultScene=()=> <AbsoluteFill/>; export const Main=()=>null;');
+  assert.throws(()=>assertNoCustomDrawing(f.project),/默认场景仍会自动补画/);
+});
+test('complete reviewed fixture passes all admission checks without claiming acceptance',t=>{const f=fixture(t);
+  const result=auditReviewedTemplates(f.project,f.options);assert.equal(result.passed,true);assert.equal(result.userAcceptance,false);
+});

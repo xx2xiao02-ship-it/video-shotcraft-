@@ -1,3 +1,4 @@
+import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection} from './talkcraft-reviewed-templates.mjs';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
@@ -109,6 +110,15 @@ export function runTalkcraftStage(stage, runId) {
   if (stage === 'prepare') return prepareTalkcraftProject(ROOT, runId);
   const project = path.join(ROOT, 'director', 'b-mode-runs', runId, 'talkcraft');
   if (!existsSync(path.join(project, 'source-run.json'))) throw new Error('Run prepare first');
+  if(stage==='reviewed-template-check'){
+    const result=auditReviewedTemplates(project,{skillRoot:SKILL});
+    mkdirSync(path.join(project,'qa'),{recursive:true});
+    writeFileSync(path.join(project,'qa/reviewed-template-admission.json'),JSON.stringify(result,null,2)+'\n');
+    if(!result.passed)throw Error(result.checks.filter(c=>!c.passed).map(c=>c.reason+'；治理：'+c.remedy).join('\n'));
+    return result;
+  }
+  enforceReviewedTemplateStage(stage,project,{skillRoot:SKILL});
+
 
   if (stage === 'bootstrap') {
     runTalkcraftStage('synthesize', runId);
@@ -172,13 +182,16 @@ export function runTalkcraftStage(stage, runId) {
   }
   if (stage === 'candidates') {
     mkdirSync(path.join(project, 'qa'), {recursive:true});
-    run(PYTHON, [script('card_match.py'), '--project', project,
+    const indexFile=prepareReviewedCandidates(project,{skillRoot:SKILL});
+    run(PYTHON, [script('card_match.py'), '--project', project, '--index', indexFile,
       '--out', 'qa/card-candidates.md', '--json', 'qa/card-candidates.json'], project);
+    recordReviewedCandidates(project,{skillRoot:SKILL});
     return {project, artifact:'qa/card-candidates.md'};
   }
   if (stage === 'preflight') {
-    runTalkcraftStage('candidates', runId);
     const adjustments = autoAdjustShotbook(project);
+    runTalkcraftStage('candidates', runId);
+    assertReviewedSelection(project,{skillRoot:SKILL});
     const check = spawnSync(PYTHON, [script('preflight.py'), '--project', project, '--shotbook', 'SHOTBOOK.md',
       '--shots', 'remotion/shots.json', '--semantics', 'semantics.json',
       '--script', 'script.txt', '--voice', 'audio/full.mp3', '--fps', '30'],
