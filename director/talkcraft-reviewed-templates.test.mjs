@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {loadReviewedTemplates,reviewedTemplateIndex,recordReviewedCandidates,assertReviewedSelection,
-  assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates} from './talkcraft-reviewed-templates.mjs';
+  assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates,assertTemplateOnlyEditorialProposal} from './talkcraft-reviewed-templates.mjs';
 const hash=x=>createHash('sha256').update(x).digest('hex');
 function fixture(t){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'reviewed-cards-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
@@ -67,4 +67,26 @@ test('legacy fallback drawing is blocked even if all scene files exist',t=>{cons
 });
 test('complete reviewed fixture passes all admission checks without claiming acceptance',t=>{const f=fixture(t);
   const result=auditReviewedTemplates(f.project,f.options);assert.equal(result.passed,true);assert.equal(result.userAcceptance,false);
+});
+
+test('model may propose an existing card with data, but candidate acceptance remains false',t=>{const f=fixture(t);
+  const result=assertTemplateOnlyEditorialProposal({shots:[{id:'s01',shotCard:'approved',visual:'模板中的业务文字',templateParams:{cardProps:{text:'当前文案'}}}]},f.options);
+  assert.equal(result.stage,'proposal-only');assert.equal(result.candidateAccepted,false);
+});
+test('model cannot create a new card even before final candidate validation',t=>{const f=fixture(t);
+  assert.throws(()=>assertTemplateOnlyEditorialProposal({shots:[{id:'s01',shotCard:'invented',templateParams:{cardProps:{}}}]},f.options),/只能提议已审模板/);
+});
+test('natural language visual description cannot replace original template parameters',t=>{const f=fixture(t);
+  assert.throws(()=>assertTemplateOnlyEditorialProposal({shots:[{id:'s01',shotCard:'approved',visual:'画一个新的流程图'}]},f.options),/不能用画面描述替代/);
+});
+for(const forbidden of ['jsx','css','svg','customScene','layers','diagramCode'])test('model drawing field is rejected before implementation: '+forbidden,t=>{const f=fixture(t);
+  assert.throws(()=>assertTemplateOnlyEditorialProposal({shots:[{id:'s01',shotCard:'approved',templateParams:{cardProps:{},[forbidden]:'draw something'}}]},f.options),/自绘或可执行实现/);
+});
+test('code displayed as original card content is data, not a scene implementation',t=>{const f=fixture(t);
+  assert.equal(assertTemplateOnlyEditorialProposal({shots:[{id:'s01',shotCard:'approved',templateParams:{cardProps:{code:'const example = 1;'}}}]},f.options).passed,true);
+});
+test('sample scene can be checked before later scenes are implemented; film cannot',t=>{const f=fixture(t);
+  f.write('remotion/shots.json',[{id:'s01',shotCard:'approved'},{id:'s02',shotCard:'another'}]);
+  assert.equal(assertNoCustomDrawing(f.project,{requiredShotIds:['s01']}).passed,true);
+  assert.throws(()=>assertNoCustomDrawing(f.project),/场景缺失.*s02/);
 });

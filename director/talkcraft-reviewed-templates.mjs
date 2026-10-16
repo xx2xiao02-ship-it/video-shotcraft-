@@ -46,6 +46,33 @@ export function reviewedTemplateIndex(index,options={}) {
   return {...index,cards};
 }
 
+// Model output is an editorial proposal, never executable scene source. This
+// gate runs before a proposal is promoted to the authoritative shot files.
+export function assertTemplateOnlyEditorialProposal(result,options={}) {
+  const {cards}=loadReviewedTemplates(options);
+  if(!Array.isArray(result?.shots)||!result.shots.length)throw Error('分镜提案缺少镜头');
+  const forbidden=new Set(['code','jsx','tsx','html','css','svg','canvas','component','componentSource',
+    'customScene','customVisual','visualCode','renderCode','diagramCode','schematic','drawCommands','layers']);
+  const check=(value,location)=>{
+    if(!value||typeof value!=='object')return;
+    for(const [key,item] of Object.entries(value)){
+      // Original template content can legitimately be named "code" or "html"
+      // (a code-example card). Its own schema validates data fields later;
+      // those strings are never promoted into a scene implementation here.
+      if(key==='cardProps')continue;
+      if(forbidden.has(key))throw Error('分镜提案不得携带自绘或可执行实现：'+location+'.'+key);
+      check(item,location+'.'+key);
+    }
+  };
+  for(const shot of result.shots){
+    if(!cards.has(shot.shotCard))throw Error('编导只能提议已审模板：'+shot.id+' / '+shot.shotCard);
+    if(!shot.templateParams?.cardProps||typeof shot.templateParams.cardProps!=='object'||Array.isArray(shot.templateParams.cardProps))
+      throw Error('编导须填写模板业务参数，不能用画面描述替代：'+shot.id);
+    check(shot,shot.id||'shot');
+  }
+  return {passed:true,shots:result.shots.length,stage:'proposal-only',candidateAccepted:false};
+}
+
 export function prepareReviewedCandidates(project,{skillRoot,...options}={}) {
   const index=reviewedTemplateIndex(read(path.join(skillRoot,'references/cards-index.json')),{skillRoot,...options});
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
@@ -106,7 +133,7 @@ export function auditReviewedTemplates(project,options={}) {
     passed:checks.every(c=>c.passed),checks,userAcceptance:false};
 }
 
-export function assertNoCustomDrawing(project) {
+export function assertNoCustomDrawing(project,{requiredShotIds=null}={}) {
   const src=path.join(project,'remotion/src');
   const shells=['Main.tsx','NativePresentationRoot.tsx','scenes/scene-shared.tsx'];
   for(const name of shells){
@@ -132,6 +159,7 @@ export function assertNoCustomDrawing(project) {
   const scenes=path.join(src,'scenes');
   const shotsFile=path.join(project,'remotion/shots.json');
   if(fs.existsSync(shotsFile))for(const shot of read(shotsFile)){
+    if(requiredShotIds&&!requiredShotIds.includes(shot.id))continue;
     if(!/^[a-z][a-z0-9_-]*$/iu.test(shot.id)||!fs.existsSync(path.join(scenes,shot.id+'.tsx')))
       throw Error('正式模板场景缺失，禁止回退补画：'+shot.id);
   }
@@ -174,7 +202,9 @@ export function enforceReviewedTemplateStage(stage,project,options={}) {
   if(['scaffold','implement','implement-scenes','sample','sample-2m','render-all','render-qa','sample-qa','word-reveal-qa','text-contrast','qa','deliver'].includes(stage)){
     const selection=assertReviewedSelection(project,options);
     if(!['scaffold','implement','implement-scenes'].includes(stage)){
-      assertNoCustomDrawing(project);
+      // Upstream requires only the sample scene to be implemented before its
+      // approval. Other scenes may be absent, but may never draw a fallback.
+      assertNoCustomDrawing(project,{requiredShotIds:['sample','sample-qa'].includes(stage)?['s01']:null});
       assertReviewedRuntimeSources(project,options);
     }
     return selection;

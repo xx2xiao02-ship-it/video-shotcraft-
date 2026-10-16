@@ -1,4 +1,4 @@
-import {loadReviewedTemplates} from './talkcraft-reviewed-templates.mjs';
+import {loadReviewedTemplates,assertTemplateOnlyEditorialProposal} from './talkcraft-reviewed-templates.mjs';
 import {existsSync, readFileSync, writeFileSync, mkdirSync, openSync, closeSync, unlinkSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -123,6 +123,7 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
       result = await call(prompt, {config, phase:'global', onAttempt:({attempt,fallback}) => console.log(`火山请求 ${attempt}${fallback ? '（备用接入点）' : ''}`)});
       writeFileSync(responseFile, JSON.stringify(result,null,2), {flag:'wx'});
     }
+    assertTemplateOnlyEditorialProposal(result,{skillRoot:skill});
     const shots = validateEditorial(result, semantics, aligned, vocab);
     repairObviousNumericSemantics(result);
     const backup = path.join(qa,'semantics-before-ark.json');
