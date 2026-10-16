@@ -18,11 +18,11 @@ export function assertNativeMotionRate(segment){
 }
 export function assertNativeMediaClock(timeline,media={},props={}){
   const changed=timeline.some(s=>s.kind==='motion'&&Math.abs(assertNativeMotionRate(s)-1)>1e-10);
-  if(!changed)return;
   const embedded=Object.values(media).some(kind=>/video|audio/iu.test(String(kind)))||
     Object.entries(props).some(([key,value])=>/hostSrc/iu.test(key)&&value||
       (Array.isArray(value)?value:[value]).some(v=>typeof v==='string'&&/\.(mp4|mov|webm|mkv|mp3|wav|m4a)(?:[?#]|$)/iu.test(v)));
-  if(embedded)throw Error('原卡内部含口型或音视频，不能随动效变速；须重新选卡，独立人物层保持1倍');
+  const remapped=changed||timeline.some(s=>s.kind==='hold'||s.nativeFromFrame!==s.fromFrame||s.nativeToFrame!==s.toFrame);
+  if(embedded&&remapped)throw Error('原卡内部含口型或音视频，不能随动效变速、驻留或错移时钟；须重新选卡，独立人物层保持1倍');
 }
 export function nativeFrameAt(timeline,frame) {
   const segment=timeline.find(s=>frame>=s.fromFrame&&frame<=s.toFrame);

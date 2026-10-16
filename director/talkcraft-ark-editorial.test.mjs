@@ -23,9 +23,9 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
     assert.deepEqual(compact.contracts[i].allowedBusinessKeys,full.cards[i].fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key));
     assert.deepEqual(compact.contracts[i].frozenKeys,full.cards[i].fields.filter(f=>!f.writable).map(f=>f.key));
   }
-  // All writable fields now carry types/ranges (not only required fields).
-  // Keep that additional contract while omitting source parsers and full demo rows.
-  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.75);
+  // All writable fields carry labels as well as types: text labels often define
+  // index-list/DSL semantics. Omit parser bodies and full demos, never those labels.
+  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.9);
 });
 
 const semantics = {sentences:[{i:0,text:'第一句。'},{i:1,text:'第二句。'}]};

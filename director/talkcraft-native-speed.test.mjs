@@ -46,6 +46,9 @@ test('数字人口型或内嵌视频不得进入变速卡树；独立人物层�
  assert.throws(()=>assertNativeMediaClock(changed,{}, {srcs:['movie.mp4']}),/口型/);
  assert.doesNotThrow(()=>assertNativeMediaClock(normal,{hostSrc:'video-alpha-unverified'}));
  assert.doesNotThrow(()=>assertNativeMediaClock(changed,{src:'image'},{src:'photo.png'}));
+ const held=nativeEditorialTimeline(160,103,50,'正文驻留');
+ assert.throws(()=>assertNativeMediaClock(held,{hostSrc:'video-alpha-unverified'}),/驻留/);
+ assert.doesNotThrow(()=>assertNativeMediaClock(held,{src:'image'},{src:'photo.png'}));
 });
 
 test('变速不能改字级锚点或放行已被模板删掉的文字',()=>{

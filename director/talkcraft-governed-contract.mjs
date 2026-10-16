@@ -1,4 +1,6 @@
 import {buildCatalog, validateCalls, CONTRACT_VERSION} from '../docs/audits/b-talkcraft-target3/current-contract.mjs';
+import fs from 'node:fs';
+import {createHash} from 'node:crypto';
 
 const CARD_ALIASES = Object.freeze({
   'lead-word-zoom-assemble': 'typography/lead-word-zoom-assemble',
@@ -19,6 +21,25 @@ export function canonicalCardId(value, catalog) {
 // Reuse the locked B contract; never create a parallel catalog or change admission.
 export function loadTalkcraftGovernedCatalog(index) {
   const catalog = buildCatalog();
+  // Correct a local catalog extraction omission from verified upstream code.
+  // Missing price is still forbidden: only an explicitly supplied empty string hides it.
+  const info=catalog.cards.find(c=>c.cardId==='info-card-assemble');
+  const price=info?.fields.find(f=>f.key==='price');
+  if(price){
+    const wrapper=fs.readFileSync(info.implementation.file),original=fs.readFileSync(info.original.file);
+    const hash=b=>createHash('sha256').update(b).digest('hex');
+    if(hash(wrapper)!==info.implementation.sha256||hash(original)!==info.original.sha256||
+       !/空\s*=\s*不显示/u.test(price.label)||!wrapper.toString().includes('price={price}')||
+       !/\{price\s*\?\s*<span/u.test(original.toString()))
+      throw Error('信息卡可空价格行的源码证据失效，停止使用本地契约修正');
+    price.blankAllowed=true;
+    const highlighted=info.fields.find(f=>f.key==='highlightLines');
+    if(!highlighted||!wrapper.toString().includes('highlightLines.split(/[,，\\s]+/)'))
+      throw Error('信息卡高亮行号解析证据失效');
+    highlighted.valueConstraint={format:'one-based-index-list',delimiter:'comma-or-whitespace',references:'lines'};
+    catalog.localCorrections=[{cardId:info.cardId,field:'price',blankAllowed:true,
+      reason:'源UI明确空值隐藏，组件显式透传并条件渲染；不得补演示价格',source:info.original}];
+  }
   const indexed = new Set(index.cards.map(card => card.slug));
   const governed = new Set(catalog.cards.map(card => card.cardId));
   const missing = [...indexed].filter(id => !governed.has(id));
@@ -32,8 +53,8 @@ export function talkcraftEditorialContract(catalog) {
   return {version:CONTRACT_VERSION,productionAdmitted:false,
     cards:catalog.cards.map(card=>({slug:card.cardId,implementationSha256:card.implementation.sha256,
       duration:{fps:card.duration.fps,frames:card.duration.frames,originalFrames:card.duration.originalFrames,variants:card.duration.variants},
-      fields:card.fields.map(({key,type,role,writable,min,max,step,options,blankAllowed})=>
-        ({key,type,role,writable,min,max,step,options,blankAllowed})),
+      fields:card.fields.map(({key,type,role,writable,min,max,step,options,blankAllowed,valueConstraint})=>
+        ({key,type,role,writable,min,max,step,options,blankAllowed,valueConstraint})),
       required:card.policy.required,media:card.policy.media,
       mediaAlternatives:card.policy.mediaAlternatives,
       capabilities:{nativeMedia:card.policy.capabilities.nativeMedia,
@@ -50,6 +71,16 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     props:shot.templateParams?.cardProps,evidence:[]}; });
   const validation=validateCalls({schema:'b-talkcraft-call-v1',calls},{catalog,projectRoot});
   const errors=[],pending=[];
+  for(const [i,call]of calls.entries()){
+    const card=catalog.cards.find(c=>c.cardId===call.cardId);
+    for(const field of card?.fields||[])if(field.valueConstraint?.format==='one-based-index-list'&&Object.hasOwn(call.props||{},field.key)){
+      const value=call.props[field.key],rows=call.props[field.valueConstraint.references];
+      const indices=typeof value==='string'?value.trim().split(/[,，\s]+/u).map(Number):[];
+      const count=typeof rows==='string'?rows.split('\n').filter(s=>s.trim()).length:0;
+      if(typeof value!=='string'||!/^\s*[1-9]\d*(?:[,，\s]+[1-9]\d*)*\s*$/u.test(value)||indices.some(n=>n>count))
+        errors.push({code:'INDEX_LIST_FORMAT',shotId:shots[i].id,at:`calls[${i}].props.${field.key}`,message:'源码要求1起的要点行号（逗号或空白分隔），不能填原句文字或越界行号'});
+    }
+  }
   for(const issue of validation.errors){
     const index=Number(issue.at.match(/^calls\[(\d+)\]/)?.[1]);
     const field=issue.at.match(/\.props\.([^.]+)$/)?.[1];
