@@ -2,19 +2,33 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {CONTENT_ONSET_RULES} from './talkcraft-content-onset.mjs';
+import {assertNativeMotionRate,assertNativeMediaClock,NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
 
-export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。选卡 nativeFrames 必须小于等于本镜帧数，同时满足开场原卡短模板规则；不得拿不超过 3 秒代替实际镜头容量。驻留帧为 0 基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames 是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。每个原卡动作仍须完整播放一次，视觉是否合格留待实帧检查。'+CONTENT_ONSET_RULES;
+export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。仅模板动效允许0.85～1.15倍速，nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。实际速度按原生和输出首尾帧跨度之比记录，整数帧取整后仍不得超限，超限必须重新选卡。配音、数字人口型、字级输出锚点和真实切镜时间保持原样，不得跟随模板变速；原卡首尾和动作顺序完整保留。开场原卡仍须不超过3秒，禁止靠加速长卡绕过。驻留帧为0基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。视觉效果由人工审核。'+CONTENT_ONSET_RULES;
 
-export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason){
-  if(!Number.isInteger(duration)||!Number.isInteger(nativeFrames)||duration<nativeFrames)
-    throw Error('镜头时长不足以完整播放原卡，必须重新选卡或调整语义切镜，禁止截断或加速');
-  if(duration===nativeFrames)return [{kind:'motion',fromFrame:0,toFrame:duration-1,nativeFromFrame:0,nativeToFrame:nativeFrames-1}];
+export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason,playbackRate){
+  if(!Number.isInteger(duration)||duration<1||!Number.isInteger(nativeFrames)||nativeFrames<1)
+    throw Error('镜头和原卡总帧数必须为正整数');
+  if(playbackRate!==undefined&&(!Number.isFinite(playbackRate)||playbackRate<NATIVE_MIN_RATE||playbackRate>NATIVE_MAX_RATE))
+    throw Error('请求动效速度必须在0.85～1.15倍以内，超限必须重新选卡');
+  const motion=(fromFrame,length,nativeFromFrame,nativeToFrame)=>{
+    const segment={kind:'motion',fromFrame,toFrame:fromFrame+length-1,nativeFromFrame,nativeToFrame};
+    segment.playbackRate=length===1&&nativeFromFrame===nativeToFrame?1:(nativeToFrame-nativeFromFrame)/(length-1);
+    assertNativeMotionRate(segment);return segment;
+  };
+  const requested=playbackRate??(duration<nativeFrames?(nativeFrames-1)/(duration-1):1);
+  const lengthFor=span=>span===0?1:Math.max(Math.ceil(span/NATIVE_MAX_RATE)+1,
+    Math.min(Math.floor(span/NATIVE_MIN_RATE)+1,Math.round(span/requested)+1));
+  // No hold required: map the complete native card, never crop an endpoint.
+  const fullLength=lengthFor(nativeFrames-1);
+  if(duration<=fullLength)return [motion(0,duration,0,nativeFrames-1)];
   if(!Number.isInteger(holdAt)||holdAt<0||holdAt>=nativeFrames-1||!String(reason||'').trim())
     throw Error('长镜头需要原卡内容仍完整可见的驻留帧和依据，不能在退场后空等');
-  const extra=duration-nativeFrames;
-  return [{kind:'motion',fromFrame:0,toFrame:holdAt,nativeFromFrame:0,nativeToFrame:holdAt},
-    {kind:'hold',fromFrame:holdAt+1,toFrame:holdAt+extra,nativeFromFrame:holdAt,nativeToFrame:holdAt,reason},
-    {kind:'motion',fromFrame:holdAt+extra+1,toFrame:duration-1,nativeFromFrame:holdAt+1,nativeToFrame:nativeFrames-1}];
+  const firstLength=lengthFor(holdAt),lastLength=lengthFor(nativeFrames-holdAt-2),extra=duration-firstLength-lastLength;
+  if(extra<0)throw Error('整数帧动效与驻留无法容纳，必须重新规划或选卡');
+  return [motion(0,firstLength,0,holdAt),
+    ...(extra?[{kind:'hold',fromFrame:firstLength,toFrame:firstLength+extra-1,nativeFromFrame:holdAt,nativeToFrame:holdAt,reason}]:[]),
+    motion(firstLength+extra,lastLength,holdAt+1,nativeFrames-1)];
 }
 
 // Model proposals retain their saved response provenance. Frame boundaries and
@@ -29,13 +43,14 @@ export function prepareEditorialNativePlans(project,catalog,result){
       const startFrame=Math.round(shot.start*30),endFrame=Math.round(shot.end*30),nativeFrames=card.duration.frames;
       checks.push({shotId:shot.id,cardId:shot.shotCard,startFrame,endFrame,durationFrames:endFrame-startFrame,
         nativeFrames,proposedHoldFrame:proposal.holdAtNativeFrame,maxHoldFrame:nativeFrames-2,
-        motionFits:endFrame-startFrame>=nativeFrames});
-      const timeline=nativeEditorialTimeline(endFrame-startFrame,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason);
+        motionFits:(nativeFrames-1)/(endFrame-startFrame-1)<=NATIVE_MAX_RATE});
+      const timeline=nativeEditorialTimeline(endFrame-startFrame,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason,proposal.playbackRate);
+      assertNativeMediaClock(timeline,card.policy?.media,shot.templateParams?.cardProps);
       if(!Array.isArray(proposal.textFields)||!proposal.textFields.length||!Array.isArray(proposal.wordEvents)||!proposal.wordEvents.length)
         throw Error('缺少可见字段和真实锚词事件');
       rows.push({shotId:shot.id,cardId:shot.shotCard,startFrame,endFrame,nativeFrames,
         humanLayout:source.isDigitalHuman&&shot.subject==='person'?'person':'none',mobileMinTextPx:proposal.mobileMinTextPx,
-        textFields:proposal.textFields,timeline});
+        textFields:proposal.textFields,requestedPlaybackRate:proposal.playbackRate??null,timeline});
       for(const [i,event] of proposal.wordEvents.entries()){
         if(!event||!Number.isInteger(event.sentenceIndex)||event.sentenceIndex<0||event.sentenceIndex>shot.lastSentence||
           event.sentenceIndex<shot.firstSentence&&!event.carry)throw Error('锚词须明确绑定本镜真实句序，延续前文须说明');

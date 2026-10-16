@@ -3,6 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {normalizeVisibleText as clean} from './talkcraft-text-occurrences.mjs';
 import {READABILITY_LAYOUT} from './talkcraft-presentation-skin.mjs';
+import {assertNativeMotionRate,assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 export {nativeFrameAt} from './talkcraft-native-time-map.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -35,8 +36,7 @@ export function nativeGovernanceBinding(project) {
   return Object.fromEntries(files.map(file=>[file,fs.existsSync(path.join(project,file))?sha(path.join(project,file)):null]));
 }
 
-// One original frame per output frame during motion. Added holds have explicit
-// content responsibilities; they cannot stretch or accelerate native motion.
+// Only card motion may be sampled at 0.85–1.15x. Output word/host clocks are fixed.
 export function validateNativeTimeline(row,durationFrames,nativeFrames) {
   const problems=[];
   if(!Array.isArray(row.timeline)||!row.timeline.length)return ['缺少原生动作与驻留计划'];
@@ -48,7 +48,7 @@ export function validateNativeTimeline(row,durationFrames,nativeFrames) {
       nativeFromFrame<0||nativeToFrame<nativeFromFrame||nativeToFrame>=nativeFrames||nativeFromFrame<lastNative)
       problems.push('片段边界不连续、越界或原生动画回跳');
     if(kind==='motion'){
-      if(toFrame-fromFrame!==nativeToFrame-nativeFromFrame)problems.push('禁止截断、加速或拉伸原卡动作');
+      try{assertNativeMotionRate(segment);}catch(error){problems.push(error.message);}
       if(nativeFromFrame!==lastNative+1)problems.push('遗漏原卡动作帧');
     }else if(kind==='hold'){
       if(nativeFromFrame!==nativeToFrame||nativeFromFrame!==lastNative||!segment.reason)problems.push('驻留必须承接前一动作并说明内容');
@@ -87,6 +87,8 @@ export function checkNativeGovernance(project,{catalog,write=false}={}) {
       if(!Number.isInteger(row.nativeFrames)||row.nativeFrames<=0||card&&row.nativeFrames!==card.duration.frames)
         add('NATIVE_DURATION_MISMATCH',unit.id,'原生帧数与治理目录不一致');
       for(const message of validateNativeTimeline(row,unit.endFrame-unit.startFrame,row.nativeFrames))add('NATIVE_CONTENT_SPAN',unit.id,message);
+      try{if(Array.isArray(row.timeline)&&row.timeline.every(s=>s&&typeof s==='object'))assertNativeMediaClock(row.timeline,card?.policy?.media,unit.props);}
+      catch(error){add('NATIVE_MEDIA_CLOCK',unit.id,error.message);}
       if(!['none','person'].includes(row.humanLayout)||!Number.isFinite(row.mobileMinTextPx)||row.mobileMinTextPx<12)
         add('NATIVE_LAYOUT_REQUIRED',unit.id,'必须声明人物布局和至少 12 像素的手机正文目标');
       if(row.readabilityLayout&&row.readabilityLayout!==READABILITY_LAYOUT)

@@ -11,6 +11,7 @@ import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC, OPENING_MAX_SHOT_SEC, OPENING_TARGET_SHOT_SEC} from './talkcraft-template-governance.mjs';
 import {loadTalkcraftGovernedCatalog, talkcraftEditorialContract, validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
 import {nativeEditorialTimeline,prepareEditorialNativePlans,EDITORIAL_NATIVE_RULES} from './talkcraft-editorial-native-plan.mjs';
+import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
 import {alignNativeShotBoundaries} from './talkcraft-native-preparation.mjs';
 import {reserveEditorialSubmission,recordEditorialSubmissionOutcome,recordEditorialAttempt} from './talkcraft-editorial-submission.mjs';
@@ -45,7 +46,9 @@ export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,p
     if(!card||!proposal){add('NATIVE_EDITORIAL_PLAN',`${shot.id} 缺少正式模板或展示计划`,{shotId:shot.id});continue;}
     const durationFrames=Math.round(end*30)-Math.round(start*30),nativeFrames=card.duration.frames;
     checks.push({shotId:shot.id,cardId:shot.shotCard,durationFrames,nativeFrames,proposedHoldFrame:proposal.holdAtNativeFrame});
-    try{nativeEditorialTimeline(durationFrames,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason);}
+    try{const timeline=nativeEditorialTimeline(durationFrames,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason,proposal.playbackRate);
+      assertNativeMediaClock(timeline,card.policy?.media,shot.templateParams?.cardProps);
+      checks.at(-1).motionPlaybackRates=timeline.filter(s=>s.kind==='motion').map(s=>s.playbackRate);}
     catch(error){add('NATIVE_EDITORIAL_PLAN',`${shot.id}：${error.message}`,{shotId:shot.id});}
   }
   if(!shots.length||next!==aligned.length)add('SHOT_COVERAGE','分镜未覆盖完整原稿');
@@ -355,9 +358,9 @@ ${EDITORIAL_PARAM_RULES}
 ${EDITORIAL_NATIVE_RULES}
 subject 只能取 person 或 other；${sourceRun.isDigitalHuman === true ? '本片启用数字人，至少安排一个 person 镜头，并写明数字人位置、口播动作、文字层和背景素材如何配合。' : '本片未启用数字人，所有镜头使用 other；角色图仅作静态素材，不能宣称已生成数字人口型。'}只生成分镜设计，不宣称素材已采集、候选已审核或预检已通过。外部素材、证据、音效、卡片源码和词语锚点均须后续核验。默认简体中文。
 语义词表：${JSON.stringify([...vocab])}
-开场硬规则：前 8 秒使用独立短模板池；模板治理目录的原始完整时长必须不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒（不是截断后的镜头时长）。当前合格短模板池只有：${JSON.stringify(openingShortCards)}。前 8 秒每个使用模板的镜头只能从该池选择；如果语义不匹配，必须明确写无合格短模板并保留可治理的 person/实拍设计，禁止选择长模板、截断、加速或固定轮换。开场每镜实际占用（含驻留）目标约 ${OPENING_TARGET_SHOT_SEC} 秒，上限 ${OPENING_MAX_SHOT_SEC} 秒。按自然短句及真实字级边界组织，不能让三秒短卡驻留成四至八秒长镜头。若当前句粒度无法满足，明确报告需按原配音字级锚点细分语义拍；不得估算切点、截断语义或伪造句序覆盖。
+开场硬规则：前 8 秒使用独立短模板池；模板治理目录的原始完整时长必须不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒（不是截断后的镜头时长）。当前合格短模板池只有：${JSON.stringify(openingShortCards)}。前 8 秒每个使用模板的镜头只能从该池选择；如果语义不匹配，必须明确写无合格短模板并保留可治理的 person/实拍设计，禁止选择长模板、截断或固定轮换；短模板仅可按下述15%规则适配，不能用加速长模板绕过原卡短时长限制。开场每镜实际占用（含驻留）目标约 ${OPENING_TARGET_SHOT_SEC} 秒，上限 ${OPENING_MAX_SHOT_SEC} 秒。按自然短句及真实字级边界组织，不能让三秒短卡驻留成四至八秒长镜头。若当前句粒度无法满足，明确报告需按原配音字级锚点细分语义拍；不得估算切点、截断语义或伪造句序覆盖。
 每个 shots 项必须增加 shotCard（完整目录中的 slug）、templateParams.cardProps（对应卡片的业务参数）。按语义、信息结构和模板容量选卡，不得仅从六种文字卡轮换；相邻不同信息点应避免同版式，无适合模板需说明原因。保留数字人、图表、结构图、对比和实拍的主体接力，禁止虚构数据。
-每个 shots 项还须增加 nativePresentation：{"mobileMinTextPx":12,"holdAtNativeFrame":整数,"holdReason":"内容仍可见的驻留依据","textFields":[{"key":"对应 cardProps 的文字字段","visibility":"visible 或 hidden","reason":"隐藏必须说明"}],"wordEvents":[{"field":"对应可见字段","text":"按顺序覆盖该字段展示文字","sentenceIndex":0,"anchor":"本句原文真实词语","role":"spoken 或 context","reason":"摘要、背景说明或前文延续须说明"}]}。句序从零计，程序用真实字级记录求出现时刻，禁止编造秒数。口播大字只在说到锚词后出现；context 仅用于明确有依据的背景说明。所有实际可见文字均须登记，不能拿标题事件代表整张卡。完整原卡动作每帧播放一次；若口播更长，在原卡主体仍完整可见、尚未退场的帧驻留并说明，随后完整播放余下动作。卡比镜头长时重新选卡，禁止截断、加速或拉伸。驻留计划是待实际帧检查的设计，不能宣称视觉验收通过。本片无人物时不得留下演示人物占位；正文以 390 像素宽手机画面至少 12 像素为目标。
+每个 shots 项还须增加 nativePresentation：{"playbackRate":1,"mobileMinTextPx":12,"holdAtNativeFrame":整数,"holdReason":"内容仍可见的驻留依据","textFields":[{"key":"对应 cardProps 的文字字段","visibility":"visible 或 hidden","reason":"隐藏必须说明"}],"wordEvents":[{"field":"对应可见字段","text":"按顺序覆盖该字段展示文字","sentenceIndex":0,"anchor":"本句原文真实词语","role":"spoken 或 context","reason":"摘要、背景说明或前文延续须说明"}]}。句序从零计，程序用真实字级记录求出现时刻，禁止编造秒数。口播大字只在说到锚词后出现；context 仅用于明确有依据的背景说明。所有实际可见文字均须登记，不能拿标题事件代表整张卡。完整原卡首尾与动作顺序必须保留，仅动效允许0.85～1.15倍速；内嵌hostSrc或其他音视频的卡不能变速，须重新选卡，独立人物层仍1倍。配音和逐字锚点使用原输出时间；若口播更长，在原卡主体仍完整可见、尚未退场的帧驻留并说明，随后完整播放余下动作。卡比镜头长时先检查15%内能否完整播放，超限重新选卡，禁止裁切动作或改写配音时间。驻留计划是待实际帧检查的设计，不能宣称视觉验收通过。本片无人物时不得留下演示人物占位；正文以 390 像素宽手机画面至少 12 像素为目标。
 背景素材必须全片唯一排他，每个背景源只供一个镜头；改名、裁切或转码不能当作新素材。templateParams 中声明 materialRole 和每镜独立 materialQuery（具体画面检索描述），未知真实路径时不得编造 materialSrc，由采集匹配层解决。
 模板内部图片/视频需求与背景分开：在 templateParams.templateMaterialQueries 中按真实素材字段名填写具体对象检索词；例如 srcs 对应图片列表的主题。不要把背景的办公/商务/科技风格描述当作内部素材查询；联网查询优先给出 2～3 个英文视觉概念词，涉及证据时标明真实来源需求。hostSrc 必须绑定与本镜配音时间范围一致的成功数字人，不能从图库代替。
 完整 GitHub 模板目录（108 卡的名称、语义与输入能力）：${JSON.stringify(promptCatalog.cards)}
