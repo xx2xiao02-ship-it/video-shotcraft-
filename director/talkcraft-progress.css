@@ -14,3 +14,9 @@
 .talkcraft-node[data-status="pending"] .talkcraft-node-status,.talkcraft-node[data-status="skipped"] .talkcraft-node-status {color:var(--mid,inherit)}
 body[data-ui-theme="light"] {--node-done:#166534;--node-error:#b91c1c}
 @media(max-width:540px){.talkcraft-node-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.talkcraft-node{padding:10px}.talkcraft-node[data-status="blocked"]{padding:9px}.talkcraft-node-heading{align-items:flex-start}.talkcraft-node-current{padding:10px}}
+
+.talkcraft-node-mode{margin-left:auto;font-size:10px;color:var(--mid,inherit);border:1px solid var(--border,#555);border-radius:999px;padding:1px 6px;white-space:nowrap}
+.talkcraft-parallel-contract{margin:14px 0;padding:12px 14px;border:1px dashed var(--accent2,#3b82f6);border-radius:10px;background:var(--bg2,transparent);color:var(--ink,inherit)}
+.talkcraft-parallel-contract p{font-size:12px;line-height:1.6;margin:6px 0;color:var(--mid,inherit)}
+.talkcraft-parallel-lanes{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.talkcraft-parallel-lane{font-size:11px;border:1px solid var(--border,#555);border-radius:999px;padding:3px 8px}

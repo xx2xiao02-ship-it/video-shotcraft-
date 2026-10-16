@@ -4,6 +4,15 @@ import path from 'node:path';
 
 export const fileSha256 = file => createHash('sha256').update(readFileSync(file)).digest('hex');
 
+// Digital-human assets depend on shot identity, subject and timing only. Keep
+// background/card metadata out of this hash so material governance can be
+// repaired without forcing a paid avatar regeneration.
+export function digitalHumanShotsHash(file) {
+  const shots = JSON.parse(readFileSync(file, 'utf8'));
+  const contract = shots.map(({id, start, end, subject}) => ({id, start, end, subject}));
+  return createHash('sha256').update(JSON.stringify(contract)).digest('hex');
+}
+
 export function planTalkcraftDigitalHuman(project) {
   const source = JSON.parse(readFileSync(path.join(project, 'source-run.json'), 'utf8'));
   const shots = JSON.parse(readFileSync(path.join(project, 'remotion', 'shots.json'), 'utf8'));

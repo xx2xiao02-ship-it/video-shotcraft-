@@ -4,11 +4,71 @@ import {existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync}
 import os from 'node:os';
 import path from 'node:path';
 import {test} from 'node:test';
-import {generateTalkcraftDigitalHuman} from './talkcraft-digital-human.mjs';
+import {generateTalkcraftDigitalHuman,createTransparentDigitalHuman} from './talkcraft-digital-human.mjs';
 import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
+import {approveTalkcraftStoryboard, recordPlanningResult, recordSemanticPass} from './talkcraft-status.mjs';
+import {recordReviewedCandidates} from './talkcraft-reviewed-templates.mjs';
 
-for (const mode of ['segments', 'combined']) {
-  test(`TalkCraft ${mode} creates only marked shot clips with exact frame counts`, async t => {
+function approveFixture(root, runId, project) {
+  mkdirSync(path.join(project,'qa'),{recursive:true});
+  writeFileSync(path.join(project, 'semantics.json'), JSON.stringify({sentences:[{shot:'s01',weight:'main',sem:['钩子']}]}));
+  writeFileSync(path.join(project, 'audio/timestamps.json'), JSON.stringify({sentences:[
+    {text:'测试',start:0,end:4,ok:true,match:1,words:[{text:'测试',start:0,end:4}]}]}));
+  writeFileSync(path.join(project, 'aligned-sentences.json'), '[]');
+  writeFileSync(path.join(project, 'SHOTBOOK.md'), '# Test storyboard');
+  writeFileSync(path.join(project, 'sources.md'), '# Test sources');
+  const cards=['impact-open-title','per-character-rise','keyword-pop-highlight','chapter-title-card'];
+  const shots=JSON.parse(readFileSync(path.join(project,'remotion/shots.json'))).map((shot,index)=>({...shot,shotCard:shot.shotCard||cards[index]}));
+  writeFileSync(path.join(project,'remotion/shots.json'),JSON.stringify(shots));
+  writeFileSync(path.join(project,'qa/card-candidates.json'),JSON.stringify(Object.fromEntries(shots.map(shot=>[shot.id,{candidates:{钩子:[{slug:shot.shotCard}]}}]))));
+  writeFileSync(path.join(project,'qa/card-candidates.md'),'# candidates');
+  recordReviewedCandidates(project,{skillRoot:path.resolve('_audit/video-talkcraft')});  recordSemanticPass(root, runId);
+  recordPlanningResult(root, runId, {passed:true});
+  approveTalkcraftStoryboard(root, runId, 'isolated test fixture');
+}
+
+test('原版绿优势度键去除绿幕，同时保留黑色衣服不透明',t=>{
+  const root=mkdtempSync(path.join(os.tmpdir(),'talkcraft-alpha-'));
+  t.after(()=>rmSync(root,{recursive:true,force:true}));
+  const input=path.join(root,'green.mp4'),output=path.join(root,'alpha.webm');
+  execFileSync('ffmpeg',['-v','error','-f','lavfi','-i',
+    'color=c=0x00ff00:s=160x90:r=30:d=0.2,drawbox=x=60:y=25:w=40:h=40:color=0x182238:t=fill',
+    '-c:v','libx264','-pix_fmt','yuv420p',input]);
+  createTransparentDigitalHuman(input,output);
+  const alpha=execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',output,
+    '-vf','alphaextract','-frames:v','1','-f','rawvideo','-pix_fmt','gray','pipe:1']);
+  assert.equal(alpha[45*160+80],255,'黑衣必须保持实心');
+  assert.ok(alpha[5*160+5]<5,'纯绿幕必须透明');
+});
+
+for (const scenario of ['missing-storyboard','unapproved','changed-shot','failed-preflight','pending-adjustment']) {
+  test(`RunningHub rejects ${scenario} before provider calls or output creation`, async t => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'talkcraft-admission-'));
+    t.after(() => rmSync(root, {recursive:true, force:true}));
+    const runId = '11111111-1111-4111-8111-111111111111';
+    const project = path.join(root, 'director/b-mode-runs', runId, 'talkcraft');
+    for (const folder of ['audio','remotion','qa']) mkdirSync(path.join(project,folder), {recursive:true});
+    writeFileSync(path.join(project,'source-run.json'),JSON.stringify({fps:30,totalFrames:120,digitalHumanMode:'segments'}));
+    if (scenario !== 'missing-storyboard') {
+      writeFileSync(path.join(project,'remotion/shots.json'), JSON.stringify([{id:'s01',start:0,end:4,subject:'person'}]));
+      approveFixture(root,runId,project);
+      if(scenario==='unapproved') writeFileSync(path.join(project,'qa/storyboard-approved.json'),'{}');
+      if(scenario==='changed-shot') writeFileSync(path.join(project,'remotion/shots.json'), JSON.stringify([{id:'s01',start:0,end:4,subject:'other'}]));
+      if(scenario==='failed-preflight') recordPlanningResult(root,runId,{passed:false,issues:['test failure']});
+      if(scenario==='pending-adjustment') writeFileSync(path.join(project,'qa/storyboard-adjustment-request.json'),JSON.stringify({request:'修改人物区间'}));
+    }
+    let calls=0;
+    await assert.rejects(generateTalkcraftDigitalHuman({root,runId,provider:{create:async()=>{calls++;throw Error('must not call');}}}),
+      error=>error.code==='DIGITAL_HUMAN_DEPENDENCY_NOT_READY');
+    assert.equal(calls,0);
+    assert.equal(existsSync(path.join(project,'digital-human-report.json')),false);
+    assert.equal(existsSync(path.join(project,'remotion/public/digital-human')),false);
+  });
+}
+
+for (const scenario of ['segments', 'combined','segments-recovery','segments-25fps','uncertain-submission']) {
+  const mode=scenario==='combined'?'combined':'segments';
+  test(`TalkCraft ${scenario} creates only marked shot clips with exact frame counts`, async t => {
     const root = mkdtempSync(path.join(os.tmpdir(), `talkcraft-${mode}-`));
     t.after(() => rmSync(root, {recursive:true, force:true}));
     const runId = '11111111-1111-4111-8111-111111111111';
@@ -27,16 +87,31 @@ for (const mode of ['segments', 'combined']) {
       '-frames:v','1','-update','1',path.join(project,'assets',name)]);
     const mockVideo = path.join(root, 'provider.mp4');
     execFileSync('ffmpeg', ['-hide_banner','-loglevel','error','-f','lavfi','-i',
-      'color=c=green:s=160x90:r=30:d=4','-c:v','libx264','-pix_fmt','yuv420p',mockVideo]);
+      `color=c=green:s=160x90:r=${scenario==='segments-25fps'?25:30}:d=4`,'-c:v','libx264','-pix_fmt','yuv420p',mockVideo]);
     let calls = 0;
+    let failQuery=scenario==='segments-recovery';
     const provider = {
-      create:async () => ({taskId:`mock-${++calls}`}),
-      waitForResult:async taskId => ({taskId,outputUrl:'mock://video'}),
+      create:async () => {calls++;if(scenario==='uncertain-submission')throw Error('submission outcome unknown');return {taskId:`mock-${calls}`};},
+      waitForResult:async taskId => {if(failQuery){failQuery=false;throw Error('simulated local interruption');}return {taskId,outputUrl:'mock://video'};},
       download:async () => readFileSync(mockVideo),
     };
-    const report = await generateTalkcraftDigitalHuman({root,runId,provider});
+    approveFixture(root,runId,project);
+    if(scenario==='uncertain-submission'){
+      await assert.rejects(generateTalkcraftDigitalHuman({root,runId,provider}),/submission outcome unknown/);
+      await assert.rejects(generateTalkcraftDigitalHuman({root,runId,provider,resumeExisting:true}),/提交状态不明确/);
+      assert.equal(calls,1,'提交结果未知时不得重新调用供应商');return;
+    }
+    if(scenario==='segments-recovery'){
+      await assert.rejects(generateTalkcraftDigitalHuman({root,runId,provider}),/simulated local interruption/);
+      assert.equal(calls,1);
+      writeFileSync(path.join(project,'remotion/public/digital-human/provider-1.mp4'),readFileSync(mockVideo));
+      writeFileSync(path.join(project,'remotion/public/digital-human/unit-1.mp4'),'legacy derivative preserved');
+    }
+    const report = await generateTalkcraftDigitalHuman({root,runId,provider,resumeExisting:scenario==='segments-recovery'});
     assert.equal(calls, mode === 'combined' ? 1 : 2);
     assert.equal(report.status, 'SUCCESS');
+    if(scenario==='segments-recovery')assert.equal(readFileSync(path.join(project,'remotion/public/digital-human/unit-1.mp4'),'utf8'),'legacy derivative preserved');
+    if(scenario==='segments-25fps')assert.ok(report.units.every(u=>u.frameratePreparation.method==='optical-flow'));
     assert.deepEqual(report.units.map(unit => unit.frames), [30,60]);
     assert.equal(readTalkcraftDigitalHumanStatus(project).ready, true);
     const media = path.join(project, 'remotion', 'public', 'digital-human');

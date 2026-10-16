@@ -1,4 +1,4 @@
-// Group adjacent workflow steps for display only; backend gates stay separate.
+// 后端是节点顺序、职责与并行边界的唯一来源；前端只读取并展示。
 // Read-only compatibility for an already-running console: the worker's own report
 // remains observable without restarting or interrupting the paid task.
 async function readTalkcraftParallelDisplay(run){
@@ -21,35 +21,9 @@ async function readTalkcraftParallelDisplay(run){
 }
 
 function talkcraftProgressDisplay(workflow) {
-  if(!workflow?.nodes?.length)return workflow;
-  const groups={
-    'planning-check':{next:'approve-storyboard',label:'分镜校验与审核',task:'校验分镜规划，通过后等待你审核'},
-    'digital-human':{next:'host-preflight',label:'数字人生成与验收',task:'RunningHub 生成已审核出镜区间，再检查实际视频的帧率、重复帧、时长与区间',waitingLabel:'待验收',runningLabels:['生成中','验收中']},
-    sample:{next:'approve-sample',label:'样片生成与审核',task:'生成有声样片，通过检查后等待你审核'},
-  };
-  const nodes=[];let currentNode=workflow.currentNode;
-  for(let i=0;i<workflow.nodes.length;i++){
-    const source=workflow.nodes[i],group=groups[source.id],next=workflow.nodes[i+1];
-    let node={...source};
-    if(group&&next?.id===group.next){
-      const phases=[source,next],unfinished=phases.find(phase=>!['done','skipped'].includes(phase.status));
-      const phase=unfinished||next;
-      node={...source,label:group.label,task:group.task,phases,status:unfinished?phase.status:'done',
-        stateLabel:unfinished?phase.stateLabel:'已完成',detail:unfinished?(phase.detail||phase.task):undefined};
-      if(unfinished?.status==='running'&&group.runningLabels)node.stateLabel=group.runningLabels[phases.indexOf(unfinished)];
-      if(source.status==='done'&&['pending','waiting'].includes(next.status)){
-        node.status='waiting';node.stateLabel=group.waitingLabel||'待审核';
-      }
-      if(phases.some(phase=>phase.id===workflow.currentNode))currentNode=node.id;
-      i++;
-    }
-    nodes.push({...node,number:nodes.length+1});
-  }
-  return {...workflow,nodes,currentNode,total:nodes.length,
-    completed:nodes.filter(node=>node.status==='done').length,
-    skipped:nodes.filter(node=>node.status==='skipped').length};
+  // 节点编号、合并分组和职责由后端唯一生成；前端只渲染，禁止再次重排或重编号。
+  return workflow;
 }
-
 function renderTalkcraftProgress(host, workflow, {disconnected=false}={}) {
   if(!host)return;
   host.hidden=false;
@@ -76,13 +50,14 @@ function renderTalkcraftProgress(host, workflow, {disconnected=false}={}) {
     const other=workflow.outOfOrderActivity;
     heading.append(el('p','talkcraft-node-observation',`另有局部检查：${other.label} · ${other.status==='running'?'执行中':other.status==='stopping'?'停止中':'未通过'}。${other.detail||''}；此记录不代表前置节点已完成。`));
   }
+  const modeLabels={serial:'串行','serial-join':'汇合门禁','parallel-inside':'节点内并行'};
   const list=el('ol','talkcraft-node-list');list.setAttribute('aria-label','视频制作任务节点');
   for(const node of workflow.nodes){
     const item=el('li','talkcraft-node');item.dataset.node=node.id;item.dataset.status=node.status;
     if(node.id===workflow.currentNode)item.setAttribute('aria-current','step');
     const title=el('div','talkcraft-node-heading');
     title.append(el('span','talkcraft-node-number',node.status==='done'?'✓':String(node.number).padStart(2,'0')),
-      el('strong','',node.label));
+      el('strong','',node.label),el('span','talkcraft-node-mode',modeLabels[node.mode]||node.mode||'串行'));
     item.append(title,el('p','talkcraft-node-task',node.task));
     if(node.phases)for(const phase of node.phases){
       item.append(el('p','talkcraft-node-task',`${phase.label}：${phase.stateLabel}`));
@@ -90,6 +65,17 @@ function renderTalkcraftProgress(host, workflow, {disconnected=false}={}) {
     item.append(el('span','talkcraft-node-status',node.stateLabel));list.append(item);
   }
   host.replaceChildren(heading,list);
+  const contract=workflow.parallelContract;
+  if(contract){
+    const start=workflow.nodes.find(node=>node.id===contract.startsAfter);
+    const join=workflow.nodes.find(node=>node.id===contract.joinBefore);
+    const panel=el('section','talkcraft-parallel-contract');
+    panel.append(el('strong','','并行窗口：'+String(start?.number||'').padStart(2,'0')+' '+(start?.label||contract.startsAfter)+' 通过后启动，'+String(join?.number||'').padStart(2,'0')+' '+(join?.label||contract.joinBefore)+' 前汇合'),
+      el('p','','人物生成、已审模板运行依赖、非人物素材和工程骨架可以并行准备；汇合前不能进入全量预检。'));
+    const lanes=el('div','talkcraft-parallel-lanes');
+    for(const lane of contract.lanes||[])lanes.append(el('span','talkcraft-parallel-lane',lane.label));
+    panel.append(lanes);host.append(panel);
+  }
   const preparation=workflow.parallelPreparation;
   if(preparation){
     const panel=el('section','talkcraft-node-current');panel.dataset.preparation=preparation.status;
