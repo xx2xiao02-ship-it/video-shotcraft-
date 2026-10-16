@@ -12,3 +12,8 @@
 - 保留原 B 基线入口、旧运行目录、用户修改与成功资产。任何付费数字人生成、声音复刻或生产重试按用户的单次授权执行。
 - 画面卡片与工作台文案按 `source-run.json.visualTextLocale` 编写；默认及兼容旧任务时使用 `zh-CN`（简体中文）。仅用户明确要求时才使用繁体。不要因此改写口播稿、配音、时间戳或来源引用。
 - 成片交付后的修复迭代（文字贴边、暗底字色、动效抖动等 P0/P1）按 `.agents/skills/b-mode-post-delivery-fix/SKILL.md` 执行：快照 → 修复 → preflight → 布局审计 → 逐拍修正 → 独立视觉复核 → 绑定校验 → 底片替换导出（工具：`director/layout-audit.mjs` + `director/render-revised-film.mjs`）。修正不等于用户接受新片，不覆盖原成片。
+
+
+## 已审模板强制复用（用户2026-10-16确认）
+
+执行 `docs/workflows/b-mode-reviewed-templates.md`。仅允许 `director/talkcraft-reviewed-templates.json` 中有真实历史媒体、参数绑定、布局检查及源码版本证据的模板进入上游选卡索引。候选外选卡不得凭语义偏离说明放行；开场短卡池不得代替语义筛选。禁止自行补画、添加定制图解或外层CSS覆盖模板几何。配音和成功人物素材复用；模板级技术审查不等于本片通过。
