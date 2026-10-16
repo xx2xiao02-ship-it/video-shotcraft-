@@ -16,8 +16,10 @@ export const PARAMETERIZED_CARD_IDS = new Set(CATALOG.cards.map(card=>card.cardI
 // 开场短模板池只接受治理目录记录的原始完整时长，不超过 3 秒才有资格进入。
 // 不能用运行时截断、加速或 templateUnitSec 伪造短卡。
 export const OPENING_MAX_TEMPLATE_SEC = 3;
-// 开场窗口最多 8 秒；不能用一个长镜头覆盖整个开场再声称使用了短模板池。
-export const OPENING_MAX_SHOT_SEC = 8;
+// 窗口长度与单镜长度分别约束，短卡不能通过长驻留绕过开场节奏。
+export const OPENING_WINDOW_SEC = 8;
+export const OPENING_TARGET_SHOT_SEC = 2.4;
+export const OPENING_MAX_SHOT_SEC = 3.4;
 // 同一模板在任意连续 30 个镜头内只能正式绑定一次。使用滑动窗口，
 // 这样跨分组边界的重复也会被拦截，而不是只检查固定的 1-30、31-60 分组。
 export const TEMPLATE_REUSE_WINDOW_SIZE = 30;
@@ -46,15 +48,16 @@ export const DUPLICATE_SUBTITLE_CARD_IDS = new Set([
 ]);
 
 export function isOpeningShot(shot) {
-  return Number(shot?.start) < 8 || Number(shot?.startSec) < 8;
+  const start = Number(shot?.startSec ?? shot?.start);
+  return Number.isFinite(start) && start >= 0 && start < OPENING_WINDOW_SEC;
 }
 
 function shotDurationSec(shot) {
-  const duration = Number(shot?.durationSec ?? shot?.duration);
-  if (Number.isFinite(duration) && duration > 0) return duration;
   const start = Number(shot?.startSec ?? shot?.start);
   const end = Number(shot?.endSec ?? shot?.end);
-  return Number.isFinite(start) && Number.isFinite(end) && end > start ? end - start : null;
+  if (Number.isFinite(start) && Number.isFinite(end) && end > start) return end - start;
+  const duration = Number(shot?.durationSec ?? shot?.duration);
+  return Number.isFinite(duration) && duration > 0 ? duration : null;
 }
 
 export function hasRepeatedSubtitle(shot) {
@@ -100,12 +103,11 @@ export function auditTalkcraftTemplateGovernance(shots,{projectRoot=ROOT}={}) {
       issues.push({shotId:shot?.id, code:'non_parameterized_template', message:`${shot?.id} 使用 ${card || '空模板'}，没有当前 B 模式业务参数绑定`});
     }
     if (isOpeningShot(shot)) {
-      const shotStart = Number(shot?.startSec ?? shot?.start);
-      const shotEnd = Number(shot?.endSec ?? shot?.end);
-      const shotDuration = Number.isFinite(shotStart) && Number.isFinite(shotEnd) ? shotEnd - shotStart : null;
-      if (shotDuration != null && shotDuration > OPENING_MAX_SHOT_SEC) {
+      const shotDuration = shotDurationSec(shot);
+      if (shotDuration != null && shotDuration > OPENING_MAX_SHOT_SEC + 1e-9) {
         issues.push({shotId:shot?.id, code:'opening_shot_duration_exceeded',
-          message:`${shot?.id} 开场镜头持续 ${shotDuration.toFixed(3)} 秒，超过前 8 秒开场窗口；必须拆分为短镜头，不能用单个长镜头覆盖开场`});
+          actualDurationSec:shotDuration,maxDurationSec:OPENING_MAX_SHOT_SEC,
+          message:`${shot?.id} 开场镜头实际持续 ${shotDuration.toFixed(3)} 秒（含驻留），超过 ${OPENING_MAX_SHOT_SEC} 秒；须依据真实字级时间戳在自然短句处重新编排，目标约 ${OPENING_TARGET_SHOT_SEC} 秒。不能截断语义、加速模板或仅缩短声明时长`});
       }
       const originalSec = governedOriginalDurationSec(governedCard, CATALOG);
       if (!isOpeningTemplateEligible(governedCard, CATALOG)) {
