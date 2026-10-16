@@ -47,7 +47,7 @@ export function recordPlanningWordCheck(project,{required=true}={}) {
     return {...recordNativeWordWindows(project,reveals),required:true,eventCount:reveals.events.length};
   }catch(error){
     const report={schema:'talkcraft-native-word-window-v1',required:true,passed:false,
-      issues:[{code:'NATIVE_WORD_ANCHOR_INVALID',message:error.message}],runtimeVerified:false};
+      issues:error.issues||[{code:error.code||'NATIVE_WORD_ANCHOR_INVALID',message:error.message}],runtimeVerified:false};
     fs.mkdirSync(path.join(project,'qa'),{recursive:true});
     fs.writeFileSync(path.join(project,'qa/native-word-window-check.json'),JSON.stringify(report,null,2)+'\n');
     return report;

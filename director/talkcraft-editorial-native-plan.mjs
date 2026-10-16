@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {CONTENT_ONSET_RULES} from './talkcraft-content-onset.mjs';
 
-export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。选卡 nativeFrames 必须小于等于本镜帧数，同时满足开场原卡短模板规则；不得拿不超过 3 秒代替实际镜头容量。驻留帧为 0 基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames 是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。每个原卡动作仍须完整播放一次，视觉是否合格留待实帧检查。';
+export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。选卡 nativeFrames 必须小于等于本镜帧数，同时满足开场原卡短模板规则；不得拿不超过 3 秒代替实际镜头容量。驻留帧为 0 基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames 是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。每个原卡动作仍须完整播放一次，视觉是否合格留待实帧检查。'+CONTENT_ONSET_RULES;
 
 export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason){
   if(!Number.isInteger(duration)||!Number.isInteger(nativeFrames)||duration<nativeFrames)

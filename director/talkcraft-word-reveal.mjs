@@ -7,6 +7,7 @@ import {normalizeVisibleText,isPictogram} from './talkcraft-text-occurrences.mjs
 import * as nativeTiming from './talkcraft-native-timing.mjs';
 import {isNativePresentation,nativeRevealUnits,checkNativeGovernance} from './talkcraft-native-governance.mjs';
 import {nativeBridgeAuditPoints} from './talkcraft-native-bridge-audit.mjs';
+import {checkContentOnset} from './talkcraft-content-onset.mjs';
 import {validateWordRuntime,validateTextBindings} from './talkcraft-word-runtime-validation.mjs';
 import {installPresentationSkin} from './talkcraft-presentation-install.mjs';
 const wordTimingFile=project=>{
@@ -109,6 +110,11 @@ export function compileWordReveals(project,{write=true}={}) {
   for(const e of events.filter(e=>e.deferredTo)){
     const follow=events.find(x=>x.id===e.deferredTo);
     if(!follow||normalizeText(follow.text)!==normalizeText(e.text)||follow.globalFrame!==e.globalFrame)throw Error('延期文字必须在后拍同锚词展示:'+e.id);
+  }
+  if(native){
+    const onset=checkContentOnset(read(beatsFile),{fps:plan.fps,events},{project});
+    if(write){fs.mkdirSync(path.join(project,'qa'),{recursive:true});fs.writeFileSync(path.join(project,'qa/content-onset-check.json'),JSON.stringify(onset,null,2)+'\n');}
+    if(!onset.passed){const error=new Error(onset.issues.map(i=>`[${i.code}] ${i.message}`).join('\n'));error.code='CONTENT_ONSET_GAP';error.issues=onset.issues;throw error;}
   }
   const binding={plan:sha(planFile),timing:sha(timingFile),...(native?{nativeShots:sha(beatsFile),presentation:sha(path.join(remotion,'native-presentation.json'))}:{visualBeats:sha(beatsFile)}),
     audio:sha(path.join(project,'audio/full.mp3')),wordEvidence:sha(evidenceFile)};
