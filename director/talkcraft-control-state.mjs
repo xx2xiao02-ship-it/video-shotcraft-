@@ -1,4 +1,5 @@
 import {isVisualDiagnosticFailure} from './talkcraft-acceptance-policy.mjs';
+import {MANAGED_WORKFLOW_NODES,workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
 // One recoverable stage contract shared by the console's status readers.
 const completed = (run, name) => ({
   'talkcraft-bootstrap':run.inputReady,
@@ -25,6 +26,16 @@ const completed = (run, name) => ({
 
 export function currentFailure(run, report) {
   if (!report || isVisualDiagnosticFailure(report) || completed(run, report.task?.name)) return null;
+  // A human approval gate is explicit evidence of the real frontier. A
+  // failure recorded by a later node stays on disk as history, but must not
+  // block that earlier approval after storyboard/sample inputs were revised.
+  const approvalFrontier=run.planningPassed===true&&run.storyboardApproved===false?'storyboard-review':
+    run.sample===true&&run.sampleApproved===false?'sample':null;
+  if(approvalFrontier){
+    const currentIndex=MANAGED_WORKFLOW_NODES.findIndex(node=>node.id===approvalFrontier);
+    const failedIndex=MANAGED_WORKFLOW_NODES.findIndex(node=>node.id===workflowNodeForTask(report.task?.name));
+    if(failedIndex>currentIndex)return null;
+  }
   const active = run.activeTask;
   // A newer retry supersedes the current failure display, while the report stays on disk.
   if (active && ['starting','running','stopping'].includes(active.status) &&

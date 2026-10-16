@@ -91,6 +91,43 @@ export function recordReviewedCandidates(project,options={}) {
   return result;
 }
 
+// The matcher keeps a small ranked list. A formally selected card may fall
+// outside that list even though it is reviewed and has an exact semantic match.
+// Add only that exact evidence back; waivers and free-text rationales never
+// create membership.
+export function reconcileReviewedSelectionCandidates(project,index,{allowOpeningCard=()=>true}={}) {
+  const shots=read(path.join(project,'remotion/shots.json'));
+  const semantics=read(path.join(project,'semantics.json'));
+  const file=path.join(project,'qa/card-candidates.json');
+  const candidates=read(file);
+  const cards=new Map((index?.cards||[]).map(card=>[card.slug,card]));
+  const shotSemantics=new Map();
+  for(const sentence of semantics?.sentences||[]){
+    const id=String(sentence?.shot||'').toLowerCase();
+    if(!id)continue;
+    const set=shotSemantics.get(id)||new Set();
+    for(const semantic of sentence?.sem||[])set.add(semantic);
+    shotSemantics.set(id,set);
+  }
+  const added=[];
+  for(const shot of shots||[]){
+    const id=String(shot?.id||'').toLowerCase(),card=cards.get(shot?.shotCard);
+    if(!card||Number(shot?.start??shot?.startSec)<8&&!allowOpeningCard(card.slug))continue;
+    const exact=[...(shotSemantics.get(id)||[])].filter(value=>card.semantics?.includes(value));
+    if(!exact.length)continue;
+    const entry=candidates[id]||candidates[shot.id]||(candidates[id]={media:'文',semantics:[...shotSemantics.get(id)||[]],waived:{},candidates:{}});
+    entry.candidates ||= {};
+    const already=Object.values(entry.candidates).some(list=>Array.isArray(list)&&list.some(item=>item?.slug===card.slug));
+    if(already)continue;
+    const semantic=exact[0];
+    entry.candidates[semantic] ||= [];
+    entry.candidates[semantic].push({slug:card.slug,score:0,energy:card.energy||'中',why:['正式选卡与当前语义精确匹配']});
+    added.push({shotId:id,semantic,slug:card.slug});
+  }
+  if(added.length)fs.writeFileSync(file,JSON.stringify(candidates,null,2)+'\n');
+  return {added};
+}
+
 export function assertReviewedSelection(project,options={}) {
   const reviewed=loadReviewedTemplates(options),shots=read(path.join(project,'remotion/shots.json'));
   const candidates=read(path.join(project,'qa/card-candidates.json'));

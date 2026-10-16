@@ -1,5 +1,5 @@
 import {ACCEPTANCE_POLICY,assertMachineTextRules,bindMachineVideo,assertMachineVideo,inspectTechnicalMedia,queueHumanVisualReview,humanVisualApprovalCurrent} from './talkcraft-acceptance-policy.mjs';
-import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection} from './talkcraft-reviewed-templates.mjs';
+import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection,reconcileReviewedSelectionCandidates} from './talkcraft-reviewed-templates.mjs';
 import {alignExistingVoice,recoverExistingAlignment} from './talkcraft-word-alignment.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
 import {recordScaffoldResult} from './talkcraft-scaffold-state.mjs';
@@ -509,22 +509,35 @@ function runTalkcraftStageInternal(stage, runId) {
       run(PYTHON,[path.join(ROOT,'director','talkcraft-card-match-trace.py'),
         '--upstream-script',script('card_match.py'),'--trace-out',path.join(project,'qa/card-candidate-trace.json'),'--project',project,
         '--index',indexFile,'--out','qa/card-candidates.md','--json','qa/card-candidates.json'],project);
-      return {indexFile,governed,openingFilter:filterOpeningShortTemplateCandidates(project,governed)};
+      return {indexFile,index,governed,openingFilter:filterOpeningShortTemplateCandidates(project,governed)};
     };
     let generated=generate();
+    let reconciled=reconcileReviewedSelectionCandidates(project,generated.index,
+      {allowOpeningCard:cardId=>isOpeningTemplateEligible(cardId,generated.governed)});
     const cardAdjustments=applyAutomaticCardChoices(project);
     adjustments.push(...cardAdjustments);
-    if(cardAdjustments.length)generated=generate();
+    if(cardAdjustments.length){
+      generated=generate();
+      reconciled=reconcileReviewedSelectionCandidates(project,generated.index,
+        {allowOpeningCard:cardId=>isOpeningTemplateEligible(cardId,generated.governed)});
+    }
     const binding=normalizeTalkcraftBindings(project);
     const sourceFile=path.join(project,'remotion','src','shots.ts');
-    const sourceSync=existsSync(sourceFile)?syncTalkcraftShotSource(project):{deferred:true,shots:0};
+    let sourceSync={deferred:true,shots:0,reason:'渲染源码由第10节点在分镜审核后生成'};
+    if(existsSync(sourceFile))try{sourceSync=syncTalkcraftShotSource(project);}
+    catch(error){
+      // Candidate selection owns planning data only. A changed template makes
+      // the previous render source stale; rebuilding it belongs to scaffold.
+      if(!/模板已改变/u.test(String(error.message||error)))throw error;
+      sourceSync={deferred:true,shots:0,stale:true,reason:String(error.message||error)};
+    }
     assertTalkcraftTemplateGovernance(project);
     if(state.wordTimingReady)prepareNativeProduction(project,SKILL);
     recordReviewedCandidates(project,{skillRoot:SKILL});
     assertReviewedSelection(project,{skillRoot:SKILL});
     return {project,artifact:'qa/card-candidates.md',indexFile:generated.indexFile,
       governedCardCount:generated.governed.cards.length,openingFilter:generated.openingFilter,
-      adjustments,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};
+      adjustments,reconciled:reconciled.added,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};
   }  if (stage === 'preflight'||stage==='planning-check') {
     const planning=stage==='planning-check';
     const state=readTalkcraftStatus(ROOT,runId);

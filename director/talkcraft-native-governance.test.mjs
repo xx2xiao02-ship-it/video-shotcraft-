@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {checkNativeGovernance,nativeGovernanceStatus,validateNativeTimeline,nativeFrameAt} from './talkcraft-native-governance.mjs';
+import {checkNativeGovernance,governedVisibleText,nativeGovernanceStatus,validateNativeTimeline,nativeFrameAt} from './talkcraft-native-governance.mjs';
 import {readTalkcraftStatus,recordPreflightResult} from './talkcraft-status.mjs';
 import {outputFrameForNativeFrame} from './talkcraft-native-time-map.mjs';
 const base=path.resolve('tmp');fs.mkdirSync(base,{recursive:true});
@@ -26,4 +26,20 @@ test('无效对象生成明确检查失败，不能让页面状态读取崩溃',
  const f=fixture(t);f.put('remotion/native-presentation.json',{schema:'talkcraft-native-presentation-v1',fps:30,shots:[null,{...f.row,textFields:[null],timeline:[null]}]});
  f.put('remotion/word-reveal-plan.json',{...f.words,events:[null,...f.words.events]});
  const report=checkNativeGovernance(f.project);assert.equal(report.passed,false);assert.ok(report.issues.some(i=>i.code==='NATIVE_PLAN_INVALID'));
+});
+
+test('金句卡配置关键词色时必须有原生强调标记',t=>{
+ const f=fixture(t);
+ const putLines=lines=>f.put('remotion/shots.json',[{id:'s01',start:0,end:10,shotCard:'quote-card',templateParams:{cardProps:{lines,kwColor:'#1a4a8a'}}}]);
+ f.put('remotion/native-presentation.json',{schema:'talkcraft-native-presentation-v1',fps:30,shots:[{...f.row,cardId:'quote-card',textFields:[{key:'lines',visibility:'visible'}]}]});
+ f.put('remotion/word-reveal-plan.json',{...f.words,events:[{...f.words.events[0],field:'lines'}]});
+ putLines('消费预期');
+ assert.ok(checkNativeGovernance(f.project).issues.some(i=>i.code==='NATIVE_KEYWORD_UNUSED'));
+ putLines('**消费预期**');
+ assert.ok(!checkNativeGovernance(f.project).issues.some(i=>i.code==='NATIVE_KEYWORD_UNUSED'));
+});
+
+test('锚点词 DSL 只按可见文案校验，不要求时间与样式列出现在画面',()=>{
+ const card={policy:{dsl:{stepsDsl:{syntax:'anchored-words'}}}};
+ assert.equal(governedVisibleText(card,'stepsDsl','经济冷了|1.2|#fff\n央行降息|2.4|#000'),'经济冷了央行降息');
 });

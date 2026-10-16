@@ -6,6 +6,12 @@ import {READABILITY_LAYOUT} from './talkcraft-presentation-skin.mjs';
 export {nativeFrameAt} from './talkcraft-native-time-map.mjs';
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+export const governedVisibleText=(card,key,value)=>{
+  const syntax=card?.policy?.dsl?.[key]?.syntax;
+  if(syntax==='anchored-words')return clean(String(value??'').split(/\r?\n/u)
+    .map(line=>line.split(/[|｜]/u)[0].trim()).filter(Boolean).join(''));
+  return clean(value);
+};
 // DSL-backed text fields (for example cursor-actor-demo.rows) contain
 // separators that are structural, not visible copy. Normalize them before
 // comparing word events with rendered content so the governance check does
@@ -72,6 +78,8 @@ export function checkNativeGovernance(project,{catalog,write=false}={}) {
     const ids=new Set();
     for(const row of plan.shots){if(ids.has(row.shotId))add('NATIVE_PLAN_DUPLICATE',row.shotId,'镜头展示计划重复');ids.add(row.shotId);}
     for(const unit of units){
+      if(unit.card==='quote-card'&&Object.hasOwn(unit.props,'kwColor')&&!/\*\*[^*]+\*\*/u.test(String(unit.props.lines||'')))
+        add('NATIVE_KEYWORD_UNUSED',unit.id,'金句卡设置了关键词色但没有 **词** 标记，强调配置不会实际显示');
       const row=plan.shots.find(r=>r.shotId===unit.id),card=catalog?.cards.find(c=>c.cardId===unit.card);
       if(!row){add('NATIVE_SHOT_PLAN_REQUIRED',unit.id,'镜头缺少展示计划');continue;}
       if(row.cardId!==unit.card||row.startFrame!==unit.startFrame||row.endFrame!==unit.endFrame)
@@ -94,7 +102,7 @@ export function checkNativeGovernance(project,{catalog,write=false}={}) {
         if(field.visibility==='hidden'){
           if(!field.reason)add('NATIVE_TEXT_EXCLUSION',unit.id,'隐藏辅助文字必须有编导理由：'+field.key);
         }else if(field.visibility==='visible'){
-          const content=clean(unit.props[field.key]),coverage=events.filter(e=>e.field===field.key).map(e=>clean(e.text)).join('');
+          const content=governedVisibleText(card,field.key,unit.props[field.key]),coverage=events.filter(e=>e.field===field.key).map(e=>clean(e.text)).join('');
           if(content&&content!==coverage)add('NATIVE_WORD_COVERAGE',unit.id,'文字落点未完整且按序覆盖内容字段：'+field.key);
         }else add('NATIVE_TEXT_FIELD',unit.id,'文字字段没有明确可见性：'+field.key);
       }

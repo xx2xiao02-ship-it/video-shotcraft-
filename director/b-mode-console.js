@@ -908,6 +908,7 @@ async function startTalkcraft() {
     const response = await fetch('/api/talkcraft/create', {method:'POST', body:form});
     const started = await response.json();
     if (!response.ok || !started.ok) throw new Error(started.error || 'TalkCraft 无法启动');
+    if (started.factRevisionApplied) notify('已自动采用此前批准的事实校正文案；将按校正版生成配音和时间轴。');
     talkcraftRunId = started.runId;
     localStorage.setItem('shotcraft-b-talkcraft-run', talkcraftRunId);
     go('results');

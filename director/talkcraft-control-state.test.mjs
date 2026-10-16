@@ -37,6 +37,19 @@ test('completed stage artifacts suppress obsolete failures',()=>{
   assert.equal(currentFailure(run,{task:{name:'talkcraft-editorial'}}),null);
 });
 
+test('后续节点旧失败在前置节点重新成为当前节点时只保留为历史记录',()=>{
+  const revised={inputReady:true,wordTimingReady:true,semanticPassed:true,shotbook:true,
+    mediaPreparationPassed:true,candidatesReady:true,planningPassed:true,storyboardApproved:false,
+    digitalHumanGenerationPlanned:true,digitalHuman:{required:true,ready:true},mediaPreflightPassed:false,
+    preflightPassed:false,scaffoldReady:false,sample:false,sampleApproved:false,final:false,
+    qaPassed:false,reviewPassed:false,delivery:false};
+  const report={code:'TASK_FAILED',cause:'旧机器质检失败',task:{id:122,name:'talkcraft-qa'}};
+  assert.equal(currentFailure(revised,report),null);
+  const state=talkcraftControlState(revised,report);
+  assert.equal(state.nextStage,'approve-storyboard');
+  assert.equal(state.lastFailure,null);
+});
+
 test('原③素材体检失败不允许继续分镜；真实体检通过后才能解除该失败',()=>{
   const failure={code:'LOCAL_EXECUTION_FAILED',cause:'缺少本次口型视频',task:{name:'talkcraft-media-preflight'}};
   const blocked=talkcraftControlState({...run,shotbook:false,mediaPreflightPassed:false},failure);
