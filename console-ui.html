@@ -1227,6 +1227,12 @@
       <div id="production-music-list"></div>
     </div>
   </section>
+  <section class="brief-card" id="b-caption-style-card" hidden>
+    <div class="brief-title">字幕样式 · 关键词色块字幕</div>
+    <p>本模式统一使用此样式，与镜头模板分别选择。关键词按已有字级锚点强调；没有明确关键词的句子保持同款正文，不自动编造重点。</p>
+    <div id="b-caption-theme-preview" aria-label="字幕静态样式示意" hidden style="background:var(--caption-surface);color:var(--caption-text);padding:22px;text-align:center;font-size:26px;font-weight:600">你有没有发现一个<span style="display:inline-block;background:var(--caption-panel);color:var(--caption-keyword);font-weight:800;padding:.04em .18em;border-radius:.14em;margin:0 .36em">很有意思的现象</span></div>
+    <small>上方为静态样式示意，实际字幕与音频同步效果以当前正式样片为准。</small>
+  </section>
   <section class="brief-card" id="subtitle-v1-card" hidden>
     <div class="brief-title">字幕设置</div>
     <div class="subtitle-layout">
@@ -4328,6 +4334,12 @@ async function refreshBScriptPreview(runId, run, inputRevision) {
     const plan = await response.json();
     if (requestId !== bScriptPreviewFetchSeq || inputRevision !== bInputRevision) return;
     if (!response.ok || !plan.ok || !Array.isArray(plan.shots)) throw new Error(plan.error || "分镜脚本读取失败");
+    const captionPreview = $("#b-caption-theme-preview");
+    captionPreview.hidden = !plan.captionTheme;
+    if (plan.captionTheme) {
+      for (const [slot, token] of Object.entries({surface:'surface',text:'text',panel:'accentPrimary',keyword:'captionColor'}))
+        captionPreview.style.setProperty(`--caption-${slot}`, plan.captionTheme[token]);
+    }
     if (!plan.shots.length) { state.textContent = "等待生成分镜"; return; }
     const governanceIssues = parseStoryboardGovernanceIssues(run);
     const issueByShot = new Map();
@@ -5682,6 +5694,7 @@ function switchView(name) {
     setProductionStartState(productionStartState);
   }
   $("#subtitle-v1-card").hidden = name !== "produce" || activeProductionMode !== "A";
+  $("#b-caption-style-card").hidden = name !== "produce" || activeProductionMode !== "B";
   if (name === "produce" && activeProductionMode === "A") renderSubtitleSettings();
   if (activeProductionMode === "B") {
     $("#preview-card").style.display = "none";

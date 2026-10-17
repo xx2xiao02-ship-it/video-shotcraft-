@@ -6,8 +6,19 @@ import {fileURLToPath} from 'node:url';
 // shot/card parameters, timing, theme settings and upstream card sources.
 export function installPresentationSkin(project){
   const source=path.dirname(fileURLToPath(import.meta.url)),src=path.join(project,'remotion/src');
-  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs'])
+  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs'])
     fs.copyFileSync(path.join(source,name),path.join(src,name));
+  fs.copyFileSync(path.join(source,'talkcraft-keyword-caption.tsx'),path.join(src,'KeywordCaption.tsx'));
+  const adapter=path.join(src,'talkcraft-template-adapter.tsx');
+  if(fs.existsSync(adapter)){
+    let code=fs.readFileSync(adapter,'utf8');
+    const old='const props = {...params.cardProps as Record<string,unknown>};';
+    if(code.includes(old)){
+      code="import {captionCardProps} from './talkcraft-caption-style.mjs';\nimport {THEME} from './theme';\n"+code;
+      code=code.replace(old,'const props = captionCardProps(shot.shotCard,params.cardProps as Record<string,unknown>,THEME);');
+      fs.writeFileSync(adapter,code);
+    }
+  }
   const scene=path.join(src,'scenes/scene-shared.tsx');
   if(fs.existsSync(scene)){
     let code=fs.readFileSync(scene,'utf8');
@@ -24,12 +35,21 @@ export function installPresentationSkin(project){
   const subtitles=path.join(src,'Subtitles.tsx');
   if(fs.existsSync(subtitles)){
     let code=fs.readFileSync(subtitles,'utf8');
+    const styledReturn='return line && !cardOwnsNarrationCaption(shot,line.text) ? <SubtitleLine text={line.text} /> : null;';
     const captionReturn='return line ? <SubtitleLine text={line.text} /> : null;';
     if(code.includes(captionReturn)&&code.includes('const now=frame/fps;')){
       code="import {cardOwnsNarrationCaption} from './talkcraft-presentation-skin.mjs';\nimport {SHOTS} from './shots';\n"+code;
       code=code.replace(captionReturn,"const shot=SHOTS.find(s=>now>=s.startSec&&now<s.startSec+s.durationSec);\n  return line && !cardOwnsNarrationCaption(shot,line.text) ? <SubtitleLine text={line.text} /> : null;");
       fs.writeFileSync(subtitles,code);
     }
+    if(code.includes(styledReturn)){
+      code="import {KeywordCaption} from './KeywordCaption';\n"+code;
+      code=code.replace(styledReturn,'return line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null;');
+      fs.writeFileSync(subtitles,code);
+    }
+    code=code.replace("import {KeywordCaption,CaptionTheme} from './KeywordCaption';","import {KeywordCaption} from './KeywordCaption';")
+      .replace('return <><CaptionTheme />{line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null}</>;','return line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null;');
+    fs.writeFileSync(subtitles,code);
     const old="color:'var(--sc-caption-color, var(--sc-text))', background:'color-mix(in srgb, var(--sc-surface) 76%, transparent)'";
     if(code.includes(old)){
       code="import {subtitleSkin} from './talkcraft-presentation-skin.mjs';\nimport {THEME} from './theme';\n"+code;

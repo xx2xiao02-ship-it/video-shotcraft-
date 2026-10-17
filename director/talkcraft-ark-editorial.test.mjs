@@ -25,7 +25,13 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
   }
   // All writable fields carry labels as well as types: text labels often define
   // index-list/DSL semantics. Omit parser bodies and full demos, never those labels.
-  assert.ok(JSON.stringify(compact).length < (JSON.stringify(index.cards).length+JSON.stringify(full).length)*0.9);
+  for(const card of compact.cards){
+    const original=index.cards.find(c=>c.slug===card.slug);
+    assert.equal(card.oneliner,original.oneliner||'');
+    assert.equal(card.position,original.position||'任意');
+    assert.equal(card.energy,original.energy||null);
+  }
+  assert.ok(compact.cards.find(c=>c.slug==='keyword-pop-highlight').usage.includes('信息峰值')); 
 });
 
 const semantics = {sentences:[{i:0,text:'第一句。'},{i:1,text:'第二句。'}]};

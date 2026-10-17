@@ -440,7 +440,10 @@ const apis = {
       const shots = fs.existsSync(shotsFile) ? JSON.parse(fs.readFileSync(shotsFile, 'utf8')) : [];
       const sentences = fs.existsSync(semanticFile) ? JSON.parse(fs.readFileSync(semanticFile, 'utf8')).sentences || [] : [];
       const candidates = fs.existsSync(candidateFile) ? JSON.parse(fs.readFileSync(candidateFile, 'utf8')) : {};
-      return sendJson(res, {ok:true, shots:shots.map(shot => ({...shot,
+      const sourceFile = path.join(project, 'source-run.json');
+      const source = fs.existsSync(sourceFile) ? JSON.parse(fs.readFileSync(sourceFile, 'utf8')) : {};
+      const captionTheme = source.themeSnapshot ? normalizeTheme(source.themeSnapshot).tokens : null;
+      return sendJson(res, {ok:true, captionTheme, shots:shots.map(shot => ({...shot,
         candidates: candidates?.[shot.id]?.candidates || {},
         sentences:sentences.filter(sentence => sentence.shot === shot.id).map(sentence =>
           ({text:sentence.text, sem:sentence.sem, weight:sentence.weight}))}))});
