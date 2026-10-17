@@ -1,3 +1,4 @@
+import {createTalkcraftStatusReader} from './director/talkcraft-status-reader.mjs';
 // Video ShotCraft console server
 import http from "node:http";
 import {readShotPreview,shotPreviewVersion} from './director/talkcraft-shot-preview.mjs';
@@ -54,6 +55,7 @@ import {readRenderProgress} from './director/render-runtime.mjs';
 import {assertProductionOutputDirectory} from './director/governance-output-guard.mjs';
 
 const ROOT = process.env.SHOTCRAFT_ROOT || path.dirname(fileURLToPath(import.meta.url));
+const statusReader=createTalkcraftStatusReader(ROOT);
 const taskExecution = await probeTaskExecution({cwd:ROOT});
 const PORT = Number(process.env.PORT || 8765);
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, "template", "out");
@@ -506,7 +508,7 @@ const talkcraftAuto = createTalkcraftAutoAdvance({port:PORT,
     fs.writeFileSync(file + '.tmp', JSON.stringify(record, null, 2));
     fs.renameSync(file + '.tmp', file);
   },
-  readRun:runId => withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId)),
+  readRun:async runId => withTalkcraftWorkbench(await statusReader.read(runId)),
   queueStage:queueTalkcraftStage,
 });
 async function approveSampleAndContinue(runId, expectedHash, method='manual') {
@@ -628,12 +630,12 @@ const apis = {
     try { return sendJson(res, {ok: true, settings: writeSubtitleSettings(ROOT, await readBody(req))}); }
     catch (error) { return sendJson(res, {ok: false, error: String(error.message || error)}); }
   },
-  "GET /api/talkcraft/latest": (req, res) => {
+  "GET /api/talkcraft/latest": async (req, res) => {
     const runId = latestTalkcraftRun(ROOT);
-    return sendJson(res, {ok:true, run:runId ? withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId)) : null});
+    return sendJson(res, {ok:true, run:runId ? withTalkcraftWorkbench(await statusReader.read(runId)) : null});
   },
-  "GET /api/talkcraft/status": (req, res, url) => {
-    try { return sendJson(res, {ok:true, run:withTalkcraftWorkbench(readTalkcraftStatus(ROOT, url.searchParams.get('id') || ''))}); }
+  "GET /api/talkcraft/status": async (req, res, url) => {
+    try { return sendJson(res, {ok:true, run:withTalkcraftWorkbench(await statusReader.read(url.searchParams.get('id') || ''))}); }
     catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "GET /api/talkcraft/plan": (req, res, url) => {
@@ -991,12 +993,13 @@ const apis = {
       return sendJson(res, {ok:true, workbenchUrl:workbench.url});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
-  "GET /api/talkcraft/video": (req, res, url) => {
+  "GET /api/talkcraft/video": async (req, res, url) => {
     try {
       const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
       const kind = url.searchParams.get('kind') || 'sample';
+      let verifiedState;
       if (['final','delivery'].includes(kind)) {
-        const state = withTalkcraftWorkbench(readTalkcraftStatus(ROOT,url.searchParams.get('id') || ''));
+        const state = verifiedState = withTalkcraftWorkbench(await statusReader.read(url.searchParams.get('id') || ''));
         if (!state.provenance.verified || !state.final || (kind==='delivery' && !state.delivery)) {
           res.writeHead(409,{'Content-Type':'application/json'});
           res.end(JSON.stringify({ok:false,code:'OFFICIAL_VIDEO_NOT_VERIFIED',error:'正式成片链路未通过核验；候选文件只能用于审查'}));return;
@@ -1004,7 +1007,7 @@ const apis = {
       }
       const names = {sample:'preview/s01.mp4', 'sample-2m':'sample-2m.mp4', delivery:'delivery.mp4'};
       if (!['sample', 'sample-2m', 'final', 'delivery','repair'].includes(kind)) throw new Error('Invalid TalkCraft video kind');
-      if (kind === 'delivery' && !readTalkcraftStatus(ROOT, url.searchParams.get('id') || '').delivery) {
+      if (kind === 'delivery' && !verifiedState.delivery) {
         res.writeHead(404); res.end('Delivery video not ready'); return;
       }
       const outDir = path.join(project, 'remotion', 'out');
@@ -1012,7 +1015,7 @@ const apis = {
       if (kind==='repair') file=repairVideoForReview(project);
       if (kind === 'final') {
         // 交付版生成后，兼容旧页面缓存的 final 链接，统一打开可交付文件。
-        if (readTalkcraftStatus(ROOT, url.searchParams.get('id') || '').delivery) {
+        if (verifiedState.delivery) {
           file = path.join(outDir, 'delivery.mp4');
         }
       }
