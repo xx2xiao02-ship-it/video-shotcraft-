@@ -825,15 +825,11 @@ function runTalkcraftStageInternal(stage, runId) {
     if (sfxSoloCurrent(project)) {
       throw new Error('Existing SFX-only track was preserved');
     }
-    const cli = path.join(SKILL, 'runtime', 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
-    if (!existsSync(cli)) throw new Error('TalkCraft runtime is not installed');
     const isolated = prepareSfxSoloProject(project, SKILL);
     const temporary = path.join(isolated.staging, 'sfx-solo.wav');
     const browser = localBrowserArgs()[1];
-    run('node', [cli, 'render', 'src/index.ts', 'Main', temporary,
-      '--codec=wav', '--props={"sfxSolo":true,"audioOnly":true}',
-      '--concurrency=4',
-      ...(browser ? [`--browser-executable=${browser}`] : [])], isolated.staging);
+    run('node', [path.join(ROOT,'director/talkcraft-wav-render.mjs'),
+      isolated.staging,SKILL,temporary,browser || ''], isolated.staging);
     const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-show_streams','-show_format','-of','json',temporary],{encoding:'utf8'}));
     const expected = JSON.parse(readFileSync(path.join(project,'source-run.json'),'utf8')).totalFrames / 30;
     if (!probe.streams.some(s=>s.codec_type==='audio') || probe.streams.some(s=>s.codec_type==='video') ||
