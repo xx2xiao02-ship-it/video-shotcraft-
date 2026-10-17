@@ -16,7 +16,7 @@ test('线上搜索只产候选，CC BY肖像不得进入免署名池',async()=>{
  const result=await discoverMaterialSources('Robert Hall',{fetchImpl:async url=>({ok:true,json:async()=>url.includes('commons')?{query:{pages:{1:{title:'File:Hall',imageinfo:[{descriptionurl:'https://commons.wikimedia.org/wiki/File:Hall',url:'https://upload.wikimedia.org/hall.jpg',extmetadata:{LicenseShortName:{value:'CC BY-SA 4.0'}}}]}}}}:{query:{pages:{2:{title:'Robert Hall',extlinks:[{'*':'https://www.stanford.edu/'}]}}}}})});
  assert.equal(result.accepted,false);assert.equal(result.candidates.find(c=>c.license).licenseEligible,false);assert.equal(result.candidates.find(c=>c.officialVerified===false).status,'source-lead-only');
 });
-test('提供方失败不伪造空搜索成功，两个源都留下错误',async()=>{const r=await discoverMaterialSources('Hall',{fetchImpl:async()=>({ok:false,status:403})});assert.equal(r.errors.length,2);assert.equal(r.candidates.length,0);});
+test('提供方失败不伪造空搜索成功，中文和英文及共享库三个源都留下错误',async()=>{const r=await discoverMaterialSources('Hall',{fetchImpl:async()=>({ok:false,status:403})});assert.equal(r.errors.length,3);assert.equal(r.candidates.length,0);});
 test('未配置视频源不发请求，不泄露凭据',async()=>{let calls=0;const r=await searchBackgroundVideos('city',{env:{},fetchImpl:()=>{calls++;}});assert.equal(calls,0);assert.equal(r.errors.length,2);});
 test('双源背景搜索筛选实际1080素材，日志没有API key',async()=>{
  const r=await searchBackgroundVideos('city',{env:{PEXELS_API_KEY:'secret-test'},fetchImpl:async()=>({ok:true,json:async()=>({videos:[{id:1,url:'https://pexels.com/video/1',duration:10,video_files:[{width:1920,height:1080,link:'https://videos.pexels.com/1.mp4'}]}]})})});

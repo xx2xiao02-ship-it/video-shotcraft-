@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {MATERIAL_POLICY_VERSION,MATERIAL_POLICY_RULES,checkMaterialPolicy} from './talkcraft-material-policy.mjs';
 import {CORE_PERSON_RULES,checkCorePersonDisplays} from './talkcraft-core-person.mjs';
 
-export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；仅使用原卡公开且经核对的底色/媒体能力，实色遮挡时重选卡，禁止CSS抹底或缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,reason}],graphicIntent,pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES;
+export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；仅使用原卡公开且经核对的底色/媒体能力，实色遮挡时重选卡，禁止CSS抹底或缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,queryZh,reason}],graphicIntent,pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES+MATERIAL_POLICY_RULES;
 
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
@@ -18,9 +19,11 @@ export function materialDemand({shots,semantics,index}) {
     const needs=[...new Set(sentences.flatMap(s=>s.need||[]))];
     const entities=[...new Set(sentences.flatMap(s=>s.entities||[]))];
     const category=cards.get(shot.shotCard)?.category||'未分类';
+    const p=shot.templateParams||{};
+    const hasSourceDisplay=['evidence','subject'].includes(p.materialRole)&&!!p.materialSrc||Object.entries(p.cardProps||{}).some(([key,value])=>!/host/i.test(key)&&typeof value==='string'&&/\.(?:png|jpe?g|webp|gif|mp4|webm)(?:$|[?\n])/iu.test(value));
     return {shotId:shot.id,cardId:shot.shotCard,category,text:sentences.map(s=>s.text).join(''),needs,entities,
       researchKinds:[...new Set(needs.flatMap(n=>n==='身份'?['identity']:n==='量化'?['data']:n==='证据'?['evidence']:[]))],
-      considerBackground:['字幕花字','强调标注'].includes(category),
+      considerBackground:['字幕花字','强调标注'].includes(category)&&!hasSourceDisplay,
       backgroundBound:shot.templateParams?.materialRole==='background'&&!!shot.templateParams.materialSrc};
   });
 }
@@ -63,13 +66,13 @@ export function saveEditorialMaterialResearch(project,result) {
   const proposed=result.materialResearch;
   const rows=proposed.shots;
   if(!Array.isArray(rows)||rows.length!==shots.length||shots.some(s=>rows.filter(r=>r.shotId===s.id).length!==1))throw Error('编导素材规划未逐镜完整覆盖');
-  fs.writeFileSync(file,JSON.stringify({schema:'talkcraft-material-research-v1',shots:rows},null,2)+'\n',{flag:'wx'});
+  fs.writeFileSync(file,JSON.stringify({schema:'talkcraft-material-research-v1',editorialPolicy:MATERIAL_POLICY_VERSION,shots:rows},null,2)+'\n',{flag:'wx'});
   return {saved:true,shots:rows.length};
 }
 
 // Queries never upload audio, host footage, credentials or entire scripts.
 // Wikimedia is a discovery source, not proof of identity or reusable licensing.
-export async function discoverMaterialSources(query,{fetchImpl=fetch,timeoutMs=12000}={}) {
+export async function discoverMaterialSources(query,{fetchImpl=fetch,timeoutMs=12000,queryZh=query}={}) {
   const request=async(url)=>{
     const r=await fetchImpl(url,{headers:{'User-Agent':'VideoShotCraft/1.0 (editorial material research)'},signal:AbortSignal.timeout(timeoutMs)});
     if(!r.ok)throw Error(`HTTP_${r.status}`);
@@ -77,21 +80,22 @@ export async function discoverMaterialSources(query,{fetchImpl=fetch,timeoutMs=1
   };
   const params=new URLSearchParams({action:'query',format:'json',generator:'search',gsrsearch:query,gsrlimit:'5',prop:'extlinks',ellimit:'20'});
   const commons=new URLSearchParams({action:'query',format:'json',generator:'search',gsrsearch:query,gsrnamespace:'6',gsrlimit:'5',prop:'imageinfo',iiprop:'url|size|extmetadata'});
-  const results=await Promise.allSettled([
-    request('https://en.wikipedia.org/w/api.php?'+params),
-    request('https://commons.wikimedia.org/w/api.php?'+commons),
-  ]);
+  const chineseParams=new URLSearchParams(params);chineseParams.set('gsrsearch',queryZh);
+  // Chinese discovery comes first. Linked source language stays unknown until capture.
+  const chinese=await Promise.allSettled([request('https://zh.wikipedia.org/w/api.php?'+chineseParams)]);
+  const englishAndCommons=await Promise.allSettled([request('https://en.wikipedia.org/w/api.php?'+params),request('https://commons.wikimedia.org/w/api.php?'+commons)]);
+  const results=[...chinese,...englishAndCommons];
   const candidates=[],errors=[];
   results.forEach((r,i)=>{
-    const provider=i?'wikimedia-commons':'wikipedia-discovery';
+    const provider=i===2?'wikimedia-commons':i===0?'wikipedia-zh-discovery':'wikipedia-discovery';
     if(r.status==='rejected'){errors.push({provider,code:String(r.reason?.message||'NETWORK_ERROR').replace(/https?:\/\/\S+/gu,'[url]')});return;}
     for(const p of Object.values(r.value.query?.pages||{})){
-      if(i){for(const info of p.imageinfo||[]){
+      if(i===2){for(const info of p.imageinfo||[]){
         const license=String(info.extmetadata?.LicenseShortName?.value||'').replace(/<[^>]*>/gu,'');
         candidates.push({provider,title:p.title,url:info.descriptionurl,mediaUrl:info.url,width:info.width,height:info.height,
           license,licenseEligible:/^(?:CC0|Public domain|PDM)$/iu.test(license),identityVerified:false,status:'candidate-only'});
       }}else for(const link of p.extlinks||[]){
-        const url=link['*'];if(typeof url==='string'&&/^https:\/\//u.test(url))candidates.push({provider,title:p.title,url,status:'source-lead-only',officialVerified:false});
+        const url=link['*'];if(typeof url==='string'&&/^https:\/\//u.test(url))candidates.push({provider,title:p.title,url,discoveryLanguage:i===0?'zh-CN':'en',contentLanguage:'und',status:'source-lead-only',officialVerified:false});
       }
     }
   });
@@ -189,13 +193,14 @@ export function auditMaterialResearch(project,index,{localIndex=[]}={}) {
   }
   const localBackgrounds=(plan?.shots||[]).filter(r=>r.backgroundQuery).map(r=>({shotId:r.shotId,
     candidates:rankLocalBackgrounds(r,shots.find(s=>s.id===r.shotId)||{},localIndex)}));
-  const result={schema:'talkcraft-material-research-audit-v1',demands,localBackgrounds,issues,passed:issues.length===0,sourceEvidenceAccepted:false,userAcceptance:false};
+  const policyReview=checkMaterialPolicy(plan,demands,shots);issues.push(...policyReview.issues);
+  const result={policyReview,schema:'talkcraft-material-research-audit-v1',demands,localBackgrounds,issues,passed:issues.length===0,sourceEvidenceAccepted:false,userAcceptance:false};
   write(path.join(project,'qa/material-research-audit.json'),result);return result;
 }
 export async function researchProject(project,index,{fetchImpl=fetch,refresh=false,localIndex=[]}={}) {
   const audit=auditMaterialResearch(project,index,{localIndex}),file=path.join(project,'material-research-plan.json');
   const plan=fs.existsSync(file)?read(file):{shots:[]};
-  const planSha256=createHash('sha256').update(JSON.stringify(plan)).digest('hex');
+  const planSha256=createHash('sha256').update(JSON.stringify({plan,searchPolicy:MATERIAL_POLICY_VERSION})).digest('hex');
   const cache=path.join(project,'qa','material-search-'+planSha256.slice(0,16)+'.json');
   const latestFile=path.join(project,'qa/material-search-results.json');
   if(!refresh&&fs.existsSync(latestFile)&&read(latestFile).planSha256===planSha256&&read(latestFile).completed){
@@ -212,7 +217,9 @@ export async function researchProject(project,index,{fetchImpl=fetch,refresh=fal
   // Bounded sequential groups avoid provider bursts and preserve partial progress.
   for(const query of queries){
     const person=requests.find(r=>r.query===query&&r.entityType==='person');
-    rows.push(person?{...await discoverPersonSources(person,{fetchImpl}),query}:await discoverMaterialSources(query,{fetchImpl}));
+    const discovered=await discoverMaterialSources(query,{fetchImpl,queryZh:requests.find(r=>r.query===query)?.queryZh||query});
+    if(person){const identity=await discoverPersonSources(person,{fetchImpl});rows.push({...discovered,query,candidates:[...discovered.candidates,...identity.candidates],errors:[...discovered.errors,...identity.errors]});}
+    else rows.push(discovered);
     write(path.join(project,'qa/material-search-results.json'),{schema:'talkcraft-material-search-v1',rows,completed:false});
   }
   const backgrounds=[];

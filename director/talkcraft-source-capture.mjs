@@ -36,7 +36,7 @@ export async function captureSourcePages({skillRoot,publicRoot,work,sources,env=
    try{const response=await page.goto({url:source.url,timeout:20000,options:{waitUntil:'load'}});status=response?.status()??status;}catch(e){if(!/Navigation timeout/u.test(e.message)||status!==200)throw e;}
    if(status!==200)throw Error('SOURCE_HTTP_'+status);
    await page.evaluate(()=>{const b=[...document.querySelectorAll('button,input[type=button],a')].find(e=>/^(no,? i do not accept|reject all|reject optional cookies)$/i.test(e.textContent?.trim()||e.value||''));if(b)b.click();});
-   const metadata=await page.evaluate(()=>({url:location.href,title:document.title,width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,text:document.body.innerText,headings:[...document.querySelectorAll('h1,h2,h3,p')].map(e=>{const r=e.getBoundingClientRect();return{text:e.textContent,x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height};}).filter(r=>r.width>0&&r.height>0)}));
+   const metadata=await page.evaluate(()=>({url:location.href,title:document.title,documentLanguage:document.documentElement.lang||'und',width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,text:document.body.innerText,headings:[...document.querySelectorAll('h1,h2,h3,p')].map(e=>{const r=e.getBoundingClientRect();return{text:e.textContent,x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height};}).filter(r=>r.width>0&&r.height>0)}));
    if(!new RegExp(source.expected,'iu').test(metadata.text)||/just a moment|access denied/iu.test(metadata.title))throw Error('SOURCE_CONTENT_NOT_VERIFIED');
    if(metadata.height<500||metadata.height>24000)throw Error('SOURCE_PAGE_GEOMETRY_INVALID');
    const bounds=detailBounds(metadata,source);fs.mkdirSync(output,{recursive:true});
@@ -46,7 +46,7 @@ export async function captureSourcePages({skillRoot,publicRoot,work,sources,env=
    }
    fs.writeFileSync(path.join(output,'targets.json'),JSON.stringify({...metadata,detailBounds:bounds,deviceScaleFactor:2},null,2),{flag:'wx'});
    const sha256=createHash('sha256').update(fs.readFileSync(path.join(output,'detail.png'))).digest('hex');
-   results.push({slug:source.slug,sourceUrl:source.url,captured:true,status,localPath:'pages/'+source.slug+'/detail.png',sha256,sourceCoordinates:'pages/'+source.slug+'/targets.json',licenseVerified:false,accepted:false});
+   results.push({slug:source.slug,sourceUrl:source.url,captured:true,status,localPath:'pages/'+source.slug+'/detail.png',sha256,sourceCoordinates:'pages/'+source.slug+'/targets.json',documentLanguage:metadata.documentLanguage,contentLanguage:'und',languageVerified:false,languageReason:source.languageReason||'',licenseVerified:false,accepted:false});
   }catch(e){results.push({slug:source.slug,captured:false,error:String(e.message).replace(/https?:\/\/\S+/gu,'[url]')});}finally{await page.close();}
  }}finally{await browser.close({silent:true});}
  const report=path.join(work,'source-capture-'+Date.now()+'.json');fs.writeFileSync(report,JSON.stringify({sources:results,accepted:false},null,2),{flag:'wx'});return {report,sources:results};
