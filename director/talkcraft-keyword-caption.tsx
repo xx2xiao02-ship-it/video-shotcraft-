@@ -3,10 +3,14 @@ import {AbsoluteFill,useCurrentFrame,useVideoConfig} from 'remotion';
 import reveals from '../word-reveals.json';
 import {B_CAPTION_STYLE,captionTheme,captionKeyword,captionPop} from './talkcraft-caption-style.mjs';
 import {THEME} from './theme';
+import {SHOTS} from './shots';
+import {backgroundCaptionTheme} from './talkcraft-background-presentation.mjs';
 
 export const KeywordCaption:React.FC<{line:{text:string;start:number;end:number}}>=({line})=>{
  const frame=useCurrentFrame(),{fps,width,height}=useVideoConfig();
- const colors=captionTheme(THEME);
+ const now=frame/fps;
+ const shot=SHOTS.find(s=>now>=s.startSec&&now<s.startSec+s.durationSec);
+ const colors=captionTheme(backgroundCaptionTheme(shot,THEME));
  const keyword=captionKeyword(line,reveals.events),motion=captionPop(frame/fps-(keyword?.start??Infinity));
  return <AbsoluteFill data-caption-style={B_CAPTION_STYLE.id} style={{justifyContent:'flex-end',alignItems:'center',pointerEvents:'none'}}>
   <div style={{maxWidth:'88%',marginBottom:height*.06,padding:'8px 18px',textAlign:'center',
