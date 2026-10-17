@@ -49,6 +49,8 @@ export function installPresentationSkin(project){
     }
     code=code.replace("import {KeywordCaption,CaptionTheme} from './KeywordCaption';","import {KeywordCaption} from './KeywordCaption';")
       .replace('return <><CaptionTheme />{line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null}</>;','return line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null;');
+    if(code.includes('export const phrases ='))
+      code=code.replace('cardOwnsNarrationCaption(shot,line.text)','cardOwnsNarrationCaption(shot,line.text,phrases())');
     fs.writeFileSync(subtitles,code);
     const old="color:'var(--sc-caption-color, var(--sc-text))', background:'color-mix(in srgb, var(--sc-surface) 76%, transparent)'";
     if(code.includes(old)){

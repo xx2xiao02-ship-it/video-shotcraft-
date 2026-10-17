@@ -66,10 +66,20 @@ export function subtitleSkin(theme){
 
 // This upstream card already owns the spoken caption. Suppress only an exact
 // duplicate external caption, never unrelated narration or missing card text.
-export function cardOwnsNarrationCaption(shot,text){
+export function cardOwnsNarrationCaption(shot,text,phrases=[]){
   if(shot?.shotCard!=='keyword-pop-highlight')return false;
   const p=shot.templateParams?.cardProps||{};
   const normalize=s=>String(s??'').replace(/[\s\p{P}]/gu,'');
   const card=normalize(String(p.textBefore??'')+String(p.keyword??'')+String(p.textAfter??''));
-  return Boolean(card)&&card===normalize(text);
+  const current=normalize(text);
+  if(!card||!current)return false;
+  if(card===current)return true;
+  // Multi-phrase captions may be suppressed only when the card carries the
+  // complete shot narration. A substring alone is not proof of ownership.
+  if(!Number.isFinite(shot.startSec)||!Number.isFinite(shot.durationSec))return false;
+  // Character timestamps use milliseconds; cut bounds retain sample precision.
+  const startMs=Math.round(shot.startSec*1000),endMs=Math.round((shot.startSec+shot.durationSec)*1000);
+  const lines=phrases.filter(p=>Math.round(p.start*1000)>=startMs&&Math.round(p.start*1000)<endMs);
+  return lines.some(p=>normalize(p.text)===current)&&
+    card===lines.map(p=>normalize(p.text)).join('');
 }
