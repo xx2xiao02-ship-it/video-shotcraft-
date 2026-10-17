@@ -8,6 +8,7 @@ import {nativeSampleCurrent} from './talkcraft-sample-provenance.mjs';
 import {isNativePresentation,nativeGovernanceStatus} from './talkcraft-native-governance.mjs';
 import {factReviewStatus} from './talkcraft-fact-review.mjs';
 import {editorialSubmissionState} from './talkcraft-editorial-submission.mjs';
+import {preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {assertTextContrastProof,wordRevealSourceBinding} from './talkcraft-word-reveal.mjs';
 import {summarizeWordFailures} from './talkcraft-word-runtime-validation.mjs';
 import {createHash} from 'node:crypto';
@@ -398,7 +399,9 @@ export function prepareTalkcraftStoryboardRevision(root, runId) {
   if (!existsSync(backupSemantics)) throw new Error('缺少原始语义备份，无法安全重新生成分镜');
   const revision = path.join(project, 'qa', 'storyboard-revisions', new Date().toISOString().replace(/[:.]/g, '-'));
   mkdirSync(revision, {recursive:true});
+  preserveCandidateMaterialRepairFeedback(project,revision);
   const files = ['SHOTBOOK.md', 'remotion/shots.json', 'semantic-decisions.json',
+    'material-research-plan.json','material-binding-plan.json',
     'semantics.json', 'qa/ark-editorial-response.json', 'qa/preflight-result.json',
     'qa/ark-editorial-response-before-repairs.json', 'qa/ark-design-repairs.json',
     'qa/ark-proposal-audit.json', 'qa/ark-template-design-validation.json',

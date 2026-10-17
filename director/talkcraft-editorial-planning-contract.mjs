@@ -90,11 +90,73 @@ export function saveEditorialRepairFeedback(project,proposal,audit) {
   return record;
 }
 export function currentEditorialRepairFeedback(project) {
+  // Current node 06 evidence supersedes the earlier node 04 failure list.
+  const candidateFile=path.join(project,'qa/candidate-editorial-repair.json');
+  if(fs.existsSync(candidateFile)){
+    const candidate=JSON.parse(fs.readFileSync(candidateFile,'utf8'));
+    if(candidate.schema==='talkcraft-candidate-editorial-repair-v1'&&
+      JSON.stringify(candidate.inputs)===JSON.stringify(candidateFeedbackHashes(project)))
+      return candidate.passed?null:candidate;
+  }
+  // The existing revision preparation archives shot-dependent inputs. Accept
+  // its verified snapshot only before a new storyboard has been installed.
+  const revisionFile=path.join(project,'qa/candidate-editorial-revision-feedback.json');
+  if(!fs.existsSync(path.join(project,'remotion/shots.json'))&&fs.existsSync(revisionFile)){
+    const record=JSON.parse(fs.readFileSync(revisionFile,'utf8'));
+    const base=path.resolve(project,'qa/storyboard-revisions');
+    const snapshot=path.resolve(project,record.snapshot||'.'),relative=path.relative(base,snapshot);
+    if(relative&&!relative.startsWith('..')&&!path.isAbsolute(relative)&&
+      record.schema==='talkcraft-candidate-editorial-repair-v1'&&
+      ['input.txt','aligned-sentences.json','audio/full.mp3'].every(name=>record.inputs?.[name]===candidateFeedbackHashes(project)[name])&&
+      JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot)))
+      return record.passed?null:record;
+  }
+  // A changed 06 plan must never regress to the stale 04 list for the same text.
+  if(fs.existsSync(candidateFile)||fs.existsSync(revisionFile))return null;
   const file=path.join(project,'qa/editorial-repair-feedback.json');
   if(!fs.existsSync(file))return null;
   const record=JSON.parse(fs.readFileSync(file,'utf8'));
   return record.schema==='talkcraft-editorial-repair-feedback-v1'&&
     JSON.stringify(record.inputs)===JSON.stringify(inputHashes(project))?record:null;
+}
+
+const candidateFeedbackFiles=['input.txt','aligned-sentences.json','audio/full.mp3',
+  'semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json'];
+const candidateFeedbackHashes=project=>Object.fromEntries(candidateFeedbackFiles.map(name=>{
+  const file=path.join(project,name);
+  return [name,fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null];
+}));
+export function preserveCandidateMaterialRepairFeedback(project,revision){
+  const current=currentEditorialRepairFeedback(project);
+  if(current?.schema!=='talkcraft-candidate-editorial-repair-v1')return null;
+  const base=path.resolve(project,'qa/storyboard-revisions'),relative=path.relative(base,path.resolve(revision));
+  if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('修订反馈快照必须位于本任务分镜修订目录');
+  for(const name of candidateFeedbackFiles){
+    const source=path.join(project,name);if(!fs.existsSync(source))continue;
+    const target=path.join(revision,name);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(source,target);
+  }
+  const record={...current,snapshot:path.relative(project,revision)};
+  fs.writeFileSync(path.join(project,'qa/candidate-editorial-revision-feedback.json'),JSON.stringify(record,null,2));
+  return record;
+}
+export function saveCandidateMaterialRepairFeedback(project,readiness){
+  const read=name=>JSON.parse(fs.readFileSync(path.join(project,name),'utf8'));
+  const shots=read('remotion/shots.json');
+  const failedChecks=readiness.materialIssues||[];
+  const record={schema:'talkcraft-candidate-editorial-repair-v1',stage:'candidates',
+    inputs:candidateFeedbackHashes(project),passed:readiness.passed===true&&failedChecks.length===0,
+    failedChecks,proposal:{shots,sentences:read('semantics.json').sentences,
+      materialResearch:fs.existsSync(path.join(project,'material-research-plan.json'))?read('material-research-plan.json'):null},
+    repairTargets:[...new Set(failedChecks.map(i=>i.shotId).filter(Boolean))].map(shotId=>{
+      const shot=shots.find(s=>s.id===shotId);
+      return {shotId,shotCard:shot?.shotCard,firstSentence:shot?.firstSentence,lastSentence:shot?.lastSentence,
+        checks:failedChecks.filter(i=>i.shotId===shotId)};
+    }),
+    instruction:'这是当前06素材准备后的真实失败，替代同输入的旧04失败清单。逐项核对全部108张已审卡的真实资料槽、语义及真实句边界时长，不自动选首名。保留已核验素材、真实字级时间和原口型窗口；不得把缺证据事实改为作者观点，不以搜索候选或背景代替资料。结构通过不代表素材或人审通过。新模型调用仍需单次费用授权。',
+    paidCalls:0,userAcceptance:false,createdAt:new Date().toISOString()};
+  fs.mkdirSync(path.join(project,'qa'),{recursive:true});
+  fs.writeFileSync(path.join(project,'qa/candidate-editorial-repair.json'),JSON.stringify(record,null,2));
+  return record;
 }
 
 // Feasibility is physics only. It neither ranks semantics nor chooses a card.

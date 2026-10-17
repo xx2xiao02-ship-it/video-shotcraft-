@@ -80,6 +80,10 @@ export function auditEditorialMaterialContract({shots=[],sentences=[],researchPl
       const boundFields=binding?.localPath?fields.filter(k=>typeof target?.templateParams?.cardProps?.[k]==='string'&&
         target.templateParams.cardProps[k].split('\n').some(v=>v.replace(/^remotion\/public\//u,'')===binding.localPath)):[];
       const field=binding?.field||research.displayField||boundFields[0]||(fields.length===1?fields[0]:null);
+      if(binding?.field&&research.displayField&&binding.field!==research.displayField)
+        add(shot.id,'MATERIAL_DISPLAY_FIELD_CONFLICT','资料规划与已绑定真实槽位不一致，不能自动改绑',{kind:research.kind,field:binding.field,plannedField:research.displayField});
+      if(binding?.field&&binding.localPath&&!boundFields.includes(binding.field))
+        add(shot.id,'MATERIAL_BOUND_FIELD_MISMATCH','资料记录指向的槽位没有实际绑定该文件',{kind:research.kind,field:binding.field});
       const display=row.personDisplays?.find(d=>d.bindingQuery===research.query||research.entityName&&d.entityName===research.entityName);
       if(targetId!==shot.id&&(!nonempty(binding?.displayReason||research.displayReason)||
         !concentratedDisplayAllowed(projectRoot,shot.id)||research.entityType==='person'&&display?.role!=='mention'))

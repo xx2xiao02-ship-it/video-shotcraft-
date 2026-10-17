@@ -24,6 +24,7 @@ import {readNativeTiming, writeNativeTiming, requireRenderTiming} from './talkcr
 import {applySemanticDecisions} from './talkcraft-semantic-decisions.mjs';
 import {runTalkcraftSemanticCheck} from './talkcraft-semantic-check.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
+import {saveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {scaffoldTalkcraftProject,implementNativeScenes} from './talkcraft-scaffold.mjs';
 import {recordPreflightPass, recordPreflightResult, recordPlanningResult, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
@@ -552,7 +553,9 @@ function runTalkcraftStageInternal(stage, runId) {
     adjustments.push(...materialPlan.adjustments);
     const materialResearch=auditMaterialResearch(project,JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8')),{localIndex:loadMaterialIndex(ROOT)});
     const materialIssues=[...materialContract.issues,...researchBindings.issues,...materialResearch.issues,...materialPlan.unresolved];
-    writeFileSync(path.join(project,'qa/candidate-material-readiness.json'),JSON.stringify({passed:materialIssues.length===0,materialContract,researchBindings,materialIssues,paidCalls:0},null,2));
+    const readiness={passed:materialIssues.length===0,materialContract,researchBindings,materialIssues,paidCalls:0};
+    writeFileSync(path.join(project,'qa/candidate-material-readiness.json'),JSON.stringify(readiness,null,2));
+    saveCandidateMaterialRepairFeedback(project,readiness);
     if(materialIssues.length)throw Error('选卡前真实素材规划未完成：'+materialIssues.map(i=>`${i.shotId||'全片'} ${i.code}${i.message?'：'+i.message:''}`).join('；'));
     alignNativeShotBoundaries(project);
     const generate=()=>{

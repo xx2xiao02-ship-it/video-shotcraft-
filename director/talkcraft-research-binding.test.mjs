@@ -35,6 +35,20 @@ test('正式绑定资料到原卡实际槽，继续经过原有来源校验，�
   const file=path.join(p,'remotion/shots.json'),stamp=fs.statSync(file).mtimeMs;
   prepareResearchBindings(p,catalog);assert.equal(fs.statSync(file).mtimeMs,stamp);
 });
+test('正式绑定保存准确槽位；历史缺槽记录只按已核准计划补回，不覆盖来源',t=>{
+  const {p,write,plan,entry}=fixture(t);
+  const source={...entry};delete source.field;source.reviewNote='保留历史来源核验';
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[{kind:entry.kind,query:entry.query}],bindings:[source]}]});
+  assert.equal(prepareResearchBindings(p,catalog).issues.length,0);
+  const bound=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))).shots[0].bindings[0];
+  assert.equal(bound.field,'srcFront');assert.equal(bound.reviewNote,'保留历史来源核验');
+  assert.equal(bound.sha256,entry.sha256);
+  const stamp=fs.readFileSync(path.join(p,'material-research-plan.json'),'utf8');
+  plan.bindings[0].field='srcBack';write('material-binding-plan.json',plan);
+  const dual={cards:[{cardId:'pair',policy:{media:{srcFront:'image',srcBack:'image'}}}]};
+  assert.equal(prepareResearchBindings(p,dual).issues.length,1);
+  assert.equal(fs.readFileSync(path.join(p,'material-research-plan.json'),'utf8'),stamp);
+});
 test('搜索候选没有核验授权时不能成为绑定',t=>{
   const {p,write,plan}=fixture(t);plan.bindings[0].licenseVerified=false;write('material-binding-plan.json',plan);
   assert.equal(prepareResearchBindings(p,catalog).issues.length,1);

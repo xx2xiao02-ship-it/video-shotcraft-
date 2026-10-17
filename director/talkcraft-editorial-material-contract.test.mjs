@@ -54,6 +54,16 @@ test('已绑定素材按真实槽位追溯，兼容历史binding没有field，�
   const result=auditEditorialMaterialContract(args);assert.equal(result.passed,true);
   assert.equal(result.pending.length,0);assert.equal(result.materialsVerified,false);
 });
+test('同图双槽按明确field追溯，错槽和规划冲突不能由相同文件名掩盖',()=>{
+  const args=fixture('rack-focus-pair'),row=args.researchPlan.shots[0];
+  args.shots[0].templateParams.cardProps={srcFront:'pages/shared.png',srcBack:'pages/shared.png'};
+  row.bindings=[{kind:'identity',query:row.research[0].query,field:'srcBack',localPath:'pages/shared.png'}];
+  let report=auditEditorialMaterialContract(args);
+  assert.equal(report.passed,true);assert.equal(report.checks[0].field,'srcBack');
+  row.research[0].displayField='srcFront';assert.ok(codes(args).includes('MATERIAL_DISPLAY_FIELD_CONFLICT'));
+  delete row.research[0].displayField;args.shots[0].templateParams.cardProps.srcBack='pages/different.png';
+  assert.ok(codes(args).includes('MATERIAL_BOUND_FIELD_MISMATCH'));
+});
 test('人物生成阶段只递延真实host，不要求虚构提前生成口型',()=>{
   const args=fixture('full-bleed-host');args.shots[0].subject='person';args.sentences[0].need=['强调'];args.researchPlan.shots[0].research=[];
   // Use the real card with a host/image alternative from the locked catalog.

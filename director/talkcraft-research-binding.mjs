@@ -53,12 +53,15 @@ export function prepareResearchBindings(project, catalog) {
       const previous = (row.bindings || []).filter(b => b.kind === entry.kind && b.query === entry.query);
       if (previous.some(b => b.localPath !== entry.localPath || b.sha256 !== entry.sha256))
         throw Error('已有来源记录冲突，不能自动覆盖');
-      const binding = Object.fromEntries(['kind','query','localPath','sha256','sourceUrl','sourceVerified',
+      if (previous.some(b => b.field && b.field !== entry.field))
+        throw Error('已有明确资料槽冲突，不能自动改绑');
+      const binding = Object.fromEntries(['kind','query','field','localPath','sha256','sourceUrl','sourceVerified',
         'licenseVerified','license','licenseUrl','identityReason','contentLanguage','languageReason',
         'sourceCoordinates'].filter(k => entry[k] !== undefined).map(k => [k, entry[k]]));
       props[entry.field] = entry.localPath;
       row.bindings ??= [];
       if (!previous.length) row.bindings.push(binding);
+      else for (const old of previous) old.field = entry.field;
       applied.push({shotId: shot.id, field: entry.field, localPath: entry.localPath, sha256: entry.sha256});
     } catch (error) {
       issues.push({shotId: entry.shotId, field: entry.field, code: 'REVIEWED_SOURCE_BINDING_REJECTED', message: error.message});
