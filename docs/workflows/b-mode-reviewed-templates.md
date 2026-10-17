@@ -157,7 +157,8 @@
 
 ## 数字人窄边抗锯齿与去绿（用户2026-10-17确认）
 
-- 正式入口 `createTransparentDigitalHuman` 默认使用 `narrow-aa-despill-v1`，复用既有绿幕输入，不触发 RunningHub、TTS 或模型调用。旧 `SUBJECT_PROTECTED_KEY_FILTER` 保留，先生成主体保护基底，再计算窄边，禁止静默降级为旧效果。
+- 正式入口 `createTransparentDigitalHuman` 默认使用 `narrow-aa-despill-v2`，复用既有绿幕输入，不触发 RunningHub、TTS 或模型调用。旧 `SUBJECT_PROTECTED_KEY_FILTER` 保留，仅用其中间结果取得主体保护透明遮罩，再计算窄边，禁止静默降级为旧效果。
+- 主体原色来自原始绿幕解码 RGB，不继承中间编码视频的 RGB，不对实心主体全局去绿；原有边缘去绿与4倍覆盖采样保持。最终 RGBA 必须实际转换到 BT.709 limited 的 YUV，再明确写入矩阵、原色、传递函数和范围标记；不得只补标签。输出缺少色彩契约时拒绝入库。复核同帧原素材、透明素材、编码前合成帧及导出帧，区分透明度、颜色转换与最终编码，不用调色掩盖错误转换。历史素材保留，新算法生成独立副本，样片仍需用户审核。
 - 与已认可的 `qa/matting-narrow-aa-20261017` 一致：原绿幕RGB以4倍双线性采样，绿优势度bias=6、slope=24计算透明覆盖，面积平均回原尺寸；仅在原透明轮廓邻接约1源像素范围替换alpha，实心内部与远背景保持原alpha。去绿独立处理，不加白描边、不做整体高斯羽化、不侵蚀主体、不混合前后帧。头发、手指、鞋边逐素材人工核对；同帧确定性不等于运动必然无闪烁。
 - Python由portable-runtime现有配置解析，依赖见 `director/requirements-matting.txt`；在相同Python环境安装。缺依赖明确阻断，不调用付费服务弥补。Windows打包必须包含本处理脚本及NumPy/Pillow；本轮本地验证不代表EXE发布验证。
 - 逐帧流式处理，保持原尺寸、恒定帧率和逐帧对应，拒绝变帧率输入，不更改配音或口型时钟。输出为带alpha的VP9 WebM，处理元数据记录method、samplingScale、edgeBandPixels和实际帧数。输入/基底帧数不符、子进程失败、alpha缺失或完整解码失败均阻断，不能用旧文件充数。

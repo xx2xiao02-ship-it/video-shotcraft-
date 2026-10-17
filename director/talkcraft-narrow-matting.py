@@ -6,15 +6,15 @@ import subprocess as sp
 import numpy as np
 from PIL import Image, ImageFilter
 
-METHOD = 'narrow-aa-despill-v1'
+METHOD = 'narrow-aa-despill-v2'
 
 
 def refine_frame(source, baseline):
     """Match the approved QA: 4x bilinear coverage, 1px boundary band."""
     h, w = source.shape[:2]
-    rgb = baseline[:, :, :3].copy()
-    excess = rgb[:, :, 1].astype(np.int16) - np.maximum(rgb[:, :, 0], rgb[:, :, 2])
-    rgb[:, :, 1] = np.where(excess > 2, np.maximum(rgb[:, :, 0], rgb[:, :, 2]), rgb[:, :, 1])
+    # The intermediate codec is a mask source only. Never inherit its RGB:
+    # its YUV roundtrip and missing matrix tags can shift opaque skin/clothing.
+    rgb = source.copy()
     alpha = baseline[:, :, 3]
     lo = np.asarray(Image.fromarray(alpha).filter(ImageFilter.MinFilter(3)))
     hi = np.asarray(Image.fromarray(alpha).filter(ImageFilter.MaxFilter(3)))
@@ -54,7 +54,10 @@ def render(source, baseline, output):
         ['ffmpeg','-v','error','-c:v','libvpx-vp9','-i',baseline,'-f','rawvideo','-pix_fmt','rgba','-'],
         ['ffmpeg','-v','error','-n','-f','rawvideo','-pix_fmt','rgba','-s',f'{w}x{h}',
          '-r',fps,'-i','-','-an','-c:v','libvpx-vp9','-lossless','1',
-         '-auto-alt-ref','0','-pix_fmt','yuva420p',output],
+         '-vf','scale=out_color_matrix=bt709:out_range=tv',
+         '-auto-alt-ref','0','-pix_fmt','yuva420p',
+         '-colorspace','bt709','-color_primaries','bt709','-color_trc','bt709',
+         '-color_range','tv',output],
     ]
     processes = []
     frames = 0
@@ -83,7 +86,8 @@ def render(source, baseline, output):
                 p.kill()
             p.wait()
     print(json.dumps({'method':METHOD,'frames':frames,'width':w,'height':h,'fps':fps,
-        'samplingScale':4,'edgeBandPixels':1,'temporalAveraging':False}))
+        'samplingScale':4,'edgeBandPixels':1,'temporalAveraging':False,
+        'opaqueRgbSource':'original-decoded-rgb','colorSpace':'bt709','colorRange':'tv'}))
 
 
 if __name__ == '__main__':

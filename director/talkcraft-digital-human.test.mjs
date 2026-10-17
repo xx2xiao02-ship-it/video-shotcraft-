@@ -36,7 +36,11 @@ test('主体保护抠图去除绿幕、保留主体原色并填补内部小孔',
     '-c:v','ffv1','-pix_fmt','bgr0',input]);
   const result=createTransparentDigitalHuman(input,output);
   assert.equal(result.frames,6,'透明素材必须返回实际帧数');
-  assert.equal(result.matting.method,'narrow-aa-despill-v1');
+  assert.equal(result.matting.method,'narrow-aa-despill-v2');
+  assert.equal(result.matting.opaqueRgbSource,'original-decoded-rgb');
+  const color=JSON.parse(execFileSync('ffprobe',['-v','error','-select_streams','v:0',
+    '-show_entries','stream=color_space,color_range','-of','json',output],{encoding:'utf8'})).streams[0];
+  assert.equal(color.color_space,'bt709');assert.equal(color.color_range,'tv');
   assert.equal(result.matting.temporalAveraging,false);
   assert.throws(()=>createTransparentDigitalHuman(input,output),/拒绝覆盖/);
   const rgba=execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',output,
@@ -50,7 +54,7 @@ test('主体保护抠图去除绿幕、保留主体原色并填补内部小孔',
   assert.ok(alpha(105,45)>250,'主体内部小绿孔必须闭合');
   const originalTan=pixel(sourceRgb,90,40,3);
   const protectedTan=pixel(rgba,90,40,4).slice(0,3);
-  assert.ok(protectedTan.every((value,index)=>Math.abs(value-originalTan[index])<=20),
+  assert.ok(protectedTan.every((value,index)=>Math.abs(value-originalTan[index])<=5),
     `主体核心原色必须保留：${originalTan} -> ${protectedTan}`);
 });
 

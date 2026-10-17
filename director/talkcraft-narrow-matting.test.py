@@ -34,9 +34,14 @@ class NarrowMattingTests(unittest.TestCase):
         matting.refine_frame(other,np.zeros_like(base))
         np.testing.assert_array_equal(before,matting.refine_frame(src,base))
 
-    def test_green_suppression_does_not_change_red_or_blue(self):
+    def test_intermediate_colors_cannot_modify_subject_core(self):
         src,base=self.fixture(); base[20,20,:3]=[30,36,25]
         result=matting.refine_frame(src,base)
-        np.testing.assert_array_equal(result[20,20,:3],[30,30,25])
+        np.testing.assert_array_equal(result[20,20,:3],src[20,20])
+
+    def test_opaque_green_tinted_subject_is_not_globally_despilled(self):
+        src,base=self.fixture(); src[20,20]=[90,104,95]
+        result=matting.refine_frame(src,base)
+        np.testing.assert_array_equal(result[20,20,:3],src[20,20])
 
 if __name__=='__main__': unittest.main()

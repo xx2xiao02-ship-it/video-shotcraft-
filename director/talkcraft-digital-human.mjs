@@ -48,10 +48,14 @@ export function createTransparentDigitalHuman(input, output) {
   const matting=JSON.parse(execFileSync(python,[fileURLToPath(new URL('./talkcraft-narrow-matting.py',import.meta.url)),
     '--source',input,'--baseline',baseline,'--output',candidate],{env,encoding:'utf8'}));
   const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-count_frames','-select_streams','v:0',
-    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames,nb_read_frames:stream_tags=alpha_mode','-of','json',candidate], {encoding:'utf8'}));
+    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames,nb_read_frames,color_space,color_range,color_transfer,color_primaries:stream_tags=alpha_mode','-of','json',candidate], {encoding:'utf8'}));
   const stream = probe.streams?.[0];
   if (stream?.codec_name !== 'vp9' || stream?.tags?.alpha_mode !== '1')
     throw new Error(`透明数字人素材未生成 alpha WebM：${output}`);
+  // VP9 exposes its matrix/range; this FFmpeg build does not expose WebM
+  // transfer/primaries through ffprobe even when explicitly requested.
+  if (stream.color_space !== 'bt709' || stream.color_range !== 'tv')
+    throw new Error('透明数字人色彩契约缺失：必须显式转换并标记 BT.709 limited');
   const frames=Number(stream.nb_read_frames || stream.nb_frames || 0);
   if(frames!==matting.frames || stream.width!==matting.width || stream.height!==matting.height)
     throw new Error('窄边抠图输出尺寸或帧数不一致');
