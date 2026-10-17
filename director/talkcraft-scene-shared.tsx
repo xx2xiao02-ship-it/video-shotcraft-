@@ -6,16 +6,18 @@ import type {Shot} from '../shots';
 import {renderTalkcraftTemplate} from '../talkcraft-template-adapter';
 import {THEME} from '../theme';
 import {cardStageLayout} from '../talkcraft-presentation-skin.mjs';
+import {useFilmBackground} from '../film-background';
 export const TemplateScene: React.FC<{shot:Shot}> = ({shot}) => {
   const {width,height,fps} = useVideoConfig();
   const p = shot.templateParams || {};
+  const filmBackground=useFilmBackground();
   const backdrop=backgroundPresentation(shot,THEME);
   const material = typeof p.materialSrc === 'string' ? p.materialSrc : null;
   const image = material && /\.(png|jpe?g|webp)$/iu.test(material);
   const materialPlaybackRate = Number.isFinite(Number(p.materialPlaybackRate)) && Number(p.materialPlaybackRate) > 0
     ? Number(p.materialPlaybackRate) : 1;
   if (material && !['background','subject','evidence'].includes(String(p.materialRole))) throw new Error(`镜头 ${shot.id} 未声明素材职责，禁止自动画成小窗`);
-  const skin = {bg:THEME.background,text:THEME.text,muted:THEME.textMuted,accent:THEME.accentPrimary,surface:THEME.surface,fontFamily:THEME.fontFamily,transparentBackground:false};
+  const skin = {bg:THEME.background,text:THEME.text,muted:THEME.textMuted,accent:THEME.accentPrimary,surface:THEME.surface,fontFamily:THEME.fontFamily,transparentBackground:p.materialRole!=='background'};
   const copy = {title:String(p.title || ''),body:String(p.body || ''),labels:Array.isArray(p.labels)?p.labels.map(String):[]};
   if (p.subtitlePolicy === 'visual-only') throw new Error(`镜头 ${shot.id} 使用了废弃的隐藏文字策略，请修改脚本内容或选择合适模板`);
   // Approved cardProps are the sole business content source. Narration timing
@@ -24,7 +26,7 @@ export const TemplateScene: React.FC<{shot:Shot}> = ({shot}) => {
   const layout=cardStageLayout(width,height,{separateMaterial:Boolean(material && p.materialRole !== 'background')});
   const {scale}=layout;
   const portrait = height>width;
-  return <AbsoluteFill style={{background:skin.bg,overflow:'hidden'}}>
+  return <AbsoluteFill data-film-background-kind={filmBackground.kind} style={{background:skin.transparentBackground?'transparent':skin.bg,overflow:'hidden'}}>
     {material && p.materialRole === 'background' && <ThemeFrame kind="hairline" width={width-28} height={height-28} ink={THEME.text} label="" sub="">
       {image ? <Img src={staticFile(material)} style={{width:'100%',height:'100%',objectFit:'contain'}} /> : <OffthreadVideo src={staticFile(material)} muted playbackRate={materialPlaybackRate} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}} />}
       <AbsoluteFill style={{background:backdrop.overlay}} />

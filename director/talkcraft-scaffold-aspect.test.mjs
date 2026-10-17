@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import {installWordRevealRuntime} from './talkcraft-word-reveal.mjs';
 import {randomUUID} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {scaffoldTalkcraftProject as scaffoldProject} from './talkcraft-scaffold.mjs';
@@ -115,4 +116,18 @@ test('口播句间停顿由上一镜头最后一帧承接，不阻断搭建', t 
   assert.match(source, /"durationSec": 1\.5/);
   const bridges = JSON.parse(fs.readFileSync(path.join(project, 'qa', 'visual-timeline-bridges.json'), 'utf8'));
   assert.deepEqual(bridges.bridges, [{shotId:'s01', fromSec:1, toSec:1.5, durationSec:0.5}]);
+});
+
+
+test('纸感背景入参保留画幅根节点、正式字级安装和独立字幕层', t => {
+  const {root,runId,skill,project}=fixture(t);
+  scaffoldTalkcraftProject(root,skill,runId);
+  installWordRevealRuntime(project);
+  const main=fs.readFileSync(path.join(project,'remotion/src/Main.tsx'),'utf8');
+  assert.match(main,/filmBackground=FILM_BACKGROUND/);
+  assert.match(main,/=> <AbsoluteFill data-composition-root style=/);
+  assert.match(main,/<FilmBackgroundProvider value=\{filmBackground\}>/);
+  assert.match(main,/zIndex:1000,pointerEvents:"none"}}><Subtitles \/><\/AbsoluteFill>/);
+  const config=fs.readFileSync(path.join(project,'remotion/src/film-background-config.ts'),'utf8');
+  assert.match(config,/86c945198ae2b50c79d8a63641f5ca72e6dc3056bcc208324b54da9335a9bcce/);
 });

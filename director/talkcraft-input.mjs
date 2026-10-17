@@ -6,6 +6,7 @@ import path from 'node:path';
 import {normalizeTheme} from './theme-contract.mjs';
 import {validateSpeechRate} from './voice-speed.mjs';
 import {assertNewVoiceSelection} from './talkcraft-voice-contract.mjs';
+import {snapshotFilmBackground} from './talkcraft-film-background.mjs';
 
 export function splitTalkcraftSentences(text) {
   return (text.replace(/\r/gu, '').match(/[^。！？!?\n]+[。！？!?]?/gu) || [])
@@ -72,6 +73,7 @@ export function createTalkcraftInput(root, {text, voice, voiceMode, speakerId = 
     workflowPath:recorded?'recorded-host':'planned-runninghub',workflowVersion:2,
     ...(recorded?{hostInputSha256:createHash('sha256').update(hostVideoBytes).digest('hex')}:{}),
     digitalHumanMode:generationMode, avatarFiles, aspectRatio:theme.aspectRatio, themeSnapshot:theme,
+    backgroundSnapshot:snapshotFilmBackground(root,project),
     cardCallsRequired:true,
     visualTextLocale:'zh-CN'},null,2),'utf8');
   writeFileSync(path.join(project,'sources.md'), `# 素材来源\n\n- 角色图：本次用户输入；${enableDigitalHuman ? '作为数字人生成输入，生成前仅作静态预览。' : '仅作为静态角色图，不会调用数字人生成。'}\n- 其余素材：待语义标注后逐镜采集并登记。\n`,'utf8');

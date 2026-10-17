@@ -67,5 +67,9 @@ export function renderTalkcraftTemplate({shot, copy, skin, durationInFrames}: Ad
     props[key]=kind==='image-list' ? (props[key] as string).split('\n').map(resolveMedia).join('\n') : resolveMedia(props[key] as string);
   }
   const mask=templateCaptionMask(shot.shotCard);
-  return <>{mask && <style data-template-caption-mask>{mask}</style>}{React.createElement(Card,props)}</>;
+  // Only the original outer stage is transparent; nested diagrams/panels keep their fill.
+  // No scale/position/camera/word timing changes. Real shot video backgrounds win.
+  return <>{mask && <style data-template-caption-mask>{mask}</style>}{skin.transparentBackground
+    ? <div data-film-background-card style={{display:'contents'}}><style>{'[data-film-background-card] > div {background:transparent!important;}'}</style>{React.createElement(Card,props)}</div>
+    : React.createElement(Card,props)}</>;
 }

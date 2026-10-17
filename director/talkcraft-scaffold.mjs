@@ -9,6 +9,7 @@ import {normalizeTheme, readCurrentTheme, themeAdapter, videoDimensions} from '.
 import {ensureTalkcraftRenderRuntime} from './talkcraft-render-runtime.mjs';
 import {installBundledFonts} from './bundled-fonts.mjs';
 import {assertParallelPreparationJoined,createPreparedTalkcraftResolver} from './talkcraft-parallel-preparation.mjs';
+import {snapshotFilmBackground,assertFilmBackgroundSnapshot} from './talkcraft-film-background.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -82,6 +83,10 @@ export function scaffoldTalkcraftProject(root, skillRoot, runId, {sampleOnly=tru
   writeFileSync(path.join(src,'card-contracts.ts'),`export const CARD_CONTRACTS: Record<string,{fields:string[];locked:string[];required:string[];blankAllowed:string[];media:Record<string,string>}> = ${JSON.stringify(runtimeContracts,null,2)};\n`);
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-scene-shared.tsx'), path.join(src, 'scenes', 'scene-shared.tsx'));
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-template-adapter.tsx'), path.join(src, 'talkcraft-template-adapter.tsx'));
+  const filmBackground=source.backgroundSnapshot
+    ? assertFilmBackgroundSnapshot(project,source.backgroundSnapshot) : snapshotFilmBackground(root,project);
+  copyFileSync(path.join(ROOT,'director','talkcraft-film-background.tsx'),path.join(src,'film-background.tsx'));
+  writeFileSync(path.join(src,'film-background-config.ts'),`export const FILM_BACKGROUND = ${JSON.stringify(filmBackground)} as const;\n`);
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-host-context.mjs'), path.join(src, 'talkcraft-host-context.mjs'));
   const cardAlias = {
     'data/odometer-digit-roll':'number-counter',
@@ -176,8 +181,8 @@ export const CSS_VARS = ${JSON.stringify(bTheme.cssVars, null, 2)} as const;
 `, 'utf8');
   implementNativeScenes(project,skillRoot,{sampleOnly,emptyScenes});
   writeFileSync(path.join(src, 'Environment.tsx'), `import React from 'react';
-import {AbsoluteFill} from 'remotion';
-export const Environment: React.FC = () => <AbsoluteFill style={{background:'var(--sc-bg)', color:'var(--sc-text)', fontFamily:'var(--sc-font-family)'}} />;
+import {FilmBackground} from './film-background';
+export const Environment = FilmBackground;
 export const Overlays: React.FC = () => null;
 export const ShapeWipes: React.FC = () => null;
 `, 'utf8');
@@ -222,6 +227,8 @@ export const Subtitles: React.FC = () => {
 import {AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {CameraRig} from './camera';
 import {Environment, Overlays} from './Environment';
+import {FilmBackgroundProvider,type FilmBackgroundConfig} from './film-background';
+import {FILM_BACKGROUND} from './film-background-config';
 import {Subtitles} from './Subtitles';
 import {SHOTS, shotSequence, type Shot} from './shots';
 import {hostStageStyle} from './talkcraft-host-context.mjs';
@@ -234,7 +241,7 @@ import {timing} from './timing';
 const DefaultScene: React.FC<{shot:Shot}> = ({shot}) => {
   throw new Error('正式模板场景缺失，禁止自动补画：'+shot.id);
 };
-export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|null}> = ({sfxSolo=false,bgm=null}) => <AbsoluteFill style={CSS_VARS as React.CSSProperties}>
+export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|null;filmBackground?:FilmBackgroundConfig}> = ({sfxSolo=false,bgm=null,filmBackground=FILM_BACKGROUND as FilmBackgroundConfig}) => <AbsoluteFill style={CSS_VARS as React.CSSProperties}><FilmBackgroundProvider value={filmBackground}>
   <BundledFonts fontFamily={THEME.fontFamily} />
   <Environment />
   {SHOTS.map(shot => {
@@ -256,7 +263,7 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
     <Audio src={staticFile('sfx/'+cue.file)} volume={cue.volume} playbackRate={cue.rate ?? 1}
       trimAfter={cue.clip === undefined ? undefined : Math.max(1, Math.round(cue.clip*30))} />
   </Sequence>)}
-</AbsoluteFill>;
+</FilmBackgroundProvider></AbsoluteFill>;
 `, 'utf8');
   writeFileSync(path.join(src, 'Root.tsx'), `import React from 'react';
 import {Composition} from 'remotion';
