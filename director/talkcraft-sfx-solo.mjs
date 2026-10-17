@@ -6,6 +6,16 @@ import {createHash} from 'node:crypto';
 const sha = value => createHash('sha256').update(value).digest('hex');
 const shaFile = file => sha(fs.readFileSync(file));
 
+export function assertAudioPassSegments(directory,shots) {
+  if(!Array.isArray(shots)||!shots.length)throw Error('纯音轨导出缺少已验证的视频段清单');
+  for(const shot of shots){
+    if(!/^[\w-]+$/.test(shot.id||''))throw Error('纯音轨导出镜头ID无效');
+    const file=path.join(directory,shot.id+'.mp4');
+    if(!fs.existsSync(file)||!fs.statSync(file).isFile()||fs.statSync(file).size===0)
+      throw Error('正式视频段缺失，禁止在纯音轨工程生成空白视频：'+shot.id);
+  }
+}
+
 export function sfxSoloInputs(project) {
   const remotion=path.join(project,'remotion');
   return {
@@ -63,18 +73,19 @@ export function audioOnlyMain(source, ts) {
   return source.slice(0, body.openingElement.end) + '\n' + audio.join('\n') + '\n' + source.slice(body.closingElement.getStart(file));
 }
 
-export function prepareSfxSoloProject(project, skillRoot) {
+export function prepareSfxSoloProject(project, skillRoot, {purpose='sfx-solo'}={}) {
+  if(!['sfx-solo','full-audio'].includes(purpose))throw Error('未知纯音轨导出用途');
   const remotion = path.join(project, 'remotion');
-  const staging = path.join(project, '.render-temp', `sfx-solo-${process.pid}-${Date.now()}`);
+  const staging = path.join(project, '.render-temp', `${purpose}-${process.pid}-${Date.now()}`);
   const runtime = path.join(skillRoot, 'runtime', 'node_modules');
   const require = createRequire(path.join(runtime, 'typescript', 'package.json'));
   const original = fs.readFileSync(path.join(remotion, 'src/Main.tsx'), 'utf8');
   const isolated = audioOnlyMain(original, require('typescript'));
   fs.mkdirSync(staging, {recursive:true});
-  fs.cpSync(path.join(remotion, 'src'), path.join(staging, 'src'), {recursive:true});
+  fs.cpSync(path.join(remotion, 'src'), path.join(staging, 'src'), {recursive:true,preserveTimestamps:true});
   for (const entry of fs.readdirSync(remotion, {withFileTypes:true})) {
     if (entry.isFile() && /(?:\.json|^remotion\.config\.[cm]?[jt]s)$/u.test(entry.name))
-      fs.copyFileSync(path.join(remotion, entry.name), path.join(staging, entry.name));
+      fs.cpSync(path.join(remotion, entry.name), path.join(staging, entry.name), {preserveTimestamps:true});
   }
   fs.symlinkSync(path.join(remotion, 'public'), path.join(staging, 'public'), process.platform === 'win32' ? 'junction' : 'dir');
   fs.symlinkSync(runtime, path.join(staging, 'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');

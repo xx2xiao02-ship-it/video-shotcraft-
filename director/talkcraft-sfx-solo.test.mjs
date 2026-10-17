@@ -4,12 +4,23 @@ import {createRequire} from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {audioOnlyMain,prepareSfxSoloProject,preserveStaleSfxSolo,sfxSoloCurrent} from './talkcraft-sfx-solo.mjs';
+import vm from 'node:vm';
+import {audioOnlyMain,prepareSfxSoloProject,preserveStaleSfxSolo,sfxSoloCurrent,assertAudioPassSegments} from './talkcraft-sfx-solo.mjs';
 const require = createRequire(new URL('../_audit/video-talkcraft/runtime/package.json', import.meta.url));
 const ts = require('typescript');
 const cues = '{CUES.map((cue,index) => <Sequence key={index} from={Math.round(cue.t*30)}><Audio src={staticFile(cue.file)} volume={cue.volume} playbackRate={cue.rate ?? 1} trimAfter={cue.clip}/></Sequence>)}';
 const voice = '{!sfxSolo && <Audio src={staticFile("narration.mp3")}/>}';
 const source = `export const Main: React.FC<{sfxSolo?:boolean}> = ({sfxSolo=false}) => <AbsoluteFill><Environment/>{SHOTS.map(shot => <Sequence><OffthreadVideo src="invalid.mp4" muted/></Sequence>)}<Subtitles/>${voice}${cues}</AbsoluteFill>;`;
+
+test('audio pass never renders a missing or empty visual segment from the audio-only Main',t=>{
+ fs.mkdirSync('tmp',{recursive:true});const dir=fs.mkdtempSync(path.resolve('tmp/audio-segments-'));
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ assert.throws(()=>assertAudioPassSegments(dir,[]),/缺少/);
+ assert.throws(()=>assertAudioPassSegments(dir,[{id:'../x'}]),/ID无效/);
+ assert.throws(()=>assertAudioPassSegments(dir,[{id:'s17'}]),/禁止/);
+ fs.writeFileSync(path.join(dir,'s17.mp4'),'');assert.throws(()=>assertAudioPassSegments(dir,[{id:'s17'}]),/禁止/);
+ fs.writeFileSync(path.join(dir,'s17.mp4'),'verified by video pass');assertAudioPassSegments(dir,[{id:'s17'}]);
+});
 test('isolated audio retains exact production timing and mixing expressions', () => {
   const result = audioOnlyMain(source, ts);
   assert.ok(result.includes(cues)); assert.ok(result.includes(voice));
@@ -22,6 +33,38 @@ test('unsupported and missing sound graphs fail closed', () => {
 });
 test('visual decoder mixed into an audio expression is rejected', () => {
   assert.throws(() => audioOnlyMain(source.replace(cues,cues.replace('<Audio','<OffthreadVideo/><Audio')),ts), /无法独立提取/);
+});
+
+test('full mix mounts no visual decoder and preserves narration, BGM and cue clocks',()=>{
+  const bgm='{!sfxSolo && bgm && <Audio src={bgm.src} volume={bgm.volume}/>}';
+  const main=source.replace('sfxSolo?:boolean','sfxSolo?:boolean;bgm?:any')
+    .replace('sfxSolo=false','sfxSolo=false,bgm=null').replace(voice,voice+bgm);
+  const result=audioOnlyMain(main,ts),exports={};
+  const React={createElement:(type,props,...children)=>({type,props,children})};
+  vm.runInNewContext(ts.transpileModule(result,{compilerOptions:{jsx:ts.JsxEmit.React,module:ts.ModuleKind.CommonJS}}).outputText,
+    {exports,React,AbsoluteFill:'root',Audio:'audio',Sequence:'sequence',staticFile:x=>x,
+      CUES:[{t:101.3,file:'cue.wav',volume:.4,rate:1.1,clip:9}]});
+  // No SHOTS/Environment/Video is defined: attempting to mount visuals fails.
+  const mix=exports.Main({bgm:{src:'music.wav',volume:.2}});
+  assert.equal(mix.children[0].props.src,'narration.mp3');
+  assert.equal(mix.children[1].props.src,'music.wav');
+  assert.equal(mix.children[2][0].props.from,3039);
+  assert.equal(mix.children[2][0].children[0].props.playbackRate,1.1);
+  assert.ok(result.includes(cues)&&result.includes(bgm)&&result.includes(voice));
+});
+
+test('full-audio staging keeps audio fingerprint mtimes and rejects unknown purposes',t=>{
+  fs.mkdirSync('tmp',{recursive:true});const project=fs.mkdtempSync(path.resolve('tmp/full-audio-'));
+  t.after(()=>fs.rmSync(project,{recursive:true,force:true}));
+  fs.mkdirSync(path.join(project,'remotion/src'),{recursive:true});fs.mkdirSync(path.join(project,'remotion/public'));
+  for(const [file,text] of [['src/Main.tsx',source],['src/sfx.ts','export const CUES=[];'],['cues.json','[]']]){
+    const f=path.join(project,'remotion',file);fs.writeFileSync(f,text);fs.utimesSync(f,1700000000,1700000000);
+  }
+  assert.throws(()=>prepareSfxSoloProject(project,path.resolve('_audit/video-talkcraft'),{purpose:'../other'}),/未知/);
+  const staged=prepareSfxSoloProject(project,path.resolve('_audit/video-talkcraft'),{purpose:'full-audio'});
+  assert.ok(path.basename(staged.staging).startsWith('full-audio-'));
+  for(const file of ['src/sfx.ts','cues.json'])assert.equal(fs.statSync(path.join(staged.staging,file)).mtimeMs,fs.statSync(path.join(project,'remotion',file)).mtimeMs);
+  assert.equal(fs.readFileSync(path.join(project,'remotion/src/Main.tsx'),'utf8'),source);
 });
 test('staging preserves the approved source and binds the actual production audio module', t => {
   fs.mkdirSync('tmp',{recursive:true});

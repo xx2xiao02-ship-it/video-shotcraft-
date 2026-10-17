@@ -77,7 +77,7 @@ import {assertTalkcraftTemplateGovernance, governedOriginalDurationSec, isOpenin
 import {assertTalkcraftRuntimeFidelity} from './talkcraft-runtime-fidelity.mjs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {assertTalkcraftRenderDiskSpace} from './storage-governance.mjs';
-import {prepareSfxSoloProject,preserveStaleSfxSolo,sfxSoloCurrent} from './talkcraft-sfx-solo.mjs';
+import {prepareSfxSoloProject,preserveStaleSfxSolo,sfxSoloCurrent,assertAudioPassSegments} from './talkcraft-sfx-solo.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -798,7 +798,20 @@ function runTalkcraftStageInternal(stage, runId) {
         ? ['--all', '--seg-dir', 'out/segments']
         : ['--all', '--seg-dir', 'out/segments-final-v1']),
       '--parallel', String(concurrency.effective), '--concat', 'out/assembled.mp4',
-      '--audio', 'out/full-mix.wav', '--mux', 'out/final.mp4', '--props', bgmProps, ...localBrowserArgs()], path.join(project, 'remotion'));
+      '--props', bgmProps, ...localBrowserArgs()], path.join(project, 'remotion'));
+    // render_shots sends audioOnly=true, but preserved legacy Main files may
+    // ignore it. Reuse the existing AST-based audio isolation: identical Audio
+    // expressions/props, no visual or muted avatar decoders, no Main rewrite.
+    const audioProject=prepareSfxSoloProject(project,SKILL,{purpose:'full-audio'});
+    const remotion=path.join(project,'remotion');
+    const segmentDirectory=path.join(remotion,'out',verifiedSegments?'segments':'segments-final-v1');
+    assertAudioPassSegments(segmentDirectory,JSON.parse(readFileSync(path.resolve(remotion,renderShots.argument),'utf8')));
+    run('node',[script('render_shots.mjs'),'--entry','src/index.ts','--comp','Main',
+      '--shots',path.resolve(remotion,renderShots.argument),
+      '--seg-dir',segmentDirectory,
+      '--concat',path.join(remotion,'out/assembled.mp4'),
+      '--audio',path.join(remotion,'out/full-mix.wav'),'--mux',path.join(remotion,'out/final.mp4'),
+      '--props',bgmProps,...localBrowserArgs()],audioProject.staging);
     bindMachineVideo(project,path.join(project,'remotion/out/final.mp4'));
     writeTalkcraftTemplateUsage(project, SKILL, path.join(project, 'remotion', 'out', 'final.mp4'));
     recordOfficialRender(project,SKILL);
