@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {validateCaptureSource,detailBounds} from './talkcraft-source-capture.mjs';
+test('来源采集拒绝凭据、非HTTPS、目录逃逸和无身份核对',()=>{for(const source of [{url:'http://example.org',slug:'x',expected:'x'},{url:'https://user:secret@example.org',slug:'x',expected:'x'},{url:'https://example.org',slug:'../x',expected:'x'},{url:'https://example.org',slug:'x'}])assert.throws(()=>validateCaptureSource(source));});
+test('取景从同会话坐标推导，不能靠猜测目标',()=>{const m={width:1920,height:1600,headings:[{text:'Income Shocks',x:400,y:300,width:800,height:80}]};assert.deepEqual(detailBounds(m,{expected:'Income Shocks'}),{x:372,y:272,width:1000,height:560});assert.throws(()=>detailBounds(m,{expected:'Unrelated'}),/没有匹配/);});

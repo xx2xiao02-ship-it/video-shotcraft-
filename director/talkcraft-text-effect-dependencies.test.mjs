@@ -2,6 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {textEffectContract,checkTextEffectDependencies,TEXT_EFFECT_RULES} from './talkcraft-text-effect-dependencies.mjs';
 const shot=(card,props={})=>({id:'s01',shotCard:card,templateParams:{cardProps:props}});
+test('真实资料卡使用源码展示窗口，传图文档不产生mock标题；晚锚点仍阻断',()=>{
+ const doc=textEffectContract('doc-park-left-pill-deal',{docSrc:'pages/research/detail.png',pills:'收入\n消费',notes:'研究\n综述'},222);
+ assert.equal(doc.texts.some(t=>t.field==='docTitle'),false);
+ assert.equal(doc.texts.find(t=>t.field==='pills').begin,58);
+ const bad=check(shot('rack-focus-pair',{srcFront:'pages/a.png',srcBack:'pages/b.png'}),[{field:'labelFront',text:'政策',localFrame:211}],216);
+ assert.ok(bad.issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+ const gallery=textEffectContract('gallery-wall-dolly',{},258);
+ assert.equal(gallery.texts.length,3);assert.equal(gallery.texts[0].end,230);
+});
 const timeline=(n,extra=0,hold=n-2)=>[{kind:'motion',fromFrame:0,toFrame:hold,nativeFromFrame:0,nativeToFrame:hold},...(extra?[{kind:'hold',fromFrame:hold+1,toFrame:hold+extra,nativeFromFrame:hold,nativeToFrame:hold,reason:'保留原字级时间'}]:[]),{kind:'motion',fromFrame:hold+extra+1,toFrame:n+extra-1,nativeFromFrame:hold+1,nativeToFrame:n-1}];
 function check(s,events,n=109,extra=0,hold=n-2){return checkTextEffectDependencies([s],{shots:[{shotId:'s01',startFrame:0,endFrame:n+extra,nativeFrames:n,timeline:timeline(n,extra,hold)}]},{events:events.map((e,i)=>({id:'e'+i,beatId:'s01',role:'spoken',...e}))});}
 test('下划线不能先于关键词，同帧也不能伪装成先字后线',()=>{

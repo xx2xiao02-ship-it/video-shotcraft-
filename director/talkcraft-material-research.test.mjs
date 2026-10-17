@@ -26,6 +26,26 @@ function fixture(t){const p=fs.mkdtempSync(path.join(os.tmpdir(),'real-media-'))
 test('URL和搜索结果不能冒充已绑定真实素材',t=>{const p=fixture(t);const r=auditMaterialResearch(p,index);assert.equal(r.passed,false);assert.equal(r.issues.filter(i=>i.code==='REAL_SOURCE_NOT_BOUND').length,2);});
 test('来源必须与实际模板媒体槽位、文件哈希相符',t=>{const p=fixture(t),a=plan();fs.writeFileSync(p+'/remotion/public/hall.jpg','fixture');const sha256=createHash('sha256').update('fixture').digest('hex');a.shots[0].bindings=a.shots[0].research.map(r=>({...r,localPath:'hall.jpg',sourceUrl:'https://stanford.edu/hall',identityReason:'已核对本人',sourceVerified:true,licenseVerified:true,license:'PD',sha256}));fs.writeFileSync(p+'/material-research-plan.json',JSON.stringify(a));assert.ok(auditMaterialResearch(p,index).issues.some(i=>i.code==='REAL_SOURCE_BINDING_INVALID'));const s=structuredClone(shots);s[0].templateParams.cardProps.src='hall.jpg';fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));assert.equal(auditMaterialResearch(p,index).passed,true);fs.writeFileSync(p+'/remotion/public/hall.jpg','stale');assert.equal(auditMaterialResearch(p,index).passed,false);});
 test('保留已有编导计划，不自动重发模型',t=>{const p=fixture(t);assert.equal(saveEditorialMaterialResearch(p,{materialResearch:{shots:[]}}).saved,false);});
+test('集中来源必须有用户策略确认，且目标镜实际绑定同一文件；配音变化即失效',t=>{
+ const p=fixture(t),a=plan(),s=structuredClone(shots),hash=s=>createHash('sha256').update(s).digest('hex');
+ fs.mkdirSync(p+'/qa',{recursive:true});fs.mkdirSync(p+'/audio');fs.writeFileSync(p+'/script.txt','script');fs.writeFileSync(p+'/audio/full.mp3','voice');fs.writeFileSync(p+'/remotion/public/source.png','source');
+ s.push({id:'s02',shotCard:'graph',firstSentence:1,lastSentence:1,templateParams:{cardProps:{src:'source.png'}}});
+ a.shots.push({shotId:'s02',pureTextReason:'真实来源展示',research:[]});a.shots[0].bindings=a.shots[0].research.map(r=>({...r,localPath:'source.png',sha256:hash('source'),sourceUrl:'https://www.federalreserve.gov/source',identityReason:'核对官方来源',sourceVerified:true,licenseVerified:true,license:'Public domain',displayShotId:'s02',displayReason:'用户确认保留短开场，来源集中后续展示'}));
+ fs.writeFileSync(p+'/material-research-plan.json',JSON.stringify(a));fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));
+ assert.equal(auditMaterialResearch(p,index).passed,false);
+ fs.writeFileSync(p+'/qa/material-display-policy-approval.json',JSON.stringify({policy:'concentrated-sources',authorizedBy:'user',sourceShotIds:['s01'],scriptSha256:hash('script'),audioSha256:hash('voice')}));assert.equal(auditMaterialResearch(p,index).passed,true);
+ s[1].templateParams.cardProps.src='missing.png';fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));assert.equal(auditMaterialResearch(p,index).passed,false);
+ s[1].templateParams.cardProps.src='source.png';fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));fs.writeFileSync(p+'/audio/full.mp3','changed');assert.equal(auditMaterialResearch(p,index).passed,false);
+});
+
+test('实际证据层可绑定来源，背景或未渲染路径不能代替',t=>{
+ const p=fixture(t),a=plan(),s=structuredClone(shots);fs.writeFileSync(p+'/remotion/public/source.png','real-source-fixture');
+ const sha256=createHash('sha256').update('real-source-fixture').digest('hex');
+ a.shots[0].bindings=a.shots[0].research.map(r=>({...r,localPath:'source.png',sourceUrl:'https://www.federalreserve.gov/source',identityReason:'已核对原机构页面',sourceVerified:true,licenseVerified:true,license:'Public domain',sha256}));
+ fs.writeFileSync(p+'/material-research-plan.json',JSON.stringify(a));
+ for(const role of ['background','unused','evidence','subject']){s[0].templateParams={cardProps:{},materialRole:role,materialSrc:'source.png'};fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));assert.equal(auditMaterialResearch(p,index).passed,['evidence','subject'].includes(role));}
+ s[0].templateParams.materialSrc='unrendered.png';fs.writeFileSync(p+'/remotion/shots.json',JSON.stringify(s));assert.equal(auditMaterialResearch(p,index).passed,false);
+});
 test('本地背景仅按明确概念和实际时长画幅给候选，禁止通用兜底冒充匹配',()=>{
  const r=rankLocalBackgrounds({backgroundConcepts:['交通车流']},{start:0,end:5},[
  {path:'city',tags:['交通车流'],duration_sec:8,width:1920,height:1080},

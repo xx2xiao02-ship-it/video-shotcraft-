@@ -153,16 +153,28 @@ export function auditMaterialResearch(project,index,{localIndex=[]}={}) {
   const shots=read(path.join(project,'remotion/shots.json')),semantics=read(path.join(project,'semantics.json'));
   const demands=materialDemand({shots,semantics,index}),file=path.join(project,'material-research-plan.json');
   const plan=fs.existsSync(file)?read(file):null,issues=validateResearchPlan(plan,demands);
+  let displayApproval=null;
+  try{displayApproval=read(path.join(project,'qa/material-display-policy-approval.json'));}catch{}
   for(const row of plan?.shots||[])for(const r of row.research||[]){
     // A contextual background and a word card never resolve factual needs.
     const bindings=(row.bindings||[]).filter(b=>b.kind===r.kind&&b.query===r.query);
     if(!bindings.length){issues.push({shotId:row.shotId,code:'REAL_SOURCE_NOT_BOUND',kind:r.kind,query:r.query});continue;}
     for(const b of bindings){
       const full=path.resolve(project,'remotion/public',String(b.localPath||'')),rel=path.relative(path.join(project,'remotion/public'),full);
-      const shot=shots.find(s=>s.id===row.shotId);
-      const bound=Object.values(shot?.templateParams?.cardProps||{}).some(v=>typeof v==='string'&&v.split('\n').some(x=>x.replace(/^remotion\/public\//u,'')===b.localPath));
+      const deferred=b.displayShotId&&b.displayShotId!==row.shotId;
+      const displayAllowed=!deferred||Boolean(displayApproval?.policy==='concentrated-sources'&&
+        displayApproval.authorizedBy==='user'&&displayApproval.sourceShotIds?.includes(row.shotId)&&
+        fs.existsSync(path.join(project,'script.txt'))&&fs.existsSync(path.join(project,'audio/full.mp3'))&&
+        displayApproval.scriptSha256===hash(path.join(project,'script.txt'))&&
+        displayApproval.audioSha256===hash(path.join(project,'audio/full.mp3'))&&String(b.displayReason||'').trim());
+      const shot=shots.find(s=>s.id===(b.displayShotId||row.shotId));
+      const p=shot?.templateParams||{};
+      // TemplateScene also has an explicit, actually rendered evidence/subject
+      // media layer. Context backgrounds cannot satisfy factual source needs.
+      const bound=Object.values(p.cardProps||{}).some(v=>typeof v==='string'&&v.split('\n').some(x=>x.replace(/^remotion\/public\//u,'')===b.localPath))||
+        (['evidence','subject'].includes(p.materialRole)&&String(p.materialSrc||'').replace(/^remotion\/public\//u,'')===b.localPath);
       if(!rel||rel.startsWith('..')||path.isAbsolute(rel)||!fs.existsSync(full)||!fs.statSync(full).isFile()||
-         !/^https:\/\//u.test(b.sourceUrl||'')||!b.identityReason||b.sourceVerified!==true||b.licenseVerified!==true||!b.license||!bound||hash(full)!==b.sha256)
+         !/^https:\/\//u.test(b.sourceUrl||'')||!b.identityReason||b.sourceVerified!==true||b.licenseVerified!==true||!b.license||!displayAllowed||!bound||hash(full)!==b.sha256)
         issues.push({shotId:row.shotId,code:'REAL_SOURCE_BINDING_INVALID',kind:r.kind});
     }
   }

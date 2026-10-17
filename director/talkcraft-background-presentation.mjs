@@ -24,6 +24,8 @@ export function checkPresentationSemantics(shots){
 
 export function backgroundCaptionTheme(shot,theme){
  const p=shot?.templateParams||{};
- return p.materialRole==='background'&&p.backgroundPresentation==='theme-wash-v1'
+ // Reviewed gallery source: fixed #0f0f13 stage and #26262e radial wall.
+ // The independent subtitle area is dark even when the film theme is light.
+ return shot?.shotCard==='gallery-wall-dolly'||p.materialRole==='background'&&p.backgroundPresentation==='theme-wash-v1'
   ? {...theme,text:'#ffffff'} : theme;
 }

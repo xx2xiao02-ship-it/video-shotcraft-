@@ -15,6 +15,17 @@ export function textEffectContract(card,p={},nativeFrames=1){
  const group=(field,n,at=()=>0,end=()=>last)=>{for(let i=0;i<n;i++)text(field,i,frames(at(i)),end(i));};
  const all=(fields,at=0,end=last)=>fields.forEach(f=>text(f,0,at,end));
  switch(card){
+ case 'doc-park-left-pill-deal':{
+  const end=Math.ceil(6.6*30)-1;
+  if(!p.docSrc)text('docTitle',0,0,end);
+  text('hint',0,frames(1.4),end);
+  group('pills',lines(p.pills).length,i=>1.9+i*1.3,()=>end);
+  group('notes',lines(p.notes).length,i=>2.2+i*1.3,()=>end);break;}
+ case 'rack-focus-pair':
+  text('labelFront',0,frames(.28),Math.ceil(6.4*30)-1);
+  text('labelBack',0,frames(.2),Math.ceil(6.4*30)-1);break;
+ case 'gallery-wall-dolly':
+  ['label1','label2','label3'].forEach((f,i)=>text(f,0,0,Math.ceil((7.7+i*.04)*30)-1));break;
  case 'type-contrast-emphasis': group('words',lines(p.words).length,i=>Number(lines(p.words)[i].split('|')[1]||0));break;
  case 'keyword-pop-highlight':
   all(['textBefore','textAfter']);text('keyword',0,frames(num(p,'delay',.55)));
@@ -118,7 +129,7 @@ export function checkTextEffectDependencies(shots,presentation,reveals){
   }
   const substantive=resolved.filter(t=>String(events.find(e=>e.id===t.eventId)?.text||'').replace(/[\s\p{P}\p{N}]/gu,'').length>=2);
   const firstContent=Math.min(...substantive.filter(t=>t.firstReadableFrame>=0).map(t=>t.firstReadableFrame));
-  const props=shot.templateParams?.cardProps||{},hasMaterial=Boolean(shot.templateParams?.materialSrc||Object.entries(props).some(([k,v])=>/^src\d*$/iu.test(k)&&v));
+  const props=shot.templateParams?.cardProps||{},hasMaterial=Boolean(shot.templateParams?.materialSrc||Object.entries(props).some(([k,v])=>/^(?:src\d*|docSrc|srcFront|srcBack)$/iu.test(k)&&v));
   if(shot.subject==='other'&&!hasMaterial&&firstContent>30)issues.push({code:'NATIVE_CONTENT_ONSET_GAP',shotId:shot.id,message:shot.id+' 首秒原卡没有实际可见的有效文字承接，不能只凭0帧的文字计划掩盖原卡尚未入场。'});
   const effectChecks=[],constraints=[];
   for(const t of resolved)constraints.push({nativeFrame:Math.max(0,t.end-2),notBeforeFrame:t.wordFrame,kind:'text-window',eventId:t.eventId});

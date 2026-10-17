@@ -1,6 +1,12 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {backgroundPresentation,backgroundCaptionTheme,checkPresentationSemantics} from './talkcraft-background-presentation.mjs';
 import fs from 'node:fs';
+test('照片墙原生暗幕底使用浅色独立字幕，不改变模板构图或全片主题',()=>{
+ const theme={text:'#1a1a1a',accentPrimary:'#1a4a8a'};
+ assert.equal(backgroundCaptionTheme({shotCard:'gallery-wall-dolly',templateParams:{}},theme).text,'#ffffff');
+ assert.equal(backgroundCaptionTheme({shotCard:'rack-focus-pair',templateParams:{}},theme),theme);
+ assert.equal(theme.text,'#1a1a1a');
+});
 import {loadTalkcraftGovernedCatalog,verifiedChapterBackgroundParameter} from './talkcraft-governed-contract.mjs';
 const shot=()=>({id:'s17',shotCard:'chapter-progress-list',templateParams:{materialRole:'background',materialSrc:'broll/city.mp4',materialSourceId:'local:city',materialMatchReason:'城市生活语境',backgroundPresentation:'theme-wash-v1',cardProps:{bg:'#ffffff00',rows:'|存钱\n|消费|current\n|规划未来'}}});
 test('真实背景使用公开透明底，不改变模板几何',()=>{assert.equal(backgroundPresentation(shot(),{background:'#f7f5f0'}).overlay,'#000000b8');assert.equal(checkPresentationSemantics([shot()]).passed,true);});

@@ -113,7 +113,12 @@
 - 编导既有请求接收 `MATERIAL_RESEARCH_RULES` 与 `VISUAL_PREFERENCE_RULES`，返回独立 `materialResearch.shots`，与全部镜头一一对应。每镜说明图形意图或保留纯文的理由；适合背景者填具体英文 `backgroundQuery`、中文本地库标签 `backgroundConcepts` 和语境理由。身份、证据、量化需求来自真实语义 `need/entities`，不得跳过。
 - 候选节点先运行素材检索及本地背景比较，再执行原版 matcher。在线资料使用 MediaWiki/Commons 发现人物和来源线索；Commons 只有明确PD/CC0进入免署名候选。背景 API 使用现有环境 `PEXELS_API_KEY`、`PIXABAY_API_KEY`，缺配置如实记录，不输出key。遵循现有代理环境；不调用模型、TTS或RunningHub。
 - `node --use-env-proxy director/talkcraft-material-research.mjs <project> <上游cards-index.json> --search` 可独立恢复此环节。按规划哈希缓存元数据请求，不循环重试；网络恢复或补配置后显式 `--refresh`，旧检索保留。缓存命中不代表素材审核通过。
-- 搜索结果仅是候选，不能自动充当官方证据。采集后在规划的 `bindings` 登记kind/query、sourceUrl、localPath、sha256、identityReason、sourceVerified、license及licenseVerified；文件须实际绑定本镜cardProps媒体槽位。网页证据另按上游③保存真实页面截图与同会话DOM坐标，登记sources.md。本人身份、数值/日期、权利及用途核实后才绑定，不抓任意图替代本人，不伪造统计图。
+- 搜索结果仅是候选，不能自动充当官方证据。采集后在规划的 `bindings` 登记kind/query、sourceUrl、localPath、sha256、identityReason、sourceVerified、license及licenseVerified；文件须实际绑定本镜cardProps媒体槽位或既有TemplateScene明确的evidence/subject素材层，背景不得充当事实证据。网页证据另按上游③保存真实页面截图与同会话DOM坐标，登记sources.md。本人身份、数值/日期、权利及用途核实后才绑定，不抓任意图替代本人，不伪造统计图。
+- 使用 `node --use-env-proxy director/talkcraft-source-capture.mjs <配置JSON>` 采集公开机构页面。配置明确skillRoot/publicRoot/work和sources（url、版本slug、expected身份表达式、可选clipMatch/clipHeight）。采集浏览器与渲染浏览器分离，继承已有代理；不改渲染依赖的直连参数。真实HTTP200、目标正文和页面几何核实后，同会话保存2倍全页图、DOM坐标及正文取景；不重写网页，不覆盖旧版本。采集结果默认未接受、未核实许可；仍须另行审查正文、第三方照片、标志及具体用途的权利。不得因网页能打开就给照片授予许可，也不得把提交未知当采集成功。
+- 资料展示卡重选后，依原卡源码补齐文字窗口和源码指纹，重新核验真实字级、展示时长与来源绑定；保留原卡完整构图及全部动作，不用隐藏失败、提前锚点或任意改速凑过关。机器只验证确定性规则与文件完整性，新片仍交用户审核。
+- 用户2026-10-17确认保留短开场、资料集中到后续镜头。此策略只在 `qa/material-display-policy-approval.json` 明确记录用户确认、sourceShotIds、原稿和配音SHA时生效；对应binding写displayShotId与displayReason，并核对目标镜真实渲染相同localPath及SHA。普通背景、无目标镜、未获确认或输入变化均不得放行；这不是模板自动省略素材的开关，也不代表新镜头已获视觉验收。
 - 本地背景只按明确标签、实际时长和画幅生成候选；无匹配明确缺口，不随机用办公/城市兜底假装语义命中。语境背景不能满足事实素材槽位，背景只落在background通道。模板实色底板会遮挡时回编导重新选卡，不用外层CSS抹底/缩卡。
 - 上游候选与全部108已审库保留；候选比较报告新增 `expressionPreference`：同等语义/素材可行性，优先数据信息图或有真实素材的呈现卡，其余保持原排序。不是新的图形白名单，不自动按第一名换卡；候选外仍按原版写明理由。纯文字用于短钩子、过渡、强调，长驻留与连续纯文应比较图形/真实素材方案。
 - `qa/material-research-audit.json` 全片列出需求、实际绑定缺口和本地候选，`qa/material-search-results.json` 保留线上候选与提供方失败。未核实的资料不通过选卡前门禁；不降低旧预检、模板、时间、字幕或数字人校验。先出修订方案及新片供人审，原片、配音和成功口型保留。
+
+- 重新选用 gallery-wall-dolly 时，独立字幕依据原卡固定暗幕底使用浅色；不得沿用全片浅底的深色字幕。模板构图、正文、真实字级时间及主题强调色保持原样。
