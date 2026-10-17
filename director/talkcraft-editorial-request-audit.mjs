@@ -1,15 +1,21 @@
 import {createHash} from 'node:crypto';
 import {editorialPlanningLimits} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialDslLocks} from './talkcraft-editorial-params.mjs';
+import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 
 // Verify the actual serialized request data, not a second prose-only rule list.
 export function auditEditorialRequestContract({promptCatalog,catalog,planningContract}){
  const issues=[],same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+ if(promptCatalog.crossFieldChecks!==crossFieldChecks.toString())issues.push('模型跨字段规则与正式校验源码不一致');
  if(!same(planningContract.limits,editorialPlanningLimits()))issues.push('规划数值与正式校验常量不一致');
  if(!planningContract.readiness?.passed)issues.push('真实时间轴与人物窗口没有可行覆盖路径');
  if(!same(promptCatalog.cards.map(c=>c.slug),catalog.cards.map(c=>c.cardId))||
     !same(promptCatalog.contracts.map(c=>c.slug),catalog.cards.map(c=>c.cardId)))issues.push('模型目录与已审目录不一致');
  for(const card of catalog.cards){
+  const domain=planningContract.timingDomains?.find(c=>c.slug===card.cardId);
+  const mediaLocked=Object.values(card.policy?.media||{}).some(v=>/audio|video/iu.test(String(v)));
+  if(!domain||domain.maxHoldAtNativeFrame!==card.duration.frames-2||domain.maxExtraHoldFrames!==(mediaLocked?0:60)||
+     domain.maxExtraHoldFraction!==(mediaLocked?0:0.5))issues.push(`${card.cardId} 驻留边界或冻结预算缺失/不一致`);
   const sent=promptCatalog.contracts.find(c=>c.slug===card.cardId);
   if(!sent){issues.push(`${card.cardId} 缺少模型契约`);continue;}
   if(!same(sent.required,card.policy.required)||!same(sent.media,card.policy.media)||

@@ -25,14 +25,30 @@ test('模型输入漏用途、空值政策、容量或伪造时长时，自检�
   a=>{a.promptCatalog.contracts.find(c=>c.slug==='word-slot-cycle').dsl.words.minRows=3;},
   a=>{a.promptCatalog.contracts[0].originalFrames=1;},
   a=>{a.planningContract.limits.openingMaxShotSec=5;}
+  ,a=>{delete a.promptCatalog.crossFieldChecks;}
+  ,a=>{a.promptCatalog.crossFieldChecks='function crossFieldChecks(){return [];}';}
+  ,a=>{a.planningContract.timingDomains[0].maxHoldAtNativeFrame++;}
+  ,a=>{a.planningContract.timingDomains[0].maxExtraHoldFrames++;}
+  ,a=>{a.planningContract.timingDomains[0].maxExtraHoldFraction+=0.01;}
+  ,a=>{const domain=a.planningContract.timingDomains.find(c=>c.embeddedMediaRateLocked);assert.ok(domain);domain.maxExtraHoldFrames=1;}
  ]){const args=make();mutate(args);assert.equal(auditEditorialRequestContract(args).passed,false);}
+});
+
+test('模型收到完整跨字段源码，折线衔接、图片数量和动态选项范围不能被精简丢失',()=>{
+ const args=make();
+ assert.match(args.promptCatalog.crossFieldChecks,/LINE_CONTINUITY/);
+ assert.match(args.promptCatalog.crossFieldChecks,/MEDIA_TEXT_CARDINALITY/);
+ assert.match(args.promptCatalog.crossFieldChecks,/SELECTION_RANGE/);
+ assert.ok(args.planningContract.timingDomains.every(c=>c.maxHoldAtNativeFrame===c.nativeFrames-2));
+ assert.ok(args.planningContract.timingDomains.every(c=>c.maxExtraHoldFrames===(c.embeddedMediaRateLocked?0:60)));
 });
 
 test('整片数值可行性先验：不移动口型、不卡死无可行短卡的句子、不替编导选卡',()=>{
  const before=structuredClone(aligned);
  assert.equal(editorialInputReadiness({aligned,catalog}).passed,true);assert.deepEqual(aligned,before);
  assert.equal(editorialInputReadiness({aligned:[{start:0,end:5}],catalog}).passed,false);
- assert.equal(editorialInputReadiness({aligned,catalog,personWindows:[{start:0,end:2.36,firstSentence:0,lastSentence:0}]}).passed,false);
+ assert.equal(editorialInputReadiness({aligned,catalog,personWindows:[{start:0,end:2.36,firstSentence:0,lastSentence:0}]}).passed,true);
+ assert.equal(editorialInputReadiness({aligned:[{start:0,end:2.19}],catalog,personWindows:[{start:0,end:2.19,firstSentence:0,lastSentence:0}]}).passed,false);
  assert.equal(editorialInputReadiness({aligned,catalog,personWindows:[{start:1,end:4.8,firstSentence:0,lastSentence:1}]}).passed,false);
  const range=editorialRangeFeasibility({firstSentence:0,lastSentence:0,aligned,catalog});
  assert.ok(range.cards.length>1);assert.ok(!Object.hasOwn(range,'selectedCard'));

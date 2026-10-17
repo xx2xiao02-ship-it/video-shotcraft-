@@ -121,6 +121,7 @@ export function buildEditorialPlanningContract({aligned,catalog,personWindows=[]
     timingDomains:catalog.cards.map(c=>{
       const embeddedMediaRateLocked=Object.values(c.policy?.media||{}).some(v=>/audio|video/iu.test(String(v)));
       return {slug:c.cardId,nativeFrames:c.duration.frames,
+        maxHoldAtNativeFrame:c.duration.frames-2,maxExtraHoldFrames:embeddedMediaRateLocked?0:60,maxExtraHoldFraction:embeddedMediaRateLocked?0:0.5,
         minimumOutputFrames:embeddedMediaRateLocked?c.duration.frames:Math.ceil((c.duration.frames-1)/NATIVE_MAX_RATE-1e-10)+1,
         ...(embeddedMediaRateLocked?{requiredOutputFrames:c.duration.frames}:{}),embeddedMediaRateLocked};}),
     rules:'全部已审目录均可比较。cards仅说明真实句边界下的时长可行性，不是语义推荐、不是选卡白名单，不自动选第一名。开场从这些连续自然句范围规划覆盖前8秒；完整原卡≤3秒、镜头≤3.4秒。没有可行卡的范围可在真实句边界合并或拆分，不能编造时间。人物只能且必须逐一使用exactPersonWindows，不能跨入前后句。各30镜窗口自行检查已用卡，不同观点必须换卡；同观点承接仍须具体证据。requiresHold不证明主体可见，正式驻留必须依据源码。',
