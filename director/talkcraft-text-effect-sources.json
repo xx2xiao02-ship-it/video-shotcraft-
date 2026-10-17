@@ -1,0 +1,132 @@
+{
+  "type-contrast-emphasis": {
+    "parameterized-cards/gen/type-contrast-emphasis.tsx": "5e1a90977f4003002bb4aa45847782e9f594ae0f93a0c5ed6b11201ffcb605a3",
+    "cards/type-contrast-emphasis.tsx": "544de354cfaf63a83d0bee54f953f009bd60f79f282e6e249e56df5103caa8de",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "keyword-pop-highlight": {
+    "parameterized-cards/gen/keyword-pop-highlight.tsx": "2e563efe31a7bda3bf218432b51086ebc9066365b5e901ea395ec47c4e059938",
+    "cards/keyword-pop-highlight.tsx": "adf2451f0d992ecf6534662634765cd96bc250ed200b8904f5d4bcee591f02b3",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "highlighter-sweep": {
+    "cards/highlighter-sweep.tsx": "fc943253400a057145ec648c91963b7003a2b235f92de0c60e5e22f172cd1a91",
+    "parameterized-cards/highlighter-sweep.tsx": "1eed400a09c73aff9739e8eeadac4e6a131feaafc2194c194cebcbc356247eac",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "per-character-rise": {
+    "parameterized-cards/gen/per-character-rise.tsx": "3c4e65d8064892dc0a15a2b03c45a4f82d5d3e95201145cbedd4908125f14386",
+    "cards/per-character-rise.tsx": "3437015e2d05a34de708047023d6f16e42f7f1a4a22f76e225e1f5d2b150d18e",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "alt-block-lines": {
+    "parameterized-cards/gen/alt-block-lines.tsx": "18c005f067e095c1676db707f59d21e509341a10e718b5a217891bb2d57af9c8",
+    "cards/alt-block-lines.tsx": "b0c1ce748e685d543e169c24f5d18ae9bcb4c99f036e14126b5fe3ed2464bec5",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "line-by-line-slide": {
+    "parameterized-cards/gen/line-by-line-slide.tsx": "57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304",
+    "cards/line-by-line-slide.tsx": "3e97ac8a963f1d38da67596f75924f71057804c74902f0aa9003ca2016dc1c2e",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "numbered-step-stack": {
+    "parameterized-cards/gen/numbered-step-stack.tsx": "a4481a711d7338913d45309ea317c2de9760904cfeb7eee7332513742278c385",
+    "cards/numbered-step-stack.tsx": "a0a55b700e8371c1dacb8986c3faa9189fc26450340e03ce78acc7f5b4ba2b81",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "title-demote-to-label": {
+    "parameterized-cards/gen/title-demote-to-label.tsx": "162e18024c1f41d3440a9faad267869de1930ee891e7e2f10cce6f540a98c111",
+    "cards/title-demote-to-label.tsx": "cdb2337438699ddeae64eb304e395d6a5bcf603dc3cb4e66a6ed807b436703a6",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "info-card-assemble": {
+    "parameterized-cards/gen/info-card-assemble.tsx": "9ebdae2731ef205527ebe87b47ebe2a3322d2907f1ddfe272c71ff439b6a53e7",
+    "cards/info-card-assemble.tsx": "fe57411b559552133f7b1a199904e9c37cffb08b8466181b991d207d32d82e42",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "lower-third-nameplate": {
+    "parameterized-cards/gen/lower-third-nameplate.tsx": "898fc867d80fc46dd394fcf70c0af58298c199a9fcbb206c971e3d02872cd884",
+    "cards/lower-third-nameplate.tsx": "48810b4bd7f557f2c9298345aab41399fe368a2ea441c5b37c783c65b163ff64",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "word-slot-cycle": {
+    "parameterized-cards/gen/word-slot-cycle.tsx": "1b0e138ae2d1d64307fe9b20ec37dca7a88c61e91bc8697c1bce50228f88ba11",
+    "cards/word-slot-cycle.tsx": "8821808d8fcf3226ebce45a954b3fad3f99472ab976c5e2f72f768aa734a7a79",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "info-term-card": {
+    "parameterized-cards/gen/info-term-card.tsx": "81e0f7e8d85c1366a7412873e438f59c84a68edb5d77185e71361c591cb10d8a",
+    "cards/info-term-card.tsx": "8f2cc842cde3aa2e7e35700f7bf693fa2bcddcafd817d3679adf6f9427defc0b",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "step-timeline-vertical": {
+    "parameterized-cards/gen/step-timeline-vertical.tsx": "818631730d80c316f3373b8c5da6562c228a5c5d357f3a58698bf72f9bd93bca",
+    "cards/step-timeline-vertical.tsx": "e396d3080be6b8785e827316074c603acde77fb0afa6f7f6759296456610b4b6",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "ink-underline": {
+    "parameterized-cards/gen/ink-underline.tsx": "69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d",
+    "cards/ink-underline.tsx": "6b6978590e515407dc0f52ac4e8bf960af84d45b2ad2be39e792e2d8e44b531b",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "quote-hold-arrow": {
+    "parameterized-cards/gen/quote-hold-arrow.tsx": "0d4d73b9a93b5c28d043b2df81d1f9f41dc096fb0e48a34c4efbea399a668ff0",
+    "cards/quote-hold-arrow.tsx": "0a4edbe9c2377f8d013b5bfa5d4561ada4ca596487efa26ceb740a977b0c4277",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "quote-bracket-pull": {
+    "parameterized-cards/gen/quote-bracket-pull.tsx": "683288faf619b72e689fb3a493b3e1d2ef8e0dbcbcc78c90094463014068dbdc",
+    "cards/quote-bracket-pull.tsx": "5c396d70bb6f8fb8f51708a5d56b56091b6d5a67ad69ff08e6f2444e5f4a2ee1",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "chapter-progress-list": {
+    "parameterized-cards/gen/chapter-progress-list.tsx": "dba7d6793ed02d48e7b36cdc182a716a8f10557c952f79a40c1566a70af0ed45",
+    "cards/chapter-progress-list.tsx": "c999f69457dd9aa4929b4dd667e49bbf8588d1742654e0d4e6b42af0334a714b",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "hand-drawn-ellipse": {
+    "parameterized-cards/gen/hand-drawn-ellipse.tsx": "836ff8459a1e404bfe21718e0c158e3bd83aa80826e91522c838d67a76a1e7e2",
+    "cards/hand-drawn-ellipse.tsx": "8dfef1a4a4a8f76bbe3e1cd61397a8b239b6e6b5c0da8fe0a7307acb63c5d545",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "chapter-title-card": {
+    "cards/chapter-title-card.tsx": "6b10c356b7f4da9f6d988bcf26b51d37abb19aa27b95d7aa3ddbeea84d79637b",
+    "parameterized-cards/chapter-title-card.tsx": "35eb80ba1db45162c2b6f065c0f9ecddacecd1c18a42e9ba389a9fcf0bab0e3a",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "outline-box-title": {
+    "parameterized-cards/gen/outline-box-title.tsx": "610dbf29c8322dc49b1e07c3d43f25bc511406f4e815038ee23487a5f4f4fb10",
+    "cards/outline-box-title.tsx": "b0b26442589d91d53886520fa0d28a575bb22b41316da07bada1662fc8477255",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "quote-card": {
+    "parameterized-cards/gen/quote-card.tsx": "001ae838a8e812d86a93aaeaa74cc9794978fa784dc55d80055a0965c2b1a4dd",
+    "cards/quote-card.tsx": "43c0a57a72f02063cc73189f07b0914679f653ad66f7c54cc82ecdbff9641e0a",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "tracking-in": {
+    "parameterized-cards/gen/tracking-in.tsx": "caa9b80a94df45df9e5856add729d33bfadcc62bd2b0b5c451ced6095da8c854",
+    "cards/tracking-in.tsx": "a56e9b4421ffd96f9471f3392c7ebe1fb836c8067baa0a127524f28b889f908b",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "slab-punch-title": {
+    "parameterized-cards/gen/slab-punch-title.tsx": "fe5f5db0d29c69c0bcfe80a887d0fdb1f8ad36557b87b7b0bd969d71a14a4e99",
+    "cards/slab-punch-title.tsx": "6142bf9f135cb9effd269646e0401b3a96f89b3d666c7766f50b3cd3772ae3e2",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "soft-blur-in": {
+    "parameterized-cards/gen/soft-blur-in.tsx": "ca2c362e43682de035b55d41ab6d8fcc534b6c2e5b6c76daf7e73092cdbf2f96",
+    "cards/soft-blur-in.tsx": "5eb3f85f7f38f1211c5a33ac4bce0ff8966ef58761e272a4c3cab4097a6d104b",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "corner-bracket-frame": {
+    "parameterized-cards/gen/corner-bracket-frame.tsx": "df700f76f81b92c82d877737cb68511083d1bf2e216c4bd98b22f3e55ee516c6",
+    "cards/corner-bracket-frame.tsx": "52ebdbdce58aa2beb8d3147835a3d56ba4e9f651ec667942d8761ce69a865868",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "error-retype": {
+    "parameterized-cards/gen/error-retype.tsx": "09294b0a05b337c9bfda78bcc6b2af8db6627f7c988ba1e80f29afa824707d23",
+    "cards/error-retype.tsx": "5b05b59c5ba133e61d1d655a47e7e8fd5086cae5c8723ddff72137dd86640eb6",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  }
+}

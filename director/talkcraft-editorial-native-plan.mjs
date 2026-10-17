@@ -1,10 +1,11 @@
+import {TEXT_EFFECT_RULES} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {CONTENT_ONSET_RULES} from './talkcraft-content-onset.mjs';
 import {assertNativeMotionRate,assertNativeMediaClock,NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
 
-export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。仅模板动效允许0.85～1.15倍速，nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。实际速度按原生和输出首尾帧跨度之比记录，整数帧取整后仍不得超限，超限必须重新选卡。内嵌媒体的原生帧与输出帧必须一一对应，不能驻留冻结或偏移。配音、数字人口型、字级输出锚点和真实切镜时间保持原样，不得跟随模板变速；原卡首尾和动作顺序完整保留。开场原卡仍须不超过3秒，禁止靠加速长卡绕过。驻留帧为0基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。视觉效果由人工审核。'+CONTENT_ONSET_RULES;
+export const EDITORIAL_NATIVE_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。仅模板动效允许0.85～1.15倍速，nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。实际速度按原生和输出首尾帧跨度之比记录，整数帧取整后仍不得超限，超限必须重新选卡。内嵌媒体的原生帧与输出帧必须一一对应，不能驻留冻结或偏移。配音、数字人口型、字级输出锚点和真实切镜时间保持原样，不得跟随模板变速；原卡首尾和动作顺序完整保留。开场原卡仍须不超过3秒，禁止靠加速长卡绕过。驻留帧为0基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。视觉效果由人工审核。'+CONTENT_ONSET_RULES+TEXT_EFFECT_RULES;
 
 export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason,playbackRate){
   if(!Number.isInteger(duration)||duration<1||!Number.isInteger(nativeFrames)||nativeFrames<1)

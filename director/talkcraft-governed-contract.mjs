@@ -1,3 +1,4 @@
+import {TEXT_EFFECT_RULES,textEffectContract} from './talkcraft-text-effect-dependencies.mjs';
 import {buildCatalog, validateCalls, CONTRACT_VERSION} from '../docs/audits/b-talkcraft-target3/current-contract.mjs';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -55,7 +56,11 @@ export function loadTalkcraftGovernedCatalog(index) {
 
 export function talkcraftEditorialContract(catalog) {
   return {version:CONTRACT_VERSION,productionAdmitted:false,
+    timingRules:TEXT_EFFECT_RULES,
     cards:catalog.cards.map(card=>({slug:card.cardId,implementationSha256:card.implementation.sha256,
+      textEffectTiming:{contractRequired:true,audited:textEffectContract(card.cardId,{},card.duration.frames)!==null,
+        defaultParametersOnly:true,nativeWindowsExample:textEffectContract(card.cardId,Object.fromEntries(card.fields.filter(f=>f.default!==undefined).map(f=>[f.key,f.default])),card.duration.frames),
+        rule:'示例仅适用默认参数，禁止套用于不同文本行数或时长。按本次实际cardProps、逐条wordEvents、完整native时间轴重新计算文字窗口和装饰依赖；未审计卡仍可比较，正式选定后须补源码契约。'},
       duration:{fps:card.duration.fps,frames:card.duration.frames,originalFrames:card.duration.originalFrames,variants:card.duration.variants},
       fields:card.fields.map(({key,type,role,writable,min,max,step,options,blankAllowed,valueConstraint})=>
         ({key,type,role,writable,min,max,step,options,blankAllowed,valueConstraint})),

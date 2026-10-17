@@ -1,3 +1,4 @@
+import {checkTextEffectDependencies,recordTextEffectDependencies} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {nativeFrameAt} from './talkcraft-native-time-map.mjs';
@@ -26,13 +27,19 @@ export function checkNativeWordWindows(shots, presentation, reveals) {
         message:`第 ${shots.findIndex(s=>s.id===shot.id)+1} 镜（${shot.id}）的“${event.text}”说到时，原模板已删除或尚未打完该文字；须重新编导模板或驻留计划。`});
     }
   }
-  return {schema:'talkcraft-native-word-window-v1',passed:issues.length===0,issues,runtimeVerified:false};
+  const dependencies=checkTextEffectDependencies(shots,presentation,reveals);
+  issues.push(...dependencies.issues);
+  return {schema:'talkcraft-native-word-window-v1',passed:issues.length===0,issues,dependencyChecks:dependencies.checks,runtimeVerified:false};
 }
 
 export function recordNativeWordWindows(project, reveals) {
   const read=name=>JSON.parse(fs.readFileSync(path.join(project,'remotion',name),'utf8'));
   if(!fs.existsSync(path.join(project,'remotion/native-presentation.json')))return {passed:true,issues:[]};
-  const report=checkNativeWordWindows(read('shots.json'),read('native-presentation.json'),reveals);
+  const shots=read('shots.json'),presentation=read('native-presentation.json');
+  const report=checkNativeWordWindows(shots,presentation,reveals);
+  const dependency=recordTextEffectDependencies(project,shots,presentation,reveals);
+  report.issues.push(...dependency.issues.filter(i=>i.code==='TEXT_EFFECT_SOURCE_CHANGED'));
+  report.passed=report.issues.length===0;
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
   fs.writeFileSync(path.join(project,'qa/native-word-window-check.json'),JSON.stringify(report,null,2)+'\n');
   return report;

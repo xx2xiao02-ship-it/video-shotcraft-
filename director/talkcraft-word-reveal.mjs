@@ -1,3 +1,4 @@
+import {recordTextEffectDependencies} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -141,6 +142,8 @@ export function assertWordReveals(project) {
   const native=isNativePresentation(project);
   const visual=fs.readFileSync(path.join(project,native?'remotion/src/scenes/scene-shared.tsx':'remotion/src/scenes/visual-scene.tsx'),'utf8');
   if(!visual.includes(native?'<NativePresentationRoot':'<WordRevealRoot'))throw Error('文字落点未接入实际画面卡片');
+  if(native){const dependencies=recordTextEffectDependencies(project,read(path.join(project,'remotion/shots.json')),read(path.join(project,'remotion/native-presentation.json')),current,{requireSources:true});
+    if(!dependencies.passed){const error=Error('TEXT_EFFECT_DEPENDENCY_FAILED：'+dependencies.issues.map(i=>i.message).join('\n'));error.issues=dependencies.issues;throw error;}}
   return current;
 }
 // Preparation stage writes consumed timing parameters before rendering; render code
