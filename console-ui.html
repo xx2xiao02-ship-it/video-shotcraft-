@@ -1314,6 +1314,11 @@
     <div class="b-production-table-wrap"><table class="b-production-table"><thead><tr><th>句</th><th>时间范围</th><th>匹配率</th><th>原稿句</th></tr></thead><tbody id="b-production-rows"></tbody></table></div>
   </section>
   <section id="b-sample-review" class="b-sample-review" hidden aria-label="样片播放与确认"></section>
+  <section id="b-final-review" hidden aria-label="待验收整片播放" style="margin-top:16px;padding:20px;border:1px solid var(--border);border-radius:12px">
+    <h3 style="margin:0 0 12px">待验收整片</h3>
+    <video id="b-final-review-video" controls playsinline preload="metadata" aria-label="当前正式整片"
+      style="display:block;width:100%;max-height:70vh;background:#000;border-radius:8px"></video>
+  </section>
   <section id="b-workflow-action" hidden aria-label="当前待确认事项">
     <section class="b-production-next-step" aria-labelledby="b-production-next-title">
       <div><h3 id="b-production-next-title">下一步</h3><p class="b-production-next-note" id="b-production-next-note"></p></div>
@@ -4818,6 +4823,16 @@ const bSampleReviewPanel=createTalkcraftSamplePanel($('#b-sample-review'),id=>re
 function renderBAuditNextAction() {
   const run = bAuditRunStatus;
   bSampleReviewPanel.update(run);
+  const finalPanel=$('#b-final-review'),finalVideo=$('#b-final-review-video');
+  const showFinal=!!(run?.nextStage==='approve-final'&&run.final&&run.qaPassed&&run.provenance?.verified&&!run.intervention);
+  finalPanel.hidden=!showFinal;
+  if(showFinal){
+    const src=`/api/talkcraft/video?id=${encodeURIComponent(run.runId)}&kind=final&v=${encodeURIComponent(run.finalSha256||'')}`;
+    // Polling must not reset playback; only replace media when this final changes.
+    if(finalVideo.getAttribute('src')!==src)finalVideo.src=src;
+  }else if(finalVideo.hasAttribute('src')){
+    finalVideo.pause();finalVideo.removeAttribute('src');finalVideo.load();
+  }
   renderBIntervention(run);
   const actionPanel=$('#b-workflow-action');actionPanel.hidden=true;
   const button = $("#b-production-next-button");
