@@ -106,3 +106,14 @@
 - 复用配音、口型、真实字级时间与切镜；重渲覆盖所有字幕受影响镜头，保留原片。机器覆盖检查与完整解码不替代用户视觉和听觉审核，不自动批准修订视频。
 
 真实单视频背景使用原项目template/components/theme-frame.tsx的hairline式承接，复制同源lib.tsx；不伪造播放器，不新增装饰编号，不改前景卡片缩放或构图。SHOTBOOK必须声明真实视频与ThemeFrame，原版预检不改。
+# 真实素材检索与图形表达偏好（用户2026-10-17确认）
+
+此节是用户批准的本地实现，承接上游③素材，不冒称上游已经提供无人值守的下载系统。
+
+- 编导既有请求接收 `MATERIAL_RESEARCH_RULES` 与 `VISUAL_PREFERENCE_RULES`，返回独立 `materialResearch.shots`，与全部镜头一一对应。每镜说明图形意图或保留纯文的理由；适合背景者填具体英文 `backgroundQuery`、中文本地库标签 `backgroundConcepts` 和语境理由。身份、证据、量化需求来自真实语义 `need/entities`，不得跳过。
+- 候选节点先运行素材检索及本地背景比较，再执行原版 matcher。在线资料使用 MediaWiki/Commons 发现人物和来源线索；Commons 只有明确PD/CC0进入免署名候选。背景 API 使用现有环境 `PEXELS_API_KEY`、`PIXABAY_API_KEY`，缺配置如实记录，不输出key。遵循现有代理环境；不调用模型、TTS或RunningHub。
+- `node --use-env-proxy director/talkcraft-material-research.mjs <project> <上游cards-index.json> --search` 可独立恢复此环节。按规划哈希缓存元数据请求，不循环重试；网络恢复或补配置后显式 `--refresh`，旧检索保留。缓存命中不代表素材审核通过。
+- 搜索结果仅是候选，不能自动充当官方证据。采集后在规划的 `bindings` 登记kind/query、sourceUrl、localPath、sha256、identityReason、sourceVerified、license及licenseVerified；文件须实际绑定本镜cardProps媒体槽位。网页证据另按上游③保存真实页面截图与同会话DOM坐标，登记sources.md。本人身份、数值/日期、权利及用途核实后才绑定，不抓任意图替代本人，不伪造统计图。
+- 本地背景只按明确标签、实际时长和画幅生成候选；无匹配明确缺口，不随机用办公/城市兜底假装语义命中。语境背景不能满足事实素材槽位，背景只落在background通道。模板实色底板会遮挡时回编导重新选卡，不用外层CSS抹底/缩卡。
+- 上游候选与全部108已审库保留；候选比较报告新增 `expressionPreference`：同等语义/素材可行性，优先数据信息图或有真实素材的呈现卡，其余保持原排序。不是新的图形白名单，不自动按第一名换卡；候选外仍按原版写明理由。纯文字用于短钩子、过渡、强调，长驻留与连续纯文应比较图形/真实素材方案。
+- `qa/material-research-audit.json` 全片列出需求、实际绑定缺口和本地候选，`qa/material-search-results.json` 保留线上候选与提供方失败。未核实的资料不通过选卡前门禁；不降低旧预检、模板、时间、字幕或数字人校验。先出修订方案及新片供人审，原片、配音和成功口型保留。

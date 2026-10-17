@@ -11,7 +11,7 @@ import {applySemanticDecisions,validateSemanticDecisions} from './talkcraft-sema
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC, OPENING_MAX_SHOT_SEC, OPENING_TARGET_SHOT_SEC} from './talkcraft-template-governance.mjs';
 import {loadTalkcraftGovernedCatalog, talkcraftEditorialContract, validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
-import {nativeEditorialTimeline,prepareEditorialNativePlans,EDITORIAL_NATIVE_RULES} from './talkcraft-editorial-native-plan.mjs';
+import {nativeEditorialTimeline,prepareEditorialNativePlans,EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
 import {alignNativeShotBoundaries} from './talkcraft-native-preparation.mjs';
@@ -376,6 +376,7 @@ sentences 一一对应全部输入句，索引从零递增，text 原样保留�
 ${EDITORIAL_COVERAGE_RULES}
 ${EDITORIAL_PARAM_RULES}
 ${EDITORIAL_NATIVE_RULES}
+${EDITORIAL_MATERIAL_RULES}
 subject 只能取 person 或 other；${sourceRun.isDigitalHuman === true ? '本片启用数字人，至少安排一个 person 镜头，并写明数字人位置、口播动作、文字层和背景素材如何配合。' : '本片未启用数字人，所有镜头使用 other；角色图仅作静态素材，不能宣称已生成数字人口型。'}只生成分镜设计，不宣称素材已采集、候选已审核或预检已通过。外部素材、证据、音效、卡片源码和词语锚点均须后续核验。默认简体中文。
 语义词表：${JSON.stringify([...vocab])}
 开场硬规则：前 8 秒使用独立短模板池；模板治理目录的原始完整时长必须不超过 ${OPENING_MAX_TEMPLATE_SEC} 秒（不是截断后的镜头时长）。当前合格短模板池只有：${JSON.stringify(openingShortCards)}。前 8 秒每个使用模板的镜头只能从该池选择；如果语义不匹配，必须明确写无合格短模板并保留可治理的 person/实拍设计，禁止选择长模板、截断或固定轮换；短模板仅可按下述15%规则适配，不能用加速长模板绕过原卡短时长限制。开场每镜实际占用（含驻留）目标约 ${OPENING_TARGET_SHOT_SEC} 秒，上限 ${OPENING_MAX_SHOT_SEC} 秒。按自然短句及真实字级边界组织，不能让三秒短卡驻留成四至八秒长镜头。若当前句粒度无法满足，明确报告需按原配音字级锚点细分语义拍；不得估算切点、截断语义或伪造句序覆盖。

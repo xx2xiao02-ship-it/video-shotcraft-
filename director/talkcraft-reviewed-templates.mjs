@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {auditHostContext} from './talkcraft-host-context.mjs';
 import {assertCaptionScene} from './talkcraft-caption-layer.mjs';
+import {visualPreference} from './talkcraft-visual-preference.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>{
@@ -166,6 +167,7 @@ export function assertReviewedSelection(project,options={}) {
 // upstream ordering, adding synthetic recommendations or claiming visual QA.
 export function recordCandidateComparison(project,options={}) {
   const reviewed=loadReviewedTemplates(options),candidates=read(path.join(project,'qa/card-candidates.json'));
+  const index=read(path.join(options.skillRoot||process.env.TALKCRAFT_SKILL_ROOT||path.resolve(directory,'../_audit/video-talkcraft'),'references/cards-index.json'));
   const shots=read(path.join(project,'remotion/shots.json'));
   const rows=shots.map((shot,i)=>{
     const entry=candidates[shot.id]||candidates[String(shot.id).toLowerCase()]||{};
@@ -175,6 +177,8 @@ export function recordCandidateComparison(project,options={}) {
     return {shotId:shot.id,selectedCard:shot.shotCard,recommendedCount:recommendations.length,
       perSemantic:Object.fromEntries(groups.map(([sem,list])=>[sem,list.map(c=>c.slug)])),
       recommended:recommendations.includes(shot.shotCard),semanticDeviation:entry.waived||{},
+      expressionPreference:visualPreference(recommendations.map(id=>index.cards.find(c=>c.slug===id)).filter(Boolean),
+        {semantics:groups.map(([sem])=>sem),mediaAvailable:/V|图|截图/u.test(entry.media||'')}),
       recentWindow:recent,unusedRecommendations:recommendations.filter(id=>!recent.some(s=>s.cardId===id)),
       templateContinuity:shot.templateParams?.templateContinuity||null};
   });

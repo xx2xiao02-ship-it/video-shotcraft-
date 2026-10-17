@@ -15,6 +15,8 @@ function fixture(t){
     fs.writeFileSync(f,typeof value==='string'?value:JSON.stringify(value));};
   const source='export const reviewed=true;\n',relative='workbench/src/cards/gen/approved.tsx';
   fs.mkdirSync(path.dirname(path.join(skillRoot,relative)),{recursive:true});fs.writeFileSync(path.join(skillRoot,relative),source);
+  fs.mkdirSync(path.join(skillRoot,'references'),{recursive:true});
+  fs.writeFileSync(path.join(skillRoot,'references/cards-index.json'),JSON.stringify({cards:[{slug:'approved',category:'字幕花字'}]}));
   const registry={schema:'talkcraft-reviewed-templates-v1',sources:{[relative]:hash(source)},cards:[{
     cardId:'approved',reviewStatus:'technical-reviewed',sourceFiles:[relative],reviews:['wide','portrait'].map(orientation=>({orientation,mediaSha256:'a'.repeat(64),fullDecode:true,bindingChecked:true,layoutChecked:true}))}]};
   const save=()=>fs.writeFileSync(registryFile,JSON.stringify(registry));save();

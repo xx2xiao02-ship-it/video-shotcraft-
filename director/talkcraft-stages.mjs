@@ -43,6 +43,7 @@ import {renderConcurrency} from './render-runtime.mjs';
 import {assertTalkcraftCardCallsBound, assertTalkcraftCardCallsQaEvidence,
   talkcraftCardCallsQaEvidence} from './talkcraft-card-calls.mjs';
 import {loadMaterialIndex, matchSceneVideos} from './b-mode-material-match.mjs';
+import {auditMaterialResearch} from './talkcraft-material-research.mjs';
 import {assertBModeGoverned} from './talkcraft-b-mode-governance.mjs';
 import {normalizeTalkcraftBindings, syncTalkcraftShotSource} from './talkcraft-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
@@ -522,13 +523,23 @@ function runTalkcraftStageInternal(stage, runId) {
   if (stage === 'semantic-apply') {
     return applySemanticDecisions(project, SKILL);
   }
+  if(stage==='material-research'){
+    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-research.mjs'),project,path.join(SKILL,'references/cards-index.json'),'--search'],project);
+    return {project,artifact:'qa/material-search-results.json',audit:'qa/material-research-audit.json',status:'awaiting_material_binding',paidCalls:0};
+  }
   if (stage === 'candidates') {
     mkdirSync(path.join(project, 'qa'), {recursive:true});
+    // A bounded, cached metadata search belongs before selection. It cannot
+    // generate media, accept evidence, download arbitrary files or incur AI fees.
+    if(existsSync(path.join(project,'material-research-plan.json')))
+      run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-research.mjs'),project,path.join(SKILL,'references/cards-index.json'),'--search'],project);
     const state=readTalkcraftStatus(ROOT,runId),adjustments=[];
     adjustments.push(...autoAdjustShotbook(project));
     const backgrounds=allocateUniqueBackgrounds(ROOT,project);
     if(backgrounds.unresolved.length)throw new Error(`待补充独立背景素材：${backgrounds.unresolved.map(s=>s.shotId).join('、')}`);
     assertExclusiveBackgrounds(project,JSON.parse(readFileSync(path.join(project,'remotion/shots.json'),'utf8')));
+    const materialResearch=auditMaterialResearch(project,JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8')),{localIndex:loadMaterialIndex(ROOT)});
+    if(!materialResearch.passed)throw Error('选卡前真实素材规划未完成：'+materialResearch.issues.map(i=>`${i.shotId||'全片'} ${i.code}`).join('；'));
     const materialPlan=allocateTemplateMaterials(project,{deferGeneratedHost:state.digitalHumanGenerationPlanned});
     adjustments.push(...materialPlan.adjustments);
     if(materialPlan.unresolved.length)throw new Error('候选生成前素材绑定未通过：'+materialPlan.unresolved.map(x=>x.message).join('；'));
