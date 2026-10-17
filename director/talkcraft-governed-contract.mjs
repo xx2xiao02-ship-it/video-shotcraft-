@@ -80,7 +80,7 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     implementationSha256:catalog.cards.find(card=>card.cardId===cardId)?.implementation.sha256,
     props:shot.templateParams?.cardProps,evidence:[]}; });
   const validation=validateCalls({schema:'b-talkcraft-call-v1',calls},{catalog,projectRoot});
-  const errors=auditHostContext(shots),pending=[];
+  const errors=auditHostContext(shots),pending=[],sourceCapabilities=[];
   for(const [i,call]of calls.entries()){
     const card=catalog.cards.find(c=>c.cardId===call.cardId);
     for(const field of card?.fields||[])if(field.valueConstraint?.format==='one-based-index-list'&&Object.hasOwn(call.props||{},field.key)){
@@ -95,12 +95,27 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     const index=Number(issue.at.match(/^calls\[(\d+)\]/)?.[1]);
     const field=issue.at.match(/\.props\.([^.]+)$/)?.[1];
     const card=catalog.cards.find(card=>card.cardId===calls[index]?.cardId);
+    // This upstream card directly parses empty DSL labels and passes bg to CSS.
+    // Correct only these two verified source capabilities, not arbitrary colors/DSL.
+    if(verifiedChapterBackgroundParameter(issue,shots[index],card)){sourceCapabilities.push({...issue,shotId:shots[index].id,implementationSha256:card.implementation.sha256,reason:'原卡公开CSS底色与空编号DSL能力已按源码核对'});continue;}
     const mediaField=field && Object.hasOwn(card?.policy.media||{},field);
     // Material collection and factual evidence remain explicit pending work.
     const deferred=['MEDIA_INVALID','MEDIA_ALTERNATIVE','NUMERIC_EVIDENCE_REQUIRED','ANCHOR_EVIDENCE_REQUIRED'].includes(issue.code) ||
       (issue.code==='REQUIRED_PROP' && mediaField);
     (deferred?pending:errors).push({...issue,shotId:calls[index]?.id??null});
   }
-  return {passed:errors.length===0,errors,pending,productionAdmitted:false,
+  return {passed:errors.length===0,errors,pending,sourceCapabilities,productionAdmitted:false,
     limitation:'Design field/source validation only; pending media/evidence requires full validation before rendering.'};
+}
+
+export function verifiedChapterBackgroundParameter(issue,shot,card){
+  const p=shot?.templateParams||{},props=p.cardProps||{};
+  if(shot?.shotCard!=='chapter-progress-list'||p.backgroundPresentation!=='theme-wash-v1'||p.materialRole!=='background'||!p.materialSrc)return false;
+  const field=issue.at?.match(/\.props\.([^.]+)$/u)?.[1];
+  if(!(issue.code==='PROP_COLOR'&&field==='bg'&&props.bg==='#ffffff00')&&
+     !(issue.code==='DATA_FORMAT'&&field==='rows'&&typeof props.rows==='string'&&props.rows.split('\n').every(s=>/^\|[^|\n]+(?:\|current)?$/u.test(s))))return false;
+  if(!card?.implementation?.file||!card?.original?.file)return false;
+  for(const source of [card.implementation,card.original])if(!fs.existsSync(source.file)||createHash('sha256').update(fs.readFileSync(source.file)).digest('hex')!==source.sha256)return false;
+  const source=fs.readFileSync(card.implementation.file,'utf8');
+  return source.includes('background: bg')&&source.includes('no: parts[0] ?? ""')&&source.includes('name: parts[1] ?? ""');
 }

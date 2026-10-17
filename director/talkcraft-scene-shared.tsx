@@ -1,3 +1,5 @@
+import {backgroundPresentation} from '../talkcraft-background-presentation.mjs';
+import {ThemeFrame} from '../theme-frame';
 import React from 'react';
 import {AbsoluteFill, Img, OffthreadVideo, staticFile, useVideoConfig} from 'remotion';
 import type {Shot} from '../shots';
@@ -7,6 +9,7 @@ import {cardStageLayout} from '../talkcraft-presentation-skin.mjs';
 export const TemplateScene: React.FC<{shot:Shot}> = ({shot}) => {
   const {width,height,fps} = useVideoConfig();
   const p = shot.templateParams || {};
+  const backdrop=backgroundPresentation(shot,THEME);
   const material = typeof p.materialSrc === 'string' ? p.materialSrc : null;
   const image = material && /\.(png|jpe?g|webp)$/iu.test(material);
   const materialPlaybackRate = Number.isFinite(Number(p.materialPlaybackRate)) && Number(p.materialPlaybackRate) > 0
@@ -22,10 +25,10 @@ export const TemplateScene: React.FC<{shot:Shot}> = ({shot}) => {
   const {scale}=layout;
   const portrait = height>width;
   return <AbsoluteFill style={{background:skin.bg,overflow:'hidden'}}>
-    {material && p.materialRole === 'background' && <>
+    {material && p.materialRole === 'background' && <ThemeFrame kind="hairline" width={width-28} height={height-28} ink={THEME.text} label="" sub="">
       {image ? <Img src={staticFile(material)} style={{width:'100%',height:'100%',objectFit:'contain'}} /> : <OffthreadVideo src={staticFile(material)} muted playbackRate={materialPlaybackRate} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}} />}
-      <AbsoluteFill style={{background:'rgba(0,0,0,.42)'}} />
-    </>}
+      <AbsoluteFill style={{background:backdrop.overlay}} />
+    </ThemeFrame>}
     {material && p.materialRole !== 'background' && <div style={{position:'absolute',inset:'8% 8% 45%',overflow:'hidden',border:'2px solid #1a4a8a',borderRadius:12}}>
       {image ? <Img src={staticFile(material)} style={{width:'100%',height:'100%',objectFit:'contain'}} /> : <OffthreadVideo src={staticFile(material)} muted playbackRate={materialPlaybackRate} style={{width:'100%',height:'100%',objectFit:'cover'}} />}
     </div>}

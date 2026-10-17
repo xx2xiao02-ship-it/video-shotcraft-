@@ -1,12 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 
 // Upgrade only recognized generated statements. Preserve user scene code,
 // shot/card parameters, timing, theme settings and upstream card sources.
 export function installPresentationSkin(project){
   const source=path.dirname(fileURLToPath(import.meta.url)),src=path.join(project,'remotion/src');
-  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs'])
+  const upstream=resolveTalkcraftSkillRoot(path.resolve(source,'..'));
+  const frameSource=path.join(upstream,'template/components/theme-frame.tsx');
+  if(fs.existsSync(frameSource)){
+    const frame=fs.readFileSync(frameSource,'utf8');
+    if(!frame.includes("from './lib'"))throw Error('原版ThemeFrame依赖已变化，请核对');
+    fs.writeFileSync(path.join(src,'theme-frame.tsx'),frame.replace("from './lib'","from './theme-frame-lib'"));
+    fs.copyFileSync(path.join(upstream,'template/components/lib.tsx'),path.join(src,'theme-frame-lib.tsx'));
+  }
+  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs','talkcraft-background-presentation.mjs'])
     fs.copyFileSync(path.join(source,name),path.join(src,name));
   fs.copyFileSync(path.join(source,'talkcraft-keyword-caption.tsx'),path.join(src,'KeywordCaption.tsx'));
   const adapter=path.join(src,'talkcraft-template-adapter.tsx');
@@ -37,6 +46,26 @@ export function installPresentationSkin(project){
       code="import {cardStageLayout} from '../talkcraft-presentation-skin.mjs';\n"+code;
       code=code.replace(old,"const layout=cardStageLayout(width,height,{separateMaterial:Boolean(material && p.materialRole !== 'background')});\n  const {scale}=layout;");
       code=code.replace(position,'left:layout.left,top:layout.top');
+      fs.writeFileSync(scene,code);
+    }
+    if(code.includes('backgroundPresentation(shot,THEME)')&&!code.includes('<ThemeFrame')){
+      const start="{material && p.materialRole === 'background' && <>";
+      const end="<AbsoluteFill style={{background:backdrop.overlay}} />\n    </>}";
+      if(!code.includes(start)||!code.includes(end)||!fs.existsSync(path.join(src,'theme-frame.tsx')))throw Error('原版背景容器无法安全接入');
+      code="import {ThemeFrame} from '../theme-frame';\n"+code;
+      code=code.replace(start,'{material && p.materialRole === \'background\' && <ThemeFrame kind="hairline" width={width-28} height={height-28} ink={THEME.text} label="" sub="">');
+      code=code.replace(end,'<AbsoluteFill style={{background:backdrop.overlay}} />\n    </ThemeFrame>}');
+      fs.writeFileSync(scene,code);
+    }
+  }
+  if(fs.existsSync(scene)){
+    let code=fs.readFileSync(scene,'utf8');
+    if(!code.includes('backgroundPresentation(shot,THEME)')&&code.includes('const p = shot.templateParams || {};')){
+      const anchor='const p = shot.templateParams || {};';
+      const overlay="background:'rgba(0,0,0,.42)'";
+      if(!code.includes(anchor)||!code.includes(overlay))throw Error('背景绑定入口已改变，请核对公共场景');
+      code="import {backgroundPresentation} from '../talkcraft-background-presentation.mjs';\n"+code;
+      code=code.replace(anchor,anchor+'\n  const backdrop=backgroundPresentation(shot,THEME);').replace(overlay,'background:backdrop.overlay');
       fs.writeFileSync(scene,code);
     }
   }

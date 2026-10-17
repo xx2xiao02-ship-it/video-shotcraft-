@@ -1,3 +1,4 @@
+import {checkPresentationSemantics} from './talkcraft-background-presentation.mjs';
 import {recordTextEffectDependencies} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -136,6 +137,9 @@ export function compileWordReveals(project,{write=true}={}) {
 }
 
 export function assertWordReveals(project) {
+  const presentation=checkPresentationSemantics(read(path.join(project,'remotion/shots.json')));
+  fs.writeFileSync(path.join(project,'qa/presentation-semantics.json'),JSON.stringify(presentation,null,2)+'\n');
+  if(!presentation.passed)throw Error('背景及编号绑定未通过：'+JSON.stringify(presentation.issues));
   const current=compileWordReveals(project,{write:false});if(!current.enabled)return current;
   const saved=read(path.join(project,'remotion/word-reveals.json'));
   if(JSON.stringify(current)!==JSON.stringify(saved))throw Error('文字落点绑定已过期，请重新运行 word-reveal');
