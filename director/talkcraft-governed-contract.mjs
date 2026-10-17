@@ -1,6 +1,7 @@
 import {buildCatalog, validateCalls, CONTRACT_VERSION} from '../docs/audits/b-talkcraft-target3/current-contract.mjs';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {correctAnchoredSpeechTimes} from './talkcraft-anchored-time-contract.mjs';
 
 const CARD_ALIASES = Object.freeze({
   'lead-word-zoom-assemble': 'typography/lead-word-zoom-assemble',
@@ -21,6 +22,7 @@ export function canonicalCardId(value, catalog) {
 // Reuse the locked B contract; never create a parallel catalog or change admission.
 export function loadTalkcraftGovernedCatalog(index) {
   const catalog = buildCatalog();
+  const speechTimeCorrection=correctAnchoredSpeechTimes(catalog);
   // Correct a local catalog extraction omission from verified upstream code.
   // Missing price is still forbidden: only an explicitly supplied empty string hides it.
   const info=catalog.cards.find(c=>c.cardId==='info-card-assemble');
@@ -41,6 +43,7 @@ export function loadTalkcraftGovernedCatalog(index) {
       reason:'源UI明确空值隐藏，组件显式透传并条件渲染；不得补演示价格',source:info.original}];
   }
   const indexed = new Set(index.cards.map(card => card.slug));
+  catalog.localCorrections=[...(catalog.localCorrections||[]),speechTimeCorrection];
   const governed = new Set(catalog.cards.map(card => card.cardId));
   const missing = [...indexed].filter(id => !governed.has(id));
   const extra = [...governed].filter(id => !indexed.has(id));
