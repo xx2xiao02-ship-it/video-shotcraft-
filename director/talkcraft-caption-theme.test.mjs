@@ -32,7 +32,7 @@ test('原卡承担同句字幕时仍安装主题，重复安装不重复注入',
   installPresentationSkin(dir);assert.equal(fs.readFileSync(file,'utf8'),code);
   const runtime=fs.readFileSync(path.join(src,'KeywordCaption.tsx'),'utf8');
   assert.match(runtime,/import \{THEME\} from '.\/theme'/);
-  assert.match(runtime,/captionTheme\(THEME\)/);
+  assert.match(runtime,/captionTheme\(backgroundCaptionTheme\(shot,THEME\)\)/);
   assert.equal(fs.readFileSync(adapter,'utf8'),bound);
   assert.doesNotMatch(runtime,/#b33131|#ffd23e/);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}

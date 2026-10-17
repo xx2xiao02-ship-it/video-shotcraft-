@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
+import {installCaptionEmphasis} from './talkcraft-caption-emphasis-plan.mjs';
 
 // Upgrade only recognized generated statements. Preserve user scene code,
 // shot/card parameters, timing, theme settings and upstream card sources.
@@ -15,7 +16,7 @@ export function installPresentationSkin(project){
     fs.writeFileSync(path.join(src,'theme-frame.tsx'),frame.replace("from './lib'","from './theme-frame-lib'"));
     fs.copyFileSync(path.join(upstream,'template/components/lib.tsx'),path.join(src,'theme-frame-lib.tsx'));
   }
-  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs','talkcraft-background-presentation.mjs'])
+  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs','talkcraft-background-presentation.mjs','talkcraft-caption-emphasis.mjs'])
     fs.copyFileSync(path.join(source,name),path.join(src,name));
   fs.copyFileSync(path.join(source,'talkcraft-keyword-caption.tsx'),path.join(src,'KeywordCaption.tsx'));
   const adapter=path.join(src,'talkcraft-template-adapter.tsx');
@@ -72,6 +73,10 @@ export function installPresentationSkin(project){
   const subtitles=path.join(src,'Subtitles.tsx');
   if(fs.existsSync(subtitles)){
     let code=fs.readFileSync(subtitles,'utf8');
+    if(code.includes('export const phrases = () => {')&&code.includes('export const SubtitleLine:')){
+      const begin=code.indexOf('export const phrases = () => {'),end=code.indexOf('export const SubtitleLine:',begin);
+      code="import {captionPhrases} from './talkcraft-caption-emphasis.mjs';\n"+code.slice(0,begin)+'export const phrases = () => captionPhrases(timing);\n'+code.slice(end);
+    }
     const styledReturn='return line && !cardOwnsNarrationCaption(shot,line.text) ? <SubtitleLine text={line.text} /> : null;';
     const captionReturn='return line ? <SubtitleLine text={line.text} /> : null;';
     if(code.includes(captionReturn)&&code.includes('const now=frame/fps;')){
@@ -112,4 +117,5 @@ export function installPresentationSkin(project){
       fs.writeFileSync(main,code);
     }
   }
+  installCaptionEmphasis(project);
 }

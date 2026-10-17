@@ -1,4 +1,5 @@
 import {checkPresentationSemantics} from './talkcraft-background-presentation.mjs';
+import {assertCaptionEmphasis} from './talkcraft-caption-emphasis-plan.mjs';
 import {recordTextEffectDependencies} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -137,6 +138,7 @@ export function compileWordReveals(project,{write=true}={}) {
 }
 
 export function assertWordReveals(project) {
+  if(fs.existsSync(path.join(project,'remotion/timing.json')))assertCaptionEmphasis(project);
   const presentation=checkPresentationSemantics(read(path.join(project,'remotion/shots.json')));
   fs.writeFileSync(path.join(project,'qa/presentation-semantics.json'),JSON.stringify(presentation,null,2)+'\n');
   if(!presentation.passed)throw Error('背景及编号绑定未通过：'+JSON.stringify(presentation.issues));
@@ -228,7 +230,7 @@ export function wordRevealSourceBinding(project){
   walk(path.join(remotion,'src'));
   const bridgeProof=path.join(project,'qa/visual-timeline-bridges.json');
   if(fs.existsSync(bridgeProof))files.push(bridgeProof);
-  for(const name of ['word-reveals.json','word-reveal-plan.json','reveal-units.json','visual-beats.json','native-presentation.json','shots.json','overrides.json','qa-repair-props.json','text-readability.json'])if(fs.existsSync(path.join(remotion,name)))files.push(path.join(remotion,name));
+  for(const name of ['caption-emphasis-plan.json','caption-emphasis.json','word-reveals.json','word-reveal-plan.json','reveal-units.json','visual-beats.json','native-presentation.json','shots.json','overrides.json','qa-repair-props.json','text-readability.json'])if(fs.existsSync(path.join(remotion,name)))files.push(path.join(remotion,name));
   // Background/media file replacement at the same path must invalidate color proof.
   const assets=new Set(),collect=value=>{if(value&&typeof value==='object'){if(typeof value.src==='string')assets.add(value.src);for(const child of Object.values(value))collect(child);}};
   const beatFile=path.join(remotion,'visual-beats.json');
