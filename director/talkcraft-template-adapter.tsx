@@ -1,5 +1,6 @@
 import {captionCardProps} from './talkcraft-caption-style.mjs';
 import {THEME} from './theme';
+import {assertCaptionScene,templateCaptionMask} from './talkcraft-caption-layer.mjs';
 import React from 'react';
 import {staticFile} from 'remotion';
 import {CARD_REGISTRY} from './cards/index';
@@ -42,6 +43,7 @@ const asText = (value: unknown) => String(value ?? '').trim();
  */
 export function renderTalkcraftTemplate({shot, copy, skin, durationInFrames}: AdapterContext): React.ReactNode {
   const params = shot.templateParams || {};
+  assertCaptionScene(shot);
   const Card = CARD_REGISTRY[shot.shotCard || ''];
   const contract = CARD_CONTRACTS[shot.shotCard || ''];
   if (!Card || !contract) throw new Error(`镜头 ${shot.id} 的正式卡片或契约不存在：${shot.shotCard}`);
@@ -64,5 +66,6 @@ export function renderTalkcraftTemplate({shot, copy, skin, durationInFrames}: Ad
     if (typeof props[key] !== 'string' || !props[key]) continue;
     props[key]=kind==='image-list' ? (props[key] as string).split('\n').map(resolveMedia).join('\n') : resolveMedia(props[key] as string);
   }
-  return React.createElement(Card,props);
+  const mask=templateCaptionMask(shot.shotCard);
+  return <>{mask && <style data-template-caption-mask>{mask}</style>}{React.createElement(Card,props)}</>;
 }

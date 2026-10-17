@@ -27,7 +27,7 @@ test('升级生成字幕使用正式切镜秒数，重复安装幂等',()=>{
   const file=path.join(src,'Subtitles.tsx');
   fs.writeFileSync(file,'// preserved\nconst now=frame/fps;\nreturn line ? <SubtitleLine text={line.text} /> : null;');
   installPresentationSkin(dir);const first=fs.readFileSync(file,'utf8');
-  assert.match(first,/s.startSec\+s.durationSec/);assert.match(first,/cardOwnsNarrationCaption\(shot,line.text\)/);
+  assert.match(first,/s.startSec\+s.durationSec/);assert.match(first,/return line \? <KeywordCaption/);
   assert.match(first,/preserved/);installPresentationSkin(dir);assert.equal(fs.readFileSync(file,'utf8'),first);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

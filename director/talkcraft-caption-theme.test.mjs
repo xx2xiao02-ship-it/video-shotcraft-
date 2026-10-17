@@ -23,11 +23,12 @@ test('原卡承担同句字幕时仍安装主题，重复安装不重复注入',
   const file=path.join(src,'Subtitles.tsx');
   fs.writeFileSync(file,"import {KeywordCaption} from './KeywordCaption';\nreturn line && !cardOwnsNarrationCaption(shot,line.text) ? <KeywordCaption line={line} /> : null;");
   const adapter=path.join(src,'talkcraft-template-adapter.tsx');
-  fs.writeFileSync(adapter,'const props = {...params.cardProps as Record<string,unknown>};');
+  fs.writeFileSync(adapter,'const params = shot.templateParams || {};\nconst props = {...params.cardProps as Record<string,unknown>};\nreturn React.createElement(Card,props);');
   installPresentationSkin(dir);const bound=fs.readFileSync(adapter,'utf8');
   assert.match(bound,/captionCardProps\(shot.shotCard,params.cardProps as Record<string,unknown>,THEME\)/);
   const code=fs.readFileSync(file,'utf8');
-  assert.match(code,/!cardOwnsNarrationCaption/);
+  assert.match(code,/return line \? <KeywordCaption/);
+  assert.doesNotMatch(code,/!cardOwnsNarrationCaption/);
   installPresentationSkin(dir);assert.equal(fs.readFileSync(file,'utf8'),code);
   const runtime=fs.readFileSync(path.join(src,'KeywordCaption.tsx'),'utf8');
   assert.match(runtime,/import \{THEME\} from '.\/theme'/);

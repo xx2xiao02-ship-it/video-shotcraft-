@@ -3,6 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
+import {assertCaptionScene} from './talkcraft-caption-layer.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>{
@@ -139,6 +140,7 @@ export function assertReviewedSelection(project,options={}) {
   const ids=new Set(),issues=[],deviations=[];
   for(let i=0;i<shots.length;i++){
     const shot=shots[i],card=reviewed.cards.get(shot.shotCard);
+    try{assertCaptionScene(shot);}catch(error){issues.push(error.message);}
     if(ids.has(shot.id))issues.push('镜头编号重复：'+shot.id);ids.add(shot.id);
     if(!card)issues.push('镜头使用未经审查的模板：'+shot.id+' / '+shot.shotCard);
     const entry=candidates[shot.id]||candidates[String(shot.id).toLowerCase()]||{},groups=entry.candidates||{};

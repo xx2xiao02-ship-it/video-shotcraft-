@@ -42,7 +42,7 @@ test('工程完成凭据绑定输入与样板产物，不要求提前实现其�
     'remotion/src/cards/index.ts','remotion/src/parameterized-cards/shared.tsx'];
   for(const name of names){const file=path.join(project,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,name);}
   fs.writeFileSync(path.join(project,'remotion/src/Main.tsx'),
-    'export const Main: React.FC<{}> = ({}) => <AbsoluteFill style={{}}><Overlays /></AbsoluteFill>;');
+    'export const Main: React.FC<{}> = ({}) => <AbsoluteFill style={{}}><Overlays /><Subtitles /></AbsoluteFill>;');
   fs.writeFileSync(path.join(project,'remotion/src/scenes/scene-shared.tsx'),
     'const card=renderTalkcraftTemplate(); export const TemplateScene=()=> <div>{card}</div>;');
   installWordRevealRuntime(project);
