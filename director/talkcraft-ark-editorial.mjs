@@ -23,6 +23,7 @@ import {reconcileEditorialCoverage,EDITORIAL_COVERAGE_RULES} from './talkcraft-e
 import {normalizeEditorialParams,normalizeSavedEditorialParams,editorialDslLocks,EDITORIAL_PARAM_RULES} from './talkcraft-editorial-params.mjs';
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
 import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
+import {auditEditorialMaterialContract,editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
 
 const json = file => JSON.parse(readFileSync(file, 'utf8'));
 export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot}) {
@@ -61,8 +62,11 @@ export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,p
   issues.push(...templates.issues);
   const reuseFile=path.join(projectRoot,'qa/rebuild-inputs.json');
   if(existsSync(reuseFile))issues.push(...auditEditorialReuse(result?.shots,aligned,reusedEditorialWindows(projectRoot,aligned)));
+  const materials=auditEditorialMaterialContract({shots,sentences:result?.sentences,
+    researchPlan:result?.materialResearch,catalog,projectRoot});
+  issues.push(...materials.issues);
   return {schema:'talkcraft-editorial-proposal-audit-v1',passed:issues.length===0,issues,checks,
-    pending:templates.pending,productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
+    materials,pending:[...templates.pending,...materials.pending],productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
 }
 export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=resolveTalkcraftSkillRoot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'))}={}) {
   const admitted=new Set(catalog.cards.map(c=>c.cardId));
@@ -91,6 +95,7 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
         ...(field.valueConstraint ? {valueConstraint:field.valueConstraint} : {}),
       })),
       media:card.media, mediaAlternatives:card.mediaAlternatives,
+      sourceDisplayFields:editorialSourceDisplayFields(catalog.cards.find(c=>c.cardId===card.slug)),
       capabilities:card.capabilities, dsl:card.dsl,
       dslExamples:Object.fromEntries(Object.keys(card.dsl||{}).map(key=>{
         const field=catalog.cards.find(c=>c.cardId===card.slug)?.fields.find(f=>f.key===key);
@@ -102,7 +107,7 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
   const comparisonOrder=[...cards].sort((a,b)=>Number(b.category==='数据信息图')-Number(a.category==='数据信息图')).map(c=>c.slug);
   // These constraints execute in the locked validator. Send that same function,
   // rather than maintaining another partial prose list beside the compiler.
-  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString()};
+  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES};
 }
 export function editorialSelectionNotes(shot,semanticWords) {
   const lines=[];
@@ -137,6 +142,12 @@ function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=re
   normalizeSavedEditorialParams(project,catalog);
   const shots = json(path.join(project,'remotion/shots.json'));
   assertTemplateOnlyEditorialProposal({shots},{skillRoot});
+  const researchFile=path.join(project,'material-research-plan.json');
+  const materials=auditEditorialMaterialContract({shots,sentences:json(path.join(project,'semantics.json')).sentences,
+    researchPlan:existsSync(researchFile)?json(researchFile):json(path.join(project,'qa/ark-editorial-response.json')).materialResearch,
+    catalog,projectRoot:project});
+  writeFileSync(path.join(project,'qa/editorial-material-contract.json'),JSON.stringify(materials,null,2));
+  if(!materials.passed)throw Error('分镜素材展示规划不一致：'+materials.issues.map(i=>`${i.shotId||'全片'} [${i.code}] ${i.message}`).join('；'));
   const contractCheck = validateTalkcraftDesignProps(shots,{catalog,projectRoot:project});
   writeFileSync(path.join(project,'qa/ark-template-design-validation.json'),JSON.stringify(contractCheck,null,2));
   if (!contractCheck.passed) throw new Error(`已保存分镜的模板参数不符合治理契约：\n${contractCheck.errors.map(issue=>`${issue.shotId || '分镜'} [${issue.code}] ${issue.at} ${issue.message}`).join('\n')}`);
@@ -392,6 +403,7 @@ subject 只能取 person 或 other；${sourceRun.isDigitalHuman === true ? '本�
 完整 GitHub 模板目录（108 卡的名称、语义与输入能力）：${JSON.stringify(promptCatalog.cards)}
 逐卡业务字段、范围、素材槽位和 DSL（完整契约仍由程序验证）：${JSON.stringify(promptCatalog.contracts)}
 跨字段规则是后端实际执行的JavaScript函数，card.cardId为模板slug，props为cardProps；输出前必须全部满足，不得靠填演示数据通过：${promptCatalog.crossFieldChecks}
+素材展示规则与后端同源：${promptCatalog.materialDisplayRules}
 dslExamples.sourceFormatExample仅展示原卡一行的分列格式，绝非本片事实；行数、容量及固定时序仍按dsl与lockedDsl完整约束，不能把一行示例当作完整必填内容。
 capabilities 是模板真实源码能力：nativeMedia=false 表示没有原生真实素材入口；illustrationOnlyWithoutAdapter=true 表示仅为演示示意，不能描述成已接入本片照片、视频或证据。按 materialDifference 和 media 槽位判断，不从卡名猜测能力；不得自行添加适配组件补画。
 填写必填非素材业务字段；确需选中项或强调项时可填写对应可选业务字段，键必须属于该卡 allowedBusinessKeys，类型与范围按fields；其余交给原组件默认值。frozenKeys 列出的时序/运动字段禁止传入，照抄源码默认值也不允许；DSL 固定列用 lockedDsl，不得自改。素材字段在未知真实文件时留待采集，不得编造路径；素材和数字来源证据未核验，不得声称预检通过。语义硬规则：我是X须标自我介绍、点赞订阅须标号召、数量词须标数据；逐句原文完全一致，每镜恰好一个 main。

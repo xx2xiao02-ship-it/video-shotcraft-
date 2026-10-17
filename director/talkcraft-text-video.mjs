@@ -1,6 +1,7 @@
 // Only audited outer plates are skinned. Original source, geometry and clocks stay intact.
 export const TEXT_VIDEO_VERSION='text-video-v1';
 export const TEXT_VIDEO_CARDS={
+ 'ink-underline':{source:'gen/ink-underline.tsx',sha256:'69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d',colors:{ink:'#1d1d1f',inkColor:'#6f7f35'}},
  'line-by-line-slide':{source:'gen/line-by-line-slide.tsx',sha256:'57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304',colors:{ink:'#171717'}},
  'per-character-rise':{source:'gen/per-character-rise.tsx',sha256:'3c4e65d8064892dc0a15a2b03c45a4f82d5d3e95201145cbedd4908125f14386',colors:{ink:'#171717'}},
  'quote-bracket-pull':{source:'gen/quote-bracket-pull.tsx',sha256:'683288faf619b72e689fb3a493b3e1d2ef8e0dbcbcc78c90094463014068dbdc',colors:{ink:'#1d1d1f'}},
