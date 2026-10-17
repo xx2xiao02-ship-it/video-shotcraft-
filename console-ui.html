@@ -1206,6 +1206,22 @@
       <div id="production-music-list"></div>
     </div>
   </section>
+  <section class="brief-card" id="b-film-background-card" hidden>
+    <div class="brief-title">视频背景</div>
+    <p>默认暖灰褶皱纸。保存后用于之后新建的 B 模式任务，已有任务和成片不自动改变；镜头的真实视频背景优先。</p>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:start">
+      <div style="display:grid;gap:12px;min-width:260px">
+        <label>背景类型 <select id="b-film-background-kind"><option value="paper">暖灰褶皱纸（默认）</option><option value="image">自定义图片</option><option value="solid">纯色</option></select></label>
+        <label id="b-film-background-upload-row" hidden>上传图片 <input id="b-film-background-upload" type="file" accept="image/png,image/jpeg,image/webp"><small> PNG、JPG、WebP，最大7MB</small></label>
+        <label>图片铺放 <select id="b-film-background-fit"><option value="cover">铺满画面</option><option value="contain">完整显示</option></select></label>
+        <label>底色 <input id="b-film-background-color" type="color" value="#d6cebf"></label>
+        <button id="b-film-background-save" class="brief-submit" type="button">保存视频背景</button>
+        <span id="b-film-background-status" role="status"></span>
+      </div>
+      <div id="b-film-background-preview" role="img" aria-label="视频背景静态预览" style="width:320px;aspect-ratio:16/9;border-radius:8px;background:#d6cebf;background-position:center;background-repeat:no-repeat;background-size:cover"></div>
+    </div>
+    <small>此处仅预览背景图片，实际文字、人物和动效以任务生成的视频为准。</small>
+  </section>
   <section class="brief-card" id="b-caption-style-card" hidden>
     <div class="brief-title">字幕样式 · 关键词色块字幕</div>
     <p>本模式统一使用此样式，与镜头模板分别选择。关键词按已有字级锚点强调；没有明确关键词的句子保持同款正文，不自动编造重点。</p>
@@ -5593,6 +5609,54 @@ async function startBMode() {
     setBAuditEditorEditing(bAuditEditing);
   }
 }
+let filmBackgroundSettings=null, filmBackgroundUpload=null;
+function renderFilmBackgroundSettings(){
+  const kind=$('#b-film-background-kind').value;
+  $('#b-film-background-upload-row').hidden=kind!=='image';
+  const preview=$('#b-film-background-preview');
+  preview.style.backgroundColor=$('#b-film-background-color').value;
+  preview.style.backgroundSize=$('#b-film-background-fit').value;
+  const url=kind==='solid'?null:kind==='image'&&filmBackgroundUpload?filmBackgroundUpload:
+    kind===filmBackgroundSettings?.kind?'/api/talkcraft/background/image?v='+Date.now():kind==='paper'?'/assets/backgrounds/warm-paper-folds-v3.png':null;
+  preview.style.backgroundImage=url?'url('+JSON.stringify(url)+')':'none';
+}
+async function loadFilmBackgroundSettings(){
+  try{
+    const data=await(await fetch('/api/talkcraft/background')).json();
+    if(!data.ok)throw Error(data.error);
+    filmBackgroundSettings=data.settings;filmBackgroundUpload=null;
+    $('#b-film-background-kind').value=data.settings.kind;
+    $('#b-film-background-color').value=data.settings.color;
+    $('#b-film-background-fit').value=data.settings.fit;
+    renderFilmBackgroundSettings();
+    $('#b-film-background-status').textContent='已保存的默认背景';
+  }catch(error){$('#b-film-background-status').textContent='背景读取失败：'+String(error.message||error);}
+}
+for(const id of ['kind','fit','color'])$('#b-film-background-'+id).onchange=()=>{
+  renderFilmBackgroundSettings();$('#b-film-background-status').textContent='有未保存的修改';
+};
+$('#b-film-background-upload').onchange=async event=>{
+  try{
+    const file=event.target.files?.[0];if(!file)return;
+    if(file.size>7*1024*1024)throw Error('图片不能超过7MB');
+    filmBackgroundUpload=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
+    $('#b-film-background-kind').value='image';renderFilmBackgroundSettings();
+    $('#b-film-background-status').textContent='图片已选择，点击保存后生效';
+  }catch(error){$('#b-film-background-status').textContent=String(error.message||error);}
+};
+$('#b-film-background-save').onclick=async()=>{
+  const button=$('#b-film-background-save');button.disabled=true;
+  try{
+    const kind=$('#b-film-background-kind').value;
+    const body={kind,color:$('#b-film-background-color').value,fit:$('#b-film-background-fit').value,
+      ...(kind==='image'?{asset:filmBackgroundSettings?.asset,...(filmBackgroundUpload?{imageDataUrl:filmBackgroundUpload}:{})}:{})};
+    const data=await(await fetch('/api/talkcraft/background',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+    if(!data.ok)throw Error(data.error);
+    filmBackgroundSettings=data.settings;filmBackgroundUpload=null;renderFilmBackgroundSettings();
+    $('#b-film-background-status').textContent='已保存，之后新建的任务使用此背景';
+  }catch(error){$('#b-film-background-status').textContent='未保存：'+String(error.message||error);}
+  finally{button.disabled=false;}
+};
 function switchView(name) {
   if (!VIEW_ORDER.includes(name)) name = "director";
   if (name === 'produce') { showMusicSelection(); renderProductionMusic(); }
@@ -5602,6 +5666,8 @@ function switchView(name) {
   }
   $("#subtitle-v1-card").hidden = name !== "produce" || activeProductionMode !== "A";
   $("#b-caption-style-card").hidden = name !== "produce" || activeProductionMode !== "B";
+  $("#b-film-background-card").hidden = name !== "produce" || activeProductionMode !== "B";
+  if(name==='produce'&&activeProductionMode==='B'&&!filmBackgroundSettings)loadFilmBackgroundSettings();
   if (name === "produce" && activeProductionMode === "A") renderSubtitleSettings();
   if (activeProductionMode === "B") {
     $("#preview-card").style.display = "none";

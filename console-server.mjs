@@ -45,6 +45,7 @@ import {checkProviderConnectivity} from "./director/provider-connectivity.mjs";
 import {resumeTalkcraftDigitalHuman} from "./director/talkcraft-digital-human-resume.mjs";
 import {packagingHandle, PACKAGING_PREFIX} from "./director/packaging-routes.mjs";
 import {readSubtitleSettings, writeSubtitleSettings} from "./director/subtitle-v1.mjs";
+import {readFilmBackground,saveFilmBackground,filmBackgroundFile} from './director/talkcraft-film-background.mjs';
 import {normalizeMusicSelection, readMusicSelection, writeMusicSelection, writeTalkcraftMusicSnapshot} from "./director/background-music.mjs";
 import {audioFile, indexAudioFile, listAudioLibrary, recommendBackgroundMusic, updateAudioMetadata, uploadAudio} from "./director/audio-library.mjs";
 import {assertModeCRun, runModeCStage} from "./director/mode-c/mode-c-dispatcher.mjs";
@@ -625,6 +626,21 @@ const apis = {
       try { sample = JSON.parse(fs.readFileSync(timingPath, "utf8")).segments?.[0]?.text || sample; } catch {}
     }
     return sendJson(res, {ok: true, settings: readSubtitleSettings(ROOT), sample});
+  },
+  "GET /api/talkcraft/background": (req,res) => {
+    try{return sendJson(res,{ok:true,settings:readFilmBackground(ROOT)});}
+    catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
+  },
+  "PUT /api/talkcraft/background": async (req,res) => {
+    try{return sendJson(res,{ok:true,settings:saveFilmBackground(ROOT,await readBody(req))});}
+    catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
+  },
+  "GET /api/talkcraft/background/image": (req,res) => {
+    try{
+      const file=filmBackgroundFile(ROOT);if(!file){res.writeHead(404);res.end();return;}
+      res.writeHead(200,{'Content-Type':/\.png$/iu.test(file)?'image/png':/\.webp$/iu.test(file)?'image/webp':'image/jpeg','Cache-Control':'no-store'});
+      res.end(fs.readFileSync(file));
+    }catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
   },
   "PUT /api/subtitle-v1/settings": async (req, res) => {
     try { return sendJson(res, {ok: true, settings: writeSubtitleSettings(ROOT, await readBody(req))}); }
