@@ -26,10 +26,11 @@ export function hasVideoBackground(shot){
   (p.backgroundPresentation==='theme-wash-v1'&&shot.shotCard==='chapter-progress-list'&&p.cardProps?.bg==='#ffffff00'||
    p.backgroundPresentation===TEXT_VIDEO_VERSION&&!!TEXT_VIDEO_CARDS[shot.shotCard]);
 }
-export function checkTextVideoCycle(shots,demands){
+export function checkTextVideoCycle(shots,demands,{openingShotCount=3}={}){
  const issues=[],windows=[];let chain=[];
  const ordered=shots.every(s=>Number.isFinite(Number(s.start??s.startSec)))?[...shots].sort((a,b)=>Number(a.start??a.startSec)-Number(b.start??b.startSec)):shots;
- for(const shot of ordered){
+ for(const [position,shot] of ordered.entries()){
+  if(position<openingShotCount){chain=[];continue;}
   if(!demands.find(d=>d.shotId===shot.id)?.considerBackground){chain=[];continue;}
   chain.push(shot);if(chain.length<3)continue;
   const group=chain.slice(-3),bound=group.filter(hasVideoBackground).map(s=>s.id);

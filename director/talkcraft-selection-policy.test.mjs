@@ -71,3 +71,5 @@ test('model input retains real material capabilities and required value constrai
   assert.deepEqual(demo.media,{});
   assert.equal(demo.capabilities.illustrationOnlyWithoutAdapter,true);
 });
+
+test('正式模型目录优先展示图形卡，108张卡和契约均保留',()=>{const index=read('_audit/video-talkcraft/references/cards-index.json'),catalog=loadTalkcraftGovernedCatalog(index);const compact=compactTalkcraftEditorialCatalog(index,catalog);const n=compact.cards.filter(c=>c.category==='数据信息图').length;assert.ok(n>0);assert.ok(compact.comparisonOrder.slice(0,n).every(id=>compact.cards.find(c=>c.slug===id).category==='数据信息图'));assert.deepEqual(compact.cards.map(c=>c.slug),compact.contracts.map(c=>c.slug));assert.deepEqual([...compact.comparisonOrder].sort(),compact.cards.map(c=>c.slug).sort());assert.equal(new Set(compact.cards.map(c=>c.slug)).size,108);assert.equal(compact.contracts.length,108);});
