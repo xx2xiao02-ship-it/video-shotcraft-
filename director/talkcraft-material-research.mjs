@@ -4,8 +4,9 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {MATERIAL_POLICY_VERSION,MATERIAL_POLICY_RULES,checkMaterialPolicy} from './talkcraft-material-policy.mjs';
 import {CORE_PERSON_RULES,checkCorePersonDisplays} from './talkcraft-core-person.mjs';
+import {auditTextVideoFiles} from './talkcraft-text-video-audit.mjs';
 
-export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；仅使用原卡公开且经核对的底色/媒体能力，实色遮挡时重选卡，禁止CSS抹底或缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,queryZh,reason}],graphicIntent,pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES+MATERIAL_POLICY_RULES;
+export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；使用原卡公开能力或经源码核对的text-video-v1受控透明底适配；原布局与动效不变，实色遮挡不能放行，不缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,queryZh,reason}],graphicIntent,graphicAlternatives:[{cardId,reason}],pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES+MATERIAL_POLICY_RULES;
 
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
@@ -20,10 +21,11 @@ export function materialDemand({shots,semantics,index}) {
     const entities=[...new Set(sentences.flatMap(s=>s.entities||[]))];
     const category=cards.get(shot.shotCard)?.category||'未分类';
     const p=shot.templateParams||{};
-    const hasSourceDisplay=['evidence','subject'].includes(p.materialRole)&&!!p.materialSrc||Object.entries(p.cardProps||{}).some(([key,value])=>!/host/i.test(key)&&typeof value==='string'&&/\.(?:png|jpe?g|webp|gif|mp4|webm)(?:$|[?\n])/iu.test(value));
+    const hasSourceDisplay=['evidence','subject'].includes(p.materialRole)&&!!p.materialSrc||Object.entries(p.cardProps||{}).some(([key,value])=>!/host/i.test(key)&&/(?:src|image|video|poster|photo|media|asset|url)/iu.test(key)&&typeof value==='string'&&/\.(?:png|jpe?g|webp|gif|mp4|webm)(?:$|[?\n])/iu.test(value));
     return {shotId:shot.id,cardId:shot.shotCard,category,text:sentences.map(s=>s.text).join(''),needs,entities,
       researchKinds:[...new Set(needs.flatMap(n=>n==='身份'?['identity']:n==='量化'?['data']:n==='证据'?['evidence']:[]))],
-      considerBackground:['字幕花字','强调标注'].includes(category)&&!hasSourceDisplay,
+      graphicCardIds:index.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug),
+      considerBackground:(['字幕花字','强调标注'].includes(category)||['chapter-title-card','chapter-progress-list'].includes(shot.shotCard))&&!hasSourceDisplay,
       backgroundBound:shot.templateParams?.materialRole==='background'&&!!shot.templateParams.materialSrc};
   });
 }
@@ -194,7 +196,8 @@ export function auditMaterialResearch(project,index,{localIndex=[]}={}) {
   const localBackgrounds=(plan?.shots||[]).filter(r=>r.backgroundQuery).map(r=>({shotId:r.shotId,
     candidates:rankLocalBackgrounds(r,shots.find(s=>s.id===r.shotId)||{},localIndex)}));
   const policyReview=checkMaterialPolicy(plan,demands,shots);issues.push(...policyReview.issues);
-  const result={policyReview,schema:'talkcraft-material-research-audit-v1',demands,localBackgrounds,issues,passed:issues.length===0,sourceEvidenceAccepted:false,userAcceptance:false};
+  const backgroundFiles=auditTextVideoFiles(project,shots);issues.push(...backgroundFiles.issues);
+  const result={backgroundFiles,policyReview,schema:'talkcraft-material-research-audit-v1',demands,localBackgrounds,issues,passed:issues.length===0,sourceEvidenceAccepted:false,userAcceptance:false};
   write(path.join(project,'qa/material-research-audit.json'),result);return result;
 }
 export async function researchProject(project,index,{fetchImpl=fetch,refresh=false,localIndex=[]}={}) {

@@ -3,6 +3,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {installCaptionEmphasis} from './talkcraft-caption-emphasis-plan.mjs';
+import {createHash} from 'node:crypto';
+import {TEXT_VIDEO_CARDS} from './talkcraft-text-video.mjs';
 
 // Upgrade only recognized generated statements. Preserve user scene code,
 // shot/card parameters, timing, theme settings and upstream card sources.
@@ -16,7 +18,11 @@ export function installPresentationSkin(project){
     fs.writeFileSync(path.join(src,'theme-frame.tsx'),frame.replace("from './lib'","from './theme-frame-lib'"));
     fs.copyFileSync(path.join(upstream,'template/components/lib.tsx'),path.join(src,'theme-frame-lib.tsx'));
   }
-  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs','talkcraft-background-presentation.mjs','talkcraft-caption-emphasis.mjs'])
+  for(const spec of Object.values(TEXT_VIDEO_CARDS)){
+    const original=fs.readFileSync(path.join(upstream,'workbench/src/cards',spec.source));
+    if(createHash('sha256').update(original).digest('hex')!==spec.sha256)throw Error('文字背景适配对应原模板源码变化，须重新核对：'+spec.source);
+  }
+  for(const name of ['talkcraft-presentation-skin.mjs','talkcraft-color-contrast.mjs','talkcraft-caption-style.mjs','talkcraft-caption-layer.mjs','talkcraft-background-presentation.mjs','talkcraft-caption-emphasis.mjs','talkcraft-text-video.mjs'])
     fs.copyFileSync(path.join(source,name),path.join(src,name));
   fs.copyFileSync(path.join(source,'talkcraft-keyword-caption.tsx'),path.join(src,'KeywordCaption.tsx'));
   const adapter=path.join(src,'talkcraft-template-adapter.tsx');
@@ -34,6 +40,13 @@ export function installPresentationSkin(project){
     if(code.includes(old)){
       code="import {captionCardProps} from './talkcraft-caption-style.mjs';\nimport {THEME} from './theme';\n"+code;
       code=code.replace(old,'const props = captionCardProps(shot.shotCard,params.cardProps as Record<string,unknown>,THEME);');
+      fs.writeFileSync(adapter,code);
+    }
+    if(!code.includes("from './talkcraft-text-video.mjs'")){
+      const anchor='{React.createElement(Card,props)}';
+      if(!code.includes(anchor))throw Error('模板渲染入口变化，不能安装受控背景适配');
+      code="import {textVideoSkin} from './talkcraft-text-video.mjs';\n"+code;
+      code=code.replace(anchor,'{textVideoSkin(shot) ? <><style>{textVideoSkin(shot)}</style><div data-talkcraft-text-video="text-video-v1" style={{display:"contents"}}>{React.createElement(Card,props)}</div></> : React.createElement(Card,props)}');
       fs.writeFileSync(adapter,code);
     }
   }
