@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {normalizeVisibleText as clean} from './talkcraft-text-occurrences.mjs';
 import {READABILITY_LAYOUT} from './talkcraft-presentation-skin.mjs';
 import {assertNativeMotionRate,assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
+import {assertNativeHoldBudget} from './talkcraft-native-time-map.mjs';
 import {fileURLToPath} from 'node:url';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
@@ -43,6 +44,7 @@ export function nativeGovernanceBinding(project) {
 export function validateNativeTimeline(row,durationFrames,nativeFrames) {
   const problems=[];
   if(!Array.isArray(row.timeline)||!row.timeline.length)return ['缺少原生动作与驻留计划'];
+  try{assertNativeHoldBudget(row.timeline,durationFrames);}catch(error){problems.push(error.message);}
   let next=0,lastNative=-1;
   for(const segment of row.timeline){
     if(!segment||typeof segment!=='object'){problems.push('片段不是有效对象');continue;}

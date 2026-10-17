@@ -22,7 +22,7 @@ test('合法驻留使第二划线晚于真实锚点；所有原生帧完整保�
  assert.equal(check(s,events,109,51,53).passed,true);
 });
 test('高亮条不能为未来金句空等；包括末行文字入场窗口',()=>{
- const r=check(shot('quote-hold-arrow'),[{field:'lastLine',localFrame:200}],128,115,126);
+ const r=check(shot('quote-hold-arrow'),[{field:'lastLine',localFrame:140}],128,55,126);
  assert.equal(r.passed,false);assert.equal(r.issues[0].effectId,'quote-highlight');
 });
 test('原模板载字块允许固有2帧错峰，但禁止长时间空块',()=>{
@@ -30,8 +30,8 @@ test('原模板载字块允许固有2帧错峰，但禁止长时间空块',()=>{
  assert.equal(check(shot('alt-block-lines'),[{field:'line2',localFrame:46}],91).passed,false);
 });
 test('逐条词槽窗口：普通字级锚点合法也不能在已滚出后显示',()=>{
- const s=shot('word-slot-cycle',{words:'甲\n乙\n丙\n丁'}),before=[{field:'words',localFrame:172},{field:'words',localFrame:236},{field:'words',localFrame:368},{field:'words',localFrame:400}];
- const saved=structuredClone(before),r=check(s,before,206,236,150);
+ const s=shot('word-slot-cycle',{words:'甲\n乙\n丙\n丁'}),before=[{field:'words',localFrame:110},{field:'words',localFrame:130},{field:'words',localFrame:170},{field:'words',localFrame:200}];
+ const saved=structuredClone(before),r=check(s,before,206,55,150);
  assert.equal(r.issues.filter(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH').length,4);assert.deepEqual(before,saved);
 });
 test('不能借推迟公开起点把高亮动作挤出原生结尾',()=>{
@@ -85,4 +85,17 @@ test('正式源码缺失或变化不能套旧时间表，sourceVerified必须为
  const manifest=JSON.parse(fs.readFileSync(new URL('./talkcraft-text-effect-sources.json',import.meta.url)));
  for(const rel of Object.keys(manifest[s.shotCard])){const file=path.join(p,'remotion/src',rel);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,'changed source');}
  report=recordTextEffectDependencies(p,[s],n,r,{requireSources:true});assert.equal(report.sourceVerified,false);assert.ok(report.issues.some(i=>i.code==='TEXT_EFFECT_SOURCE_CHANGED'));
+});
+
+test('拆镜所用扫描框按原版行DSL解析，文字窗口随真实框坐标变化',()=>{
+ const c=textEffectContract('scanline-annotate',{targets:'0,20,490,210\n0,237,490,129'},180);
+ assert.equal(c.texts.length,2);assert.ok(c.texts[1].begin>c.texts[0].begin);
+ const r=check(shot('scanline-annotate',{targets:'0,20,490,210',labels:'政策|官方讲话'}),[{field:'labels',text:'政策官方讲话',localFrame:177}],180);
+ assert.ok(r.issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+});
+test('裂升短标题首秒容量不足须重选或缩减公开文案，不能提前真实锚点',()=>{
+ const bad=check({...shot('split-text-stagger',{text:'一次性补贴',sub:'风险'}),subject:'other'},[{field:'text',localFrame:0,text:'一次性补贴'}],156);
+ assert.ok(bad.issues.some(i=>i.code==='NATIVE_CONTENT_ONSET_GAP'));
+ const good=check({...shot('split-text-stagger',{text:'补贴',sub:'风险'}),subject:'other'},[{field:'text',localFrame:0,text:'补贴'},{field:'sub',localFrame:0,text:'风险'}],156);
+ assert.equal(good.passed,true);
 });

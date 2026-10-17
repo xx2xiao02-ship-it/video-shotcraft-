@@ -17,7 +17,7 @@ test('速度首尾跨度边界精确为0.85与1.15；相邻越限拒绝',()=>{
 });
 
 test('每帧映射单调且含原卡两端；音效落在首次采样交叉帧；可随机seek',()=>{
- for(const [total,native,rate] of [[95,103,undefined],[101,86,.85],[170,177,undefined],[240,177,1.1],[240,177,.9]]){
+ for(const [total,native,rate] of [[95,103,undefined],[101,86,.85],[170,177,undefined],[210,177,1.1],[240,177,.9]]){
   const timeline=nativeEditorialTimeline(total,native,70,'原主体可见',rate);
   assert.deepEqual(validateNativeTimeline({timeline},total,native),[]);
   const frames=Array.from({length:total},(_,i)=>nativeFrameAt(timeline,i));

@@ -15,6 +15,13 @@ export function textEffectContract(card,p={},nativeFrames=1){
  const group=(field,n,at=()=>0,end=()=>last)=>{for(let i=0;i<n;i++)text(field,i,frames(at(i)),end(i));};
  const all=(fields,at=0,end=last)=>fields.forEach(f=>text(f,0,at,end));
  switch(card){
+ case 'split-text-stagger':{
+  text('text',0,frames(.3+.067*Math.max(0,[...String(p.text||'')].length-1)+.5),Math.ceil(4.4*30)-1);
+  text('sub',0,frames(1.4),Math.ceil(4.4*30)-1);break;}
+ case 'scanline-annotate':{
+  const targets=typeof p.targets==='string'?lines(p.targets).map(line=>{const [x,y,w,h]=line.split(/[,，\s]+/u).map(Number);return{x,y,w,h};}):p.targets||[];
+  let previous=-Infinity;
+  targets.forEach((r,i)=>{const at=Math.max(.5+((r.y+r.h+30)/446)*2.4,previous+.15);previous=at;text('labels',i,frames(at+.17),Math.ceil(5.2*30)-1);});break;}
  case 'doc-park-left-pill-deal':{
   const end=Math.ceil(6.6*30)-1;
   if(!p.docSrc)text('docTitle',0,0,end);
@@ -55,6 +62,7 @@ export function textEffectContract(card,p={},nativeFrames=1){
   text('title',0,frames(.4+.3*.7+.15),Math.ceil((.4+.3+2+.3*.7)*30)-1);
   effect('nameplate-carrier','name',0,.4,.7,7);break;
  case 'error-retype':{
+  text('prefix');
   const a=String(p.first||'').length,b=String(p.second||'').length,del=.7+a*.09+.55,retype=del+a*.06+.12;
   text('first',0,Math.ceil((.7+(a-1)*.09)*30),Math.ceil(del*30)-1);
   text('second',0,Math.ceil((retype+(b-1)*.06)*30),Math.floor((retype+b*.06+.3+2.6)*30));break;}

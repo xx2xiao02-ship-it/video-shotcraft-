@@ -140,5 +140,13 @@
   "gallery-wall-dolly": {
     "parameterized-cards/gen/gallery-wall-dolly.tsx": "31df24966e256d450a1547b004c07ccc905ec52b704eb8284a0e244e56a622b1",
     "cards/gallery-wall-dolly.tsx": "bff7702f8a8e06d1a965ce0d7c2b86d3e6f3e3a434ad3f071b1815f05148fc67"
+  },
+  "scanline-annotate": {
+    "parameterized-cards/gen/scanline-annotate.tsx": "d3108eba40e6cdbf9720f6bd154df6dd1ec037080bc792ceb04404a0f4decc1e",
+    "cards/scanline-annotate.tsx": "e9d726db2edd8706c2234030d8c4e66fc006e16645901399363daf4d8b3d88bd"
+  },
+  "split-text-stagger": {
+    "parameterized-cards/gen/split-text-stagger.tsx": "ac42587208f30d2b062cfa494c4d06112fe954daf05f77b789ca37c7584fdaa2",
+    "cards/split-text-stagger.tsx": "29d66047fdde9981a18332f89a0641474d9177a2cb34d187e129258a107630e7"
   }
 }

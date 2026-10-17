@@ -2,13 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
+import {CORE_PERSON_RULES,checkCorePersonDisplays} from './talkcraft-core-person.mjs';
 
-export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；仅使用原卡公开且经核对的底色/媒体能力，实色遮挡时重选卡，禁止CSS抹底或缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,reason}],graphicIntent,pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。';
+export const MATERIAL_RESEARCH_RULES = '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；仅使用原卡公开且经核对的底色/媒体能力，实色遮挡时重选卡，禁止CSS抹底或缩卡。背景按已定黑色遮罩压暗。返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,reason}],graphicIntent,pureTextReason}]}，逐镜完整覆盖；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES;
 
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 const write=(f,v)=>{fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,JSON.stringify(v,null,2)+'\n');};
 const allowedKind=new Set(['identity','evidence','data']);
+export const CORE_PERSON_MATERIAL_RULES=CORE_PERSON_RULES;
 export function materialDemand({shots,semantics,index}) {
   const cards=new Map(index.cards.map(c=>[c.slug,c]));
   return shots.map(shot=>{
@@ -39,6 +41,7 @@ export function validateResearchPlan(plan,demands) {
     for(const r of row.research||[])if(!allowedKind.has(r.kind)||!String(r.query||'').trim()||!String(r.reason||'').trim())issues.push({shotId:d.shotId,code:'INVALID_RESEARCH_ENTRY'});
     for(const r of row.research||[])if(r.entityType==='person'&&(!String(r.entityName||'').trim()||!String(r.identityContext||'').trim()))issues.push({shotId:d.shotId,code:'PERSON_CONTEXT_REQUIRED'});
   }
+  issues.push(...checkCorePersonDisplays(plan.shots));
   return issues;
 }
 export function rankLocalBackgrounds(row,shot,index) {
@@ -153,6 +156,7 @@ export function auditMaterialResearch(project,index,{localIndex=[]}={}) {
   const shots=read(path.join(project,'remotion/shots.json')),semantics=read(path.join(project,'semantics.json'));
   const demands=materialDemand({shots,semantics,index}),file=path.join(project,'material-research-plan.json');
   const plan=fs.existsSync(file)?read(file):null,issues=validateResearchPlan(plan,demands);
+  issues.push(...checkCorePersonDisplays(plan?.shots,shots));
   let displayApproval=null;
   try{displayApproval=read(path.join(project,'qa/material-display-policy-approval.json'));}catch{}
   for(const row of plan?.shots||[])for(const r of row.research||[]){

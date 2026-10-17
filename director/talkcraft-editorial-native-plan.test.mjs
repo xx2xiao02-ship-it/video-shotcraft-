@@ -9,8 +9,8 @@ test('原卡超15%才拒绝；合法驻留完整保留动作顺序',()=>{
  assert.deepEqual(validateNativeTimeline({timeline:nativeEditorialTimeline(84,85,40,'驻留')},84,85),[]);
  assert.throws(()=>nativeEditorialTimeline(70,85,40,'驻留'),/重新选卡/);
  assert.throws(()=>nativeEditorialTimeline(150,85,84,'退场后'),/不能在退场后/);
- const timeline=nativeEditorialTimeline(150,85,59,'保持完整文字直到口播完毕');
- assert.deepEqual(validateNativeTimeline({timeline},150,85),[]);
+ const timeline=nativeEditorialTimeline(150,90,59,'保持完整文字直到口播完毕');
+ assert.deepEqual(validateNativeTimeline({timeline},150,90),[]);
 });
 
 test('新编导计划绑定真实切镜帧和句序，不能覆盖人工修订',t=>{
@@ -20,7 +20,7 @@ test('新编导计划绑定真实切镜帧和句序，不能覆盖人工修订',
  fs.writeFileSync(path.join(root,'remotion/shots.json'),JSON.stringify([{id:'s01',shotCard:'card',start:0,end:5,firstSentence:0,lastSentence:1,subject:'other'}]));
  const proposal={mobileMinTextPx:12,holdAtNativeFrame:59,holdReason:'口播期间保持主体',textFields:[{key:'text',visibility:'visible'}],
   wordEvents:[{field:'text',text:'预期',sentenceIndex:1,anchor:'预期',role:'spoken'}]};
- const result={shots:[{id:'s01',nativePresentation:proposal}]},catalog={cards:[{cardId:'card',duration:{frames:85}}]};
+ const result={shots:[{id:'s01',nativePresentation:proposal}]},catalog={cards:[{cardId:'card',duration:{frames:90}}]};
  assert.equal(prepareEditorialNativePlans(root,catalog,result).prepared,true);
  const events=JSON.parse(fs.readFileSync(path.join(root,'remotion/word-reveal-plan.json'))).events;
  assert.equal(events[0].sentence,'s2');assert.equal(events[0].beatId,'s01');
