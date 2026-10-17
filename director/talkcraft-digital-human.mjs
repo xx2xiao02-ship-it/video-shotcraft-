@@ -1,5 +1,5 @@
 import {execFileSync} from 'node:child_process';
-import {existsSync, mkdirSync, readFileSync, renameSync, writeFileSync} from 'node:fs';
+import {constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {RunningHubInfiniteTalkTransport} from './runninghub-infinitetalk.mjs';
@@ -9,6 +9,7 @@ import {createCombinedDigitalHumanAudio, planCombinedDigitalHumanAudio,
 import {digitalHumanShotsHash, fileSha256} from './talkcraft-digital-human-plan.mjs';
 import {assertTalkcraftDigitalHumanAdmission} from './talkcraft-digital-human-admission.mjs';
 import {prepareHostFramerate} from './talkcraft-host-framerate.mjs';
+import {pythonExecutable, pythonEnvironment} from './portable-runtime.mjs';
 
 const ROOT = process.env.SHOTCRAFT_ROOT || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -31,20 +32,34 @@ export const SUBJECT_PROTECTED_KEY_FILTER = [
 export function createTransparentDigitalHuman(input, output) {
   if (!existsSync(input)) throw new Error(`数字人源视频不存在：${input}`);
   if (existsSync(output)) throw new Error(`透明数字人素材已存在，拒绝覆盖：${output}`);
-  execFileSync('ffmpeg', ['-hide_banner','-loglevel','error','-i',input,
+  // Fail before encoding when the deployed Python environment lacks the new processor.
+  const python = pythonExecutable(), env = pythonEnvironment();
+  execFileSync(python,['-c','import numpy; from PIL import Image, ImageFilter'],{env,stdio:'pipe'});
+  const temporary = mkdtempSync(path.join(path.dirname(output),'.narrow-matting-'));
+  const baseline = path.join(temporary,'baseline.webm'), candidate=path.join(temporary,'candidate.webm');
+  try {
+  execFileSync('ffmpeg', ['-hide_banner','-loglevel','error','-n','-i',input,
     // Upstream host-footage.md §2: RGB-radius keys erase the dark shirt/skin.
     // Green dominance removes the screen; the subject-protection graph keeps
     // opaque body RGB intact and confines green suppression to keyed edges.
     '-filter_complex',SUBJECT_PROTECTED_KEY_FILTER,'-map','[outv]',
-    '-an','-c:v','libvpx-vp9','-pix_fmt','yuva420p','-auto-alt-ref','0',output],
+    '-an','-c:v','libvpx-vp9','-pix_fmt','yuva420p','-auto-alt-ref','0',baseline],
     {stdio:'inherit'});
+  const matting=JSON.parse(execFileSync(python,[fileURLToPath(new URL('./talkcraft-narrow-matting.py',import.meta.url)),
+    '--source',input,'--baseline',baseline,'--output',candidate],{env,encoding:'utf8'}));
   const probe = JSON.parse(execFileSync('ffprobe', ['-v','error','-count_frames','-select_streams','v:0',
-    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames,nb_read_frames:stream_tags=alpha_mode','-of','json',output], {encoding:'utf8'}));
+    '-show_entries','stream=codec_name,pix_fmt,width,height,nb_frames,nb_read_frames:stream_tags=alpha_mode','-of','json',candidate], {encoding:'utf8'}));
   const stream = probe.streams?.[0];
   if (stream?.codec_name !== 'vp9' || stream?.tags?.alpha_mode !== '1')
     throw new Error(`透明数字人素材未生成 alpha WebM：${output}`);
-  return {output, codec:stream.codec_name, pixelFormat:stream.pix_fmt,
-    frames:Number(stream.nb_read_frames || stream.nb_frames || 0)};
+  const frames=Number(stream.nb_read_frames || stream.nb_frames || 0);
+  if(frames!==matting.frames || stream.width!==matting.width || stream.height!==matting.height)
+    throw new Error('窄边抠图输出尺寸或帧数不一致');
+  execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',candidate,'-f','null','-'],{stdio:'pipe'});
+  // Exclusive copy: even a concurrent writer must not be overwritten.
+  copyFileSync(candidate,output,constants.COPYFILE_EXCL);
+  return {output, codec:stream.codec_name, pixelFormat:stream.pix_fmt,frames,matting};
+  } finally { rmSync(temporary,{recursive:true,force:true}); }
 }
 export async function generateTalkcraftDigitalHuman({root = ROOT, runId, provider = null, resumeExisting=false}) {
 if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) throw new Error('Invalid TalkCraft run ID');

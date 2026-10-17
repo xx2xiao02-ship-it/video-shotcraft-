@@ -36,6 +36,9 @@ test('主体保护抠图去除绿幕、保留主体原色并填补内部小孔',
     '-c:v','ffv1','-pix_fmt','bgr0',input]);
   const result=createTransparentDigitalHuman(input,output);
   assert.equal(result.frames,6,'透明素材必须返回实际帧数');
+  assert.equal(result.matting.method,'narrow-aa-despill-v1');
+  assert.equal(result.matting.temporalAveraging,false);
+  assert.throws(()=>createTransparentDigitalHuman(input,output),/拒绝覆盖/);
   const rgba=execFileSync('ffmpeg',['-v','error','-c:v','libvpx-vp9','-i',output,
     '-frames:v','1','-f','rawvideo','-pix_fmt','rgba','pipe:1']);
   const sourceRgb=execFileSync('ffmpeg',['-v','error','-i',input,
