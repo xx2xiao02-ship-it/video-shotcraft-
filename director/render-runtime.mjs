@@ -3,12 +3,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 
-export function renderConcurrency({requested=5, cpus=os.availableParallelism(), freeBytes=os.freemem()}={}) {
-  const value = Number(requested);
-  if (!Number.isInteger(value) || value < 1 || value > 5) throw new Error('渲染并发数必须为1至5的整数');
-  // Reserve 2 GiB for the OS; budget 1.5 GiB per browser worker.
-  const memoryLimit = Math.max(1, Math.floor((freeBytes - 2 * 2**30) / (1.5 * 2**30)));
-  return {requested:value, effective:Math.min(value, Math.max(1,cpus), memoryLimit), freeBytes};
+const GIB = 2 ** 30;
+
+export function renderConcurrency({requested='auto', maxConcurrency=8, cpus=os.availableParallelism(),
+  freeBytes=os.freemem(), totalBytes=os.totalmem(), workerBytes=1.5 * GIB}={}) {
+  const configuredMax = Number(maxConcurrency);
+  if (!Number.isInteger(configuredMax) || configuredMax < 1 || configuredMax > 12) {
+    throw new Error('渲染并发上限必须为1至12的整数');
+  }
+  const value = requested === 'auto' || requested === undefined || requested === null
+    ? configuredMax : Number(requested);
+  if (!Number.isInteger(value) || value < 1 || value > 12) {
+    throw new Error('渲染并发数必须为1至12的整数，或使用 auto');
+  }
+  if (!Number.isFinite(workerBytes) || workerBytes <= 0) throw new Error('渲染工作进程内存预算必须大于0');
+  // 动态保留总内存的 8%，但至少保留 2 GiB；每个浏览器工作进程按 1.5 GiB 预算。
+  const reserveBytes = Math.max(2 * GIB, totalBytes * 0.08);
+  const memoryLimit = Math.max(1, Math.floor((freeBytes - reserveBytes) / workerBytes));
+  const effective = Math.min(value, configuredMax, Math.max(1, Number(cpus) || 1), memoryLimit);
+  return {requested:value, configuredMax, effective, freeBytes, totalBytes, reserveBytes, workerBytes};
 }
 
 export function parseRenderProgress(text) {

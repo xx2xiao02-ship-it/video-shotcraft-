@@ -5,13 +5,14 @@ import os from 'node:os';
 import path from 'node:path';
 import {renderConcurrency,parseRenderProgress,writeRenderProgress,readRenderProgress,runRenderCommand} from './render-runtime.mjs';
 
-test('render defaults to five and respects CPU and memory limits', () => {
-  assert.equal(renderConcurrency({cpus:16,freeBytes:16*2**30}).effective,5);
-  assert.equal(renderConcurrency({cpus:16,freeBytes:5*2**30}).effective,2);
+test('render dynamically uses available memory and respects configured max/CPU limits', () => {
+  assert.equal(renderConcurrency({cpus:16,totalBytes:32*2**30,freeBytes:28*2**30}).effective,8);
+  assert.equal(renderConcurrency({cpus:16,totalBytes:32*2**30,freeBytes:5*2**30}).effective,1);
   assert.equal(renderConcurrency({cpus:2,freeBytes:32*2**30}).effective,2);
-  assert.equal(renderConcurrency({cpus:16,freeBytes:1*2**30}).effective,1);
+  assert.equal(renderConcurrency({requested:'auto',maxConcurrency:4,cpus:16,totalBytes:32*2**30,freeBytes:28*2**30}).effective,4);
   assert.equal(renderConcurrency({requested:1,cpus:16,freeBytes:32*2**30}).effective,1);
-  for (const requested of [0,6,1.5,'bad']) assert.throws(()=>renderConcurrency({requested}));
+  for (const requested of [0,13,1.5,'bad']) assert.throws(()=>renderConcurrency({requested}));
+  assert.throws(()=>renderConcurrency({maxConcurrency:13}));
 });
 
 test('progress parses latest frames and encoding without claiming full completion', () => {

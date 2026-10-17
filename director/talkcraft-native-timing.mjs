@@ -1,6 +1,7 @@
 import {createHash, randomUUID} from 'node:crypto';
 import {copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 
 const read = file => JSON.parse(readFileSync(file, 'utf8'));
 const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -114,20 +115,86 @@ export function writeNativeTiming(project) {
   mkdirSync(path.dirname(renderFile), {recursive:true});
   writeFileSync(timestampFile, JSON.stringify(timing, null, 2), {flag:'wx'});
   if (timing.timingGranularity === 'sentence') {
-    // Empty chars is deliberate: sentence spans must not become fake word anchors.
+    // These are render-only linear positions derived from the provider's sentence
+    // spans. The provider evidence remains sentence-level in audio/timestamps.json.
     writeFileSync(renderFile, JSON.stringify({totalSec:timing.total, timingGranularity:'sentence',
+      charTiming:'sentence-derived-linear', timingSource:'tts-native',
       scenes:timing.sentences.map(sentence => ({id:`s${sentence.i + 1}`, text:sentence.text,
-        startSec:sentence.start, durationSec:sentence.end - sentence.start, chars:[]}))}, null, 2), {flag:'wx'});
+        startSec:sentence.start, durationSec:sentence.end - sentence.start,
+        chars:[...sentence.text].map((ch, index, chars) => {
+          const start = sentence.start + (sentence.end - sentence.start) * index / Math.max(chars.length, 1);
+          const end = sentence.start + (sentence.end - sentence.start) * (index + 1) / Math.max(chars.length, 1);
+          return {ch, t:start, e:end, source:'sentence-derived-linear'};
+        })}))}, null, 2), {flag:'wx'});
   }
   return timing;
 }
 
+function derivedRenderTiming(timing) {
+  return {totalSec:timing.total, timingGranularity:'sentence',
+    charTiming:'sentence-derived-linear', timingSource:'tts-native',
+    scenes:timing.sentences.map(sentence => ({id:`s${sentence.i + 1}`, text:sentence.text,
+      startSec:sentence.start, durationSec:sentence.end - sentence.start,
+      chars:[...sentence.text].map((ch, index, chars) => {
+        const start = sentence.start + (sentence.end - sentence.start) * index / Math.max(chars.length, 1);
+        const end = sentence.start + (sentence.end - sentence.start) * (index + 1) / Math.max(chars.length, 1);
+        return {ch, t:start, e:end, source:'sentence-derived-linear'};
+      })}))};
+}
+
+export function requireRenderTiming(project) {
+  const timing = read(path.join(project, 'audio', 'timestamps.json'));
+  validateNativeTiming(project, timing);
+  const renderTimingFile = path.join(project, 'remotion', 'timing.json');
+  let renderTiming = null;
+  try { renderTiming = read(renderTimingFile); } catch {}
+  const aligned=readWordAlignment(project);
+  if(aligned) {
+    if(renderTiming?.scenes?.length!==aligned.sentences.length ||
+      renderTiming.scenes.some((s,i)=>{
+        if(spoken(s.text)!==spoken(aligned.sentences[i].text) || !s.chars?.length)return true;
+        const spans=aligned.sentences[i].words.flatMap(w=>{
+          const chars=[...spoken(w.text)];return chars.map((ch,n)=>({ch,t:w.start+(w.end-w.start)*n/chars.length,e:w.start+(w.end-w.start)*(n+1)/chars.length}));
+        });
+        let at=0;
+        for(const c of s.chars.filter(c=>spoken(c.ch))) {
+          const text=spoken(c.ch),first=spans[at],last=spans[at+text.length-1];
+          if(!first||!last||spans.slice(at,at+text.length).map(x=>x.ch).join('')!==text ||
+            !(c.e>c.t)||Math.abs(c.t-first.t)>.001||Math.abs(c.e-last.e)>.001)return true;
+          at+=text.length;
+        }
+        return at!==spans.length;
+      }))
+      throw Error('字级渲染时间轴与已核验的配音证据不一致');
+    return;
+  }
+  if (timingHealth(timing).sentenceTimingReady && renderTiming?.timingGranularity === 'sentence' &&
+      renderTiming.scenes?.length && renderTiming.scenes.every(scene => !scene.chars?.length)) {
+    renderTiming = derivedRenderTiming(timing);
+    writeFileSync(renderTimingFile, JSON.stringify(renderTiming, null, 2), 'utf8');
+  }
+  const derivedRenderTimingReady = timingHealth(timing).sentenceTimingReady &&
+    renderTiming?.charTiming === 'sentence-derived-linear' &&
+    Array.isArray(renderTiming.scenes) && renderTiming.scenes.length > 0 &&
+    renderTiming.scenes.every(scene => Array.isArray(scene.chars) && scene.chars.length > 0);
+  if (!timingHealth(timing).wordTimingReady && !derivedRenderTimingReady) {
+    throw new Error('WORD_TIMING_REQUIRED：当前已采用 TTS 句级时间戳；词语动效和逐字字幕需要补充真实字级时间戳，已有配音无需重做');
+  }
+}
+
 export function requireWordTiming(project) {
+  if(readWordAlignment(project))return;
   const timing = read(path.join(project, 'audio', 'timestamps.json'));
   validateNativeTiming(project, timing);
   if (!timingHealth(timing).wordTimingReady) {
     throw new Error('WORD_TIMING_REQUIRED：当前已采用 TTS 句级时间戳；词语动效和逐字字幕需要补充真实字级时间戳，已有配音无需重做');
   }
+}
+
+export function wordTimingFile(project) {
+  if(readWordAlignment(project))return path.join(project,'audio/word-timestamps.json');
+  requireWordTiming(project);
+  return path.join(project,'audio/timestamps.json');
 }
 
 // Recovery creates an input-only sibling. Old ASR results, review state, rendered

@@ -1,21 +1,35 @@
 // Video ShotCraft console server
 import http from "node:http";
-import {probeTaskExecution} from "./director/task-execution-readiness.mjs";
+import {readShotPreview,shotPreviewVersion} from './director/talkcraft-shot-preview.mjs';
+import {selectTalkcraftContinuation} from './director/talkcraft-orchestration-policy.mjs';
+import {createTalkcraftAutoAdvance} from './director/talkcraft-auto-advance.mjs';
+import {createSampleReviewGate} from './director/talkcraft-sample-review.mjs';
+import {prepareTalkcraftParallel} from './director/talkcraft-parallel-preparation.mjs';
+import {readTalkcraftExecutions,talkcraftExecutionView} from './director/talkcraft-execution.mjs';
+import {talkcraftBlocker} from './director/talkcraft-blocker.mjs';
+import {assertNewVoiceSelection,assertTalkcraftVoiceDeclaration,assertTalkcraftVoiceIntent,expectedTalkcraftVoice,inspectTalkcraftVoiceOutput} from './director/talkcraft-voice-contract.mjs';
+import {pipelineProvenance,assertPipelineProvenance} from './director/talkcraft-pipeline-provenance.mjs';
+import {fileURLToPath} from 'node:url';
+import {pythonExecutable, browserExecutable} from './director/portable-runtime.mjs';
+import {currentFailure, talkcraftControlState} from './director/talkcraft-control-state.mjs';
+import {taskJournal} from './director/talkcraft-task-journal.mjs';
+import {buildAuditFeedback} from './director/talkcraft-audit-feedback.mjs';
+import {readApprovedFactScript} from './director/talkcraft-fact-review.mjs';
+import {probeTaskExecution} from './director/task-execution-readiness.mjs';
+import {repairVideoForReview} from './director/talkcraft-word-reveal.mjs';
 import crypto from "node:crypto";
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {Agent} from 'undici';
-import {loadAcceptanceFixture} from "./director/b-mode-acceptance.mjs";
-import {resolveLibraryVideo} from "./director/b-mode-library-video.mjs";
-import {loadMaterialIndex, matchSceneVideos} from "./director/b-mode-material-match.mjs";
 import {materialMatchPreviewEnabled, previewMaterialMatches, readMaterialMatchPreviewBody} from "./director/material-match-preview.mjs";
 import {createTalkcraftInput} from "./director/talkcraft-input.mjs";
 import {createTimingRecovery, timingHealth} from './director/talkcraft-native-timing.mjs';
 import {assertTalkcraftCardCallsBound, readTalkcraftCardCalls, readTalkcraftCardOptions,
   writeTalkcraftCardCalls} from "./director/talkcraft-card-calls.mjs";
 import {buildTalkcraftAuditSegments} from "./director/talkcraft-audit-segments.mjs";
-import {approveTalkcraftSample, approveTalkcraftStoryboard, latestTalkcraftRun, prepareTalkcraftStoryboardRevision, readTalkcraftStatus, requestTalkcraftStoryboardAdjustment, talkcraftProject} from "./director/talkcraft-status.mjs";
+import {approveTalkcraftFinal, approveTalkcraftSample, approveTalkcraftStoryboard, latestTalkcraftRun, prepareTalkcraftStoryboardRevision, readTalkcraftStatus, requestTalkcraftStoryboardAdjustment, talkcraftProject} from "./director/talkcraft-status.mjs";
+import {assertTalkcraftDigitalHumanAdmission} from './director/talkcraft-digital-human-admission.mjs';
 import {readTalkcraftWorkbench, startTalkcraftWorkbench} from "./director/talkcraft-workbench.mjs";
 import {resolveTalkcraftSkillRoot} from "./director/talkcraft-skill-root.mjs";
 import {latestTalkcraftFailureReport, writeTalkcraftFailureReport} from "./director/talkcraft-failure-report.mjs";
@@ -27,6 +41,7 @@ import {validateSpeechRate} from "./director/voice-speed.mjs";
 import {createVoicePreviewCache} from "./director/voice-preview-cache.mjs";
 import {readStoredProviderConfig, writeStoredProviderConfig} from "./director/provider-config.mjs";
 import {checkProviderConnectivity} from "./director/provider-connectivity.mjs";
+import {resumeTalkcraftDigitalHuman} from "./director/talkcraft-digital-human-resume.mjs";
 import {packagingHandle, PACKAGING_PREFIX} from "./director/packaging-routes.mjs";
 import {readSubtitleSettings, writeSubtitleSettings} from "./director/subtitle-v1.mjs";
 import {normalizeMusicSelection, readMusicSelection, writeMusicSelection, writeTalkcraftMusicSnapshot} from "./director/background-music.mjs";
@@ -38,19 +53,23 @@ import {preflightAModeRender} from "./director/a-mode-render-preflight.mjs";
 import {readRenderProgress} from './director/render-runtime.mjs';
 import {assertProductionOutputDirectory} from './director/governance-output-guard.mjs';
 
-const ROOT = process.env.SHOTCRAFT_ROOT || "E:\\video-shotcraft";
+const ROOT = process.env.SHOTCRAFT_ROOT || path.dirname(fileURLToPath(import.meta.url));
 const taskExecution = await probeTaskExecution({cwd:ROOT});
 const PORT = Number(process.env.PORT || 8765);
 const DEFAULT_OUTPUT_DIR = path.join(ROOT, "template", "out");
 const OUTPUT_CONFIG_FILE = path.join(ROOT, ".shotcraft-output.json");
-const CHROME = "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe";
-const PYTHON = "C:\\Users\\Administrator\\AppData\\Local\\Python\\bin\\python.exe";
+const CHROME = browserExecutable();
+const PYTHON = pythonExecutable();
 const A_MODE_SUPERVISOR_URL = process.env.A_MODE_SUPERVISOR_URL || "http://127.0.0.1:8772/run";
 // The bridge responds only after a worker finishes; rendering can exceed fetch's default five-minute header timeout.
 const bridgeDispatcher = new Agent({headersTimeout:0, bodyTimeout:0});
 
 let taskId = 0;
 const tasks = new Map();
+const bTaskJournal = taskJournal(ROOT, PORT, {alive:processAlive});
+for (const task of bTaskJournal.restore()) {
+  tasks.set(task.id,task); taskId=Math.max(taskId,task.id);
+}
 const aHistoryFile = path.join(ROOT, 'director', 'a-mode-runs', 'task-history.json');
 try {
   for (const task of JSON.parse(fs.readFileSync(aHistoryFile, 'utf8'))) {
@@ -116,9 +135,10 @@ function parseDirectNodeCommand(command) {
 function startTask(name, cmd, cwd, extraEnv = {}) {
   if (!taskExecution.ok) throw new Error(taskExecution.error);
   const id = ++taskId;
-  const inferredRunId = String(cmd || "").match(/[0-9a-f]{8}-[0-9a-f-]{27,}/iu)?.[0] || null;
-  const task = { id, name, cmd, status: "starting", logs: [], startedAt: Date.now(), proc: null, error: null, runId:inferredRunId };
+  const inferredRunId = String(cmd || '').match(/[0-9a-f]{8}-[0-9a-f-]{27,}/iu)?.[0] || null;
+  const task = { id, name, cmd, cwd, status: "starting", logs: [], startedAt: Date.now(), proc: null, error: null, runId:inferredRunId };
   tasks.set(id, task);
+  if(name.startsWith('talkcraft-')) bTaskJournal.save(tasks);
   const markStartFailure = (error) => {
     const code = String(error?.code || "");
     const detail = code === "EPERM"
@@ -128,6 +148,7 @@ function startTask(name, cmd, cwd, extraEnv = {}) {
     task.logs.push(detail);
     task.exitCode = null;
     task.status = "error";
+    task.finishedAt = Date.now();
     if (task.runId && name === 'a-director') {
       try { failAModeRun(ROOT, task.runId, detail); } catch {}
     }
@@ -139,6 +160,7 @@ function startTask(name, cmd, cwd, extraEnv = {}) {
       try { task.failureReport = writeTalkcraftFailureReport(ROOT, task.runId, task).report; }
       catch (reportError) { task.logs.push(`失败报告生成失败：${String(reportError.message || reportError)}`); }
     }
+    if(name.startsWith('talkcraft-')) bTaskJournal.save(tasks);
   };
   try {
     const direct = parseDirectNodeCommand(cmd);
@@ -147,18 +169,21 @@ function startTask(name, cmd, cwd, extraEnv = {}) {
       : spawn(cmd, { cwd, shell: true, windowsHide:true, env: {...process.env, PYTHONIOENCODING: "utf-8", ...extraEnv} });
     task.proc = proc;
     task.status = "running";
+    if(name.startsWith('talkcraft-')) bTaskJournal.save(tasks);
     if (['a-director', 'render'].includes(name) && proc.pid) {
       fs.mkdirSync(path.dirname(operationFile), {recursive:true});
       fs.writeFileSync(operationFile, JSON.stringify({pid:proc.pid, name, status:'running', startedAt:task.startedAt}), 'utf8');
     }
-    proc.stdout.on("data", d => task.logs.push(d.toString()));
-    proc.stderr.on("data", d => task.logs.push(d.toString()));
+    const appendLog=d=>{task.logs.push(d.toString());if(name.startsWith('talkcraft-'))bTaskJournal.save(tasks);};
+    proc.stdout.on("data", appendLog);
+    proc.stderr.on("data", appendLog);
     proc.on("error", markStartFailure);
     proc.on("close", code => {
       if (['a-director', 'render'].includes(name) && readAModeOperation()?.pid === proc.pid)
         fs.writeFileSync(operationFile, JSON.stringify({pid:proc.pid, name, status:'finished', exitCode:code}), 'utf8');
       if (task.error) return;
       task.exitCode = code;
+      task.finishedAt = Date.now();
       if (code !== 0 && task.runId && name === 'a-director') {
         try {
           const run = readAModeRun(ROOT, task.runId);
@@ -175,6 +200,7 @@ function startTask(name, cmd, cwd, extraEnv = {}) {
         try { markAModeRender(ROOT, task.runId, task.status, code === 0 ? null : task.logs.slice(-3).join('\n').slice(-1500)); } catch {}
       }
       if (['a-director','render'].includes(name)) saveAModeTaskHistory();
+      if(name.startsWith('talkcraft-')) bTaskJournal.save(tasks);
     });
   } catch (error) {
     markStartFailure(error);
@@ -317,8 +343,8 @@ function sendRetiredAMode(res) {
 
 function sendStatic(res, filePath, maxAge = 0) {
   const ext = path.extname(filePath).toLowerCase();
-  const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".gif": "image/gif", ".mp4": "video/mp4", ".json": "application/json" }[ext] || "application/octet-stream";
-  res.writeHead(200, { "Content-Type": mime, "Cache-Control": `max-age=${maxAge}` });
+  const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg", ".gif": "image/gif", ".mp4": "video/mp4", ".json": "application/json", ".otf": "font/otf", ".ttf": "font/ttf", ".woff": "font/woff", ".woff2": "font/woff2" }[ext] || "application/octet-stream";
+  res.writeHead(200, { "Content-Type": mime, "Cache-Control": maxAge > 0 ? `max-age=${maxAge}` : "no-store, max-age=0" });
   fs.createReadStream(filePath).pipe(res);
 }
 
@@ -355,29 +381,100 @@ async function readBModeInput(req, {maxBytes = 8 * 1024 * 1024} = {}) {
   const avatars = form.getAll("avatar").filter(file => file && typeof file.arrayBuffer === "function" && file.size);
   const avatar = avatars[0] || null;
   const cloneAudio = form.get("cloneAudio") || form.get("audio");
+  const hostVideo = form.get('hostVideo');
   return {
-    fields: Object.fromEntries(["text", "voice", "voiceMode", "speechRate", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat", "generationMode", "visualMode"].map(key => [key, form.get(key)])),
+    fields: Object.fromEntries(["text", "voice", "voiceMode", "confirmedVoiceId", "voiceCandidateId", "speechRate", "speakerId", "scenes", "background", "backgroundVideoPath", "prompt", "maxSide", "intensity", "scale", "instanceType", "promptText", "audioFormat", "generationMode", "enableDigitalHuman", "visualMode"].map(key => [key, form.get(key)])),
     avatar: avatar && typeof avatar.arrayBuffer === "function" && avatar.size ? avatar : null,
     avatars,
+    hostVideo:hostVideo && typeof hostVideo.arrayBuffer==='function' ? hostVideo : null,
     cloneAudio: cloneAudio && typeof cloneAudio.arrayBuffer === "function" && cloneAudio.size ? cloneAudio : null,
   };
 }
 
-const STANDARD_VOICES = new Set(["zh-CN-YunxiNeural", "zh-CN-XiaoxiaoNeural"]);
 const validSpeakerId = value => /^[A-Za-z0-9_-]{2,128}$/u.test(String(value || ""));
 function readVoiceSelection(fields) {
-  const voiceMode = ["volcengine-clone", "volcengine-tts2"].includes(fields.voiceMode) ? fields.voiceMode : "standard";
-  const voice = String(fields.voice || "zh-CN-YunxiNeural");
-  const speakerId = String(fields.speakerId || "").trim();
-  if (voiceMode === "standard" && !STANDARD_VOICES.has(voice)) throw new Error("当前仅支持已接通的现成音色");
-  if (voiceMode === "volcengine-clone" && !validSpeakerId(speakerId)) throw new Error("火山复刻音色需要有效的 speaker_id");
-  if (voiceMode === "volcengine-tts2" && !/^[A-Za-z0-9_-]{2,256}$/u.test(speakerId)) throw new Error("火山语音合成 2.0 需要有效的音色 ID");
-  return {voiceMode, voice, speechRate:validateSpeechRate(fields.speechRate), speakerId: voiceMode === "standard" ? null : speakerId};
+  const selection={...assertNewVoiceSelection(fields),speechRate:validateSpeechRate(fields.speechRate)};
+  assertTalkcraftVoiceIntent(fields,selection);
+  return selection;
+}
+
+function latestTalkcraftTaskFailure(run) {
+  const task = [...tasks.values()].filter(item => item.runId === run.runId && item.status === 'error').at(-1);
+  if (!task) return null;
+  const passed = {
+    'talkcraft-bootstrap':run.inputReady,
+    'talkcraft-editorial':run.shotbook,
+    'talkcraft-editorial-check':run.semanticPassed,
+    'talkcraft-editorial-revision':run.shotbook,
+    'talkcraft-candidates':run.candidatesReady,
+    'talkcraft-preflight':run.preflightCompleted,
+    'talkcraft-scaffold':run.workbenchReady,
+    'talkcraft-digital-human':run.digitalHuman?.ready,
+    'talkcraft-sample':run.sample,
+    'talkcraft-render-all':run.final,
+    'talkcraft-qa':run.qaPassed,
+    'talkcraft-deliver':run.delivery,
+  };
+  if (passed[task.name]) return null;
+  if (task.failureReport) return task.failureReport;
+  const processLaunchBlocked = /EPERM|拒绝启动任务进程/u.test(String(task.error || ''));
+  return {schema:'talkcraft-failure-report-v1', runId:run.runId,
+    code:processLaunchBlocked ? 'PROCESS_LAUNCH_BLOCKED' : 'TASK_START_FAILED',
+    title:processLaunchBlocked ? '任务进程未能启动' : '任务启动失败',
+    cause:String(task.error || '任务没有成功启动'),
+    task:{id:task.id ?? null, name:task.name || 'talkcraft', exitCode:task.exitCode ?? null},
+    actions:['保留当前运行和已有素材；修复服务启动上下文后，只重试当前失败阶段。']};
 }
 
 function withTalkcraftWorkbench(run) {
-  return {...run, workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
-    failureReport:latestTalkcraftFailureReport(ROOT, run.runId)};
+  const project = run.runId ? talkcraftProject(ROOT, run.runId) : null;
+  let source = {};
+  try {
+    const sourceFile = project && path.join(project, 'source-run.json');
+    if (sourceFile && fs.existsSync(sourceFile)) source = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+  } catch {}
+  let provenance = pipelineProvenance(source);
+  const voiceSelection = source.voiceEngine ? inspectTalkcraftVoiceOutput(project,source) : null;
+  if (voiceSelection && !voiceSelection.verified) provenance={...provenance,verified:false,
+    issues:[...new Set([...provenance.issues,...voiceSelection.issues])]};
+  run = {...run, provenance,voiceSelection};
+  for (const task of tasks.values()) if (task.runId === run.runId && task.recoveredWorker) bTaskJournal.reconcile(task);
+  const active = [...tasks.values()].filter(task => task.runId === run.runId &&
+    ['starting','running','stopping'].includes(task.status)).at(-1);
+  const executions=readTalkcraftExecutions(project,{alive:processAlive});
+  const localActive=executions.find(item=>item.status==='running');
+  const activeTask=active ? {id:active.id,name:active.name,status:active.status,startedAt:active.startedAt,
+    message:localActive?.name===active.name?localActive.message:null} : localActive ? {
+      id:'execution:'+localActive.executionId,executionId:localActive.executionId,name:localActive.name,
+      status:localActive.status,startedAt:localActive.startedAt,message:localActive.message,external:true} : null;
+  run = {...run, activeTask};
+  const wordWindowIssues = (run.preflightIssues || []).filter(issue=>String(issue).includes('[NATIVE_TEXT_WINDOW_MISMATCH]'));
+  const failureReport = wordWindowIssues.length ? {schema:'talkcraft-failure-report-v1',runId:run.runId,
+    code:'NATIVE_TEXT_WINDOW_MISMATCH',title:'模板动作与口播落点不匹配',cause:wordWindowIssues.join('；'),
+    failedChecks:wordWindowIssues,actions:['按标出的镜头调整模板或驻留计划，重新预检后审核。'],task:{name:'talkcraft-preflight'}}
+    : latestTalkcraftFailureReport(ROOT, run.runId) || latestTalkcraftTaskFailure(run);
+  // 只有已产出成片的旧 render-all 失败报告应被忽略；当前 QA 失败仍要反馈给用户。
+  const recentExecution=executions[0];
+  const localFailure=recentExecution && ['error','interrupted'].includes(recentExecution.status) &&
+    recentExecution.startedAt>(Date.parse(failureReport?.createdAt || '') || 0) ? {
+      schema:'talkcraft-failure-report-v1',runId:run.runId,createdAt:new Date(recentExecution.finishedAt || recentExecution.startedAt).toISOString(),
+      code:'LOCAL_EXECUTION_FAILED',title:'后端本地执行未通过',cause:recentExecution.error || recentExecution.message,
+      task:{id:'execution:'+recentExecution.executionId,name:recentExecution.name},
+      actions:['已有成果保留；核对本次本地执行记录和具体校验错误，不自动重复付费调用。']} : null;
+  const activeFailure = currentFailure(run, localFailure || failureReport);
+  const control = talkcraftControlState(run, activeFailure, taskExecution);
+  const status={...run, automation:readTalkcraftAutoRecord(run.runId), workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
+    operationLog:[...[...tasks.values()].filter(t=>t.runId===run.runId).map(t=>({id:t.id,name:t.name,
+      cmd:t.cmd || null,cwd:t.cwd || null,status:t.status,exitCode:t.exitCode ?? null,startedAt:t.startedAt,finishedAt:t.finishedAt || null})),
+      ...executions.map(item=>({id:'execution:'+item.executionId,name:item.name,status:item.status,
+        startedAt:item.startedAt,finishedAt:item.finishedAt,message:item.message,external:true}))],
+    failureReport:activeFailure, ...control,
+    ...(!provenance.verified ? {nextStage:null,waitingFor:'编导核对模式、管线与配音来源',
+      blockers:[...new Set([...control.blockers,...provenance.issues])],final:false,qaPassed:false,reviewPassed:false,delivery:false} : {})};
+  status.execution=talkcraftExecutionView(status);
+  const sampleSha256=run.sample ? crypto.createHash('sha256').update(fs.readFileSync(path.join(project,'remotion/out/preview/s01.mp4'))).digest('hex') : null;
+  const reviewed={...status,intervention:talkcraftBlocker(status),sampleSha256};
+  return {...reviewed,sampleReview:sampleReview.view(run.runId,reviewed)};
 }
 
 async function createModeCRun(fields, avatars) {
@@ -388,10 +485,134 @@ async function createModeCRun(fields, avatars) {
     themeSnapshot:readCurrentTheme(ROOT)});
   const sourceFile = path.join(created.project, 'source-run.json');
   const source = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
-  fs.writeFileSync(sourceFile, JSON.stringify({...source, visualMode:'C', modeCConfig:'director/mode-c/mode-c-config.json'}, null, 2), 'utf8');
+  fs.writeFileSync(sourceFile, JSON.stringify({...source, mode:'C', visualMode:'C', modeCConfig:'director/mode-c/mode-c-config.json'}, null, 2), 'utf8');
   const id = startTask('mode-c-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
   tasks.get(id).runId = created.runId;
   return {created, id};
+}
+
+const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
+for(const stage of ['planning-check','media-preflight','host-preflight','editorial-recover'])TALKCRAFT_STAGE_NAMES.add(stage);
+
+function readTalkcraftAutoRecord(runId) {
+  try { return JSON.parse(fs.readFileSync(path.join(talkcraftProject(ROOT, runId), 'workflow-automation.json'), 'utf8')); }
+  catch { return null; }
+}
+const talkcraftAuto = createTalkcraftAutoAdvance({port:PORT,
+  prepareParallel:runId=>prepareTalkcraftParallel(ROOT,runId),
+  readRecord:readTalkcraftAutoRecord,
+  writeRecord:(runId, record) => {
+    const file = path.join(talkcraftProject(ROOT, runId), 'workflow-automation.json');
+    fs.writeFileSync(file + '.tmp', JSON.stringify(record, null, 2));
+    fs.renameSync(file + '.tmp', file);
+  },
+  readRun:runId => withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId)),
+  queueStage:queueTalkcraftStage,
+});
+async function approveSampleAndContinue(runId, expectedHash, method='manual') {
+  const project=talkcraftProject(ROOT,runId);
+  assertPipelineProvenance(project);
+  const status=withTalkcraftWorkbench(readTalkcraftStatus(ROOT,runId));
+  if(expectedHash && status.sampleSha256!==expectedHash)throw Error('样片版本已变化，请重新加载当前样片');
+  if(status.activeTask)throw Error('本片已有任务运行中');
+  if(!status.sampleApproved && (status.lastFailure||status.intervention||status.nextStage!=='approve-sample'))
+    throw Error('当前后端状态不允许确认样片，请先处理阻断');
+  assertTalkcraftCardCallsBound(ROOT,resolveTalkcraftSkillRoot(ROOT),runId,
+    {requireCardCalls:status.cardCallsRequired,requiredShotIds:status.cardCallsRequired?['s01']:[]});
+  const approval=approveTalkcraftSample(ROOT,runId,{method,
+    ...(method==='timeout'?{policy:'visible-sample-timeout-60s'}:{})});
+  talkcraftAuto.enable(runId);
+  await talkcraftAuto.advance(runId);
+  return approval;
+}
+const sampleReview=createSampleReviewGate({owner:String(PORT),
+  readRun:runId=>withTalkcraftWorkbench(readTalkcraftStatus(ROOT,runId)),
+  readRecord:runId=>{try{return JSON.parse(fs.readFileSync(path.join(talkcraftProject(ROOT,runId),'qa/sample-review.json'),'utf8'));}catch{return null;}},
+  writeRecord:(runId,record)=>{const file=path.join(talkcraftProject(ROOT,runId),'qa/sample-review.json');
+    fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file+'.tmp',JSON.stringify(record,null,2));fs.renameSync(file+'.tmp',file);},
+  approve:approveSampleAndContinue,
+});
+// 仅恢复本端口明确启用的任务，历史任务不会因浏览页面而被启动。
+for (const entry of fs.existsSync(path.join(ROOT, 'director', 'b-mode-runs'))
+  ? fs.readdirSync(path.join(ROOT, 'director', 'b-mode-runs'), {withFileTypes:true}) : []) {
+  if (entry.isDirectory()) {talkcraftAuto.restore(entry.name);sampleReview.restore(entry.name);}
+}
+setInterval(() => { sampleReview.tick().catch(error => console.error('样片确认：', error.message)); }, 1000).unref();
+setInterval(() => { talkcraftAuto.tick().catch(error => console.error('B 自动推进：', error.message)); }, 3000).unref();
+
+// The browser submits an intent; only this server-side dispatcher is allowed to
+// turn that intent into a TalkCraft stage process. This keeps creative control in
+// the B-mode orchestrator instead of the UI event handlers.
+async function queueTalkcraftStage(body) {
+  const {runId, stage} = body || {};
+  if (!TALKCRAFT_STAGE_NAMES.has(stage)) throw new Error('不支持的 TalkCraft 阶段');
+  const project = talkcraftProject(ROOT, runId);
+  const active = [...tasks.values()].find(task => task.runId === runId && ['starting','running'].includes(task.status));
+  if (active || readTalkcraftExecutions(project,{alive:processAlive}).some(item=>item.status==='running')) throw new Error('本片已有任务运行中');
+  const status = readTalkcraftStatus(ROOT, runId);
+  const sourceFile = path.join(project, 'source-run.json');
+  const source = fs.existsSync(sourceFile) ? JSON.parse(fs.readFileSync(sourceFile, 'utf8')) : {};
+  assertPipelineProvenance(project);
+  if(stage==='editorial-recover'){
+    if(!status.editorialResponseSaved||status.shotbook)throw Error('本地恢复只处理尚未落地的已保存分镜');
+    const id=startTask('talkcraft-editorial-recover',`node director/talkcraft-ark-editorial.mjs ${runId} --recover-existing`,ROOT);
+    tasks.get(id).runId=runId;
+    return {ok:true,id,runId,stage,billable:false};
+  }
+  if (stage === 'digital-human') {
+    assertTalkcraftDigitalHumanAdmission(ROOT, runId);
+    if (body.approveDigitalHumanCost !== true) throw new Error('当前下一步为付费数字人生成，需要本次明确授权');
+  }
+  if (stage === 'editorial-check') {
+    const id = startTask('talkcraft-editorial-check', `node director/talkcraft-ark-editorial.mjs ${runId} --validate-existing`, ROOT);
+    tasks.get(id).runId = runId;
+    return {ok:true,id,runId,stage,billable:false};
+  }
+  if (stage === 'editorial') {
+    if (body.approveModelCost !== true) throw new Error('生成分镜会调用火山模型，需确认可能计费');
+    if (!status.inputReady) throw new Error('请先完成配音和时间轴处理');
+    if (status.editorialSubmission?.requiresAuthorization) throw new Error('本次分镜单次授权已使用；先核对接入点和任务结果，再取得新的单次授权');
+    if (fs.existsSync(path.join(project,'SHOTBOOK.md')) || fs.existsSync(path.join(project,'remotion','shots.json')))
+      throw new Error('本片已有分镜，已保留；请刷新状态');
+    if (!aModeReadiness().configured) throw new Error('请先在服务 API 设置中配置火山方舟模型');
+    const id = startTask('talkcraft-editorial', `node director/talkcraft-ark-editorial.mjs ${runId}`, ROOT);
+    tasks.get(id).runId = runId;
+    return {ok:true,id,runId,stage,billable:true};
+  }
+  if (stage === 'sample' && Object.hasOwn(body, 'bgm')) writeTalkcraftMusicSnapshot(ROOT, path.join(project, 'remotion'), body.bgm);
+  // Reuse known provider task IDs only after the user explicitly permits
+  // continuing the original generation scope; default calls still reject it.
+  const resumeFlag=stage==='digital-human'&&body.resumeExisting===true?' --resume-authorized':'';
+  const id = startTask(`talkcraft-${stage}`, `node director/talkcraft-stages.mjs ${stage} ${runId}${resumeFlag}`, ROOT);
+  tasks.get(id).runId = runId;
+  return {ok:true,id,runId,stage};
+}
+
+// Retained for historical comparison only. No HTTP route may invoke this
+// legacy card selector: it assembles scenes directly from browser choices.
+async function legacyTalkcraftCardInput(req, res) {
+    try {
+      const body = await readBody(req);
+      const runId = String(body.runId || '');
+      const status = readTalkcraftStatus(ROOT, runId);
+      const skillRoot = resolveTalkcraftSkillRoot(ROOT);
+      const saved = writeTalkcraftCardCalls(ROOT, skillRoot, runId, body);
+      const binding = assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
+        {requireCardCalls:status.cardCallsRequired});
+      let sampleReady = !status.cardCallsRequired;
+      let completeReady = !status.cardCallsRequired;
+      let nextBlocker = null;
+      if (status.cardCallsRequired) {
+        try { assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
+          {requireCardCalls:true, requiredShotIds:['s01']}); sampleReady = true; }
+        catch (error) { nextBlocker = String(error.message || error); }
+        try { assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
+          {requireCardCalls:true, requireCompleteCoverage:true}); completeReady = true; }
+        catch (error) { nextBlocker ||= String(error.message || error); }
+      }
+      return sendJson(res, {ok:true, record:saved.record, assembly:saved.assembly,
+        bindingReady:binding.present, sampleReady, completeReady, nextBlocker});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
 }
 
 const apis = {
@@ -424,7 +645,10 @@ const apis = {
       const shots = fs.existsSync(shotsFile) ? JSON.parse(fs.readFileSync(shotsFile, 'utf8')) : [];
       const sentences = fs.existsSync(semanticFile) ? JSON.parse(fs.readFileSync(semanticFile, 'utf8')).sentences || [] : [];
       const candidates = fs.existsSync(candidateFile) ? JSON.parse(fs.readFileSync(candidateFile, 'utf8')) : {};
-      return sendJson(res, {ok:true, shots:shots.map(shot => ({...shot,
+      const sourceFile = path.join(project, 'source-run.json');
+      const source = fs.existsSync(sourceFile) ? JSON.parse(fs.readFileSync(sourceFile, 'utf8')) : {};
+      const captionTheme = source.themeSnapshot ? normalizeTheme(source.themeSnapshot).tokens : null;
+      return sendJson(res, {ok:true, captionTheme, previewVersion:shotPreviewVersion(project), shots:shots.map(shot => ({...shot,
         candidates: candidates?.[shot.id]?.candidates || {},
         sentences:sentences.filter(sentence => sentence.shot === shot.id).map(sentence =>
           ({text:sentence.text, sem:sentence.sem, weight:sentence.weight}))}))});
@@ -461,6 +685,7 @@ const apis = {
         } catch (error) { bindingError ||= String(error.message || error); }
       }
       return sendJson(res, {ok:true, options, calls:stored.record?.calls || [],
+        nativeTemplate:fs.existsSync(path.join(ROOT,'director/b-mode-runs',runId,'talkcraft','remotion/src/scenes/scene-shared.tsx')),
         bindingReady, sampleReady, completeReady, bindingError});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
@@ -471,36 +696,12 @@ const apis = {
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "PUT /api/talkcraft/card-calls": async (req, res, url) => {
-    try {
-      const body = await readBody(req);
-      const runId = url.searchParams.get('id') || body.runId || '';
-      const result = writeTalkcraftCardCalls(ROOT, resolveTalkcraftSkillRoot(ROOT), runId, {...body, runId});
-      return sendJson(res, {ok:true, ...result});
-    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+    return sendJson(res, {ok:false,code:'FRONTEND_CARD_ASSEMBLY_FORBIDDEN',
+      error:'前端不能选卡并装配场景；请提交镜头或参数修改要求，由编导核对后处理'});
   },
   "POST /api/talkcraft/card-calls": async (req, res) => {
-    try {
-      const body = await readBody(req);
-      const runId = String(body.runId || '');
-      const status = readTalkcraftStatus(ROOT, runId);
-      const skillRoot = resolveTalkcraftSkillRoot(ROOT);
-      const saved = writeTalkcraftCardCalls(ROOT, skillRoot, runId, body);
-      const binding = assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
-        {requireCardCalls:status.cardCallsRequired});
-      let sampleReady = !status.cardCallsRequired;
-      let completeReady = !status.cardCallsRequired;
-      let nextBlocker = null;
-      if (status.cardCallsRequired) {
-        try { assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
-          {requireCardCalls:true, requiredShotIds:['s01']}); sampleReady = true; }
-        catch (error) { nextBlocker = String(error.message || error); }
-        try { assertTalkcraftCardCallsBound(ROOT, skillRoot, runId,
-          {requireCardCalls:true, requireCompleteCoverage:true}); completeReady = true; }
-        catch (error) { nextBlocker ||= String(error.message || error); }
-      }
-      return sendJson(res, {ok:true, record:saved.record, assembly:saved.assembly,
-        bindingReady:binding.present, sampleReady, completeReady, nextBlocker});
-    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+    return sendJson(res, {ok:false,code:'FRONTEND_CARD_ASSEMBLY_FORBIDDEN',
+      error:'前端不能选卡并装配场景；请提交镜头或参数修改要求，由编导核对后处理'});
   },
   "GET /api/talkcraft/candidates": (req, res, url) => {
     try {
@@ -511,6 +712,18 @@ const apis = {
         'Content-Disposition':'inline; filename="card-candidates.md"', 'X-Content-Type-Options':'nosniff'});
       fs.createReadStream(file).pipe(res);
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "GET /api/talkcraft/shot-preview": (req, res, url) => {
+    try {
+      const id=url.searchParams.get('id')||'',shot=url.searchParams.get('shot')||'';
+      const preview=readShotPreview(talkcraftProject(ROOT,id),shot);
+      if(url.searchParams.get('media')==='1'){
+        if(!preview.ready||url.searchParams.get('v')!==preview.sha256){res.writeHead(409);res.end('本镜预览已失效，请刷新');return;}
+        res.setHeader('Cache-Control','no-store');return sendVideoRange(res,preview.file,req.headers.range);
+      }
+      const {file,...publicPreview}=preview;
+      return sendJson(res,{ok:true,...publicPreview,...(preview.ready?{url:`/api/talkcraft/shot-preview?id=${encodeURIComponent(id)}&shot=${encodeURIComponent(shot)}&media=1&v=${preview.sha256}`}:{})});
+    }catch(error){return sendJson(res,{ok:false,ready:false,error:String(error.message||error)});}
   },
   "GET /api/talkcraft/card-thumb": (req, res, url) => {
     try {
@@ -525,33 +738,52 @@ const apis = {
       return sendJson(res, {ok:true, text:fs.readFileSync(path.join(project, 'input.txt'), 'utf8').trim()});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
-  "GET /api/talkcraft/approved-script": (req, res) => {
+  "GET /api/talkcraft/approved-script": (req, res, url) => {
     try {
+      const runId=url.searchParams.get('id');
+      if(runId){const project=talkcraftProject(ROOT,runId);
+        return sendJson(res,{ok:true,runId,...readApprovedFactScript(project)});}
       const file = path.join(ROOT, 'director', 'talkcraft-revised-script.txt');
       if (!fs.existsSync(file)) { res.writeHead(404); res.end('Approved script not found'); return; }
       return sendJson(res, {ok:true, text:fs.readFileSync(file, 'utf8').trim()});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/digital-human-resume": async (req, res, url) => {
+    try {
+      const body = await readBody(req);
+      const runId = String(body.runId || url.searchParams.get('id') || latestTalkcraftRun(ROOT) || '');
+      const result = await resumeTalkcraftDigitalHuman(runId);
+      return sendJson(res, {ok:true, runId, ...result});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/revise": async (req, res) => {
     try {
       const body = await readBody(req);
       const sourceRunId = body.runId || '';
+      if([...tasks.values()].some(task=>(task.runId===sourceRunId||task.sourceRunId===sourceRunId)&&['starting','running'].includes(task.status)))throw Error('本片已有任务运行中，请先等待当前任务结束');
       const sourceProject = talkcraftProject(ROOT, sourceRunId);
       const sourceRun = JSON.parse(fs.readFileSync(path.join(sourceProject, 'source-run.json'), 'utf8'));
+      if(sourceRun.workflowPath==='recorded-host')throw Error('真人视频使用原声。修改口播内容请提交对应的新视频与文案，不能自动改为 TTS。');
       const avatarFiles = (sourceRun.avatarFiles?.length ? sourceRun.avatarFiles : ['avatar.png'])
         .map(name => path.join(sourceProject, 'assets', path.basename(name)));
       if (!avatarFiles.every(fs.existsSync)) throw new Error('原运行没有可复用的角色图，请回编导台重新选择');
-      const selection = ['volcengine-clone', 'volcengine-tts2'].includes(sourceRun.voiceMode)
-        ? readVoiceSelection({voiceMode:sourceRun.voiceMode, speakerId:body.speakerId || sourceRun.speakerId, speechRate:body.speechRate ?? sourceRun.speechRate})
-        : readVoiceSelection({voiceMode:'standard', voice:body.voice || sourceRun.voice, speechRate:body.speechRate ?? sourceRun.speechRate});
+      const selection = readVoiceSelection({voiceMode:body.voiceMode || sourceRun.voiceMode,
+        speakerId:body.speakerId || sourceRun.speakerId,speechRate:body.speechRate ?? sourceRun.speechRate});
       const created = createTalkcraftInput(ROOT, {text:body.text, ...selection,
-        avatarBytes:avatarFiles.map(file => fs.readFileSync(file)), generationMode:sourceRun.digitalHumanMode ?? null});
+        avatarBytes:avatarFiles.map(file => fs.readFileSync(file)), generationMode:sourceRun.digitalHumanMode ?? null,
+        enableDigitalHuman:sourceRun.isDigitalHuman === true,themeSnapshot:sourceRun.themeSnapshot});
       const newSourceFile = path.join(created.project, 'source-run.json');
       const newSource = JSON.parse(fs.readFileSync(newSourceFile, 'utf8'));
       fs.writeFileSync(newSourceFile, JSON.stringify({...newSource, sourceRunId, revisionOfRunId:sourceRunId}, null, 2), 'utf8');
-      fs.writeFileSync(path.join(created.project, 'sources.md'), `# 素材来源\n\n- 角色图：沿用运行 ${sourceRunId} 的本地静态图副本；不代表数字人口型。\n- 口播文案：本次审核修改稿；原运行文案保持不变。\n- 其余素材：待语义标注后逐镜采集并登记。\n`, 'utf8');
+      const factRecord=path.join(sourceProject,'qa/fact-script-approval.json');
+      if(fs.existsSync(factRecord)){
+        fs.mkdirSync(path.join(created.project,'qa'),{recursive:true});
+        for(const name of ['fact-script-approval.json','fact-approved-script.txt'])fs.copyFileSync(path.join(sourceProject,'qa',name),path.join(created.project,'qa',name));
+      }
+      fs.writeFileSync(path.join(created.project, 'sources.md'), `# 素材来源\n\n- 角色图：沿用运行 ${sourceRunId} 的角色图副本；${sourceRun.isDigitalHuman === true ? '将作为数字人生成输入。' : '仅作为静态角色图。'}\n- 口播文案：本次审核修改稿；原运行文案保持不变。\n- 其余素材：待语义标注后逐镜采集并登记。\n`, 'utf8');
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
+      talkcraftAuto.enable(created.runId);
       tasks.get(id).sourceRunId = sourceRunId;
       return sendJson(res, {ok:true, id, runId:created.runId, sourceRunId, sentences:created.sentences, characters:created.characters});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
@@ -610,21 +842,28 @@ const apis = {
       return sendJson(res, {ok:!!report, report});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
+  "GET /api/talkcraft/audit-feedback": (req,res,url)=>{
+    try{return sendJson(res,{ok:true,report:buildAuditFeedback(talkcraftProject(ROOT,url.searchParams.get('id')||''),resolveTalkcraftSkillRoot(ROOT))});}
+    catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
+  },
   "POST /api/talkcraft/create": async (req, res) => {
     try {
-      const {fields, avatars} = await readBModeInput(req, {maxBytes:60 * 1024 * 1024});
+      const {fields, avatars=[], hostVideo} = await readBModeInput(req, {maxBytes:360 * 1024 * 1024});
       if (String(fields.visualMode || '').toUpperCase() === 'C') {
         const {created, id} = await createModeCRun(fields, avatars);
         return sendJson(res, {ok:true, id, runId:created.runId, mode:'C', dryRun:true, sentences:created.sentences});
       }
-      if (!avatars.length) throw new Error('请先选择角色图');
-      const selection = readVoiceSelection(fields);
+      if (!hostVideo && !avatars.length) throw new Error('请选择真人口播视频或角色图');
+      const selection = hostVideo ? {} : readVoiceSelection(fields);
+      if(!hostVideo)assertTalkcraftVoiceDeclaration(fields);
       const created = createTalkcraftInput(ROOT, {text:fields.text, ...selection,
         avatarBytes:await Promise.all(avatars.map(async file => Buffer.from(await file.arrayBuffer()))),
-        generationMode:fields.generationMode || 'segments', themeSnapshot:readCurrentTheme(ROOT)});
+        hostVideoBytes:hostVideo ? Buffer.from(await hostVideo.arrayBuffer()) : undefined,
+        generationMode:fields.generationMode || 'segments', enableDigitalHuman:fields.enableDigitalHuman !== 'false', themeSnapshot:readCurrentTheme(ROOT)});
       const id = startTask('talkcraft-bootstrap', `node director/talkcraft-stages.mjs bootstrap ${created.runId}`, ROOT);
       tasks.get(id).runId = created.runId;
-      return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences});
+      return sendJson(res, {ok:true, id, runId:created.runId, sentences:created.sentences,
+        workflowPath:created.workflowPath});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "GET /api/mode-c/config": (_req, res) => {
@@ -674,50 +913,66 @@ const apis = {
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/stage": async (req, res) => {
+    return sendJson(res, {ok:false,code:'FRONTEND_STAGE_FORBIDDEN',error:'前端不能选择执行阶段；请提交参数、审批或继续意图'});
+  },
+  "POST /api/talkcraft/intent": async (req, res) => {
     try {
       const body = await readBody(req);
-      const {runId, stage} = body;
-      if (!['editorial','editorial-check','candidates','preflight','scaffold','digital-human','sample','render-all','render-sfx-solo','qa','deliver'].includes(stage)) throw new Error('不支持的 TalkCraft 阶段');
-      const project = talkcraftProject(ROOT, runId);
-      const active = [...tasks.values()].find(task => task.runId === runId && ['starting','running'].includes(task.status));
-      if (active) throw new Error('本片已有任务运行中');
-      if (stage === 'editorial-check') {
-        const id = startTask('talkcraft-editorial-check', `node director/talkcraft-ark-editorial.mjs ${runId} --validate-existing`, ROOT);
-        tasks.get(id).runId = runId;
-        return sendJson(res,{ok:true,id,runId,stage,billable:false});
-      }
-      if (stage === 'editorial') {
-        if (body.approveModelCost !== true) throw new Error('生成分镜会调用火山模型，需确认可能计费');
-        if (!readTalkcraftStatus(ROOT,runId).inputReady) throw new Error('请先完成配音和时间轴处理');
-        if (fs.existsSync(path.join(project,'SHOTBOOK.md')) || fs.existsSync(path.join(project,'remotion','shots.json')))
-          throw new Error('本片已有分镜，已保留；请刷新状态');
-        if (!aModeReadiness().configured) throw new Error('请先在服务 API 设置中配置火山方舟模型');
-        const id = startTask('talkcraft-editorial', `node director/talkcraft-ark-editorial.mjs ${runId}`, ROOT);
-        tasks.get(id).runId = runId;
-        return sendJson(res, {ok:true,id,runId,stage,billable:true});
-      }
-      if (stage === 'sample' && Object.hasOwn(body, 'bgm')) {
-        writeTalkcraftMusicSnapshot(ROOT, path.join(project, 'remotion'), body.bgm);
-      }
-      const id = startTask(`talkcraft-${stage}`, `node director/talkcraft-stages.mjs ${stage} ${runId}`, ROOT);
-      tasks.get(id).runId = runId;
-      return sendJson(res, {ok:true, id, runId, stage});
+      const status = withTalkcraftWorkbench(readTalkcraftStatus(ROOT, body.runId));
+      const stage = selectTalkcraftContinuation(status,body);
+      const result = await queueTalkcraftStage({...body, stage});
+      talkcraftAuto.enable(body.runId);
+      return sendJson(res, result);
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/automation": async (req, res) => {
+    try {
+      const {runId} = await readBody(req);
+      assertPipelineProvenance(talkcraftProject(ROOT, runId));
+      talkcraftAuto.enable(runId);
+      await talkcraftAuto.advance(runId);
+      return sendJson(res, {ok:true, run:withTalkcraftWorkbench(readTalkcraftStatus(ROOT, runId))});
+    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/approve-final": async (req,res) => {
+    try {
+      const {runId,finalSha256}=await readBody(req);
+      assertPipelineProvenance(talkcraftProject(ROOT,runId));
+      const run=withTalkcraftWorkbench(readTalkcraftStatus(ROOT,runId));
+      if(run.activeTask||run.intervention)throw Error('当前任务仍在执行或存在代码规则阻断，暂不能确认成片');
+      const approval=approveTalkcraftFinal(ROOT,runId,{finalSha256});
+      talkcraftAuto.enable(runId);
+      await talkcraftAuto.advance(runId);
+      return sendJson(res,{ok:true,...approval});
+    } catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
   },
   "POST /api/talkcraft/approve-sample": async (req, res) => {
     try {
-      const {runId} = await readBody(req);
-      const status = readTalkcraftStatus(ROOT, runId);
-      assertTalkcraftCardCallsBound(ROOT, resolveTalkcraftSkillRoot(ROOT), runId,
-        {requireCardCalls:status.cardCallsRequired,
-          requiredShotIds:status.cardCallsRequired ? ['s01'] : []});
-      return sendJson(res, {ok:true, ...approveTalkcraftSample(ROOT, runId)});
+      const {runId,sampleSha256} = await readBody(req);
+      const approval = await approveSampleAndContinue(runId,sampleSha256);
+      return sendJson(res, {ok:true, ...approval, automatic:true,waitingFor:'样片审批已记录，后端自动继续本地阶段'});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/sample-review": async (req,res) => {
+    try {
+      const {runId,sampleSha256,action}=await readBody(req);
+      const review=action==='start'?sampleReview.start(runId,sampleSha256):
+        action==='resume'?sampleReview.start(runId,sampleSha256,true):
+        action==='pause'?sampleReview.pause(runId,sampleSha256):
+        action==='media-error'?sampleReview.pause(runId,sampleSha256,'样片加载失败，已停止自动确认'):
+        action==='confirm'?await sampleReview.confirm(runId,sampleSha256):null;
+      if(!review)throw Error('无效的样片审核操作');
+      return sendJson(res,{ok:true,review});
+    }catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
   },
   "POST /api/talkcraft/approve-storyboard": async (req, res) => {
     try {
       const {runId, governanceNote} = await readBody(req);
-      return sendJson(res, {ok:true, ...approveTalkcraftStoryboard(ROOT, runId, governanceNote)});
+      assertPipelineProvenance(talkcraftProject(ROOT,runId));
+      const approval = approveTalkcraftStoryboard(ROOT, runId, governanceNote);
+      talkcraftAuto.enable(runId);
+      await talkcraftAuto.advance(runId);
+      return sendJson(res, {ok:true, ...approval});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/storyboard-adjustment": async (req, res) => {
@@ -727,16 +982,7 @@ const apis = {
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
   "POST /api/talkcraft/storyboard-regenerate": async (req, res) => {
-    try {
-      const {runId} = await readBody(req);
-      const active = [...tasks.values()].find(task => task.runId === runId && ['starting','running'].includes(task.status));
-      if (active) throw new Error('本片已有任务运行中');
-      if (!aModeReadiness().configured) throw new Error('请先在服务 API 设置中配置火山方舟模型');
-      const prepared = prepareTalkcraftStoryboardRevision(ROOT, runId);
-      const id = startTask('talkcraft-editorial-revision', `node director/talkcraft-ark-editorial.mjs ${runId}`, ROOT);
-      tasks.get(id).runId = runId;
-      return sendJson(res, {ok:true, id, ...prepared, stage:'editorial-revision', billable:true});
-    } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+    return sendJson(res,{ok:false,code:'DIRECTOR_REVISION_REQUIRED',error:'前端不能重新编导；请提交修改要求，由编导核对上游规则并取得本次调用授权后处理'});
   },
   "POST /api/talkcraft/workbench": async (req, res) => {
     try {
@@ -749,12 +995,37 @@ const apis = {
     try {
       const project = talkcraftProject(ROOT, url.searchParams.get('id') || '');
       const kind = url.searchParams.get('kind') || 'sample';
-      const names = {sample:'preview/s01.mp4', final:'final.mp4', delivery:'delivery.mp4'};
-      if (!names[kind]) throw new Error('Invalid TalkCraft video kind');
+      if (['final','delivery'].includes(kind)) {
+        const state = withTalkcraftWorkbench(readTalkcraftStatus(ROOT,url.searchParams.get('id') || ''));
+        if (!state.provenance.verified || !state.final || (kind==='delivery' && !state.delivery)) {
+          res.writeHead(409,{'Content-Type':'application/json'});
+          res.end(JSON.stringify({ok:false,code:'OFFICIAL_VIDEO_NOT_VERIFIED',error:'正式成片链路未通过核验；候选文件只能用于审查'}));return;
+        }
+      }
+      const names = {sample:'preview/s01.mp4', 'sample-2m':'sample-2m.mp4', delivery:'delivery.mp4'};
+      if (!['sample', 'sample-2m', 'final', 'delivery','repair'].includes(kind)) throw new Error('Invalid TalkCraft video kind');
       if (kind === 'delivery' && !readTalkcraftStatus(ROOT, url.searchParams.get('id') || '').delivery) {
         res.writeHead(404); res.end('Delivery video not ready'); return;
       }
-      const file = path.join(project, 'remotion', 'out', names[kind]);
+      const outDir = path.join(project, 'remotion', 'out');
+      let file;
+      if (kind==='repair') file=repairVideoForReview(project);
+      if (kind === 'final') {
+        // 交付版生成后，兼容旧页面缓存的 final 链接，统一打开可交付文件。
+        if (readTalkcraftStatus(ROOT, url.searchParams.get('id') || '').delivery) {
+          file = path.join(outDir, 'delivery.mp4');
+        }
+      }
+      if (kind === 'final' && !file) {
+        // 治理版成片与旧 final.mp4 并存时，预览必须指向最新治理产物；旧文件保留作历史证据。
+        const governed = fs.readdirSync(outDir, {withFileTypes:true})
+          .filter(entry => entry.isFile() && /^final-governed-v\d+\.mp4$/u.test(entry.name))
+          .map(entry => path.join(outDir, entry.name))
+          .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+        file = governed[0] || path.join(outDir, 'final.mp4');
+      } else if (kind !== 'final' && kind !== 'repair') {
+        file = path.join(outDir, names[kind]);
+      }
       if (!fs.existsSync(file)) {res.writeHead(404); res.end('Video not ready'); return;}
       return sendVideoRange(res, file, req.headers.range);
     } catch {res.writeHead(400); res.end('Invalid TalkCraft video request');}
@@ -850,75 +1121,11 @@ const apis = {
       return sendJson(res, {ok:true, speakerId:body.speakerId, result:await getVolcengineVoiceStatus({speakerId:body.speakerId})});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
   },
-  "GET /api/b-mode/acceptance": (req, res) => sendJson(res, {ok:true, ...loadAcceptanceFixture()}),
-  "POST /api/b-mode/placeholder": async (req, res) => {
-    const { fields, avatar } = await readBModeInput(req);
-    const text = typeof fields.text === "string" ? fields.text.replace(/\r\n/g, "\n").trim() : "";
-    let selection;
-    try { selection = readVoiceSelection(fields); } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
-    const {voiceMode, voice, speakerId, speechRate} = selection;
-    if (!text || text.length > 1200) return sendJson(res, { ok: false, error: "占位测试文案需为 1–1200 字" });
-    if (!avatar || avatar.size > 7 * 1024 * 1024) return sendJson(res, { ok: false, error: "请上传不超过 7 MB 的角色图" });
-    let scenes;
-    try { scenes = JSON.parse(fields.scenes); } catch { return sendJson(res, { ok: false, error: "分镜数据无效" }); }
-    if (!Array.isArray(scenes) || !scenes.length || scenes.length > 80 ||
-        scenes.some(scene => !scene || typeof scene.text !== "string" || scene.text.length > 80 || !["person", "graphics", "material"].includes(scene.subject) ||
-          (scene.subtitle != null && (typeof scene.subtitle !== 'string' || scene.subtitle.length > 32)) ||
-          (scene.visualText != null && (typeof scene.visualText !== 'string' || scene.visualText.length > 100))) ||
-        !scenes.some(scene => scene.subject === "person") ||
-        scenes.map(scene => scene.text).join("").replace(/\s+/gu, "") !== text.replace(/\s+/gu, "") ||
-        scenes.some((scene, index) => index > 0 && scene.videoPath && scene.videoPath === scenes[index - 1].videoPath)) {
-      return sendJson(res, { ok: false, error: "分镜未确认、单句超过 80 字，或与当前文案不一致" });
-    }
-    const invalidVideoIndex = scenes.findIndex(scene => scene.videoPath != null &&
-      (typeof scene.videoPath !== 'string' || !resolveLibraryVideo(ROOT, scene.videoPath)));
-    if (invalidVideoIndex >= 0) return sendJson(res, {ok:false, error:`第 ${invalidVideoIndex + 1} 镜头视频不在素材库中或文件不可用`});
-    const background = ["keep", "auto", "green"].includes(fields.background) ? fields.background : "keep";
-    const backgroundVideo = fields.backgroundVideoPath ? resolveLibraryVideo(ROOT, fields.backgroundVideoPath) : null;
-    if (fields.backgroundVideoPath && !backgroundVideo) return sendJson(res, {ok:false, error:"背景视频不在素材库中或文件不可用"});
-    const bytes = Buffer.from(await avatar.arrayBuffer());
-    const png = bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
-    const jpeg = bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255;
-    const webp = bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP";
-    if (!png && !jpeg && !webp) return sendJson(res, { ok: false, error: "角色图仅支持 PNG、JPG 或 WebP" });
-    const runId = crypto.randomUUID();
-    const runDir = path.join(ROOT, "director", "b-mode-runs", runId);
-    fs.mkdirSync(runDir, {recursive:true});
-    try {
-      execFileSync("ffmpeg", ["-y","-hide_banner","-loglevel","error","-i","pipe:0","-frames:v","1",
-        "-vf","scale=1600:1600:force_original_aspect_ratio=decrease","-update","1",path.join(runDir,"avatar.png")],
-      {input:bytes, timeout:15000});
-    } catch { return sendJson(res, {ok:false, error:"角色图片无法读取，请换一张图片"}); }
-    fs.writeFileSync(path.join(runDir, "input.txt"), text, "utf8");
-    fs.writeFileSync(path.join(runDir, "placeholder-settings.json"), JSON.stringify({voice, voiceMode, speakerId, speechRate, background,
-      backgroundVideoPath:backgroundVideo?.path || null,
-      scenes:scenes.map(scene => ({text:scene.text, subject:scene.subject, videoPath:scene.videoPath || null,
-        subtitle:scene.subtitle || '', visualText:scene.visualText || ''}))}, null, 2), "utf8");
-    const id = startTask("b-baseline", `node director/b-mode-placeholder.mjs ${runId}`, ROOT);
-    tasks.get(id).runId = runId;
-    return sendJson(res, {ok:true, id, runId});
-  },
-  "GET /api/b-mode/placeholder/video": (req, res, url) => {
-    const runId = url.searchParams.get("id") || "";
-    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end("Invalid run ID"); return; }
-    const report = path.join(ROOT, "director", "b-mode-runs", runId, "placeholder-report.json");
-    const file = path.join(ROOT, "template", "out", "b-mode", `${runId}.placeholder.mp4`);
-    if (!fs.existsSync(report) || !fs.existsSync(file)) { res.writeHead(404); res.end("No completed placeholder test"); return; }
-    sendVideoRange(res, file, req.headers.range);
-  },
-  "GET /api/b-mode/placeholder/audio": (req, res, url) => {
-    const runId = url.searchParams.get("id") || "";
-    if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end("Invalid run ID"); return; }
-    const report = path.join(ROOT, "director", "b-mode-runs", runId, "placeholder-report.json");
-    const file = path.join(ROOT, "template", "public", "b-mode", runId, "placeholder-voice.mp3");
-    if (!fs.existsSync(report) || !fs.existsSync(file)) { res.writeHead(404); res.end("No completed placeholder audio"); return; }
-    sendVideoRange(res, file, req.headers.range, "audio/mpeg");
-  },
-  "GET /api/b-mode/digital-human/config": (req, res) => {
+  "__legacy_disabled GET /api/b-mode/digital-human/config": (req, res) => {
     const provider = runningHubRuntimeConfig();
     return sendJson(res, {ok:true, configured:!!provider.apiKey, appId:provider.appId, baseUrl:provider.baseUrl, nodes:provider.nodes});
   },
-  "POST /api/b-mode/digital-human": async (req, res) => {
+  "__legacy_disabled POST /api/b-mode/digital-human": async (req, res) => {
     if (!runningHubRuntimeConfig().apiKey) {
       return sendJson(res, {ok:false, error:'服务端尚未配置 INFINITETALK_API_KEY，未创建 RunningHub 任务'});
     }
@@ -967,14 +1174,14 @@ const apis = {
     tasks.get(id).runId = runId;
     return sendJson(res, {ok:true, id, runId, mode:'runninghub', generationMode, billable:true});
   },
-  "GET /api/b-mode/digital-human/report": (req, res, url) => {
+  "__legacy_disabled GET /api/b-mode/digital-human/report": (req, res, url) => {
     const runId = url.searchParams.get('id') || '';
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
     const file = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human-report.json');
     if (!fs.existsSync(file)) { res.writeHead(404); res.end('No digital-human report'); return; }
     return sendJson(res, {ok:true, report:JSON.parse(fs.readFileSync(file, 'utf8'))});
   },
-  "GET /api/b-mode/digital-human/video": (req, res, url) => {
+  "__legacy_disabled GET /api/b-mode/digital-human/video": (req, res, url) => {
     const runId = url.searchParams.get('id') || '';
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
     const clipIndex = Number.parseInt(url.searchParams.get('clip') || '0', 10);
@@ -988,7 +1195,7 @@ const apis = {
     if (!fs.existsSync(file)) { res.writeHead(404); res.end('No digital-human video'); return; }
     return sendVideoRange(res, file, req.headers.range);
   },
-  "GET /api/b-mode/digital-human/final-video": (req, res, url) => {
+  "__legacy_disabled GET /api/b-mode/digital-human/final-video": (req, res, url) => {
     const runId = url.searchParams.get('id') || '';
     if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(runId)) { res.writeHead(400); res.end('Invalid run ID'); return; }
     const reportFile = path.join(ROOT, 'director', 'b-mode-runs', runId, 'digital-human-report.json');
@@ -1007,11 +1214,13 @@ const apis = {
     let release;
     try {
       const body = await readBody(req);
-      validateAModeInput({text:body.text, voice:body.voice, speechRate:body.speechRate});
+      const selection=readVoiceSelection(body);
+      assertTalkcraftVoiceDeclaration(body);
+      validateAModeInput({text:body.text,...selection});
       if (body.approveModelCost !== true) throw new Error('启动 AI 编导前需确认模型调用可能计费');
       release = acquireAModeOperation();
       await checkAModeReadiness();
-      const {runId} = createAModeRun(ROOT, {text:body.text, voice:body.voice, speechRate:body.speechRate});
+      const {runId} = createAModeRun(ROOT, {text:body.text,...selection});
       const id = startAModeSupervisorTask(runId, {voice:body.voice});
       if (tasks.get(id).status === 'error') failAModeRun(ROOT, runId, tasks.get(id).error);
       return sendJson(res, {ok:true, id, runId, billable:true});
@@ -1137,6 +1346,10 @@ const apis = {
     const since = Number(url.searchParams.get("since") || 0);
     const t = tasks.get(id);
     if (!t) return sendJson(res, { error: "no task" });
+    if(t.recoveredWorker && ['starting','running','stopping'].includes(t.status)) {
+      const previousStatus=t.status;bTaskJournal.reconcile(t);
+      if(t.status!==previousStatus)bTaskJournal.save(tasks);
+    }
     return sendJson(res, { since: t.logs.length, done: !["starting", "running", "stopping"].includes(t.status), status: t.status, exitCode: t.exitCode, error: t.error,
       logs: t.logs.slice(since), runId: t.runId, sourceRunId:t.sourceRunId || null, failureReport:t.failureReport || null,
       progress:t.type === 'render' && t.runId ? readRenderProgress(aModeRunDir(ROOT,t.runId),t.startedAt) : null });
@@ -1148,6 +1361,7 @@ const apis = {
     const t = tasks.get(id);
     if (!t) return sendJson(res, { ok: false, error: "任务不存在" });
     t.logs.length = 0;
+    if(t.name?.startsWith('talkcraft-')) bTaskJournal.save(tasks);
     if (['a-director','render'].includes(t.name)) saveAModeTaskHistory();
     return sendJson(res, { ok: true });
   },
@@ -1184,7 +1398,7 @@ const apis = {
     }));
     return sendJson(res, { items, total: filtered.length, offset, limit });
   },
-  "POST /api/b-mode/material-match": async (req, res) => {
+  "__legacy_disabled POST /api/b-mode/material-match": async (req, res) => {
     const body = await readBody(req);
     if (!Array.isArray(body.scenes) || body.scenes.length > 80 || body.scenes.some(scene => typeof scene?.text !== 'string' || scene.text.length > 80))
       return sendJson(res, {ok:false, error:'分镜数据无效'});
@@ -1325,6 +1539,8 @@ const apis = {
   // ===== P0-3 接口对齐：以下接口此前缺失（前端 404→mock），现按契约实现真实数据 =====
 
   "GET /api/state": (req, res) => {
+    for(const t of tasks.values()) if(t.recoveredWorker) bTaskJournal.reconcile(t);
+    bTaskJournal.save(tasks);
     const arr = [...tasks.values()].map(t => ({
       id: t.id, name: t.name, type: t.name, status: t.status, exitCode: t.exitCode, error: t.error, startedAt: t.startedAt, runId:t.runId || null,
     }));
@@ -1343,7 +1559,8 @@ const apis = {
     }
     if (action === "studio") {
       const id = startTask("studio", "npm run dev", path.join(ROOT, "template"));
-      return sendJson(res, { ok: true, id });
+      const url = process.env.SHOTCRAFT_STUDIO_URL || `http://127.0.0.1:${process.env.SHOTCRAFT_STUDIO_PORT || 3000}/`;
+      return sendJson(res, { ok: true, id, url });
     }
     if (action === "workbench") {
       return sendJson(res, { ok: false, error: "Motion Workbench 服务未接入项目" });
@@ -1606,11 +1823,10 @@ const server = http.createServer(async (req, res) => {
   if (apis[key]) {
     // 在保存新运行、写入审核结果或调用外部服务前拦截不可执行环境。
     const taskRoutes = new Set(['/api/talkcraft/create', '/api/talkcraft/revise',
-      '/api/talkcraft/recover-timing', '/api/talkcraft/stage', '/api/talkcraft/approve-sample',
-      '/api/talkcraft/storyboard-regenerate', '/api/talkcraft/workbench', '/api/mode-c/create']);
+      '/api/talkcraft/recover-timing', '/api/talkcraft/intent',
+      '/api/talkcraft/workbench', '/api/talkcraft/automation', '/api/mode-c/create']);
     if (method === 'POST' && taskRoutes.has(p) && !taskExecution.ok)
       return sendJson(res, {ok:false, code:'TASK_EXECUTION_UNAVAILABLE', error:taskExecution.error});
-
     try { await apis[key](req, res, url); }
     catch (e) { sendJson(res, { error: e.message }); }
     return;
@@ -1625,7 +1841,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (p === "/director" || p === "/director/") {
-    return sendStatic(res, path.join(ROOT, "director", "b-mode-console.html"));
+    // 旧独立 B 工作台只作为主操作台内嵌模块保留，不再作为用户入口暴露。
+    res.writeHead(302, {Location: "/", "Cache-Control": "no-store"});
+    res.end();
+    return;
   }
   let filePath = path.join(ROOT, p === "/" ? "console-ui.html" : p);
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {

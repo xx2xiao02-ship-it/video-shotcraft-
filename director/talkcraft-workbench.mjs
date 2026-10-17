@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {talkcraftProject} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
+import {ensureTalkcraftRenderRuntime} from './talkcraft-render-runtime.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -27,6 +28,7 @@ export function prepareTalkcraftWorkbench(root, skillRoot, runId) {
   if (!existsSync(path.join(remotion, 'src', 'index.ts')) || !existsSync(path.join(remotion, 'shots.json'))) {
     throw new Error('TalkCraft Remotion project is not scaffolded');
   }
+  ensureTalkcraftRenderRuntime(project,skillRoot);
   if (!existsSync(path.join(skillRoot, 'runtime', 'node_modules', 'vite', 'bin', 'vite.js'))) {
     throw new Error('TalkCraft shared runtime is not installed');
   }
@@ -94,7 +96,7 @@ export async function startTalkcraftWorkbench(root, skillRoot, runId) {
   const {project, workbench} = prepareTalkcraftWorkbench(root, skillRoot, runId);
   const port = await freePort();
   const vite = path.join(skillRoot, 'runtime', 'node_modules', 'vite', 'bin', 'vite.js');
-  const child = spawn('node', [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort'],
+  const child = spawn(process.execPath, [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort'],
     {cwd:workbench, windowsHide:true, detached:true, stdio:'ignore'});
   if (!child.pid) throw new Error('Workbench process did not start');
   const url = `http://127.0.0.1:${port}/?tracks`;

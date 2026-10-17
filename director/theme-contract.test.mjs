@@ -38,3 +38,16 @@ test('video aspect defaults to landscape and survives both mode adapters', () =>
   assert.equal(themeAdapter(portrait, 'B').aspectRatio, '9:16');
   assert.throws(() => normalizeTheme({aspectRatio:'4:3'}), /视频画幅/);
 });
+
+test('custom typography survives repeated normalization and changes the theme hash', () => {
+  const custom = {name:'字体核验',fontFamily:"'ChillJinshuSong', serif",titleSize:48,radius:18,
+    overlayAlpha:0,textShadowStrength:35,textStrokeColor:'#123456',textStrokeWidth:2,textGradient:'accent'};
+  const theme = normalizeTheme(custom);
+  const restored = normalizeTheme(JSON.parse(JSON.stringify(theme)));
+  for (const [key,value] of Object.entries(custom)) assert.equal(restored[key],value);
+  assert.equal(themeAdapter(restored,'B').tokens.textStrokeWidth,2);
+  assert.equal(themeAdapter(restored,'B').cssVars['--sc-font-family'],custom.fontFamily);
+  assert.equal(themeAdapter(restored,'A').style.fontFamily,custom.fontFamily);
+  assert.notEqual(theme.themeHash,normalizeTheme({...custom,textStrokeWidth:3}).themeHash);
+  assert.equal(normalizeTheme({textGradient:'invalid'}).textGradient,'none');
+});

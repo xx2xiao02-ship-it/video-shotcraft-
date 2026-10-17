@@ -10,13 +10,19 @@ export function applySemanticDecisions(project, skillRoot) {
   const decisions = JSON.parse(readFileSync(path.join(project, 'semantic-decisions.json'), 'utf8'));
   const vocabulary = new Set(JSON.parse(readFileSync(path.join(skillRoot, 'references', 'cards-index.json'), 'utf8'))
     .vocab.map(entry => entry.word));
+  const sentences = validateSemanticDecisions(existing, decisions, vocabulary);
+  writeFileSync(semanticsFile, JSON.stringify({...existing, sentences}, null, 2), 'utf8');
+  return {sentences:sentences.length, main:sentences.filter(sentence => sentence.weight === 'main').length};
+}
+
+export function validateSemanticDecisions(existing, decisions, vocabulary) {
   if (decisions.schema !== 'talkcraft-semantic-decisions-v1' ||
       !Array.isArray(decisions.sentences) || decisions.sentences.length !== existing.sentences.length) {
     throw new Error('Semantic decisions do not match the aligned sentence count');
   }
   const byIndex = new Map(decisions.sentences.map(entry => [entry.i, entry]));
   if (byIndex.size !== existing.sentences.length) throw new Error('Semantic decisions contain duplicate sentence indexes');
-  const sentences = existing.sentences.map(sentence => {
+  return existing.sentences.map(sentence => {
     const choice = byIndex.get(sentence.i);
     if (!choice || choice.text !== sentence.text || !Array.isArray(choice.sem) || !choice.sem.length ||
         choice.sem.some(value => !vocabulary.has(value)) ||
@@ -26,6 +32,4 @@ export function applySemanticDecisions(project, skillRoot) {
     }
     return {...sentence, sem:choice.sem, need:choice.need, entities:choice.entities, weight:choice.weight};
   });
-  writeFileSync(semanticsFile, JSON.stringify({...existing, sentences}, null, 2), 'utf8');
-  return {sentences:sentences.length, main:sentences.filter(sentence => sentence.weight === 'main').length};
 }

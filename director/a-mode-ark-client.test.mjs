@@ -50,25 +50,25 @@ test('surfaces the transport cause without leaking the key or retrying', async (
 const fallbackConfig = {...config, fallbackEnabled:true, fallbackEndpoint:'ep-backup', fallbackApiKey:'backup-test-key'};
 const completed = () => ({ok:true, json:async () => ({output_text:'{"shots":[]}'})});
 
-test('enabled fallback retries primary once then uses independent backup key and endpoint', async () => {
+test('跌落依次尝试不同接入点，旧关闭字段不能关闭备用账号', async () => {
   const calls = [], waits = [], states = [];
-  const result = await arkDirector('same prompt', {config:fallbackConfig, phase:'global',
+  const result = await arkDirector('same prompt', {config:{...fallbackConfig,fallbackEnabled:false}, phase:'global',
     waitImpl:async ms => waits.push(ms), onAttempt:state => states.push(state),
     fetchImpl:async (_url, options) => {
       calls.push({body:JSON.parse(options.body), key:options.headers.Authorization});
-      if (calls.length < 3) throw new DOMException('timed out', 'TimeoutError');
+      if (calls.length < 2) throw new DOMException('timed out', 'TimeoutError');
       return completed();
     }});
   assert.deepEqual(result, {shots:[]});
-  assert.deepEqual(calls.map(call => call.body.model), ['ep-pro-test','ep-pro-test','ep-backup']);
-  assert.deepEqual(calls.map(call => call.key), ['Bearer private-test-key','Bearer private-test-key','Bearer backup-test-key']);
+  assert.deepEqual(calls.map(call => call.body.model), ['ep-pro-test','ep-backup']);
+  assert.deepEqual(calls.map(call => call.key), ['Bearer private-test-key','Bearer backup-test-key']);
   assert.ok(calls.every(call => call.body.input[0].content[0].text === 'same prompt'));
-  assert.deepEqual(waits, [5000, 5000]);
-  assert.deepEqual(states.map(state => state.fallback), [false, false, true]);
+  assert.deepEqual(waits, [5000]);
+  assert.deepEqual(states.map(state => state.fallback), [false, true]);
 });
 
-test('successful primary, authentication failures and invalid JSON never spend a fallback call', async () => {
-  for (const [response, error] of [[completed(), null], [{ok:false,status:401,json:async () => ({})}, /HTTP 401/], [{ok:true,json:async () => ({output_text:'invalid'})}, /合法 JSON/]]) {
+test('成功结果或成功响应中的非法JSON均不会继续跌落重复生成', async () => {
+  for (const [response, error] of [[completed(), null], [{ok:true,json:async () => ({output_text:'invalid'})}, /合法 JSON/]]) {
     let calls = 0;
     const promise = arkDirector('prompt', {config:fallbackConfig, phase:'shot', fetchImpl:async () => {calls++; return response;}});
     if (error) await assert.rejects(promise, error); else assert.deepEqual(await promise, {shots:[]});
@@ -76,14 +76,40 @@ test('successful primary, authentication failures and invalid JSON never spend a
   }
 });
 
-test('fallback has a hard three-attempt limit and redacts both keys in provider errors', async () => {
+test('跌落耗尽配置目标即停止，服务商错误不能泄漏两个账号密钥', async () => {
   let calls = 0;
   await assert.rejects(arkDirector('prompt', {config:fallbackConfig, phase:'shot', waitImpl:async () => {},
     fetchImpl:async () => {calls++; return {ok:false,status:503,json:async () => ({error:{message:'private-test-key backup-test-key'}})};}}), error => {
       assert.doesNotMatch(error.message, /private-test-key|backup-test-key/);
       return true;
     });
-  assert.equal(calls, 3);
+  assert.equal(calls, 2);
+});
+
+test('overdue primary skips retry and switches once to the independent backup account', async () => {
+  const keys = [], states = [];
+  const result = await arkDirector('prompt', {config:fallbackConfig, phase:'global',
+    onAttempt:state => states.push(state), waitImpl:async () => assert.fail('no primary retry'),
+    fetchImpl:async (_url, options) => {
+      keys.push(options.headers.Authorization);
+      return keys.length === 1 ? {ok:false,status:403,json:async () => ({error:{message:'account has an overdue balance'}})} : completed();
+    }});
+  assert.deepEqual(result, {shots:[]});
+  assert.deepEqual(keys, ['Bearer private-test-key', 'Bearer backup-test-key']);
+  assert.deepEqual(states.map(s => s.fallback), [false, true]);
+});
+
+test('403依次耗尽已配置目标，即使旧配置写关闭也不会跳过跌落', async () => {
+  for (const [cfg, message] of [[fallbackConfig,'permission denied'],
+    [{...fallbackConfig,fallbackApiKey:config.apiKey},'overdue balance'],
+    [{...fallbackConfig,fallbackEnabled:false},'overdue balance']]) {
+    let calls = 0;
+    await assert.rejects(arkDirector('prompt', {config:cfg,phase:'global',fetchImpl:async () => {
+      calls++;
+      return {ok:false,status:403,json:async () => ({error:{message}})};
+    }}), /HTTP 403/);
+    assert.equal(calls, 2);
+  }
 });
 
 test('rate limit respects Retry-After and refuses incomplete fallback before requests', async () => {
@@ -92,7 +118,7 @@ test('rate limit respects Retry-After and refuses incomplete fallback before req
   await arkDirector('prompt', {config:fallbackConfig, phase:'shot', waitImpl:async ms => waits.push(ms),
     fetchImpl:async () => ++calls === 1 ? {ok:false,status:429,headers:new Headers({'Retry-After':'12'}),json:async () => ({})} : completed()});
   assert.deepEqual(waits, [12000]);
-  await assert.rejects(arkDirector('prompt', {config:{...fallbackConfig, fallbackEndpoint:''}, phase:'shot', fetchImpl:async () => {throw new Error('must not request');}}), /备用接入点/);
+  await assert.rejects(arkDirector('prompt', {config:{...fallbackConfig, fallbackEndpoint:'',apiKey:'',fallbackApiKey:''}, phase:'shot', fetchImpl:async () => {throw new Error('must not request');}}), /接入点计划无效/);
 });
 
 test('backup Pro and Turbo follow the main global and shot model selectors', async () => {
@@ -103,11 +129,26 @@ test('backup Pro and Turbo follow the main global and shot model selectors', asy
         fallbackProEndpoint:'ep-backup-pro', fallbackTurboEndpoint:'ep-backup-turbo'}, phase,
         waitImpl:async () => {}, fetchImpl:async (_url, options) => {
           calls.push(JSON.parse(options.body).model);
-          if (calls.length < 3) throw new DOMException('timed out','TimeoutError');
+          if (calls.length < 2) throw new DOMException('timed out','TimeoutError');
           return completed();
         }});
       const choice = phase === 'global' ? globalModel : shotModel;
-      assert.deepEqual(calls,[config[`${choice}Endpoint`],config[`${choice}Endpoint`],`ep-backup-${choice}`]);
+      assert.deepEqual(calls,[config[`${choice}Endpoint`],`ep-backup-${choice}`]);
     }
   }
+});
+
+test('generic fallback pools are not assigned to Pro or Turbo and use both API accounts', async () => {
+  const calls = [];
+  const genericConfig = {...fallbackConfig,
+    genericFallbackEndpoints:['ep-main-generic-1','ep-main-generic-2','ep-main-generic-3'],
+    auxiliaryGenericFallbackEndpoints:['ep-aux-generic-1','ep-aux-generic-2','ep-aux-generic-3']};
+  await arkDirector('prompt', {config:genericConfig, phase:'global', waitImpl:async () => {},
+    fetchImpl:async (_url, options) => {
+      calls.push({model:JSON.parse(options.body).model, key:options.headers.Authorization});
+      if (calls.length < 3) throw new DOMException('timed out', 'TimeoutError');
+      return completed();
+    }});
+  assert.deepEqual(calls.map(call => call.model), ['ep-pro-test','ep-backup','ep-main-generic-1']);
+  assert.deepEqual(calls.map(call => call.key), ['Bearer private-test-key','Bearer backup-test-key','Bearer private-test-key']);
 });

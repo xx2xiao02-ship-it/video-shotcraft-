@@ -34,7 +34,35 @@ export function createTalkcraftTemplateUsage(source, shots, byShot) {
 export function writeTalkcraftTemplateUsage(project, skillRoot, videoFile) {
   const source = JSON.parse(fs.readFileSync(path.join(project, 'source-run.json'), 'utf8'));
   const shots = JSON.parse(fs.readFileSync(path.join(project, 'remotion', 'shots.json'), 'utf8'));
-  const cards = parseCardsFromShotbook(fs.readFileSync(path.join(project, 'SHOTBOOK.md'), 'utf8'), skillRoot);
+  const cardCallsRequired = source.cardCallsRequired === true &&
+    (source.aspectRatio || source.themeSnapshot?.aspectRatio || '16:9') === '16:9';
+  let cards;
+  const formalFile = path.join(project, 'qa', 'formal-bindings.json');
+  const formal = fs.existsSync(formalFile) ? JSON.parse(fs.readFileSync(formalFile, 'utf8')) : null;
+  if(formal?.schema === 'talkcraft-formal-bindings-v1' && Array.isArray(formal.bindings)) {
+    const byShot=Object.fromEntries(formal.bindings.map(b=>[b.shotId,[b.shotCard]]));
+    if(shots.some(s=>!byShot[s.id]?.length))throw Error('正式模板绑定未覆盖全部镜头');
+    cards={slugs:[...new Set(formal.bindings.map(b=>b.shotCard))],byShot};
+  } else try {
+    cards = parseCardsFromShotbook(fs.readFileSync(path.join(project, 'SHOTBOOK.md'), 'utf8'), skillRoot);
+  } catch (error) {
+    if (cardCallsRequired) throw error;
+    cards = {slugs:[], byShot:Object.fromEntries(shots.map(shot => [shot.id, []]))};
+  }
+  // 竖屏 B 模式不要求旧版 card-call 记录，但正式绑定仍是唯一模板来源。
+  // 统计不能因为缺少旧格式的 SHOTBOOK 选卡行而把实际调用报成 0。
+  if (!cards.slugs.length) {
+    const formalFile = path.join(project, 'qa', 'formal-bindings.json');
+    if (fs.existsSync(formalFile)) {
+      const formal = JSON.parse(fs.readFileSync(formalFile, 'utf8'));
+      const bindings = Array.isArray(formal.bindings) ? formal.bindings : [];
+      const byShot = Object.fromEntries(shots.map(shot => [shot.id, []]));
+      for (const binding of bindings) {
+        if (byShot[binding.shotId] && binding.shotCard) byShot[binding.shotId].push(binding.shotCard);
+      }
+      cards = {slugs:[...new Set(bindings.map(binding => binding.shotCard).filter(Boolean))], byShot};
+    }
+  }
   return writeUsageReport(path.join(path.dirname(videoFile), `${path.basename(videoFile, '.mp4')}-template-usage.json`),
     createTalkcraftTemplateUsage(source, shots, cards.byShot), videoFile);
 }

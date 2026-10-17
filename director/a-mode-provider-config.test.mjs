@@ -19,7 +19,8 @@ test('A mode Ark readiness exposes no key and needs selected endpoints', async t
   const env = {A_MODE_ARK_API_KEY:'private-test-key', A_MODE_ARK_PRO_MODEL:'ep-pro-test',
     A_MODE_ARK_TURBO_MODEL:'ep-turbo-test'};
   const status = aModeReadiness(env);
-  assert.equal(status.configured, true);
+  assert.equal(status.configured, false);
+  assert.equal(status.fallbackEnabled, true);
   assert.equal(status.globalModel, 'pro');
   assert.equal(status.shotModel, 'turbo');
   assert.equal(JSON.stringify(status).includes('private-test-key'), false);
@@ -33,13 +34,14 @@ test('Injected runtime key reads public settings without invoking DPAPI', async 
   const previousDir = process.env.SHOTCRAFT_CONFIG_DIR;
   process.env.SHOTCRAFT_CONFIG_DIR = configDir;
   fs.writeFileSync(path.join(configDir, 'a-mode-ark-config.dpapi.json'), JSON.stringify({
-    public: {proEndpoint:'ep-public-pro', turboEndpoint:'ep-public-turbo', globalModel:'pro', shotModel:'turbo'},
+    public: {proEndpoint:'ep-public-pro', turboEndpoint:'ep-public-turbo', globalModel:'pro', shotModel:'turbo',fallbackEndpoint:'ep-backup',fallbackEnabled:false},
     secret: 'not-read-when-env-key-is-present',
   }));
   try {
     const {aModeReadiness, aModeRuntimeConfig} = await import(`./a-mode-provider-config.mjs?public=${Date.now()}`);
     const status = aModeReadiness({A_MODE_ARK_API_KEY:'injected-runtime-key'});
     assert.equal(status.configured, true);
+    assert.equal(status.fallbackEnabled,true);
     assert.equal(status.proEndpoint, 'ep-public-pro');
     const runtime = aModeRuntimeConfig({A_MODE_ARK_API_KEY:'injected-runtime-key',
       A_MODE_GLOBAL_MODEL:'turbo', A_MODE_SHOT_MODEL:'pro', A_MODE_ARK_PRO_MODEL:'ep-stale'});
@@ -65,10 +67,16 @@ test('fallback settings round-trip with DPAPI, retain blank backup key, and neve
     assert.throws(() => writeStoredAModeConfig({fallbackEndpoint:'invalid endpoint'}), /接入点/);
     assert.throws(() => writeStoredAModeConfig({fallbackApiKey:'"bad key"'}), /备用 API Key/);
     const status = writeStoredAModeConfig({proEndpoint:'ep-pro',turboEndpoint:'ep-turbo',
-      fallbackEnabled:true,fallbackEndpoint:'ep-backup',fallbackApiKey:'backup-test-key'});
+      fallbackEnabled:true,fallbackEndpoint:'ep-backup',fallbackApiKey:'backup-test-key',
+      genericFallbackEndpoints:['ep-20260905012336-bvwjc','ep-20260905012301-wghcx','ep-20260905012407-xqlnr'],
+      auxiliaryGenericFallbackEndpoints:['ep-20260905012407-xqlnr','ep-20260905014049-ncjxp','ep-20260905013926-z8fm7']});
     assert.equal(status.fallbackConfigured, true);
     assert.equal(status.fallbackEnabled, true);
     assert.equal(status.fallbackKeyConfigured, true);
+    assert.deepEqual(status.genericFallbackEndpoints,
+      ['ep-20260905012336-bvwjc','ep-20260905012301-wghcx','ep-20260905012407-xqlnr']);
+    assert.deepEqual(status.auxiliaryGenericFallbackEndpoints,
+      ['ep-20260905012407-xqlnr','ep-20260905014049-ncjxp','ep-20260905013926-z8fm7']);
     assert.doesNotMatch(JSON.stringify(status), /main-test-key|backup-test-key/);
     const file = path.join(configDir,'a-mode-ark-config.dpapi.json');
     const stored = JSON.parse(fs.readFileSync(file,'utf8'));
@@ -77,17 +85,20 @@ test('fallback settings round-trip with DPAPI, retain blank backup key, and neve
     writeStoredAModeConfig({fallbackProEndpoint:'ep-backup-pro', fallbackTurboEndpoint:'ep-backup-turbo'});
     assert.equal(aModeReadiness().fallbackProEndpoint, 'ep-backup-pro');
     assert.equal(aModeReadiness().fallbackTurboEndpoint, 'ep-backup-turbo');
-    assert.throws(() => writeStoredAModeConfig({fallbackProEndpoint:''}), /备用 Pro/);
-    assert.equal(aModeReadiness().fallbackProEndpoint, 'ep-backup-pro');
+    writeStoredAModeConfig({fallbackProEndpoint:''});
+    assert.equal(aModeReadiness().fallbackConfigured,true);
     writeStoredAModeConfig({fallbackProEndpoint:'', globalModel:'turbo', shotModel:'turbo'});
     assert.equal(aModeReadiness().fallbackConfigured,true);
     assert.equal(aModeRuntimeConfig().fallbackProEndpoint,'');
-    assert.throws(() => writeStoredAModeConfig({globalModel:'pro'}), /备用 Pro/);
+    writeStoredAModeConfig({globalModel:'pro'});
+    assert.equal(aModeReadiness().fallbackConfigured,true);
     writeStoredAModeConfig({fallbackApiKey:'',fallbackEndpoint:'ep-backup-next'});
     assert.equal(JSON.parse(fs.readFileSync(file,'utf8')).fallbackSecret,stored.fallbackSecret);
     assert.equal(aModeRuntimeConfig().fallbackEndpoint, 'ep-backup-next');
     writeStoredAModeConfig({fallbackEnabled:false});
-    assert.equal(aModeRuntimeConfig().fallbackApiKey, '');
+    assert.equal(aModeRuntimeConfig().fallbackEnabled,true);
+    assert.equal(aModeRuntimeConfig().fallbackApiKey,'backup-test-key');
+    assert.equal(JSON.parse(fs.readFileSync(file,'utf8')).public.fallbackEnabled,true);
     // Saving an endpoint without a separate key deliberately reuses the main key.
     fs.writeFileSync(file,JSON.stringify({public:{fallbackEnabled:true,fallbackEndpoint:'ep-shared'}}));
     assert.equal(aModeRuntimeConfig().fallbackApiKey,'main-test-key');

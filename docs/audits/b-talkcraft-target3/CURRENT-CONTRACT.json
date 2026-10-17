@@ -1,0 +1,43 @@
+{
+  "version": "target3-corrected-r2",
+  "entry": "current-contract.mjs",
+  "modules": [
+    {
+      "file": "current-contract.mjs",
+      "sha256": "929bbace0e945ac7aa7a5f90b04659f2c58ce337f94068f0d5066de815c4e21a"
+    },
+    {
+      "file": "contract.mjs",
+      "sha256": "e7ea5e4fd34bf2c15b2f973f6a9ad07486e427b1ebc05ff4205d3daa33af0e21"
+    },
+    {
+      "file": "validation.mjs",
+      "sha256": "b988ee057f823bff13db3521bfc96e4c20e0544a93439d463a0b4a695a6c960d"
+    },
+    {
+      "file": "dsl-validation.mjs",
+      "sha256": "78fdba438b58fc3a2c92f4277e6ab6321176c563639133f1cd53b78867565f8f"
+    },
+    {
+      "file": "policies.mjs",
+      "sha256": "e48b6ba1a2e71500757e421a6169ad69126a0fff6a7c1cc7505a389e7add8200"
+    },
+    {
+      "file": "schedule.mjs",
+      "sha256": "e16fe47866095940570b0aa086e9f0e2162db74ba944836e348adc328c7c1393"
+    },
+    {
+      "file": "source-analysis.mjs",
+      "sha256": "db579011296fb3ba5e57a7f6b7802d0a3acb6d996e359381bfdf9e25774184b8"
+    },
+    {
+      "file": "workbench-check.mjs",
+      "sha256": "d304454c179623dc15479fc0a9c36f421b5686b7f6f2f7b43952c9349bade24c"
+    }
+  ],
+  "sourceCatalog": "catalog.json",
+  "artifactRevision": "revision-r2-optional-lead-subline",
+  "historicalTarget2": "read-only audit evidence; must not be used by stage4",
+  "status": "candidate_pending_main_review",
+  "production": false
+}

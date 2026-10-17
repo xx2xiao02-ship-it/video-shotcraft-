@@ -121,7 +121,7 @@ export class RunningHubInfiniteTalkTransport {
     this.fetch = fetchImpl;
     this.sleep = sleep;
     this.pollIntervalMs = Math.max(100, Number(pollIntervalMs) || 10000);
-    this.maxWaitMs = Math.max(this.pollIntervalMs, Number(maxWaitMs) || 900000);
+    this.maxWaitMs = Math.max(this.pollIntervalMs, Number(maxWaitMs) || 3600000);
   }
 
   get runUrl() { return `${this.baseUrl}/run/ai-app/${this.appId}`; }

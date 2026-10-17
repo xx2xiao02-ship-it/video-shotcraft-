@@ -24,3 +24,19 @@ test('does not invent a match when the whole passage has no supported concept', 
   assert.equal(result.status, 'fallback');
   assert.match(result.reason, /未重复兜底素材/);
 });
+
+test('prefers a background source that covers the shot duration', () => {
+  const result = matchSceneVideos([{text:'工作方法', durationSec:8}], [
+    {path:'short.mp4', duration_sec:3, tags:['办公场景']},
+    {path:'long.mp4', duration_sec:12, tags:['办公场景']},
+  ], {durationSecByScene:[8]})[0];
+  assert.equal(result.path, 'long.mp4');
+});
+
+test('falls back to the longest unique source when no source covers the shot', () => {
+  const result = matchSceneVideos([{text:'工作方法', durationSec:8}], [
+    {path:'short.mp4', duration_sec:3, tags:['办公场景']},
+    {path:'longer.mp4', duration_sec:6, tags:['办公场景']},
+  ], {durationSecByScene:[8]})[0];
+  assert.equal(result.path, 'longer.mp4');
+});

@@ -1,4 +1,5 @@
-import {copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {readCurrentTheme, themeAdapter} from './theme-contract.mjs';
@@ -6,6 +7,21 @@ import {validateNativeTiming, timingHealth} from './talkcraft-native-timing.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RUN_ID = /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i;
+
+function prepareRenderVideo(source, target) {
+  const temp = `${target}.rendering.mp4`;
+  try {
+    // 外部素材可能带 29.97fps/非单调时间基；Remotion 随机取帧时会失败。
+    // B 模式只把它当静音画面层，统一生成 CFR 30fps 副本，原始素材仍保留在素材库。
+    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', source, '-an', '-vf', 'fps=30',
+      '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p',
+      '-movflags', '+faststart', temp], {stdio: 'inherit'});
+    renameSync(temp, target);
+  } catch (error) {
+    try { if (existsSync(temp)) renameSync(temp, `${temp}.failed`); } catch {}
+    throw new Error(`B 素材无法生成稳定渲染副本：${source}；请检查 ffmpeg 和源视频。${error?.message || ''}`);
+  }
+}
 
 export function prepareTalkcraftProject(root, runId) {
   if (!RUN_ID.test(runId)) throw new Error('Invalid B run ID');
@@ -54,7 +70,7 @@ export function prepareTalkcraftProject(root, runId) {
   const sources = scenes.map(scene => {
     if (!scene.source) return {scene:scene.id, status:'missing'};
     const target = `remotion/public/broll/${scene.id}.mp4`;
-    copyFileSync(scene.source, path.join(projectDir, ...target.split('/')));
+    prepareRenderVideo(scene.source, path.join(projectDir, ...target.split('/')));
     return {scene:scene.id, file:target, libraryPath:scene.sourcePath};
   });
   writeFileSync(path.join(projectDir, 'script.txt'), scenes.map(scene => scene.text).join('\n') + '\n', 'utf8');

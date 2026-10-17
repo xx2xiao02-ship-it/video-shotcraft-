@@ -5,7 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {loadReviewedTemplates,reviewedTemplateIndex,recordReviewedCandidates,assertReviewedSelection,
-  assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates,assertTemplateOnlyEditorialProposal} from './talkcraft-reviewed-templates.mjs';
+  assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates,assertTemplateOnlyEditorialProposal,
+  reconcileReviewedSelectionCandidates,recordCandidateComparison} from './talkcraft-reviewed-templates.mjs';
 const hash=x=>createHash('sha256').update(x).digest('hex');
 function fixture(t){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'reviewed-cards-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
@@ -32,8 +33,31 @@ test('catalog presence without review cannot admit a card',t=>{const f=fixture(t
 test('missing portrait review is blocking',t=>{const f=fixture(t);f.registry.cards[0].reviews.pop();f.save();assert.throws(()=>loadReviewedTemplates(f.options),/横竖版/);});
 test('changed reviewed dependency requires a new review',t=>{const f=fixture(t);fs.appendFileSync(path.join(f.skillRoot,f.relative),'changed');assert.throws(()=>loadReviewedTemplates(f.options),/源码版本已变化/);});
 test('candidate outside approved source set cannot pass',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'unknown'}]);assert.throws(()=>assertReviewedSelection(f.project,f.options),/未经审查/);});
-test('semantic deviation cannot bypass candidate membership',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{s01:{waived:{论点:'有四个字理由'},candidates:{论点:[]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/偏离说明不能放行/);});
-test('opening short pool cannot manufacture semantic fit',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{s01:{candidates:{开场短模板:[{slug:'approved'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/语义\/素材候选/);});
+test('upstream parsed semantic deviation permits a reviewed card outside recommendations',t=>{const f=fixture(t);
+  f.write('qa/card-candidates.json',{s01:{semantics:['论点'],waived:{论点:'同观点连续承接'},candidates:{论点:[]}}});
+  recordReviewedCandidates(f.project,f.options);
+  assert.equal(assertReviewedSelection(f.project,f.options).deviations[0].cardId,'approved');
+  const report=recordCandidateComparison(f.project,f.options);
+  assert.equal(report.availableCount,1);assert.equal(report.rows[0].recommended,false);
+  assert.equal(report.rows[0].semanticDeviation.论点,'同观点连续承接');
+});
+test('missing short or unrelated deviation is still blocked',t=>{const f=fixture(t);
+  for(const waived of [{},{论点:'太短'},{转折:'有四个字理由'}]){
+    f.write('qa/card-candidates.json',{s01:{semantics:['论点'],waived,candidates:{论点:[]}}});recordReviewedCandidates(f.project,f.options);
+    assert.throws(()=>assertReviewedSelection(f.project,f.options),/按原项目.*理由/);
+  }
+});
+test('reviewed formal card excluded by top-k is restored only on exact semantic match',t=>{const f=fixture(t);
+  f.registry.cards[0].energy='中';f.save();
+  f.write('semantics.json',{sentences:[{shot:'s01',sem:['论点']}]});
+  f.write('qa/card-candidates.json',{s01:{candidates:{论点:[]}}});
+  const index={cards:[{slug:'approved',semantics:['论点'],energy:'中'}]};
+  assert.equal(reconcileReviewedSelectionCandidates(f.project,index).added.length,1);
+  recordReviewedCandidates(f.project,f.options);assert.equal(assertReviewedSelection(f.project,f.options).shots,1);
+  f.write('semantics.json',{sentences:[{shot:'s01',sem:['转折']}]});f.write('qa/card-candidates.json',{s01:{candidates:{转折:[]}}});
+  assert.equal(reconcileReviewedSelectionCandidates(f.project,index).added.length,0);
+});
+test('opening short pool cannot manufacture semantic fit',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{s01:{candidates:{开场短模板:[{slug:'approved'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/按原项目.*理由/);});
 test('changed book invalidates candidates even if cards still match',t=>{const f=fixture(t);f.write('SHOTBOOK.md','changed');assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
 test('candidate JSON cannot be changed after binding',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{});assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
 test('changed registry invalidates saved selection',t=>{const f=fixture(t);f.registry.note='revised';f.save();assert.throws(()=>assertReviewedSelection(f.project,f.options),/当前已审模板/);});

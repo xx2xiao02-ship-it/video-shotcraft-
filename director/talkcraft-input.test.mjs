@@ -10,9 +10,9 @@ test('new TalkCraft input stays isolated and preserves sentence order', () => {
   mkdirSync(workspace, {recursive:true});
   const root = mkdtempSync(path.join(workspace, 'talkcraft-input-test-'));
   try {
-    const avatarBytes = readFileSync(path.resolve('gallery/og-image.jpg'));
+    const avatarBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jX1sAAAAASUVORK5CYII=','base64');
     const created = createTalkcraftInput(root, {text:'先收藏。再行动！',
-      voice:'zh-CN-YunxiNeural', avatarBytes});
+      voiceMode:'volcengine-tts2',speakerId:'zh_male_liufei_uranus_bigtts', avatarBytes});
     assert.equal(created.sentences, 2);
     assert.deepEqual(splitTalkcraftSentences('先收藏。\n再行动！'), ['先收藏。','再行动！']);
     assert.deepEqual(JSON.parse(readFileSync(path.join(created.project, 'script.json'))).sentences,
@@ -23,18 +23,21 @@ test('new TalkCraft input stays isolated and preserves sentence order', () => {
     assert.equal(sourceRun.digitalHumanMode, 'segments');
     assert.equal(sourceRun.visualTextLocale, 'zh-CN');
     assert.equal(sourceRun.speechRate, 0);
+    const digital = createTalkcraftInput(root, {text:'启用数字人。', voiceMode:'volcengine-tts2',speakerId:'zh_male_liufei_uranus_bigtts', avatarBytes, enableDigitalHuman:true});
+    const digitalSource = JSON.parse(readFileSync(path.join(digital.project, 'source-run.json')));
+    assert.equal(digitalSource.isDigitalHuman, true);
     const tts2 = createTalkcraftInput(root, {text:'测试新版合成。', voiceMode:'volcengine-tts2',
       speakerId:'zh_female_vv_uranus_bigtts', speechRate:12, avatarBytes});
     const tts2Source = JSON.parse(readFileSync(path.join(tts2.project, 'source-run.json')));
     assert.equal(tts2Source.voiceMode, 'volcengine-tts2');
     assert.equal(tts2Source.speakerId, 'zh_female_vv_uranus_bigtts');
     assert.equal(tts2Source.speechRate, 12);
-    const combined = createTalkcraftInput(root, {text:'合并测试。',voice:'zh-CN-YunxiNeural',
+    const combined = createTalkcraftInput(root, {text:'合并测试。',voiceMode:'volcengine-tts2',speakerId:'zh_male_liufei_uranus_bigtts',
       generationMode:'combined',avatarBytes:[avatarBytes, avatarBytes]});
     const combinedSource = JSON.parse(readFileSync(path.join(combined.project, 'source-run.json')));
     assert.equal(combinedSource.digitalHumanMode, 'combined');
     assert.deepEqual(combinedSource.avatarFiles, ['avatar-01.png','avatar-02.png']);
-    assert.throws(() => createTalkcraftInput(root, {text:'测试。',voice:'zh-CN-YunxiNeural',
+    assert.throws(() => createTalkcraftInput(root, {text:'测试。',voiceMode:'volcengine-tts2',speakerId:'zh_male_liufei_uranus_bigtts',
       generationMode:'unknown',avatarBytes}), /生成方式/);
     assert.throws(() => createTalkcraftInput(root, {text:'测试。', voiceMode:'volcengine-tts2',
       speakerId:'invalid voice', avatarBytes}), /音色 ID/);

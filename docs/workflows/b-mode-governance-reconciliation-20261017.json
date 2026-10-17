@@ -1,0 +1,1408 @@
+{
+  "schema": "b-mode-approved-governance-reconciliation-v1",
+  "date": "2026-10-17",
+  "originalMain": "589b48dd5d8691c9ab5e9f0417e8f0e4508326fc",
+  "previousRemote": "c82cc7465203a55375355b40bfe85b4ca29ea3e3",
+  "branches": [
+    {
+      "ref": "codex/formal-preview-host-20261017",
+      "commit": "b27c7b12d7c1a17bbe2f18126b208fe9e99a7b52",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/full-text-gates-20261016",
+      "commit": "88ab869c03f9544200ec78512d9bbfb0fccab707",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/opening-caption-20261017",
+      "commit": "11b9ab55674c054782d9297a1c75d1fb3f94e676",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/progress-checkpoint-20261015",
+      "commit": "e1e24bdcd769d9d3de2dcd016713066beecc0a21",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/reviewed-template-gates-20261016",
+      "commit": "fd9c4636f4a6f1e4a4e04214d0a7de70314a12d4",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/sample-layout-readability-20261015",
+      "commit": "bbad896f8dd8a393c5d92f3d7f7a46ab7617ca97",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/windows-task-recovery",
+      "commit": "c82cc7465203a55375355b40bfe85b4ca29ea3e3",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    },
+    {
+      "ref": "codex/workflow-dag-20261016",
+      "commit": "84ee8e604857b4007232bee569b4f52b923deb90",
+      "base": "c82cc7465203a55375355b40bfe85b4ca29ea3e3"
+    }
+  ],
+  "files": [
+    {
+      "file": ".agents/skills/b-mode-github-governance/SKILL.md",
+      "sha256": "852c4564160dbc499d5a5c516509f5cd539f84a67dc528d9a2c5007c62fb50e1",
+      "scope": "已确认治理分支路径",
+      "bytes": 10078,
+      "gitNormalizedSha256": "b53300ee2451b6649af35c7c0c29aef37ad0829845a13e675ac5cf88c47d6c1f"
+    },
+    {
+      "file": ".agents/skills/b-mode-github-governance/references/workflow-contract.md",
+      "sha256": "40f24a7216a420e3ffb54c708cb5f4ac98c66244a88f7144dc26d96504a24a23",
+      "scope": "已确认治理分支路径",
+      "bytes": 9831,
+      "gitNormalizedSha256": "1c289a0fb5339282409ae8e606e8257bfcc20d5420aeb6dd535ef4241ea8e209"
+    },
+    {
+      "file": "_audit/video-talkcraft/scripts/remotion_project_config.mjs",
+      "sha256": "9cfb7a59aa6b3f7e2842a5dfa176a5178780355892eef0399040ef47e46022b7",
+      "scope": "已确认治理分支路径",
+      "bytes": 7754,
+      "gitNormalizedSha256": "2e6bae9970035e385cb6fa6fa8485eb08c64ef792582b13bcdb26d2d2529deeb"
+    },
+    {
+      "file": "console-server.mjs",
+      "sha256": "a7102e0ae928559f5b054e23e0cf70936b5154c99ff32329da85780f64270e4f",
+      "scope": "已确认治理分支路径",
+      "bytes": 109662,
+      "gitNormalizedSha256": "51de61611c275eb67f758c4f6efb79e142bca1217f0055890b988e2a89b679df"
+    },
+    {
+      "file": "console-ui.html",
+      "sha256": "ca8ec284d0e2f237d5232b6272424aaf5b4d224e9f5d6a7d1139921cf08de203",
+      "scope": "已确认治理分支路径",
+      "bytes": 340417,
+      "gitNormalizedSha256": "93234bd789532b7114bae6ba4f8f8d2cb811dacebcba0470d0dcded09464f088"
+    },
+    {
+      "file": "director/AGENTS.md",
+      "sha256": "3ae8766cfa9df284f55a13286e4336012d1dc1452096b5e9efc81a349c70b8b0",
+      "scope": "已确认治理分支路径",
+      "bytes": 8722,
+      "gitNormalizedSha256": "b48a6965f71f48f83f4556454f550d6f723ba62e4eb5eb983df15beadbfd071f"
+    },
+    {
+      "file": "director/build-talkcraft-reviewed-templates.mjs",
+      "sha256": "456a48d61588215e31531b0f01d4e213a733f2d667f2824cb40012df2507fdf6",
+      "scope": "已确认治理分支路径",
+      "bytes": 4292,
+      "gitNormalizedSha256": "456a48d61588215e31531b0f01d4e213a733f2d667f2824cb40012df2507fdf6"
+    },
+    {
+      "file": "director/bundled-fonts.mjs",
+      "sha256": "f73cfc7bbfd947e26dfd0457ae1632f6c86e6dfe1b289ad17c1ec1e03693294f",
+      "scope": "已确认治理分支路径",
+      "bytes": 1008,
+      "gitNormalizedSha256": "f73cfc7bbfd947e26dfd0457ae1632f6c86e6dfe1b289ad17c1ec1e03693294f"
+    },
+    {
+      "file": "director/portable-runtime.mjs",
+      "sha256": "1c96e99e82a289be576dff42c2c4a3ef4f67315967a1aa9af31c45280c4e3c53",
+      "scope": "已确认治理分支路径",
+      "bytes": 2720,
+      "gitNormalizedSha256": "1c96e99e82a289be576dff42c2c4a3ef4f67315967a1aa9af31c45280c4e3c53"
+    },
+    {
+      "file": "director/storage-governance.mjs",
+      "sha256": "50fc8eb91ed8d248b0a65e6d5d382081cf09ec6f77376416dc8fc2bb4afba9bf",
+      "scope": "已确认治理分支路径",
+      "bytes": 1717,
+      "gitNormalizedSha256": "50fc8eb91ed8d248b0a65e6d5d382081cf09ec6f77376416dc8fc2bb4afba9bf"
+    },
+    {
+      "file": "director/talkcraft-acceptance-policy.mjs",
+      "sha256": "cdf00d315753d970cf082a7887e1000e41f1ae4a5d4ad185a5e46665c7635504",
+      "scope": "已确认治理分支路径",
+      "bytes": 5936,
+      "gitNormalizedSha256": "62958048affe39e29125a6cd304749a5a1ea497f9e2bb9fe767020aae8b7bcad"
+    },
+    {
+      "file": "director/talkcraft-anchored-time-contract.mjs",
+      "sha256": "5d3ea22319cc268193cd40b98b6ae83860465c5a261aadf6208b104e0598aac5",
+      "scope": "已确认治理分支路径",
+      "bytes": 1762,
+      "gitNormalizedSha256": "5d3ea22319cc268193cd40b98b6ae83860465c5a261aadf6208b104e0598aac5"
+    },
+    {
+      "file": "director/talkcraft-anchored-time-contract.test.mjs",
+      "sha256": "62539a38b8571e9f0ae99193c2362f5931cd2345cd4cd0a1077b757f82bdb0e2",
+      "scope": "已确认治理分支路径",
+      "bytes": 3202,
+      "gitNormalizedSha256": "62539a38b8571e9f0ae99193c2362f5931cd2345cd4cd0a1077b757f82bdb0e2"
+    },
+    {
+      "file": "director/talkcraft-ark-editorial.mjs",
+      "sha256": "9f79f35b9be26f296bb7601fff3062008e67800079c37651ffbe521d1fe3c109",
+      "scope": "已确认治理分支路径",
+      "bytes": 41359,
+      "gitNormalizedSha256": "9e58f066f11223e445de0adf3f895335e80442ce403d74298989b2504fc2f73d"
+    },
+    {
+      "file": "director/talkcraft-ark-editorial.test.mjs",
+      "sha256": "d57a1e13e6aa77a29614b7fe21333d16f4db2fd8fca8dad348c47efbda34b5ad",
+      "scope": "已确认治理分支路径",
+      "bytes": 14041,
+      "gitNormalizedSha256": "ec45351d64b5ab098abb83debd4b722df0a7c97792ca1c7e6966a212ff17c5cc"
+    },
+    {
+      "file": "director/talkcraft-audit-feedback.mjs",
+      "sha256": "7ef32f2c2ff0d51618fdcf4f9ca574ac5dcd38437b43424d78f79f618e1b6358",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 18094,
+      "gitNormalizedSha256": "7ef32f2c2ff0d51618fdcf4f9ca574ac5dcd38437b43424d78f79f618e1b6358"
+    },
+    {
+      "file": "director/talkcraft-audit-segments.mjs",
+      "sha256": "b7133cb9d05d354c03f4dbb09a348587c088f48ed2c90c7e8eaab74ac8784694",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 2469,
+      "gitNormalizedSha256": "b7133cb9d05d354c03f4dbb09a348587c088f48ed2c90c7e8eaab74ac8784694"
+    },
+    {
+      "file": "director/talkcraft-auto-advance.mjs",
+      "sha256": "6c33812ce6955bc9d35ed4194d024af94b939d50ea5b4ac8fab45bdd1c0a7982",
+      "scope": "已确认治理分支路径",
+      "bytes": 3301,
+      "gitNormalizedSha256": "6c33812ce6955bc9d35ed4194d024af94b939d50ea5b4ac8fab45bdd1c0a7982"
+    },
+    {
+      "file": "director/talkcraft-auto-advance.test.mjs",
+      "sha256": "dbc8b319db4751a692f491439934e262884e96f4d3520703bb57b680c772fae1",
+      "scope": "已确认治理分支路径",
+      "bytes": 4906,
+      "gitNormalizedSha256": "55759892615cb9462d36d4ca3489ca549f7442ddf74b879db3063b89fcb71d62"
+    },
+    {
+      "file": "director/talkcraft-b-mode-governance.mjs",
+      "sha256": "8a2c0140a6aa4fd5a25262bfcd484de85ee0a1c94cb370a15b89966f5c8aa949",
+      "scope": "已确认治理分支路径",
+      "bytes": 3384,
+      "gitNormalizedSha256": "8a2c0140a6aa4fd5a25262bfcd484de85ee0a1c94cb370a15b89966f5c8aa949"
+    },
+    {
+      "file": "director/talkcraft-background-allocation.mjs",
+      "sha256": "d3d1abd424b6a382239218002bacaec0b6074e14911395ae299816fe6c4ae545",
+      "scope": "已确认治理分支路径",
+      "bytes": 5646,
+      "gitNormalizedSha256": "d3d1abd424b6a382239218002bacaec0b6074e14911395ae299816fe6c4ae545"
+    },
+    {
+      "file": "director/talkcraft-background-exclusivity.mjs",
+      "sha256": "3164e161afc9348dde602fbdb50c723216b259bd4817e29008e911388daeab30",
+      "scope": "已确认治理分支路径",
+      "bytes": 1379,
+      "gitNormalizedSha256": "3164e161afc9348dde602fbdb50c723216b259bd4817e29008e911388daeab30"
+    },
+    {
+      "file": "director/talkcraft-background-visibility-runtime.mjs",
+      "sha256": "86dec842254f8725803aff4ffb674924379466f15d913bc9b166576eac52d313",
+      "scope": "已确认治理分支路径",
+      "bytes": 624,
+      "gitNormalizedSha256": "86dec842254f8725803aff4ffb674924379466f15d913bc9b166576eac52d313"
+    },
+    {
+      "file": "director/talkcraft-background-visibility.mjs",
+      "sha256": "1ca208e4694238ea337ca30086a0fa5d287ea6f4061619f4fa1e69dbe80b8f61",
+      "scope": "已确认治理分支路径",
+      "bytes": 4480,
+      "gitNormalizedSha256": "1ca208e4694238ea337ca30086a0fa5d287ea6f4061619f4fa1e69dbe80b8f61"
+    },
+    {
+      "file": "director/talkcraft-binding.mjs",
+      "sha256": "70fdc68cfb477e58f32ea087402200790d08d512acd1655802326c3694edf08b",
+      "scope": "已确认治理分支路径",
+      "bytes": 12952,
+      "gitNormalizedSha256": "70fdc68cfb477e58f32ea087402200790d08d512acd1655802326c3694edf08b"
+    },
+    {
+      "file": "director/talkcraft-blocker.mjs",
+      "sha256": "173cf1c09900ff6e20e65b2f3bdf3d7c4ad2789e4af6009dc1fa04369df791f5",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 7919,
+      "gitNormalizedSha256": "36787df71440a2d7247a30a29c23389bb20892608efa34fa910ca7457520ced9"
+    },
+    {
+      "file": "director/talkcraft-caption-layer.mjs",
+      "sha256": "2c821449258bb72ecbfff63192e570eb4fe7d823399120b2cae96ab91f19233e",
+      "scope": "已确认治理分支路径",
+      "bytes": 963,
+      "gitNormalizedSha256": "2c821449258bb72ecbfff63192e570eb4fe7d823399120b2cae96ab91f19233e"
+    },
+    {
+      "file": "director/talkcraft-caption-layer.test.mjs",
+      "sha256": "bf86051c57710917cf73770d6a71bf1a9727e99af7a2ed85b7423724069adb41",
+      "scope": "已确认治理分支路径",
+      "bytes": 1828,
+      "gitNormalizedSha256": "bf86051c57710917cf73770d6a71bf1a9727e99af7a2ed85b7423724069adb41"
+    },
+    {
+      "file": "director/talkcraft-caption-multiphase.test.mjs",
+      "sha256": "818fa972ce7a30356e06ddcdc48130c712a80dead5ee436a6c05e80ac6f3c483",
+      "scope": "已确认治理分支路径",
+      "bytes": 1261,
+      "gitNormalizedSha256": "818fa972ce7a30356e06ddcdc48130c712a80dead5ee436a6c05e80ac6f3c483"
+    },
+    {
+      "file": "director/talkcraft-caption-style.mjs",
+      "sha256": "fe998abc803c6037cb39cb11ffe0a6407b93cafbb7defbb48db7f0b53e30c686",
+      "scope": "已确认治理分支路径",
+      "bytes": 1826,
+      "gitNormalizedSha256": "f64f8db51815f26b991b2517a68e241039fdbab8c38fbbbcf7d7821a6918ed63"
+    },
+    {
+      "file": "director/talkcraft-caption-theme.test.mjs",
+      "sha256": "060e84acabdf6b6e3f636aa7d53a88b290685a59d5e418ab46b0ca894e44b834",
+      "scope": "已确认治理分支路径",
+      "bytes": 3026,
+      "gitNormalizedSha256": "d37e30805eb0e5986da20221b7b7e1a04a1be9bc7fd39ad2ccaea06ce8b9ad52"
+    },
+    {
+      "file": "director/talkcraft-card-calls.mjs",
+      "sha256": "0a6c3788ed41df2028d8eb5b403a13964458eda447783f9ce23f10a17d588027",
+      "scope": "已确认治理分支路径",
+      "bytes": 46585,
+      "gitNormalizedSha256": "18a1c3bbb3b3a6cebceb5105eeb9c88fbc20f059bfb0cee6d511c68f6cb39f8d"
+    },
+    {
+      "file": "director/talkcraft-card-match-trace.py",
+      "sha256": "f1139631262b06e62184e9e879470c1f390f4838e0baecb88b0d53f015d9dc71",
+      "scope": "已确认治理分支路径",
+      "bytes": 6530,
+      "gitNormalizedSha256": "f1139631262b06e62184e9e879470c1f390f4838e0baecb88b0d53f015d9dc71"
+    },
+    {
+      "file": "director/talkcraft-card-runtime.mjs",
+      "sha256": "087c10ccce284e6c02d27e58a3be891aee631e747820e772dca8af223982af3a",
+      "scope": "已确认治理分支路径",
+      "bytes": 3491,
+      "gitNormalizedSha256": "087c10ccce284e6c02d27e58a3be891aee631e747820e772dca8af223982af3a"
+    },
+    {
+      "file": "director/talkcraft-color-contrast.mjs",
+      "sha256": "31dabccf6835da8a7989bbb2efee46d2787278c389bb661e32ccb917304c76f7",
+      "scope": "已确认治理分支路径",
+      "bytes": 5185,
+      "gitNormalizedSha256": "31dabccf6835da8a7989bbb2efee46d2787278c389bb661e32ccb917304c76f7"
+    },
+    {
+      "file": "director/talkcraft-color-contrast.test.mjs",
+      "sha256": "c111f1d5a133c5d7506bf1fea6eba3bc1ae0ad312c2656fb8b7f802d57c1a1e9",
+      "scope": "已确认治理分支路径",
+      "bytes": 3165,
+      "gitNormalizedSha256": "c111f1d5a133c5d7506bf1fea6eba3bc1ae0ad312c2656fb8b7f802d57c1a1e9"
+    },
+    {
+      "file": "director/talkcraft-content-onset.mjs",
+      "sha256": "e181f2d7a96209903b2e0bf814c45ddfdd94b665a96be613cab837559a308914",
+      "scope": "已确认治理分支路径",
+      "bytes": 3560,
+      "gitNormalizedSha256": "e181f2d7a96209903b2e0bf814c45ddfdd94b665a96be613cab837559a308914"
+    },
+    {
+      "file": "director/talkcraft-content-onset.test.mjs",
+      "sha256": "8047da069fa1f10945e8392a8789a82facc67e05870030e53d5202825558984b",
+      "scope": "已确认治理分支路径",
+      "bytes": 3059,
+      "gitNormalizedSha256": "8047da069fa1f10945e8392a8789a82facc67e05870030e53d5202825558984b"
+    },
+    {
+      "file": "director/talkcraft-contrast-audit.mjs",
+      "sha256": "606cfeee22e5504f84cf465a0a84841c2ab1f93f0fc781ae79af34d84425aa0f",
+      "scope": "已确认治理分支路径",
+      "bytes": 7548,
+      "gitNormalizedSha256": "606cfeee22e5504f84cf465a0a84841c2ab1f93f0fc781ae79af34d84425aa0f"
+    },
+    {
+      "file": "director/talkcraft-contrast-audit.tsx",
+      "sha256": "0150f0c80588b69afae17b6412fc3c3fe46d51f1b46cfeb1071eab8cf1e94732",
+      "scope": "已确认治理分支路径",
+      "bytes": 3308,
+      "gitNormalizedSha256": "0150f0c80588b69afae17b6412fc3c3fe46d51f1b46cfeb1071eab8cf1e94732"
+    },
+    {
+      "file": "director/talkcraft-control-state.mjs",
+      "sha256": "55dd7fc11764809dec454b7fc8a45892ee4d316810f6457f477df2db37aac96e",
+      "scope": "已确认治理分支路径",
+      "bytes": 6639,
+      "gitNormalizedSha256": "c8f89d2a08d51729318faba3901ab7ef6133d9f3ea41d5fb6aa3e6dd18539959"
+    },
+    {
+      "file": "director/talkcraft-control-state.test.mjs",
+      "sha256": "2129da225a1069f45337b0fdeb15dbdef4a89028ed1058bb2b1d5449a6a91311",
+      "scope": "已确认治理分支路径",
+      "bytes": 8050,
+      "gitNormalizedSha256": "b5d24e2296f23e88f5cf62bd0dd837f69b50bf9d00c68df1fc8138d33217c327"
+    },
+    {
+      "file": "director/talkcraft-digital-human-admission.mjs",
+      "sha256": "0e0ff58c05c84a9cad58f622ee1192d7007e4953fde62aa4eca0652c14aea0e4",
+      "scope": "已确认治理分支路径",
+      "bytes": 1357,
+      "gitNormalizedSha256": "0e0ff58c05c84a9cad58f622ee1192d7007e4953fde62aa4eca0652c14aea0e4"
+    },
+    {
+      "file": "director/talkcraft-digital-human-plan.mjs",
+      "sha256": "1ef9bbfa9b6be5c7774775cb3f2938862f31e3ee5471ecdbe81ef7f4013721a8",
+      "scope": "已确认治理分支路径",
+      "bytes": 2362,
+      "gitNormalizedSha256": "1ef9bbfa9b6be5c7774775cb3f2938862f31e3ee5471ecdbe81ef7f4013721a8"
+    },
+    {
+      "file": "director/talkcraft-digital-human-resume.mjs",
+      "sha256": "f2c13fe154328c018d196451a0db1a9ca75828469b0fb634bb0a4ed8c1acd9d7",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 5140,
+      "gitNormalizedSha256": "f2c13fe154328c018d196451a0db1a9ca75828469b0fb634bb0a4ed8c1acd9d7"
+    },
+    {
+      "file": "director/talkcraft-digital-human-status.mjs",
+      "sha256": "a3a9eac6c0d3c59fa5331f59f981b0ee52478b54647bba16d0cb27d7700897b4",
+      "scope": "已确认治理分支路径",
+      "bytes": 2204,
+      "gitNormalizedSha256": "a3a9eac6c0d3c59fa5331f59f981b0ee52478b54647bba16d0cb27d7700897b4"
+    },
+    {
+      "file": "director/talkcraft-digital-human.mjs",
+      "sha256": "ba4b2dbad8dad92494ea401a5d57bba90f6411da56fbd915f4905c7f57f0478f",
+      "scope": "已确认治理分支路径",
+      "bytes": 12770,
+      "gitNormalizedSha256": "ba4b2dbad8dad92494ea401a5d57bba90f6411da56fbd915f4905c7f57f0478f"
+    },
+    {
+      "file": "director/talkcraft-digital-human.test.mjs",
+      "sha256": "67b1baeda35772d4f972f12be7d909001ab3a5942443edaf98ad779176421113",
+      "scope": "已确认治理分支路径",
+      "bytes": 10065,
+      "gitNormalizedSha256": "a30f8e57dd2a95948f2bcd3ea008f23f6da8303a9bb93009d7a0bb5aee78da76"
+    },
+    {
+      "file": "director/talkcraft-editorial-coverage.mjs",
+      "sha256": "61e3596b81e78468fcd6f370f6328e4f1a0ba073273108f9a6110efa309fb4f3",
+      "scope": "已确认治理分支路径",
+      "bytes": 5391,
+      "gitNormalizedSha256": "61e3596b81e78468fcd6f370f6328e4f1a0ba073273108f9a6110efa309fb4f3"
+    },
+    {
+      "file": "director/talkcraft-editorial-fallback.mjs",
+      "sha256": "62d017fcc1117463799dafa9d343f2b6ecbfc7b0d9c1638b991c885fc28e930a",
+      "scope": "已确认治理分支路径",
+      "bytes": 1385,
+      "gitNormalizedSha256": "62d017fcc1117463799dafa9d343f2b6ecbfc7b0d9c1638b991c885fc28e930a"
+    },
+    {
+      "file": "director/talkcraft-editorial-native-plan.mjs",
+      "sha256": "ff1a3142e3707405ce1c372d2ee3b071932229cb155fdd8e6280ba4ee7ef890a",
+      "scope": "已确认治理分支路径",
+      "bytes": 6670,
+      "gitNormalizedSha256": "ff1a3142e3707405ce1c372d2ee3b071932229cb155fdd8e6280ba4ee7ef890a"
+    },
+    {
+      "file": "director/talkcraft-editorial-native-plan.test.mjs",
+      "sha256": "05a71d925a037a4c2f3e68e752026b8f9ec27c001e1ea493642df7847a587206",
+      "scope": "已确认治理分支路径",
+      "bytes": 3988,
+      "gitNormalizedSha256": "05a71d925a037a4c2f3e68e752026b8f9ec27c001e1ea493642df7847a587206"
+    },
+    {
+      "file": "director/talkcraft-editorial-params.mjs",
+      "sha256": "ecf9291d4d2c76dd513d6bde56bf5e383b107632d738cc526d3d729c1963b338",
+      "scope": "已确认治理分支路径",
+      "bytes": 7467,
+      "gitNormalizedSha256": "ecf9291d4d2c76dd513d6bde56bf5e383b107632d738cc526d3d729c1963b338"
+    },
+    {
+      "file": "director/talkcraft-editorial-planning-contract.mjs",
+      "sha256": "53bf79a39951e2be279ea84d0588792c6bd5c350fd421ae5ba90185784d6166a",
+      "scope": "已确认治理分支路径",
+      "bytes": 10812,
+      "gitNormalizedSha256": "cc107339e31f8e4bec0131384c4296481601be31a7de87c53052b4e406aa2e61"
+    },
+    {
+      "file": "director/talkcraft-editorial-planning-contract.test.mjs",
+      "sha256": "c2742d513a3854c8be706cc93115cdc73a3adc88975a8d00874871fa7055a530",
+      "scope": "已确认治理分支路径",
+      "bytes": 7176,
+      "gitNormalizedSha256": "c2742d513a3854c8be706cc93115cdc73a3adc88975a8d00874871fa7055a530"
+    },
+    {
+      "file": "director/talkcraft-editorial-request-audit.mjs",
+      "sha256": "e09b98bfb61d0d267db43317fc111faa2289f1fac986d5313e186cdcd6be40ee",
+      "scope": "已确认治理分支路径",
+      "bytes": 2790,
+      "gitNormalizedSha256": "e09b98bfb61d0d267db43317fc111faa2289f1fac986d5313e186cdcd6be40ee"
+    },
+    {
+      "file": "director/talkcraft-editorial-request-audit.test.mjs",
+      "sha256": "ffe04b95832a11ab9d08a0f3ebdb699e1adc37a62d2d8405a6090980f0056c02",
+      "scope": "已确认治理分支路径",
+      "bytes": 3886,
+      "gitNormalizedSha256": "ffe04b95832a11ab9d08a0f3ebdb699e1adc37a62d2d8405a6090980f0056c02"
+    },
+    {
+      "file": "director/talkcraft-editorial-submission.mjs",
+      "sha256": "b903ba59cf64754608731e5fd0184e01e525e40bd78316f53e58cf85e650050f",
+      "scope": "已确认治理分支路径",
+      "bytes": 3911,
+      "gitNormalizedSha256": "b903ba59cf64754608731e5fd0184e01e525e40bd78316f53e58cf85e650050f"
+    },
+    {
+      "file": "director/talkcraft-execution.mjs",
+      "sha256": "9aa030706dfd6d8dfa4ecc724245d5d4ad89199d46cb4ab4af8395fad5dbe581",
+      "scope": "已确认治理分支路径",
+      "bytes": 4152,
+      "gitNormalizedSha256": "9aa030706dfd6d8dfa4ecc724245d5d4ad89199d46cb4ab4af8395fad5dbe581"
+    },
+    {
+      "file": "director/talkcraft-execution.test.mjs",
+      "sha256": "ca052ca86058671e1698953d50f3a1dd363889f18ac6750175b461d1902a40e7",
+      "scope": "已确认治理分支路径",
+      "bytes": 3157,
+      "gitNormalizedSha256": "ca052ca86058671e1698953d50f3a1dd363889f18ac6750175b461d1902a40e7"
+    },
+    {
+      "file": "director/talkcraft-fact-review.mjs",
+      "sha256": "45606901d86f1fc6b3193a68eee5d7229dcaeeea0df6c7c2acae686e39afea57",
+      "scope": "已确认治理分支路径",
+      "bytes": 1268,
+      "gitNormalizedSha256": "45606901d86f1fc6b3193a68eee5d7229dcaeeea0df6c7c2acae686e39afea57"
+    },
+    {
+      "file": "director/talkcraft-failure-report.mjs",
+      "sha256": "0cebdc7573633e2ec7c2da95a7f4d4a22acf96eccbdda4fd09502969956f4eaf",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 15784,
+      "gitNormalizedSha256": "0cebdc7573633e2ec7c2da95a7f4d4a22acf96eccbdda4fd09502969956f4eaf"
+    },
+    {
+      "file": "director/talkcraft-full-frame.test.mjs",
+      "sha256": "72a269aa26a8ae919ab7e82a73602a35b7f82030badf6ae89b35136b4e864f18",
+      "scope": "已确认治理分支路径",
+      "bytes": 1983,
+      "gitNormalizedSha256": "72a269aa26a8ae919ab7e82a73602a35b7f82030badf6ae89b35136b4e864f18"
+    },
+    {
+      "file": "director/talkcraft-governed-contract.mjs",
+      "sha256": "6372388ccc45bb2046cab0af840a27e6d9bea1204a9905b929e0b995786b8e33",
+      "scope": "已确认治理分支路径",
+      "bytes": 6765,
+      "gitNormalizedSha256": "6372388ccc45bb2046cab0af840a27e6d9bea1204a9905b929e0b995786b8e33"
+    },
+    {
+      "file": "director/talkcraft-governed-contract.test.mjs",
+      "sha256": "0c453dccb70ee709894957c57e6d849949e71a1c63ae2691fc9b22c54af44b89",
+      "scope": "已确认治理分支路径",
+      "bytes": 4978,
+      "gitNormalizedSha256": "0c453dccb70ee709894957c57e6d849949e71a1c63ae2691fc9b22c54af44b89"
+    },
+    {
+      "file": "director/talkcraft-host-context-install.mjs",
+      "sha256": "95d82b15102482cdcb23fd416a26c274d7ff192f7894f19b27e7e889be15c3a5",
+      "scope": "运行/回归静态依赖：director/talkcraft-stages.mjs",
+      "bytes": 972,
+      "gitNormalizedSha256": "95d82b15102482cdcb23fd416a26c274d7ff192f7894f19b27e7e889be15c3a5"
+    },
+    {
+      "file": "director/talkcraft-host-context.mjs",
+      "sha256": "199f34d11415a9d2506b8c4a74ccf2acb1b23f25850b2e87f1c4669c9f045319",
+      "scope": "运行/回归静态依赖：director/talkcraft-editorial-planning-contract.mjs",
+      "bytes": 3093,
+      "gitNormalizedSha256": "199f34d11415a9d2506b8c4a74ccf2acb1b23f25850b2e87f1c4669c9f045319"
+    },
+    {
+      "file": "director/talkcraft-host-framerate.mjs",
+      "sha256": "08fae916d20937eaf5d824c2f90550622bdfa60821654fd7b27a82509653d6b2",
+      "scope": "已确认治理分支路径",
+      "bytes": 2845,
+      "gitNormalizedSha256": "08fae916d20937eaf5d824c2f90550622bdfa60821654fd7b27a82509653d6b2"
+    },
+    {
+      "file": "director/talkcraft-host-input.mjs",
+      "sha256": "b9a636ed876abb5ef1ca64efda7d6e1f70ab11bfc827a5f1ef2edb236f0f021b",
+      "scope": "已确认治理分支路径",
+      "bytes": 5360,
+      "gitNormalizedSha256": "b9a636ed876abb5ef1ca64efda7d6e1f70ab11bfc827a5f1ef2edb236f0f021b"
+    },
+    {
+      "file": "director/talkcraft-input.mjs",
+      "sha256": "dd5d5224b5c3e9d8af9927d7d946c33c897262e26d3db46b75dd109a2a394d71",
+      "scope": "已确认治理分支路径",
+      "bytes": 6015,
+      "gitNormalizedSha256": "dd5d5224b5c3e9d8af9927d7d946c33c897262e26d3db46b75dd109a2a394d71"
+    },
+    {
+      "file": "director/talkcraft-input.test.mjs",
+      "sha256": "4736e44b7f98d2132c4e14cb70d85c74c852b07fd7d5b50de549bbc3dfb98749",
+      "scope": "已确认治理分支路径",
+      "bytes": 3348,
+      "gitNormalizedSha256": "4736e44b7f98d2132c4e14cb70d85c74c852b07fd7d5b50de549bbc3dfb98749"
+    },
+    {
+      "file": "director/talkcraft-keyword-caption.tsx",
+      "sha256": "338c91f3997a5d3a448f0daf8ace16a2243d355eba126e8c8e77c80bf43299fa",
+      "scope": "已确认治理分支路径",
+      "bytes": 1597,
+      "gitNormalizedSha256": "049ac9a5571f02badc68f728111c727010f8d210f44ee3b9a52ddc9abeeb04dc"
+    },
+    {
+      "file": "director/talkcraft-media-preflight.mjs",
+      "sha256": "c2f85a830f0790c15bfb871bd6b36e7faed2e33b2397bb60aaa882cc5a8dffc6",
+      "scope": "已确认治理分支路径",
+      "bytes": 7443,
+      "gitNormalizedSha256": "dd0095460ed69f0c33a50d96ade53dadf47d0c6055e604e2686e4e51e40d172d"
+    },
+    {
+      "file": "director/talkcraft-native-bridge-audit.mjs",
+      "sha256": "6ab752e029f206bad351893ffa9766ae2145559a0ca5d6c34972bf1e4661c6aa",
+      "scope": "已确认治理分支路径",
+      "bytes": 1115,
+      "gitNormalizedSha256": "6ab752e029f206bad351893ffa9766ae2145559a0ca5d6c34972bf1e4661c6aa"
+    },
+    {
+      "file": "director/talkcraft-native-card-binding.mjs",
+      "sha256": "df42bf7abdb78da226a16c8838e67af1855a09afc6a3f23847a038a51f5b50c0",
+      "scope": "已确认治理分支路径",
+      "bytes": 4777,
+      "gitNormalizedSha256": "df42bf7abdb78da226a16c8838e67af1855a09afc6a3f23847a038a51f5b50c0"
+    },
+    {
+      "file": "director/talkcraft-native-governance.mjs",
+      "sha256": "70a839ab731814f70728501b3def8386ec36e8e006d2420716fa93d13291cbc8",
+      "scope": "已确认治理分支路径",
+      "bytes": 11763,
+      "gitNormalizedSha256": "70a839ab731814f70728501b3def8386ec36e8e006d2420716fa93d13291cbc8"
+    },
+    {
+      "file": "director/talkcraft-native-governance.test.mjs",
+      "sha256": "18133cebc25ed405e87b9b386e1d9e27fdc9c82042002d31e905fb55366b6105",
+      "scope": "已确认治理分支路径",
+      "bytes": 8120,
+      "gitNormalizedSha256": "18133cebc25ed405e87b9b386e1d9e27fdc9c82042002d31e905fb55366b6105"
+    },
+    {
+      "file": "director/talkcraft-native-preparation.mjs",
+      "sha256": "751784dc5f4507fe109261bdbe38c7e710ea21cb0a7e96bfd2a071e3648089a0",
+      "scope": "已确认治理分支路径",
+      "bytes": 12002,
+      "gitNormalizedSha256": "751784dc5f4507fe109261bdbe38c7e710ea21cb0a7e96bfd2a071e3648089a0"
+    },
+    {
+      "file": "director/talkcraft-native-presentation-root.tsx",
+      "sha256": "a2af2494d3c6d1212914784d656b8785895cd206fbc8a023be4e63c95712ad58",
+      "scope": "已确认治理分支路径",
+      "bytes": 2528,
+      "gitNormalizedSha256": "a2af2494d3c6d1212914784d656b8785895cd206fbc8a023be4e63c95712ad58"
+    },
+    {
+      "file": "director/talkcraft-native-speed.test.mjs",
+      "sha256": "a72105228f20f1f36e8f5f06577f9a7989dc1fa4854ab886b5ca027495c31d44",
+      "scope": "已确认治理分支路径",
+      "bytes": 3950,
+      "gitNormalizedSha256": "a72105228f20f1f36e8f5f06577f9a7989dc1fa4854ab886b5ca027495c31d44"
+    },
+    {
+      "file": "director/talkcraft-native-time-map.mjs",
+      "sha256": "fa594ab58e16f38022f134d9a2e5ce5656c39159bb2ce6e32e0ef1c691c440b8",
+      "scope": "已确认治理分支路径",
+      "bytes": 4286,
+      "gitNormalizedSha256": "fa594ab58e16f38022f134d9a2e5ce5656c39159bb2ce6e32e0ef1c691c440b8"
+    },
+    {
+      "file": "director/talkcraft-native-timing.mjs",
+      "sha256": "1f4dea9a14fbe1bfcd57fc5c9e7e835427be6a89af0124247e4ad57a21078406",
+      "scope": "已确认治理分支路径",
+      "bytes": 12472,
+      "gitNormalizedSha256": "1f4dea9a14fbe1bfcd57fc5c9e7e835427be6a89af0124247e4ad57a21078406"
+    },
+    {
+      "file": "director/talkcraft-native-word-window.mjs",
+      "sha256": "be499af053394ad062ec76564a24ca7c7bff994c4ce725584c1fb1119031f0d1",
+      "scope": "已确认治理分支路径",
+      "bytes": 3746,
+      "gitNormalizedSha256": "be499af053394ad062ec76564a24ca7c7bff994c4ce725584c1fb1119031f0d1"
+    },
+    {
+      "file": "director/talkcraft-opening-caption.test.mjs",
+      "sha256": "4c4544da82dcc7eab6e38f409b8a57d2376186be394f7ffae055c98fb235d63b",
+      "scope": "已确认治理分支路径",
+      "bytes": 2084,
+      "gitNormalizedSha256": "c91a3e3255aecb7ad21676aa228795eadc2494698f8729a10d515c112c26b323"
+    },
+    {
+      "file": "director/talkcraft-opening-choice.mjs",
+      "sha256": "7736eefd756fd3e1b0c2b5ddc53ae1e033625ff3407fb15da308f02bc81e4e4c",
+      "scope": "已确认治理分支路径",
+      "bytes": 1459,
+      "gitNormalizedSha256": "7736eefd756fd3e1b0c2b5ddc53ae1e033625ff3407fb15da308f02bc81e4e4c"
+    },
+    {
+      "file": "director/talkcraft-opening-rhythm.test.mjs",
+      "sha256": "69b37b1714aa4f666c2d9db5b5d7883b6b545fea6741229a89d84bd8b2252f14",
+      "scope": "已确认治理分支路径",
+      "bytes": 2637,
+      "gitNormalizedSha256": "69b37b1714aa4f666c2d9db5b5d7883b6b545fea6741229a89d84bd8b2252f14"
+    },
+    {
+      "file": "director/talkcraft-orchestration-policy.mjs",
+      "sha256": "ae5b5a4cb907950f1c18d2f28360af45b26936ff091c77c38e3f2946f54acd90",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 1436,
+      "gitNormalizedSha256": "ae5b5a4cb907950f1c18d2f28360af45b26936ff091c77c38e3f2946f54acd90"
+    },
+    {
+      "file": "director/talkcraft-parallel-preparation.mjs",
+      "sha256": "c1199438e0866ff35c9c1e7f9a96e5e939656b058c6816e1b338e022fdc09d81",
+      "scope": "已确认治理分支路径",
+      "bytes": 12201,
+      "gitNormalizedSha256": "c1199438e0866ff35c9c1e7f9a96e5e939656b058c6816e1b338e022fdc09d81"
+    },
+    {
+      "file": "director/talkcraft-parallel-preparation.test.mjs",
+      "sha256": "647ea5296fcdd026135b2edd85cee9b2b5272a5801fa6e10d9e04e4b8baa46af",
+      "scope": "已确认治理分支路径",
+      "bytes": 7333,
+      "gitNormalizedSha256": "647ea5296fcdd026135b2edd85cee9b2b5272a5801fa6e10d9e04e4b8baa46af"
+    },
+    {
+      "file": "director/talkcraft-pipeline-provenance.mjs",
+      "sha256": "7738515bdc9c5d842dadfbaff3a5cc346fae209589880d34f1c1f1875123f540",
+      "scope": "已确认治理分支路径",
+      "bytes": 4009,
+      "gitNormalizedSha256": "7738515bdc9c5d842dadfbaff3a5cc346fae209589880d34f1c1f1875123f540"
+    },
+    {
+      "file": "director/talkcraft-planning-word-check.test.mjs",
+      "sha256": "975e91c6f83091c987462a8c1eaf34ab34389944cd0b19b31b06b5c50f2ce856",
+      "scope": "已确认治理分支路径",
+      "bytes": 7274,
+      "gitNormalizedSha256": "975e91c6f83091c987462a8c1eaf34ab34389944cd0b19b31b06b5c50f2ce856"
+    },
+    {
+      "file": "director/talkcraft-presentation-install.mjs",
+      "sha256": "13d7c6412db0926c38b58908867f2d8ac4d63a0ee09b6036be233ad6ad55930d",
+      "scope": "已确认治理分支路径",
+      "bytes": 6052,
+      "gitNormalizedSha256": "f536b409ffd8091e368a813322c86adca60c703b2ffea3f3014f0eea03513310"
+    },
+    {
+      "file": "director/talkcraft-presentation-skin.mjs",
+      "sha256": "da0efc529e2d310c25abe9bb1606367eb394fbe9932ea8d980eda08c6cf62e07",
+      "scope": "已确认治理分支路径",
+      "bytes": 8645,
+      "gitNormalizedSha256": "bc3ff51d3593b8dd7f4294ce61d11a09e22ccc90ec953c796b4f7c31e6bd0d58"
+    },
+    {
+      "file": "director/talkcraft-presentation-skin.test.mjs",
+      "sha256": "690b87281a018cef66f9c960961c9ddc036487f89b117c4e11c4198aa2739e05",
+      "scope": "已确认治理分支路径",
+      "bytes": 5691,
+      "gitNormalizedSha256": "1043ed8520caa14c23486c7577f1f53f8e1c2fd0111cbdfb793f8bf5bb61cd1a"
+    },
+    {
+      "file": "director/talkcraft-procedural-sfx.mjs",
+      "sha256": "de2c65d0782ee51e0482ed4031ad1760be96246e75b203e5d0a08f586bc573a7",
+      "scope": "已确认治理分支路径",
+      "bytes": 2940,
+      "gitNormalizedSha256": "de2c65d0782ee51e0482ed4031ad1760be96246e75b203e5d0a08f586bc573a7"
+    },
+    {
+      "file": "director/talkcraft-progress-ui.js",
+      "sha256": "a032468d2ed5e2f01e197485426718cfe9df9e4f6ee2f9593100ac5fcbbf7d93",
+      "scope": "已确认治理分支路径",
+      "bytes": 6437,
+      "gitNormalizedSha256": "5fa9eba873838f0c1a20d5e6b78059c9c94cc448f0844286cb914d016c5a888f"
+    },
+    {
+      "file": "director/talkcraft-progress.css",
+      "sha256": "44256a12d272bcad32bdd40580127d6c77c6639bc41901723683751a2095f8c8",
+      "scope": "已确认治理分支路径",
+      "bytes": 2835,
+      "gitNormalizedSha256": "84a8c238a82b20bfef8c57b939fec591281a0a46d0727618298af1747e624354"
+    },
+    {
+      "file": "director/talkcraft-progress.mjs",
+      "sha256": "e4902a08392da6e33736c3baf3538842af373fdafb9044c10f12fbe87b5140b0",
+      "scope": "已确认治理分支路径",
+      "bytes": 6281,
+      "gitNormalizedSha256": "c02f50e5aaefcd5ad98a0ff7d5794dfaaf35db1914ff2c8d0b9b329ec9f621b2"
+    },
+    {
+      "file": "director/talkcraft-progress.test.mjs",
+      "sha256": "992f8456bc32723727676dddc33182d0dbfa793f6e4d019bbf096585a3c72ff9",
+      "scope": "已确认治理分支路径",
+      "bytes": 7925,
+      "gitNormalizedSha256": "45f6d166fc84311ea3d62369254d1f8824983f0ed6f47528e04e78efdd1dc928"
+    },
+    {
+      "file": "director/talkcraft-project.mjs",
+      "sha256": "bf7675e4de2c6f8383553f3879c5ffbb0bd7a526839d5ce69de18d9f0c4cd35b",
+      "scope": "运行/回归静态依赖：director/talkcraft-stages.mjs",
+      "bytes": 8213,
+      "gitNormalizedSha256": "bf7675e4de2c6f8383553f3879c5ffbb0bd7a526839d5ce69de18d9f0c4cd35b"
+    },
+    {
+      "file": "director/talkcraft-qa-manifests.mjs",
+      "sha256": "d5e59520125d731f9050986184556445879e65c809cb629c0ab4c22ba9962fc8",
+      "scope": "运行/回归静态依赖：director/talkcraft-stages.mjs",
+      "bytes": 8756,
+      "gitNormalizedSha256": "d5e59520125d731f9050986184556445879e65c809cb629c0ab4c22ba9962fc8"
+    },
+    {
+      "file": "director/talkcraft-render-runtime.mjs",
+      "sha256": "c87e6835728d5224e277ce3a3f4df64dcb81bfe7ece5e5b1d33344d1561b7326",
+      "scope": "已确认治理分支路径",
+      "bytes": 3770,
+      "gitNormalizedSha256": "c87e6835728d5224e277ce3a3f4df64dcb81bfe7ece5e5b1d33344d1561b7326"
+    },
+    {
+      "file": "director/talkcraft-reviewed-templates.json",
+      "sha256": "115bf43bcd216ca4a5ab8025ec8e3d2db2c847751128d9aed2b7f2278a2ae919",
+      "scope": "已确认治理分支路径",
+      "bytes": 302436,
+      "gitNormalizedSha256": "115bf43bcd216ca4a5ab8025ec8e3d2db2c847751128d9aed2b7f2278a2ae919"
+    },
+    {
+      "file": "director/talkcraft-reviewed-templates.mjs",
+      "sha256": "8138980986db00e160f7a93ccde4b20975703cde0dfe11d2d0342d351b662aa1",
+      "scope": "已确认治理分支路径",
+      "bytes": 17984,
+      "gitNormalizedSha256": "8138980986db00e160f7a93ccde4b20975703cde0dfe11d2d0342d351b662aa1"
+    },
+    {
+      "file": "director/talkcraft-reviewed-templates.test.mjs",
+      "sha256": "9245f65ac101b4547272342e93d0b10c6810a09386c667cf4cb4eed3718a9ca6",
+      "scope": "已确认治理分支路径",
+      "bytes": 12358,
+      "gitNormalizedSha256": "9245f65ac101b4547272342e93d0b10c6810a09386c667cf4cb4eed3718a9ca6"
+    },
+    {
+      "file": "director/talkcraft-runtime-fidelity.mjs",
+      "sha256": "5ae693f373a080b828e6e48311541438f8dde39aa8a4e9bf6acc79c14df6c506",
+      "scope": "已确认治理分支路径",
+      "bytes": 6319,
+      "gitNormalizedSha256": "5ae693f373a080b828e6e48311541438f8dde39aa8a4e9bf6acc79c14df6c506"
+    },
+    {
+      "file": "director/talkcraft-sample-provenance.mjs",
+      "sha256": "2aa0ae5c553c9331d2ca142573664ed4b2b5f7236cf926f7592a0f71c3e871b1",
+      "scope": "已确认治理分支路径",
+      "bytes": 3297,
+      "gitNormalizedSha256": "2aa0ae5c553c9331d2ca142573664ed4b2b5f7236cf926f7592a0f71c3e871b1"
+    },
+    {
+      "file": "director/talkcraft-sample-provenance.test.mjs",
+      "sha256": "64a1ed7e7047aba5e95a2d74b492dcd3fdc0b6b9f43a7add18276a233fb7f478",
+      "scope": "已确认治理分支路径",
+      "bytes": 2338,
+      "gitNormalizedSha256": "64a1ed7e7047aba5e95a2d74b492dcd3fdc0b6b9f43a7add18276a233fb7f478"
+    },
+    {
+      "file": "director/talkcraft-sample-review.mjs",
+      "sha256": "ff0a618f3d2c9ca14b7927713da22f11e20cfd434d4db30b9fa923eaa9415686",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 5639,
+      "gitNormalizedSha256": "ff0a618f3d2c9ca14b7927713da22f11e20cfd434d4db30b9fa923eaa9415686"
+    },
+    {
+      "file": "director/talkcraft-scaffold-admission.test.mjs",
+      "sha256": "90026d305c8445bc76e9b77def57e58176c4ea92aa6c02acbb6b182f42c8285b",
+      "scope": "已确认治理分支路径",
+      "bytes": 5294,
+      "gitNormalizedSha256": "a397126545f5588eb700c8734f0f3973b3b625c66fe2feaacf74c828573b1777"
+    },
+    {
+      "file": "director/talkcraft-scaffold-aspect.test.mjs",
+      "sha256": "ea0ba9c13b779a9b4b99edaca8313dc1a93700b9cba2bd948fbe91b87748741e",
+      "scope": "已确认治理分支路径",
+      "bytes": 7234,
+      "gitNormalizedSha256": "1536652a3b1c3ced9c909e97131cdbfdc214c988a5985ad9588e7f837fc7b8c9"
+    },
+    {
+      "file": "director/talkcraft-scaffold-state.mjs",
+      "sha256": "1c3fd4ae18f4bcda1b83646f26522af874da703a8bf2635ca3c2be8b046b322a",
+      "scope": "已确认治理分支路径",
+      "bytes": 1985,
+      "gitNormalizedSha256": "1c3fd4ae18f4bcda1b83646f26522af874da703a8bf2635ca3c2be8b046b322a"
+    },
+    {
+      "file": "director/talkcraft-scaffold.mjs",
+      "sha256": "04adf96313622f84b50819a1ebbcbf29c3f0e058e5f091ffd3decabe02b85899",
+      "scope": "已确认治理分支路径",
+      "bytes": 21170,
+      "gitNormalizedSha256": "0eb9dee0ba82e47efba2c99d5c2f84e98061234573071cc47de5692c8e8d19e0"
+    },
+    {
+      "file": "director/talkcraft-scene-shared.tsx",
+      "sha256": "c234ac18219d411effc7f9b7ad8b2f613faf44b496df0ef8bddb1adf35b7b8d6",
+      "scope": "已确认治理分支路径",
+      "bytes": 3183,
+      "gitNormalizedSha256": "5a81d1c13540b43560efbced7ba7005051cb47f04247c4b602a8a2912154c24b"
+    },
+    {
+      "file": "director/talkcraft-selection-policy.test.mjs",
+      "sha256": "8d430b4dd5712c40a75a26954715681b115b700e19c541b06108c2b802c2b920",
+      "scope": "已确认治理分支路径",
+      "bytes": 4846,
+      "gitNormalizedSha256": "8d430b4dd5712c40a75a26954715681b115b700e19c541b06108c2b802c2b920"
+    },
+    {
+      "file": "director/talkcraft-semantic-check.mjs",
+      "sha256": "013ee52811b257ff6f8614fe2b1c917edb490c34d5503b54dfbe4e1ab0d25108",
+      "scope": "已确认治理分支路径",
+      "bytes": 1350,
+      "gitNormalizedSha256": "013ee52811b257ff6f8614fe2b1c917edb490c34d5503b54dfbe4e1ab0d25108"
+    },
+    {
+      "file": "director/talkcraft-semantic-decisions.mjs",
+      "sha256": "038ac9d891cda53ae92167dc0207a17099bd47555e14bf546707a3fab5d20eb2",
+      "scope": "已确认治理分支路径",
+      "bytes": 2114,
+      "gitNormalizedSha256": "038ac9d891cda53ae92167dc0207a17099bd47555e14bf546707a3fab5d20eb2"
+    },
+    {
+      "file": "director/talkcraft-sfx-solo.mjs",
+      "sha256": "32487f6656d105ca8924eef26bd0bce195f69a70da863603769b363749d77714",
+      "scope": "已确认治理分支路径",
+      "bytes": 4690,
+      "gitNormalizedSha256": "32487f6656d105ca8924eef26bd0bce195f69a70da863603769b363749d77714"
+    },
+    {
+      "file": "director/talkcraft-sfx-solo.test.mjs",
+      "sha256": "31698ebc5cdc65433276d6814906e2221942047bf56a75b01ffb35f6242cdd4c",
+      "scope": "已确认治理分支路径",
+      "bytes": 4277,
+      "gitNormalizedSha256": "31698ebc5cdc65433276d6814906e2221942047bf56a75b01ffb35f6242cdd4c"
+    },
+    {
+      "file": "director/talkcraft-shot-preview.mjs",
+      "sha256": "fa2c19f16ef2721cc7c2dc4fc252d3f9791ddea0c37fe3ee91e96633e8cf2cfb",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 3486,
+      "gitNormalizedSha256": "fa2c19f16ef2721cc7c2dc4fc252d3f9791ddea0c37fe3ee91e96633e8cf2cfb"
+    },
+    {
+      "file": "director/talkcraft-skill-root.mjs",
+      "sha256": "cb55e2b09fae84ce53be679aabe9125bcfbc91f71c3ead1e3dc24025bae5dd2f",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 895,
+      "gitNormalizedSha256": "cb55e2b09fae84ce53be679aabe9125bcfbc91f71c3ead1e3dc24025bae5dd2f"
+    },
+    {
+      "file": "director/talkcraft-source-sync.test.mjs",
+      "sha256": "388d4e379fe8ad38ec7544eb396fa210eff6f2a052fa115e69bdd533e403ffde",
+      "scope": "已确认治理分支路径",
+      "bytes": 4032,
+      "gitNormalizedSha256": "388d4e379fe8ad38ec7544eb396fa210eff6f2a052fa115e69bdd533e403ffde"
+    },
+    {
+      "file": "director/talkcraft-stages.mjs",
+      "sha256": "6cd40ef68c0b8ec1ba559fd82154a900da43f2780c66149042ec76f9582b975a",
+      "scope": "已确认治理分支路径",
+      "bytes": 61871,
+      "gitNormalizedSha256": "e6a4e4c9dd07cf1ba6e28269227116ab674c644e2c15b7127d145ddc6b5fb7e2"
+    },
+    {
+      "file": "director/talkcraft-stale-render.test.mjs",
+      "sha256": "2b7a336c22750b6242b5ae3bd8cbc10e5d66edf0f7d1c394544bfb4b256e8f36",
+      "scope": "已确认治理分支路径",
+      "bytes": 1362,
+      "gitNormalizedSha256": "2b7a336c22750b6242b5ae3bd8cbc10e5d66edf0f7d1c394544bfb4b256e8f36"
+    },
+    {
+      "file": "director/talkcraft-status-sync.test.mjs",
+      "sha256": "54c2e8ad03650a87f2304d813abe89fc9143a86f244a401dfb5272a5e844471d",
+      "scope": "已确认治理分支路径",
+      "bytes": 3404,
+      "gitNormalizedSha256": "54c2e8ad03650a87f2304d813abe89fc9143a86f244a401dfb5272a5e844471d"
+    },
+    {
+      "file": "director/talkcraft-status.mjs",
+      "sha256": "953c6909b3343e7a699b350c8dabcb1e0204ec9f392350f837c69dde4e79f9ad",
+      "scope": "已确认治理分支路径",
+      "bytes": 29543,
+      "gitNormalizedSha256": "433c68aaa45d21d687b99fcade88caa90c77145229dc9c4c0de23e000c0c2edf"
+    },
+    {
+      "file": "director/talkcraft-status.test.mjs",
+      "sha256": "91d91e194a3d53c0ba09b8bd442823ba2381b47e8bcf8399f950bfab8d1a167a",
+      "scope": "已确认治理分支路径",
+      "bytes": 13917,
+      "gitNormalizedSha256": "f814c4f5b3c376c1e4573f68526db54182cc7400a4d5dddee5878ba1c2bdb632"
+    },
+    {
+      "file": "director/talkcraft-subject-repair-binding.test.mjs",
+      "sha256": "a914dada6b45eed88bc4b41e715726d176c389af06f42f27403f5be05007c7c4",
+      "scope": "已确认治理分支路径",
+      "bytes": 1637,
+      "gitNormalizedSha256": "a914dada6b45eed88bc4b41e715726d176c389af06f42f27403f5be05007c7c4"
+    },
+    {
+      "file": "director/talkcraft-task-journal.mjs",
+      "sha256": "74dc667011c928670934577a52620cb2c681dc681673c0e3c2509705b81e1032",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 1628,
+      "gitNormalizedSha256": "74dc667011c928670934577a52620cb2c681dc681673c0e3c2509705b81e1032"
+    },
+    {
+      "file": "director/talkcraft-template-adapter.tsx",
+      "sha256": "7e5d956b82b2eb0a24ddd9e704881eedee33ccea29a8cab13d506155a0e0bab7",
+      "scope": "已确认治理分支路径",
+      "bytes": 3046,
+      "gitNormalizedSha256": "d067c24514f58a86a7a8da2ecb85f8d159746ad532f6659114893f250735831e"
+    },
+    {
+      "file": "director/talkcraft-template-governance.mjs",
+      "sha256": "66f821386ff08e3d49f60df97114ee197e4491670cec1e9e71d1bbf1c9a18016",
+      "scope": "已确认治理分支路径",
+      "bytes": 9679,
+      "gitNormalizedSha256": "38c25f6b76eb2eb3e006d47e948f174649025e3af8db2482540e8ae6da462a59"
+    },
+    {
+      "file": "director/talkcraft-template-material-resolver.mjs",
+      "sha256": "86db0bde53f80f6cda21571011c3ecb471e25d86e11778267afb678e851cb382",
+      "scope": "已确认治理分支路径",
+      "bytes": 12784,
+      "gitNormalizedSha256": "86db0bde53f80f6cda21571011c3ecb471e25d86e11778267afb678e851cb382"
+    },
+    {
+      "file": "director/talkcraft-template-materials.mjs",
+      "sha256": "85f4ad7aee7c3c545a1fd39a1c1ef0cff89687f010bc28183c391c4bf511f53f",
+      "scope": "已确认治理分支路径",
+      "bytes": 7142,
+      "gitNormalizedSha256": "85f4ad7aee7c3c545a1fd39a1c1ef0cff89687f010bc28183c391c4bf511f53f"
+    },
+    {
+      "file": "director/talkcraft-template-usage.mjs",
+      "sha256": "e5c513f53e4f505e0aafc55890607a723549bd7e91c24d2f3c5d593e12a9a714",
+      "scope": "运行/回归静态依赖：director/talkcraft-stages.mjs",
+      "bytes": 3879,
+      "gitNormalizedSha256": "e5c513f53e4f505e0aafc55890607a723549bd7e91c24d2f3c5d593e12a9a714"
+    },
+    {
+      "file": "director/talkcraft-text-occurrences.mjs",
+      "sha256": "f23ed738c1f0fd4218f0c51759f9a12c79614cd9d8affb3d9acad93efd3e3efe",
+      "scope": "已确认治理分支路径",
+      "bytes": 1422,
+      "gitNormalizedSha256": "f23ed738c1f0fd4218f0c51759f9a12c79614cd9d8affb3d9acad93efd3e3efe"
+    },
+    {
+      "file": "director/talkcraft-text-occurrences.test.mjs",
+      "sha256": "3e9ee42acd4962af119e669e906ff8b0e77adbb51f2ad6120ff904e1b9deb837",
+      "scope": "已确认治理分支路径",
+      "bytes": 2899,
+      "gitNormalizedSha256": "3e9ee42acd4962af119e669e906ff8b0e77adbb51f2ad6120ff904e1b9deb837"
+    },
+    {
+      "file": "director/talkcraft-voice-contract.mjs",
+      "sha256": "32d36f2940960f33522aeab2ad161325c3831578c843d7c9379fa7770b1d76f2",
+      "scope": "已确认治理分支路径",
+      "bytes": 3579,
+      "gitNormalizedSha256": "32d36f2940960f33522aeab2ad161325c3831578c843d7c9379fa7770b1d76f2"
+    },
+    {
+      "file": "director/talkcraft-word-alignment.mjs",
+      "sha256": "85359fa97aa9f34d031b3736d432905049cbf5375d6b5acef245906f448c34c2",
+      "scope": "已确认治理分支路径",
+      "bytes": 5435,
+      "gitNormalizedSha256": "85359fa97aa9f34d031b3736d432905049cbf5375d6b5acef245906f448c34c2"
+    },
+    {
+      "file": "director/talkcraft-word-reveal-audit.tsx",
+      "sha256": "6a48dd3cc4e2daf83f3014df9c32536a5acb31515d8a8ef2fc5b931b947f8429",
+      "scope": "已确认治理分支路径",
+      "bytes": 5268,
+      "gitNormalizedSha256": "6a48dd3cc4e2daf83f3014df9c32536a5acb31515d8a8ef2fc5b931b947f8429"
+    },
+    {
+      "file": "director/talkcraft-word-reveal-root.tsx",
+      "sha256": "1114383ac6a7c2715c0177880b561460708c0081910bdcc528086ea27fa615ec",
+      "scope": "已确认治理分支路径",
+      "bytes": 4943,
+      "gitNormalizedSha256": "1114383ac6a7c2715c0177880b561460708c0081910bdcc528086ea27fa615ec"
+    },
+    {
+      "file": "director/talkcraft-word-reveal.mjs",
+      "sha256": "5a109ee2122ca2a82bc714319e4b02a3973dfb92557bdbf74b7d71bddf3fb6b6",
+      "scope": "已确认治理分支路径",
+      "bytes": 27947,
+      "gitNormalizedSha256": "5a109ee2122ca2a82bc714319e4b02a3973dfb92557bdbf74b7d71bddf3fb6b6"
+    },
+    {
+      "file": "director/talkcraft-word-reveal.test.mjs",
+      "sha256": "b7c03b3652f3ea8ab71123af19a2a9e0b70896023c19daed90463b14403069cd",
+      "scope": "已确认治理分支路径",
+      "bytes": 2513,
+      "gitNormalizedSha256": "b7c03b3652f3ea8ab71123af19a2a9e0b70896023c19daed90463b14403069cd"
+    },
+    {
+      "file": "director/talkcraft-word-runtime-validation.mjs",
+      "sha256": "bbe8436be297fc36be8cece9aa92f787dfb3d884a36bda13d6ae2416bee39aeb",
+      "scope": "已确认治理分支路径",
+      "bytes": 4192,
+      "gitNormalizedSha256": "bbe8436be297fc36be8cece9aa92f787dfb3d884a36bda13d6ae2416bee39aeb"
+    },
+    {
+      "file": "director/talkcraft-word-runtime-validation.test.mjs",
+      "sha256": "11cc991374a127950a6dddd74fe092ba972227b832ce04bb70e3a4f1aca10036",
+      "scope": "已确认治理分支路径",
+      "bytes": 2276,
+      "gitNormalizedSha256": "11cc991374a127950a6dddd74fe092ba972227b832ce04bb70e3a4f1aca10036"
+    },
+    {
+      "file": "director/talkcraft-workbench.mjs",
+      "sha256": "ee8690dae8041b76194ca88a038d596169bda5896ae664f8ef4814d9d46804cc",
+      "scope": "运行/回归静态依赖：console-server.mjs",
+      "bytes": 5897,
+      "gitNormalizedSha256": "ee8690dae8041b76194ca88a038d596169bda5896ae664f8ef4814d9d46804cc"
+    },
+    {
+      "file": "director/talkcraft-workflow-contract.mjs",
+      "sha256": "c41dad1ac5a735a8f52d44de35a39515ad0c755348d9316ac4238a9cb22609cd",
+      "scope": "已确认治理分支路径",
+      "bytes": 4847,
+      "gitNormalizedSha256": "8483a65eaa69a3376e4bb701596f940cd0e4df9431a9dea0cb717b647b82d23e"
+    },
+    {
+      "file": "director/word-reveal-audit.mjs",
+      "sha256": "62ddad1f88627230b5ac9001f626b5638a20d6995d8b199c278e6c227cb50125",
+      "scope": "已确认治理分支路径",
+      "bytes": 4407,
+      "gitNormalizedSha256": "62ddad1f88627230b5ac9001f626b5638a20d6995d8b199c278e6c227cb50125"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target1/checks.json",
+      "sha256": "a9f61972f7550048add04ae2e3b916b84895b1faaabbe1c01a4c144ffc103ee7",
+      "scope": "现有治理契约/测试运行必读数据",
+      "bytes": 174311,
+      "gitNormalizedSha256": "a9f61972f7550048add04ae2e3b916b84895b1faaabbe1c01a4c144ffc103ee7"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target1/ledger.json",
+      "sha256": "435b191cb09d91f3318b0560fd4e0978de4c2ee170eb605fe8f6a7ac6e20f172",
+      "scope": "现有治理契约/测试运行必读数据",
+      "bytes": 3749352,
+      "gitNormalizedSha256": "435b191cb09d91f3318b0560fd4e0978de4c2ee170eb605fe8f6a7ac6e20f172"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target1/source-dependencies.json",
+      "sha256": "be76b03bd225591e7d8bb3b7e13f2ae8ec0f4aefd0f6807083499cfe5ee310e8",
+      "scope": "现有治理契约/测试运行必读数据",
+      "bytes": 286300,
+      "gitNormalizedSha256": "be76b03bd225591e7d8bb3b7e13f2ae8ec0f4aefd0f6807083499cfe5ee310e8"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/CURRENT-CONTRACT.json",
+      "sha256": "50219534ef8517cb18d99a3c1c7f199cc29887f8cae98dce748ce7c55b67a176",
+      "scope": "现有治理契约/测试运行必读数据",
+      "bytes": 1373,
+      "gitNormalizedSha256": "50219534ef8517cb18d99a3c1c7f199cc29887f8cae98dce748ce7c55b67a176"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/contract.mjs",
+      "sha256": "e7ea5e4fd34bf2c15b2f973f6a9ad07486e427b1ebc05ff4205d3daa33af0e21",
+      "scope": "运行/回归静态依赖：docs/audits/b-talkcraft-target3/current-contract.mjs",
+      "bytes": 4319,
+      "gitNormalizedSha256": "e7ea5e4fd34bf2c15b2f973f6a9ad07486e427b1ebc05ff4205d3daa33af0e21"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/current-contract.mjs",
+      "sha256": "929bbace0e945ac7aa7a5f90b04659f2c58ce337f94068f0d5066de815c4e21a",
+      "scope": "运行/回归静态依赖：director/talkcraft-anchored-time-contract.test.mjs",
+      "bytes": 1053,
+      "gitNormalizedSha256": "929bbace0e945ac7aa7a5f90b04659f2c58ce337f94068f0d5066de815c4e21a"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/dsl-validation.mjs",
+      "sha256": "78fdba438b58fc3a2c92f4277e6ab6321176c563639133f1cd53b78867565f8f",
+      "scope": "运行/回归静态依赖：director/talkcraft-anchored-time-contract.test.mjs",
+      "bytes": 6493,
+      "gitNormalizedSha256": "78fdba438b58fc3a2c92f4277e6ab6321176c563639133f1cd53b78867565f8f"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/policies.mjs",
+      "sha256": "e48b6ba1a2e71500757e421a6169ad69126a0fff6a7c1cc7505a389e7add8200",
+      "scope": "运行/回归静态依赖：docs/audits/b-talkcraft-target3/contract.mjs",
+      "bytes": 10552,
+      "gitNormalizedSha256": "e48b6ba1a2e71500757e421a6169ad69126a0fff6a7c1cc7505a389e7add8200"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/schedule.mjs",
+      "sha256": "e16fe47866095940570b0aa086e9f0e2162db74ba944836e348adc328c7c1393",
+      "scope": "运行/回归静态依赖：docs/audits/b-talkcraft-target3/validation.mjs",
+      "bytes": 1716,
+      "gitNormalizedSha256": "e16fe47866095940570b0aa086e9f0e2162db74ba944836e348adc328c7c1393"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/source-analysis.mjs",
+      "sha256": "db579011296fb3ba5e57a7f6b7802d0a3acb6d996e359381bfdf9e25774184b8",
+      "scope": "运行/回归静态依赖：docs/audits/b-talkcraft-target3/contract.mjs",
+      "bytes": 5821,
+      "gitNormalizedSha256": "db579011296fb3ba5e57a7f6b7802d0a3acb6d996e359381bfdf9e25774184b8"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/stage5-b021-r1-20261005/calls.json",
+      "sha256": "5bca20f29bb1b845e608df49c4de41bd33279e5ba10b4725a60c55e830ce331f",
+      "scope": "现有治理契约/测试运行必读数据",
+      "bytes": 118047,
+      "gitNormalizedSha256": "5bca20f29bb1b845e608df49c4de41bd33279e5ba10b4725a60c55e830ce331f"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/validation.mjs",
+      "sha256": "b988ee057f823bff13db3521bfc96e4c20e0544a93439d463a0b4a695a6c960d",
+      "scope": "运行/回归静态依赖：director/talkcraft-template-material-resolver.mjs",
+      "bytes": 12532,
+      "gitNormalizedSha256": "b988ee057f823bff13db3521bfc96e4c20e0544a93439d463a0b4a695a6c960d"
+    },
+    {
+      "file": "docs/audits/b-talkcraft-target3/workbench-check.mjs",
+      "sha256": "d304454c179623dc15479fc0a9c36f421b5686b7f6f2f7b43952c9349bade24c",
+      "scope": "运行/回归静态依赖：docs/audits/b-talkcraft-target3/current-contract.mjs",
+      "bytes": 8230,
+      "gitNormalizedSha256": "d304454c179623dc15479fc0a9c36f421b5686b7f6f2f7b43952c9349bade24c"
+    },
+    {
+      "file": "docs/workflows/b-mode-native-framing.md",
+      "sha256": "c76b7b09c704f0bebd599d2181be870e57354066b8aff7bce705074f7f5883fa",
+      "scope": "已确认治理分支路径",
+      "bytes": 1031,
+      "gitNormalizedSha256": "c76b7b09c704f0bebd599d2181be870e57354066b8aff7bce705074f7f5883fa"
+    },
+    {
+      "file": "docs/workflows/b-mode-opening-and-captions.md",
+      "sha256": "439eacf5f500d88e012620079bfbf484dc9c717e7d70ca20d6357e995c510689",
+      "scope": "已确认治理分支路径",
+      "bytes": 3464,
+      "gitNormalizedSha256": "9beb07e03031b5bed1a6f2d6e6cf2acc948d4b363bcf37d612cee9cfe58d8e26"
+    },
+    {
+      "file": "docs/workflows/b-mode-reviewed-templates.md",
+      "sha256": "342b5a272223322371e644fdadde871194106a68b61106eb66ece007d6a2ff62",
+      "scope": "已确认治理分支路径",
+      "bytes": 12737,
+      "gitNormalizedSha256": "78c7cdaa4cb3cbc4dec12ede63e73e9c9160177f486523fa9e494863cd6e116e"
+    },
+    {
+      "file": "docs/workflows/b-mode-subject-protection.md",
+      "sha256": "9ae613363bd40a76b1e768cead83856f319737349462d3bd64b34bdbf6bea45b",
+      "scope": "已确认治理分支路径",
+      "bytes": 1508,
+      "gitNormalizedSha256": "9ae613363bd40a76b1e768cead83856f319737349462d3bd64b34bdbf6bea45b"
+    },
+    {
+      "file": "template/src/BundledFonts.tsx",
+      "sha256": "b8e0b5315bc9c85b8d5837b8d921345658b76ffe22afe06927adc3b33c9fba9f",
+      "bytes": 1430,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "b8e0b5315bc9c85b8d5837b8d921345658b76ffe22afe06927adc3b33c9fba9f"
+    },
+    {
+      "file": "template/src/bundled-font-manifest.json",
+      "sha256": "85c8b7a17d2d3c9d71ce2a522660a1b6926a3b35ce374a44d536b6223e57c71c",
+      "bytes": 2604,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "a7e07a4fa5a5c58ff579e8ba33f383e79ae323c192ba1542d96cf2694575ce9f"
+    },
+    {
+      "file": "template/public/fonts/ChillJinshuSong-Bold-OFL.txt",
+      "sha256": "027f6f68aa3c651a771d3368e7d1620acaeadfd5d00d23da44332565bc151869",
+      "bytes": 4325,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "027f6f68aa3c651a771d3368e7d1620acaeadfd5d00d23da44332565bc151869"
+    },
+    {
+      "file": "template/public/fonts/ChillJinshuSong-Bold.otf",
+      "sha256": "7302546612441815342005e4f1934bdfd62d27a0553b42b5ed6dd1e9f8b820b2",
+      "bytes": 24341872,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "7302546612441815342005e4f1934bdfd62d27a0553b42b5ed6dd1e9f8b820b2"
+    },
+    {
+      "file": "template/public/fonts/ChillJinshuSong-Regular-OFL.txt",
+      "sha256": "027f6f68aa3c651a771d3368e7d1620acaeadfd5d00d23da44332565bc151869",
+      "bytes": 4325,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "027f6f68aa3c651a771d3368e7d1620acaeadfd5d00d23da44332565bc151869"
+    },
+    {
+      "file": "template/public/fonts/ChillJinshuSong-Regular.otf",
+      "sha256": "413f6ed710e632a94b3f02d241e9c176e97251032480711b3cdecccb22ab1195",
+      "bytes": 25087860,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "413f6ed710e632a94b3f02d241e9c176e97251032480711b3cdecccb22ab1195"
+    },
+    {
+      "file": "template/public/fonts/fonts.css",
+      "sha256": "611534cea93a858d7198d8e45ef24495943959c9e5c24a18a95391536311e2c3",
+      "bytes": 955,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "08e3bb1ba75feefd23c476361ab319a9d4ce23236821b4cecdac68b7e7651531"
+    },
+    {
+      "file": "template/public/fonts/manifest.json",
+      "sha256": "85c8b7a17d2d3c9d71ce2a522660a1b6926a3b35ce374a44d536b6223e57c71c",
+      "bytes": 2604,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "a7e07a4fa5a5c58ff579e8ba33f383e79ae323c192ba1542d96cf2694575ce9f"
+    },
+    {
+      "file": "template/public/fonts/README.md",
+      "sha256": "e4a226a4cf023c9ca0b4f09b82a7815c87048e611533950a88e9c1f8a3206324",
+      "bytes": 795,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "cf6eca2af88e6158311ef6b4760a06ec1a3687b372d48642ae210cc0989a9bca"
+    },
+    {
+      "file": "template/public/fonts/SourceHanSerifSC-Bold-OFL.txt",
+      "sha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903",
+      "bytes": 4463,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903"
+    },
+    {
+      "file": "template/public/fonts/SourceHanSerifSC-Bold.otf",
+      "sha256": "706b8c0de2deff6cbc0c87e2cdedfd33a78b7ffd76cebb4549012f197ba611fe",
+      "bytes": 25521732,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "706b8c0de2deff6cbc0c87e2cdedfd33a78b7ffd76cebb4549012f197ba611fe"
+    },
+    {
+      "file": "template/public/fonts/SourceHanSerifSC-Regular-OFL.txt",
+      "sha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903",
+      "bytes": 4463,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903"
+    },
+    {
+      "file": "template/public/fonts/SourceHanSerifSC-Regular.otf",
+      "sha256": "78aa7a328fd974df2d688c8a9fd74a33d8334dfa84ab24d9d11efb2ffc464117",
+      "bytes": 24543332,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "78aa7a328fd974df2d688c8a9fd74a33d8334dfa84ab24d9d11efb2ffc464117"
+    },
+    {
+      "file": "template/public/fonts/ZhuqueFangsong-OFL.txt",
+      "sha256": "66cc01ad4df62fca6936431a426104cb32a52ce8da49de9a7d643e02d7659043",
+      "bytes": 4389,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "66cc01ad4df62fca6936431a426104cb32a52ce8da49de9a7d643e02d7659043"
+    },
+    {
+      "file": "template/public/fonts/ZhuqueFangsong-Regular.ttf",
+      "sha256": "558c62730844fe54ba220146ed62f859d4e2880188d92d985f8921c6e3743bc4",
+      "bytes": 8824084,
+      "scope": "已确认商用宋体运行资源及许可证",
+      "gitNormalizedSha256": "558c62730844fe54ba220146ed62f859d4e2880188d92d985f8921c6e3743bc4"
+    },
+    {
+      "file": "director/theme-contract.mjs",
+      "sha256": "c1f745e3e37bcd2479775e9124269febbe9608b73bf99b6afda113b3ae48f762",
+      "bytes": 8054,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "c1f745e3e37bcd2479775e9124269febbe9608b73bf99b6afda113b3ae48f762"
+    },
+    {
+      "file": "director/theme-contract.test.mjs",
+      "sha256": "314b13232d48b7083820941cd52cefd20e60fc638c877a0c49c9b6cb058cb4e3",
+      "bytes": 2939,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "314b13232d48b7083820941cd52cefd20e60fc638c877a0c49c9b6cb058cb4e3"
+    },
+    {
+      "file": "director/api-center.mjs",
+      "sha256": "f8c6f52899331e1551f7f3c0f3e3b3bb3375b5a9767aef5f25a18ce7ffaea24f",
+      "bytes": 1718,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "f8c6f52899331e1551f7f3c0f3e3b3bb3375b5a9767aef5f25a18ce7ffaea24f"
+    },
+    {
+      "file": "director/provider-config.mjs",
+      "sha256": "19ef9d1d13bf36e77721184d84aa3525b2b4138c6e12d5c7b0c063618a168d3e",
+      "bytes": 3172,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "19ef9d1d13bf36e77721184d84aa3525b2b4138c6e12d5c7b0c063618a168d3e"
+    },
+    {
+      "file": "director/render-runtime.mjs",
+      "sha256": "abd693da73f3a2781b6393ad6a36feaa3717767275610b7f6cca19a644aa787c",
+      "bytes": 3162,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "abd693da73f3a2781b6393ad6a36feaa3717767275610b7f6cca19a644aa787c"
+    },
+    {
+      "file": "director/render-runtime.test.mjs",
+      "sha256": "924955e4ccc58144cdd7d0318a4c0363ef5c8f714fd57b616ed29982ebda210b",
+      "bytes": 2428,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "924955e4ccc58144cdd7d0318a4c0363ef5c8f714fd57b616ed29982ebda210b"
+    },
+    {
+      "file": "director/a-mode-ark-client.mjs",
+      "sha256": "d0ce78ecec1630f08ec1ad4bfa51e5a1587a1e2f91de8a462bc10a9840ef7788",
+      "bytes": 6862,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "d0ce78ecec1630f08ec1ad4bfa51e5a1587a1e2f91de8a462bc10a9840ef7788"
+    },
+    {
+      "file": "director/a-mode-ark-client.test.mjs",
+      "sha256": "da546dfdca5a931fb5ddf2d650c38dac92c3cd512b21ade551fc05c3a9fca69c",
+      "bytes": 8454,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "da546dfdca5a931fb5ddf2d650c38dac92c3cd512b21ade551fc05c3a9fca69c"
+    },
+    {
+      "file": "director/a-mode-provider-config.mjs",
+      "sha256": "7285008dbc06c5c96090b0616f411e1a57f8d0caf213ec06fee80dd93c192364",
+      "bytes": 9494,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "7285008dbc06c5c96090b0616f411e1a57f8d0caf213ec06fee80dd93c192364"
+    },
+    {
+      "file": "director/a-mode-provider-config.test.mjs",
+      "sha256": "882caf59e6f8f3b7f58baeaf2d2454004b66490eba0be4e5a54000cf7158fb71",
+      "bytes": 7055,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "882caf59e6f8f3b7f58baeaf2d2454004b66490eba0be4e5a54000cf7158fb71"
+    },
+    {
+      "file": "director/runninghub-infinitetalk.mjs",
+      "sha256": "43e322329e8465a89203fc9c9c87ca92ac12955ba6acced975e14e6a945d0fc1",
+      "bytes": 9717,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "43e322329e8465a89203fc9c9c87ca92ac12955ba6acced975e14e6a945d0fc1"
+    },
+    {
+      "file": "director/runninghub-infinitetalk.test.mjs",
+      "sha256": "cfe6c8bc17de974e0469e7e532843e675b8a093c06175237ab4a89b8513859fa",
+      "bytes": 2978,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "cfe6c8bc17de974e0469e7e532843e675b8a093c06175237ab4a89b8513859fa"
+    },
+    {
+      "file": "director/b-mode-material-match.mjs",
+      "sha256": "7fef07fb842b7f952ddf5dd6189691040e4793e26860fa2aecdbdba9f5656adb",
+      "bytes": 4191,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "7fef07fb842b7f952ddf5dd6189691040e4793e26860fa2aecdbdba9f5656adb"
+    },
+    {
+      "file": "director/b-mode-material-match.test.mjs",
+      "sha256": "db28568acf704531b34fd245b5427db5502f01c8725d36c6fde9281fecfa7f1a",
+      "bytes": 1896,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "db28568acf704531b34fd245b5427db5502f01c8725d36c6fde9281fecfa7f1a"
+    },
+    {
+      "file": "director/talkcraft-render-runtime.test.mjs",
+      "sha256": "541fc9c04748d890629bd90c3cd377cc51f109ffccc05316a18f12278500be47",
+      "bytes": 3734,
+      "scope": "B模式直接调用的共享主题/供应商/素材/渲染依赖及回归",
+      "gitNormalizedSha256": "541fc9c04748d890629bd90c3cd377cc51f109ffccc05316a18f12278500be47"
+    }
+  ]
+}

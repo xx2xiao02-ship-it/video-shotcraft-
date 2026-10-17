@@ -21,7 +21,8 @@ export const API_CENTER = Object.freeze({
     queryPath: '/query',
     resultTtlHours: 24,
     pollIntervalMs: 10000,
-    maxWaitMs: 900000,
+    // 合并模式的长音频任务可能超过 15 分钟，超时不能判定供应商失败。
+    maxWaitMs: 3600000,
   }),
 });
 

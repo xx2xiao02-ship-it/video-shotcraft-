@@ -6,16 +6,27 @@ const CONFIG_DIR = process.env.SHOTCRAFT_CONFIG_DIR || path.join(process.env.LOC
 const CONFIG_FILE = path.join(CONFIG_DIR, 'provider-config.dpapi.json');
 const SECRET_KEYS = ['runninghubApiKey', 'volcengineApiKey', 'volcengineAccessToken'];
 
+function runPowerShell(command, input) {
+  const args=['-NoProfile','-NonInteractive','-Command',command];
+  try {
+    return execFileSync('powershell.exe', args, {input:String(input), encoding:'utf8', timeout:5000, windowsHide:true}).trim();
+  } catch (error) {
+    if (error?.code !== 'EPERM') throw error;
+    return execFileSync('cmd.exe', ['/d','/c','powershell.exe',...args],
+      {input:String(input), encoding:'utf8', timeout:5000, windowsHide:true}).trim();
+  }
+}
+
 function protect(value) {
-  return execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    'Add-Type -AssemblyName System.Security; $s=[Console]::In.ReadToEnd(); $bytes=[Text.Encoding]::UTF8.GetBytes($s); [Convert]::ToBase64String([System.Security.Cryptography.ProtectedData]::Protect($bytes,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser))'],
-  {input:String(value), encoding:'utf8', timeout:5000, windowsHide:true}).trim();
+  return runPowerShell(
+    'Add-Type -AssemblyName System.Security; $s=[Console]::In.ReadToEnd(); $bytes=[Text.Encoding]::UTF8.GetBytes($s); [Convert]::ToBase64String([System.Security.Cryptography.ProtectedData]::Protect($bytes,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser))',
+    value);
 }
 
 function unprotect(value) {
-  return execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
-    'Add-Type -AssemblyName System.Security; $s=[Console]::In.ReadToEnd().Trim(); $bytes=[Convert]::FromBase64String($s); [Text.Encoding]::UTF8.GetString([System.Security.Cryptography.ProtectedData]::Unprotect($bytes,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser))'],
-    {input:String(value), encoding:'utf8', timeout:5000, windowsHide:true}).trim();
+  return runPowerShell(
+    'Add-Type -AssemblyName System.Security; $s=[Console]::In.ReadToEnd().Trim(); $bytes=[Convert]::FromBase64String($s); [Text.Encoding]::UTF8.GetString([System.Security.Cryptography.ProtectedData]::Unprotect($bytes,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser))',
+    value);
 }
 
 export function readStoredProviderConfig() {

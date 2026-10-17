@@ -1,3 +1,4 @@
+import {assertNativeCardBinding} from './talkcraft-native-card-binding.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
@@ -643,7 +644,7 @@ export function writeTalkcraftCardCalls(root, skillRoot, runId, payload) {
   }
   verifyUnmodifiedPriorAssembly(project, previous, shots, skillRoot);
   if (previous) verifyPriorCardSounds(project, previous, skillRoot, shots);
-  if (!existsSync(path.join(srcRoot, 'index.ts'))) scaffoldTalkcraftProject(root, skillRoot, runId);
+  if (!existsSync(path.join(srcRoot, 'index.ts'))) scaffoldTalkcraftProject(root, skillRoot, runId,{emptyScenes:true});
   if (!previous) assertEmptyScaffoldSoundTable(project);
 
   const sceneDir = path.join(srcRoot, 'scenes');
@@ -696,7 +697,9 @@ export function assertTalkcraftCardCallsBound(root, skillRoot, runId,
   {requireCardCalls = false, requiredShotIds = [], requireCompleteCoverage = false} = {}) {
   const stored = readTalkcraftCardCalls(root, runId);
   if (!stored.present) {
-    if (requireCardCalls) throw new Error('新运行必须先为每个镜头显式保存一张主卡');
+    if (requireCardCalls && !existsSync(path.join(talkcraftProject(root,runId),'remotion/src/scenes/scene-shared.tsx')))
+      throw new Error('新运行必须先为每个镜头显式保存一张主卡，或完成已审核的正式模板工程');
+    if (requireCardCalls || (requireCompleteCoverage && existsSync(path.join(talkcraftProject(root,runId),"remotion/src/scenes/scene-shared.tsx")))) return assertNativeCardBinding(talkcraftProject(root,runId),skillRoot,{requiredShotIds,requireCompleteCoverage});
     return {present:false, record:stored.record, project:talkcraftProject(root, runId)};
   }
   const project = talkcraftProject(root, runId);
@@ -788,6 +791,7 @@ function copyCardBundleReadOnly(project, skillRoot, cardId) {
 
 export function talkcraftCardCallsQaEvidence(root, skillRoot, runId) {
   const binding = assertTalkcraftCardCallsBound(root, skillRoot, runId, {requireCompleteCoverage:true});
+  if (binding.governed) return {...binding.evidence,runId};
   if (!binding.present) return null;
   const overridesFile = path.join(binding.project, 'remotion', 'overrides.json');
   return {
@@ -812,6 +816,10 @@ export function talkcraftCardCallsQaEvidence(root, skillRoot, runId) {
 export function assertTalkcraftCardCallsQaEvidence(root, skillRoot, runId, evidence) {
   const expected = talkcraftCardCallsQaEvidence(root, skillRoot, runId);
   if (!expected) return true;
+  if (expected.schema === "talkcraft-native-card-binding-v1") {
+    if (JSON.stringify(expected)!==JSON.stringify(evidence)) throw Error("正式模板 QA 绑定已过期");
+    return true;
+  }
   if (!evidence || evidence.schema !== expected.schema || evidence.runId !== runId ||
       evidence.recordFile !== expected.recordFile || evidence.recordSha256 !== expected.recordSha256 ||
       evidence.sfxSourceSha256 !== expected.sfxSourceSha256 || evidence.sfxAssetsSha256 !== expected.sfxAssetsSha256 ||

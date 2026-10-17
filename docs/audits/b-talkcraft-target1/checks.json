@@ -1,0 +1,3614 @@
+{
+  "checks": [
+    {
+      "cmd": "python",
+      "args": [
+        "scripts/cards_index.py",
+        "--check"
+      ],
+      "cwd": "E:\\video-shotcraft\\_audit\\video-talkcraft",
+      "exitCode": 0,
+      "stdout": "OK 108 张卡元数据齐全、词表封闭，cards-index.json 与 taxonomy 索引与源一致\r\n",
+      "stderr": ""
+    }
+  ],
+  "failures": [],
+  "extras": {
+    "original": [],
+    "docs": []
+  },
+  "protectedChanges": [],
+  "upstream": {
+    "httpStatus": 200,
+    "repository": "https://github.com/Vincentwei1021/video-talkcraft",
+    "sha": "914103688cdec20ea35699f73b08e357a817c37a",
+    "commitDate": "2026-09-22T14:37:00Z",
+    "localHead": "914103688cdec20ea35699f73b08e357a817c37a",
+    "matchesLocalHead": true,
+    "method": "read-only GitHub API; git show pinned local objects"
+  },
+  "upstreamComparisons": [
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards-index.json",
+      "relative": "references/cards-index.json",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\registry.ts",
+      "relative": "workbench/src/cards/registry.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen-index.ts",
+      "relative": "workbench/src/cards/gen-index.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\alt-block-lines.tsx",
+      "relative": "workbench/src/cards/gen/alt-block-lines.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\alt-block-lines.md",
+      "relative": "references/cards/alt-block-lines.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\alt-block-lines.tsx",
+      "relative": "template/cards/alt-block-lines.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\types.ts",
+      "relative": "workbench/src/cards/types.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\shared.tsx",
+      "relative": "workbench/src/cards/shared.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\bar-chart-growth.tsx",
+      "relative": "workbench/src/cards/gen/bar-chart-growth.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\bar-chart-growth.md",
+      "relative": "references/cards/bar-chart-growth.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\bar-chart-growth.tsx",
+      "relative": "template/cards/bar-chart-growth.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\bed-echo-blur.tsx",
+      "relative": "workbench/src/cards/gen/bed-echo-blur.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\bed-echo-blur.md",
+      "relative": "references/cards/bed-echo-blur.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\bed-echo-blur.tsx",
+      "relative": "template/cards/bed-echo-blur.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\behind-text-title.tsx",
+      "relative": "workbench/src/cards/gen/behind-text-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\behind-text-title.md",
+      "relative": "references/cards/behind-text-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\behind-text-title.tsx",
+      "relative": "template/cards/behind-text-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\black-slam-transition.tsx",
+      "relative": "workbench/src/cards/gen/black-slam-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\black-slam-transition.md",
+      "relative": "references/cards/black-slam-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\black-slam-transition.tsx",
+      "relative": "template/cards/black-slam-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\callout-line-label.tsx",
+      "relative": "workbench/src/cards/gen/callout-line-label.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\callout-line-label.md",
+      "relative": "references/cards/callout-line-label.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\callout-line-label.tsx",
+      "relative": "template/cards/callout-line-label.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\caret-wipe-transition.tsx",
+      "relative": "workbench/src/cards/gen/caret-wipe-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\caret-wipe-transition.md",
+      "relative": "references/cards/caret-wipe-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\caret-wipe-transition.tsx",
+      "relative": "template/cards/caret-wipe-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chapter-progress-list.tsx",
+      "relative": "workbench/src/cards/gen/chapter-progress-list.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chapter-progress-list.md",
+      "relative": "references/cards/chapter-progress-list.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chapter-progress-list.tsx",
+      "relative": "template/cards/chapter-progress-list.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\chapter-title-card.tsx",
+      "relative": "workbench/src/cards/chapter-title-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chapter-title-card.md",
+      "relative": "references/cards/chapter-title-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chapter-title-card.tsx",
+      "relative": "template/cards/chapter-title-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chart-grow.tsx",
+      "relative": "workbench/src/cards/gen/chart-grow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chart-grow.md",
+      "relative": "references/cards/chart-grow.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chart-grow.tsx",
+      "relative": "template/cards/chart-grow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chat-gpt.tsx",
+      "relative": "workbench/src/cards/gen/chat-gpt.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chat-gpt.md",
+      "relative": "references/cards/chat-gpt.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chat-gpt.tsx",
+      "relative": "template/cards/chat-gpt.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chat-message-flow.tsx",
+      "relative": "workbench/src/cards/gen/chat-message-flow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chat-message-flow.md",
+      "relative": "references/cards/chat-message-flow.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chat-message-flow.tsx",
+      "relative": "template/cards/chat-message-flow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chevron-lower-third.tsx",
+      "relative": "workbench/src/cards/gen/chevron-lower-third.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chevron-lower-third.md",
+      "relative": "references/cards/chevron-lower-third.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chevron-lower-third.tsx",
+      "relative": "template/cards/chevron-lower-third.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chip-grid-single-select.tsx",
+      "relative": "workbench/src/cards/gen/chip-grid-single-select.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chip-grid-single-select.md",
+      "relative": "references/cards/chip-grid-single-select.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chip-grid-single-select.tsx",
+      "relative": "template/cards/chip-grid-single-select.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\claude-code.tsx",
+      "relative": "workbench/src/cards/gen/claude-code.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\claude-code.md",
+      "relative": "references/cards/claude-code.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\claude-code.tsx",
+      "relative": "template/cards/claude-code.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\color-slam-beat-card.tsx",
+      "relative": "workbench/src/cards/gen/color-slam-beat-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\color-slam-beat-card.md",
+      "relative": "references/cards/color-slam-beat-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\color-slam-beat-card.tsx",
+      "relative": "template/cards/color-slam-beat-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\converging-arrows.tsx",
+      "relative": "workbench/src/cards/gen/converging-arrows.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\converging-arrows.md",
+      "relative": "references/cards/converging-arrows.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\converging-arrows.tsx",
+      "relative": "template/cards/converging-arrows.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\corner-bracket-frame.tsx",
+      "relative": "workbench/src/cards/gen/corner-bracket-frame.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\corner-bracket-frame.md",
+      "relative": "references/cards/corner-bracket-frame.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\corner-bracket-frame.tsx",
+      "relative": "template/cards/corner-bracket-frame.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\count-badge-title.tsx",
+      "relative": "workbench/src/cards/count-badge-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\count-badge-title.md",
+      "relative": "references/cards/count-badge-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\count-badge-title.tsx",
+      "relative": "template/cards/count-badge-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\countdown-arc-scatter.tsx",
+      "relative": "workbench/src/cards/gen/countdown-arc-scatter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\countdown-arc-scatter.md",
+      "relative": "references/cards/countdown-arc-scatter.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\countdown-arc-scatter.tsx",
+      "relative": "template/cards/countdown-arc-scatter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\crash-zoom-punch.tsx",
+      "relative": "workbench/src/cards/gen/crash-zoom-punch.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\crash-zoom-punch.md",
+      "relative": "references/cards/crash-zoom-punch.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\crash-zoom-punch.tsx",
+      "relative": "template/cards/crash-zoom-punch.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\cursor-actor-demo.tsx",
+      "relative": "workbench/src/cards/gen/cursor-actor-demo.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\cursor-actor-demo.md",
+      "relative": "references/cards/cursor-actor-demo.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\cursor-actor-demo.tsx",
+      "relative": "template/cards/cursor-actor-demo.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\cursor-locked-zoom.tsx",
+      "relative": "workbench/src/cards/gen/cursor-locked-zoom.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\cursor-locked-zoom.md",
+      "relative": "references/cards/cursor-locked-zoom.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\cursor-locked-zoom.tsx",
+      "relative": "template/cards/cursor-locked-zoom.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\danmu-bubble-praise.tsx",
+      "relative": "workbench/src/cards/gen/danmu-bubble-praise.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\danmu-bubble-praise.md",
+      "relative": "references/cards/danmu-bubble-praise.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\danmu-bubble-praise.tsx",
+      "relative": "template/cards/danmu-bubble-praise.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\doc-park-left-pill-deal.tsx",
+      "relative": "workbench/src/cards/gen/doc-park-left-pill-deal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\doc-park-left-pill-deal.md",
+      "relative": "references/cards/doc-park-left-pill-deal.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\doc-park-left-pill-deal.tsx",
+      "relative": "template/cards/doc-park-left-pill-deal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\douyin-follow-card.tsx",
+      "relative": "workbench/src/cards/gen/douyin-follow-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\douyin-follow-card.md",
+      "relative": "references/cards/douyin-follow-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\douyin-follow-card.tsx",
+      "relative": "template/cards/douyin-follow-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\error-retype.tsx",
+      "relative": "workbench/src/cards/gen/error-retype.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\error-retype.md",
+      "relative": "references/cards/error-retype.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\error-retype.tsx",
+      "relative": "template/cards/error-retype.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\evidence-scroll-tour.tsx",
+      "relative": "workbench/src/cards/gen/evidence-scroll-tour.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\evidence-scroll-tour.md",
+      "relative": "references/cards/evidence-scroll-tour.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\evidence-scroll-tour.tsx",
+      "relative": "template/cards/evidence-scroll-tour.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\filmstrip-conveyor.tsx",
+      "relative": "workbench/src/cards/gen/filmstrip-conveyor.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\filmstrip-conveyor.md",
+      "relative": "references/cards/filmstrip-conveyor.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\filmstrip-conveyor.tsx",
+      "relative": "template/cards/filmstrip-conveyor.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\flying-words.tsx",
+      "relative": "workbench/src/cards/gen/flying-words.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\flying-words.md",
+      "relative": "references/cards/flying-words.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\flying-words.tsx",
+      "relative": "template/cards/flying-words.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\focus-dim-spotlight.tsx",
+      "relative": "workbench/src/cards/gen/focus-dim-spotlight.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\focus-dim-spotlight.md",
+      "relative": "references/cards/focus-dim-spotlight.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\focus-dim-spotlight.tsx",
+      "relative": "template/cards/focus-dim-spotlight.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\gallery-wall-dolly.tsx",
+      "relative": "workbench/src/cards/gen/gallery-wall-dolly.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\gallery-wall-dolly.md",
+      "relative": "references/cards/gallery-wall-dolly.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\gallery-wall-dolly.tsx",
+      "relative": "template/cards/gallery-wall-dolly.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\glass-code-walk.tsx",
+      "relative": "workbench/src/cards/gen/glass-code-walk.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\glass-code-walk.md",
+      "relative": "references/cards/glass-code-walk.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\glass-code-walk.tsx",
+      "relative": "template/cards/glass-code-walk.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\gooey-morph.tsx",
+      "relative": "workbench/src/cards/gen/gooey-morph.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\gooey-morph.md",
+      "relative": "references/cards/gooey-morph.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\gooey-morph.tsx",
+      "relative": "template/cards/gooey-morph.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\grid-to-hero.tsx",
+      "relative": "workbench/src/cards/gen/grid-to-hero.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\grid-to-hero.md",
+      "relative": "references/cards/grid-to-hero.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\grid-to-hero.tsx",
+      "relative": "template/cards/grid-to-hero.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\hand-drawn-ellipse.tsx",
+      "relative": "workbench/src/cards/gen/hand-drawn-ellipse.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\hand-drawn-ellipse.md",
+      "relative": "references/cards/hand-drawn-ellipse.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\hand-drawn-ellipse.tsx",
+      "relative": "template/cards/hand-drawn-ellipse.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\highlighter-sweep.tsx",
+      "relative": "workbench/src/cards/highlighter-sweep.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\highlighter-sweep.md",
+      "relative": "references/cards/highlighter-sweep.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\highlighter-sweep.tsx",
+      "relative": "template/cards/highlighter-sweep.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\host-card-glass-board.tsx",
+      "relative": "workbench/src/cards/gen/host-card-glass-board.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\host-card-glass-board.md",
+      "relative": "references/cards/host-card-glass-board.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\host-card-glass-board.tsx",
+      "relative": "template/cards/host-card-glass-board.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\host-shrink-to-chip.tsx",
+      "relative": "workbench/src/cards/gen/host-shrink-to-chip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\host-shrink-to-chip.md",
+      "relative": "references/cards/host-shrink-to-chip.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\host-shrink-to-chip.tsx",
+      "relative": "template/cards/host-shrink-to-chip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\impact-open-title.tsx",
+      "relative": "workbench/src/cards/impact-open-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\impact-open-title.md",
+      "relative": "references/cards/impact-open-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\impact-open-title.tsx",
+      "relative": "template/cards/impact-open-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\info-card-assemble.tsx",
+      "relative": "workbench/src/cards/gen/info-card-assemble.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\info-card-assemble.md",
+      "relative": "references/cards/info-card-assemble.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\info-card-assemble.tsx",
+      "relative": "template/cards/info-card-assemble.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\info-term-card.tsx",
+      "relative": "workbench/src/cards/gen/info-term-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\info-term-card.md",
+      "relative": "references/cards/info-term-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\info-term-card.tsx",
+      "relative": "template/cards/info-term-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ink-underline.tsx",
+      "relative": "workbench/src/cards/gen/ink-underline.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ink-underline.md",
+      "relative": "references/cards/ink-underline.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ink-underline.tsx",
+      "relative": "template/cards/ink-underline.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\keyword-pop-highlight.tsx",
+      "relative": "workbench/src/cards/gen/keyword-pop-highlight.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\keyword-pop-highlight.md",
+      "relative": "references/cards/keyword-pop-highlight.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\keyword-pop-highlight.tsx",
+      "relative": "template/cards/keyword-pop-highlight.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\lead-word-zoom-assemble.tsx",
+      "relative": "workbench/src/cards/gen/lead-word-zoom-assemble.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\lead-word-zoom-assemble.md",
+      "relative": "references/cards/lead-word-zoom-assemble.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\lead-word-zoom-assemble.tsx",
+      "relative": "template/cards/lead-word-zoom-assemble.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-by-line-slide.tsx",
+      "relative": "workbench/src/cards/gen/line-by-line-slide.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-by-line-slide.md",
+      "relative": "references/cards/line-by-line-slide.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-by-line-slide.tsx",
+      "relative": "template/cards/line-by-line-slide.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-carry-transition.tsx",
+      "relative": "workbench/src/cards/gen/line-carry-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-carry-transition.md",
+      "relative": "references/cards/line-carry-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-carry-transition.tsx",
+      "relative": "template/cards/line-carry-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-chart-story-draw.tsx",
+      "relative": "workbench/src/cards/gen/line-chart-story-draw.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-chart-story-draw.md",
+      "relative": "references/cards/line-chart-story-draw.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-chart-story-draw.tsx",
+      "relative": "template/cards/line-chart-story-draw.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\logo-enter.tsx",
+      "relative": "workbench/src/cards/gen/logo-enter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\logo-enter.md",
+      "relative": "references/cards/logo-enter.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\logo-enter.tsx",
+      "relative": "template/cards/logo-enter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\long-take-world.tsx",
+      "relative": "workbench/src/cards/gen/long-take-world.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\long-take-world.md",
+      "relative": "references/cards/long-take-world.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\long-take-world.tsx",
+      "relative": "template/cards/long-take-world.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\lower-third-nameplate.tsx",
+      "relative": "workbench/src/cards/gen/lower-third-nameplate.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\lower-third-nameplate.md",
+      "relative": "references/cards/lower-third-nameplate.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\lower-third-nameplate.tsx",
+      "relative": "template/cards/lower-third-nameplate.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\magnifier-detail.tsx",
+      "relative": "workbench/src/cards/gen/magnifier-detail.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\magnifier-detail.md",
+      "relative": "references/cards/magnifier-detail.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\magnifier-detail.tsx",
+      "relative": "template/cards/magnifier-detail.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\map-route-pin.tsx",
+      "relative": "workbench/src/cards/gen/map-route-pin.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\map-route-pin.md",
+      "relative": "references/cards/map-route-pin.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\map-route-pin.tsx",
+      "relative": "template/cards/map-route-pin.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\media-pop-in.tsx",
+      "relative": "workbench/src/cards/gen/media-pop-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\media-pop-in.md",
+      "relative": "references/cards/media-pop-in.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\media-pop-in.tsx",
+      "relative": "template/cards/media-pop-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\metric-with-sparkline.tsx",
+      "relative": "workbench/src/cards/gen/metric-with-sparkline.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\metric-with-sparkline.md",
+      "relative": "references/cards/metric-with-sparkline.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\metric-with-sparkline.tsx",
+      "relative": "template/cards/metric-with-sparkline.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\motion-blur-slam-in.tsx",
+      "relative": "workbench/src/cards/gen/motion-blur-slam-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\motion-blur-slam-in.md",
+      "relative": "references/cards/motion-blur-slam-in.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\motion-blur-slam-in.tsx",
+      "relative": "template/cards/motion-blur-slam-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\news-card-desk.tsx",
+      "relative": "workbench/src/cards/gen/news-card-desk.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\news-card-desk.md",
+      "relative": "references/cards/news-card-desk.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\news-card-desk.tsx",
+      "relative": "template/cards/news-card-desk.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\number-counter.tsx",
+      "relative": "workbench/src/cards/gen/number-counter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\number-counter.md",
+      "relative": "references/cards/number-counter.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\number-counter.tsx",
+      "relative": "template/cards/number-counter.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\number-slab-pop.tsx",
+      "relative": "workbench/src/cards/gen/number-slab-pop.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\number-slab-pop.md",
+      "relative": "references/cards/number-slab-pop.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\number-slab-pop.tsx",
+      "relative": "template/cards/number-slab-pop.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\numbered-step-stack.tsx",
+      "relative": "workbench/src/cards/gen/numbered-step-stack.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\numbered-step-stack.md",
+      "relative": "references/cards/numbered-step-stack.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\numbered-step-stack.tsx",
+      "relative": "template/cards/numbered-step-stack.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\orbit-drift.tsx",
+      "relative": "workbench/src/cards/gen/orbit-drift.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\orbit-drift.md",
+      "relative": "references/cards/orbit-drift.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\orbit-drift.tsx",
+      "relative": "template/cards/orbit-drift.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\outline-box-title.tsx",
+      "relative": "workbench/src/cards/gen/outline-box-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\outline-box-title.md",
+      "relative": "references/cards/outline-box-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\outline-box-title.tsx",
+      "relative": "template/cards/outline-box-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\overexpose-flip-transition.tsx",
+      "relative": "workbench/src/cards/gen/overexpose-flip-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\overexpose-flip-transition.md",
+      "relative": "references/cards/overexpose-flip-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\overexpose-flip-transition.tsx",
+      "relative": "template/cards/overexpose-flip-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\parallel-items-with-host.tsx",
+      "relative": "workbench/src/cards/gen/parallel-items-with-host.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\parallel-items-with-host.md",
+      "relative": "references/cards/parallel-items-with-host.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\parallel-items-with-host.tsx",
+      "relative": "template/cards/parallel-items-with-host.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\particle-weld-transition.tsx",
+      "relative": "workbench/src/cards/gen/particle-weld-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\particle-weld-transition.md",
+      "relative": "references/cards/particle-weld-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\particle-weld-transition.tsx",
+      "relative": "template/cards/particle-weld-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pencil-sketch-draw.tsx",
+      "relative": "workbench/src/cards/gen/pencil-sketch-draw.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pencil-sketch-draw.md",
+      "relative": "references/cards/pencil-sketch-draw.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pencil-sketch-draw.tsx",
+      "relative": "template/cards/pencil-sketch-draw.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\per-character-rise.tsx",
+      "relative": "workbench/src/cards/gen/per-character-rise.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\per-character-rise.md",
+      "relative": "references/cards/per-character-rise.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\per-character-rise.tsx",
+      "relative": "template/cards/per-character-rise.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pip-zoom-box.tsx",
+      "relative": "workbench/src/cards/gen/pip-zoom-box.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pip-zoom-box.md",
+      "relative": "references/cards/pip-zoom-box.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pip-zoom-box.tsx",
+      "relative": "template/cards/pip-zoom-box.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pullback-cool-transition.tsx",
+      "relative": "workbench/src/cards/gen/pullback-cool-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pullback-cool-transition.md",
+      "relative": "references/cards/pullback-cool-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pullback-cool-transition.tsx",
+      "relative": "template/cards/pullback-cool-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\push-through-transition.tsx",
+      "relative": "workbench/src/cards/gen/push-through-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\push-through-transition.md",
+      "relative": "references/cards/push-through-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\push-through-transition.tsx",
+      "relative": "template/cards/push-through-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-bracket-pull.tsx",
+      "relative": "workbench/src/cards/gen/quote-bracket-pull.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-bracket-pull.md",
+      "relative": "references/cards/quote-bracket-pull.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-bracket-pull.tsx",
+      "relative": "template/cards/quote-bracket-pull.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-card.tsx",
+      "relative": "workbench/src/cards/gen/quote-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-card.md",
+      "relative": "references/cards/quote-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-card.tsx",
+      "relative": "template/cards/quote-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-hold-arrow.tsx",
+      "relative": "workbench/src/cards/gen/quote-hold-arrow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-hold-arrow.md",
+      "relative": "references/cards/quote-hold-arrow.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-hold-arrow.tsx",
+      "relative": "template/cards/quote-hold-arrow.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\rack-focus-pair.tsx",
+      "relative": "workbench/src/cards/gen/rack-focus-pair.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\rack-focus-pair.md",
+      "relative": "references/cards/rack-focus-pair.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\rack-focus-pair.tsx",
+      "relative": "template/cards/rack-focus-pair.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\reticle-lock-on.tsx",
+      "relative": "workbench/src/cards/gen/reticle-lock-on.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\reticle-lock-on.md",
+      "relative": "references/cards/reticle-lock-on.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\reticle-lock-on.tsx",
+      "relative": "template/cards/reticle-lock-on.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\scanline-annotate.tsx",
+      "relative": "workbench/src/cards/gen/scanline-annotate.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\scanline-annotate.md",
+      "relative": "references/cards/scanline-annotate.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\scanline-annotate.tsx",
+      "relative": "template/cards/scanline-annotate.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\scribble-annotation.tsx",
+      "relative": "workbench/src/cards/gen/scribble-annotation.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\scribble-annotation.md",
+      "relative": "references/cards/scribble-annotation.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\scribble-annotation.tsx",
+      "relative": "template/cards/scribble-annotation.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\shape-wipe-transition.tsx",
+      "relative": "workbench/src/cards/gen/shape-wipe-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\shape-wipe-transition.md",
+      "relative": "references/cards/shape-wipe-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\shape-wipe-transition.tsx",
+      "relative": "template/cards/shape-wipe-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slab-punch-title.tsx",
+      "relative": "workbench/src/cards/gen/slab-punch-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slab-punch-title.md",
+      "relative": "references/cards/slab-punch-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slab-punch-title.tsx",
+      "relative": "template/cards/slab-punch-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slow-pull-reveal.tsx",
+      "relative": "workbench/src/cards/gen/slow-pull-reveal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slow-pull-reveal.md",
+      "relative": "references/cards/slow-pull-reveal.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slow-pull-reveal.tsx",
+      "relative": "template/cards/slow-pull-reveal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slow-push-in.tsx",
+      "relative": "workbench/src/cards/gen/slow-push-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slow-push-in.md",
+      "relative": "references/cards/slow-push-in.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slow-push-in.tsx",
+      "relative": "template/cards/slow-push-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\soft-blur-in.tsx",
+      "relative": "workbench/src/cards/gen/soft-blur-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\soft-blur-in.md",
+      "relative": "references/cards/soft-blur-in.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\soft-blur-in.tsx",
+      "relative": "template/cards/soft-blur-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\source-converge.tsx",
+      "relative": "workbench/src/cards/gen/source-converge.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\source-converge.md",
+      "relative": "references/cards/source-converge.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\source-converge.tsx",
+      "relative": "template/cards/source-converge.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\speed-slab-title.tsx",
+      "relative": "workbench/src/cards/gen/speed-slab-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\speed-slab-title.md",
+      "relative": "references/cards/speed-slab-title.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\speed-slab-title.tsx",
+      "relative": "template/cards/speed-slab-title.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-60-40-story.tsx",
+      "relative": "workbench/src/cards/gen/split-60-40-story.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-60-40-story.md",
+      "relative": "references/cards/split-60-40-story.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-60-40-story.tsx",
+      "relative": "template/cards/split-60-40-story.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-compare-slider.tsx",
+      "relative": "workbench/src/cards/gen/split-compare-slider.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-compare-slider.md",
+      "relative": "references/cards/split-compare-slider.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-compare-slider.tsx",
+      "relative": "template/cards/split-compare-slider.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-text-stagger.tsx",
+      "relative": "workbench/src/cards/gen/split-text-stagger.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-text-stagger.md",
+      "relative": "references/cards/split-text-stagger.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-text-stagger.tsx",
+      "relative": "template/cards/split-text-stagger.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\stack-fan-out.tsx",
+      "relative": "workbench/src/cards/gen/stack-fan-out.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\stack-fan-out.md",
+      "relative": "references/cards/stack-fan-out.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\stack-fan-out.tsx",
+      "relative": "template/cards/stack-fan-out.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\stage-keyframe-tour.tsx",
+      "relative": "workbench/src/cards/gen/stage-keyframe-tour.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\stage-keyframe-tour.md",
+      "relative": "references/cards/stage-keyframe-tour.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\stage-keyframe-tour.tsx",
+      "relative": "template/cards/stage-keyframe-tour.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\step-timeline-vertical.tsx",
+      "relative": "workbench/src/cards/gen/step-timeline-vertical.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\step-timeline-vertical.md",
+      "relative": "references/cards/step-timeline-vertical.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\step-timeline-vertical.tsx",
+      "relative": "template/cards/step-timeline-vertical.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\still-layout-relay.tsx",
+      "relative": "workbench/src/cards/gen/still-layout-relay.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\still-layout-relay.md",
+      "relative": "references/cards/still-layout-relay.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\still-layout-relay.tsx",
+      "relative": "template/cards/still-layout-relay.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\strike-and-replace.tsx",
+      "relative": "workbench/src/cards/gen/strike-and-replace.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\strike-and-replace.md",
+      "relative": "references/cards/strike-and-replace.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\strike-and-replace.tsx",
+      "relative": "template/cards/strike-and-replace.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\subscribe-cta.tsx",
+      "relative": "workbench/src/cards/gen/subscribe-cta.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\subscribe-cta.md",
+      "relative": "references/cards/subscribe-cta.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\subscribe-cta.tsx",
+      "relative": "template/cards/subscribe-cta.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\sway-parallax.tsx",
+      "relative": "workbench/src/cards/gen/sway-parallax.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\sway-parallax.md",
+      "relative": "references/cards/sway-parallax.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\sway-parallax.tsx",
+      "relative": "template/cards/sway-parallax.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\terminal-typing-log.tsx",
+      "relative": "workbench/src/cards/gen/terminal-typing-log.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\terminal-typing-log.md",
+      "relative": "references/cards/terminal-typing-log.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\terminal-typing-log.tsx",
+      "relative": "template/cards/terminal-typing-log.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\tilt-3d-page.tsx",
+      "relative": "workbench/src/cards/gen/tilt-3d-page.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\tilt-3d-page.md",
+      "relative": "references/cards/tilt-3d-page.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\tilt-3d-page.tsx",
+      "relative": "template/cards/tilt-3d-page.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\timeline-photo-strip.tsx",
+      "relative": "workbench/src/cards/gen/timeline-photo-strip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\timeline-photo-strip.md",
+      "relative": "references/cards/timeline-photo-strip.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\timeline-photo-strip.tsx",
+      "relative": "template/cards/timeline-photo-strip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\title-demote-to-label.tsx",
+      "relative": "workbench/src/cards/gen/title-demote-to-label.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\title-demote-to-label.md",
+      "relative": "references/cards/title-demote-to-label.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\title-demote-to-label.tsx",
+      "relative": "template/cards/title-demote-to-label.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\tracking-in.tsx",
+      "relative": "workbench/src/cards/gen/tracking-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\tracking-in.md",
+      "relative": "references/cards/tracking-in.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\tracking-in.tsx",
+      "relative": "template/cards/tracking-in.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\type-contrast-emphasis.tsx",
+      "relative": "workbench/src/cards/gen/type-contrast-emphasis.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\type-contrast-emphasis.md",
+      "relative": "references/cards/type-contrast-emphasis.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\type-contrast-emphasis.tsx",
+      "relative": "template/cards/type-contrast-emphasis.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\typewriter-reveal.tsx",
+      "relative": "workbench/src/cards/gen/typewriter-reveal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\typewriter-reveal.md",
+      "relative": "references/cards/typewriter-reveal.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\typewriter-reveal.tsx",
+      "relative": "template/cards/typewriter-reveal.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ui-flow-theater.tsx",
+      "relative": "workbench/src/cards/gen/ui-flow-theater.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ui-flow-theater.md",
+      "relative": "references/cards/ui-flow-theater.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ui-flow-theater.tsx",
+      "relative": "template/cards/ui-flow-theater.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ui-prop-theater.tsx",
+      "relative": "workbench/src/cards/gen/ui-prop-theater.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ui-prop-theater.md",
+      "relative": "references/cards/ui-prop-theater.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ui-prop-theater.tsx",
+      "relative": "template/cards/ui-prop-theater.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\unit-grid-proportion.tsx",
+      "relative": "workbench/src/cards/gen/unit-grid-proportion.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\unit-grid-proportion.md",
+      "relative": "references/cards/unit-grid-proportion.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\unit-grid-proportion.tsx",
+      "relative": "template/cards/unit-grid-proportion.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\whip-pan-transition.tsx",
+      "relative": "workbench/src/cards/gen/whip-pan-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\whip-pan-transition.md",
+      "relative": "references/cards/whip-pan-transition.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\whip-pan-transition.tsx",
+      "relative": "template/cards/whip-pan-transition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\word-relay-filmstrip.tsx",
+      "relative": "workbench/src/cards/gen/word-relay-filmstrip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\word-relay-filmstrip.md",
+      "relative": "references/cards/word-relay-filmstrip.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\word-relay-filmstrip.tsx",
+      "relative": "template/cards/word-relay-filmstrip.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\word-slot-cycle.tsx",
+      "relative": "workbench/src/cards/gen/word-slot-cycle.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\word-slot-cycle.md",
+      "relative": "references/cards/word-slot-cycle.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\word-slot-cycle.tsx",
+      "relative": "template/cards/word-slot-cycle.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\x-follow-card.tsx",
+      "relative": "workbench/src/cards/gen/x-follow-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\x-follow-card.md",
+      "relative": "references/cards/x-follow-card.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\x-follow-card.tsx",
+      "relative": "template/cards/x-follow-card.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\SKILL.md",
+      "relative": "SKILL.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\README.md",
+      "relative": "workbench/README.md",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\cards_index.py",
+      "relative": "scripts/cards_index.py",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\card_match.py",
+      "relative": "scripts/card_match.py",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\render_shots.mjs",
+      "relative": "scripts/render_shots.mjs",
+      "exitCode": 0,
+      "equalsPinnedCommit": false
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\motion-systems\\params.ts",
+      "relative": "template/motion-systems/params.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\koubo-skill.tsx",
+      "relative": "workbench/src/cards/koubo-skill.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\preview\\Composition.tsx",
+      "relative": "workbench/src/preview/Composition.tsx",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\vite.config.ts",
+      "relative": "workbench/vite.config.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\overridesSync.ts",
+      "relative": "workbench/src/overridesSync.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\remotion.config.ts",
+      "relative": "workbench/remotion.config.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\templateCards.ts",
+      "relative": "workbench/src/cards/templateCards.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\tpl-index.ts",
+      "relative": "workbench/src/cards/tpl-index.ts",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\runtime\\package.json",
+      "relative": "runtime/package.json",
+      "exitCode": 0,
+      "equalsPinnedCommit": true
+    }
+  ],
+  "git": {
+    "before": {
+      "cmd": "git",
+      "args": [
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "E:\\video-shotcraft",
+      "exitCode": 0,
+      "stdout": " M .gitignore\n M assets/lib/ClipCard.tsx\n D check.js\n M console-music.test.mjs\n M console-server.mjs\n M console-ui.html\n M demos/_fixtures/Motion.tsx\n M demos/data/counter-confetti/CounterConfetti.tsx\n M demos/data/hatch-depth/HatchDepth.tsx\n M demos/data/odometer-digit-roll/OdometerDigitRoll.tsx\n M demos/typography/blur-slide/BlurSlide.tsx\n M demos/typography/brace-expand/BraceExpand.tsx\n M demos/typography/cel-flash-stomp/CelFlashStomp.tsx\n M demos/typography/gradient-word-sweep/GradientWordSweep.tsx\n M demos/typography/lead-word-zoom-assemble/LeadWordZoomAssemble.tsx\n M demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx\n M demos/typography/outline-word-fill/OutlineWordFill.tsx\n M demos/typography/paper-title-card/PaperTitleCard.tsx\n M demos/typography/scramble/Scramble.tsx\n M demos/typography/word-relay-geometry/WordRelayGeometry.tsx\n M demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx\n M demos/ui-entrance/clipcard-looping/ClipCardLooping.tsx\n M demos/ui-entrance/list-reveal/ListReveal.tsx\n M director/_input.txt\n M director/b-mode-console.css\n M director/b-mode-console.js\n M director/b-mode-digital-human.mjs\n M director/b-mode-placeholder.mjs\n D director/b-mode-scene-plan.mjs\n D director/b-mode-semantic-annotate.mjs\n D director/b-mode-shotbook-preflight.mjs\n D director/b-mode-shotbook.mjs\n D director/build-storyboard.mjs\n M director/current-theme.json\n M director/mode-c.test.mjs\n M director/mode-c/adapters/image2-adapter.mjs\n M director/mode-c/asset-verifier.mjs\n M director/mode-c/generation-queue.mjs\n M director/mode-c/mode-c-dispatcher.mjs\n M director/props.json\n M director/render.mjs\n D director/scripts/review_v3.py\n M director/storyboard.json\n M director/subtitle-v1.mjs\n M director/subtitle-v1.test.mjs\n M director/talkcraft-input.mjs\n M director/talkcraft-input.test.mjs\n M director/talkcraft-scaffold.mjs\n M director/talkcraft-stages.mjs\n M director/talkcraft-status.mjs\n M director/theme-contract.mjs\n M director/theme-contract.test.mjs\n M director/timing.json\n M director/tts.py\n M director/voice-preview-cache.mjs\n M director/volcengine-tts2.mjs\n M director/volcengine-tts2.test.mjs\n M director/volcengine-voice.mjs\n M package-lock.json\n M package.json\n M shotcraft.bat\n M start-console.bat\n D template/_thumbs.mjs\n D template/_thumbs2.mjs\n M template/src/DynamicVideo.tsx\n M template/src/Root.tsx\n M template/src/TemplateAdapter.tsx\n M template/src/captions/CaptionV1Track.tsx\n D upload_check\n D upload_check2\n M workbench/demosrc/_fixtures/Motion.tsx\n M workbench/demosrc/data/counter-confetti/CounterConfetti.tsx\n M workbench/demosrc/data/hatch-depth/HatchDepth.tsx\n M workbench/demosrc/data/odometer-digit-roll/OdometerDigitRoll.tsx\n M workbench/demosrc/typography/blur-slide/BlurSlide.tsx\n M workbench/demosrc/typography/brace-expand/BraceExpand.tsx\n M workbench/demosrc/typography/cel-flash-stomp/CelFlashStomp.tsx\n M workbench/demosrc/typography/gradient-word-sweep/GradientWordSweep.tsx\n M workbench/demosrc/typography/lead-word-zoom-assemble/LeadWordZoomAssemble.tsx\n M workbench/demosrc/typography/marker-underline-title/MarkerUnderlineTitle.tsx\n M workbench/demosrc/typography/outline-word-fill/OutlineWordFill.tsx\n M workbench/demosrc/typography/paper-title-card/PaperTitleCard.tsx\n M workbench/demosrc/typography/scramble/Scramble.tsx\n M workbench/demosrc/typography/word-relay-geometry/WordRelayGeometry.tsx\n M workbench/demosrc/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx\n M workbench/demosrc/ui-entrance/clipcard-looping/ClipCardLooping.tsx\n M workbench/demosrc/ui-entrance/list-reveal/ListReveal.tsx\n?? .isolated/\n?? .shotcraft-output.json\n?? .zcode/\n?? .zcodeignore\n?? _audit/\n?? assets/lib/helpers/__tests__/caption-v1.test.ts\n?? assets/lib/helpers/__tests__/video-material.test.ts\n?? console-aspect-sync.test.mjs\n?? console-cleanup.test.mjs\n?? console-production.test.mjs\n?? demos/_fixtures/TemplateSkin.ts\n?? demos/data/odometer-digit-roll/odometer-contract.d.mts\n?? demos/data/odometer-digit-roll/odometer-contract.mjs\n?? director/AGENTS.md\n?? director/a-mode-ark-client.mjs\n?? director/a-mode-ark-client.test.mjs\n?? director/a-mode-fallback-http.test.mjs\n?? director/a-mode-global.schema.json\n?? director/a-mode-governance.test.mjs\n?? director/a-mode-plan-checkpoint.mjs\n?? director/a-mode-provider-config.mjs\n?? director/a-mode-provider-config.test.mjs\n?? director/a-mode-render-preflight.mjs\n?? director/a-mode-retime.mjs\n?? director/a-mode-revision.mjs\n?? director/a-mode-run.mjs\n?? director/a-mode-run.test.mjs\n?? director/a-mode-shot.schema.json\n?? director/a-mode-supervisor.py\n?? director/a-mode-timing.mjs\n?? director/a-mode-timing.test.mjs\n?? director/approve-card-acceptance.mjs\n?? director/approve-card-governance-batch.mjs\n?? director/approve-card-governance-integration.mjs\n?? director/approve-short-card-acceptance.mjs\n?? director/audio-library-design.md\n?? director/b-mode-acceptance-evidence.md\n?? director/b-mode-digital-human-mock.mjs\n?? director/b-mode-interaction-design.md\n?? director/b-mode-long-sample-script.txt\n?? director/b-mode-main-paid-20260928.json\n?? director/b-mode-main-paid-once.mjs\n?? director/b-mode-real-sample-20260928.json\n?? director/b-mode-real-sample-once.mjs\n?? director/b-mode-workflow-design.md\n?? director/background-music-b-smoke.mjs\n?? director/background-music-design.md\n?? director/background-music-smoke.mjs\n?? director/background-policy.mjs\n?? director/build-card-governance-progress.mjs\n?? director/build-card-index.mjs\n?? director/build-card-index.test.mjs\n?? director/card-acceptance-plan.mjs\n?? director/card-acceptance-plan.test.mjs\n?? director/card-admission.mjs\n?? director/card-admission.test.mjs\n?? director/card-capability-index.json\n?? director/card-production-admission.json\n?? director/card-runtime-choice.d.mts\n?? director/card-runtime-choice.mjs\n?? director/card-runtime-choice.test.mjs\n?? director/card-source-audit.json\n?? director/card-source-audit.mjs\n?? director/card-source-audit.test.mjs\n?? director/card-variant-aliases.mjs\n?? director/clear-drafts.html\n?? director/digital-human-composition-pipeline-audit.svg\n?? director/graphic-contracts.mjs\n?? director/graphic-contracts.test.mjs\n?? director/numeric-card-admission.mjs\n?? director/numeric-card-admission.test.mjs\n?? director/numeric-card-contracts.mjs\n?? director/numeric-card-contracts.test.mjs\n?? director/numeric-card-integration.test.mjs\n?? director/numeric-card-production-admission.json\n?? director/odometer-component.test.mjs\n?? director/opening-short-policy.mjs\n?? director/opening-short-policy.test.mjs\n?? director/opening-visual-timeline.mjs\n?? director/opening-visual-timeline.test.mjs\n?? director/render-runtime.mjs\n?? director/render-runtime.test.mjs\n?? director/shared-listener-preflight-audit.md\n?? director/short-card-admission.mjs\n?? director/short-card-production-admission.json\n?? director/storyboard-candidate.json\n?? director/subtitle-v1-settings.json\n?? director/subtitle-v1-smoke-props.json\n?? director/talkcraft-integration-status.md\n?? director/talkcraft-migration-audit.md\n?? director/talkcraft-revised-script.txt\n?? director/talkcraft-scaffold-aspect.test.mjs\n?? director/talkcraft-template-usage.mjs\n?? director/template-usage.mjs\n?? director/template-usage.test.mjs\n?? director/video-material-policy.mjs\n?? director/video-material-policy.test.mjs\n?? director/voice-speed.mjs\n?? director/voice-speed.test.mjs\n?? docs/audits/\n?? start-console-runtime.py\n?? template/accept-card-library.mjs\n?? template/accept-card-variants.mjs\n?? template/accept-numeric-cards.mjs\n?? template/accept-odometer.mjs\n?? template/accept-short-cards.mjs\n?? template/accept-short-graphics.mjs\n?? template/check-video-material-compatibility.mjs\n?? template/fixtures/\n?? template/governance-baseline-loader.cjs\n?? template/governance-baseline.mjs\n?? template/inspect-a-mode-render.mjs\n?? template/public/audio/bgm-ac7e28f0cdd6c607.mp3\n?? template/recover-routing-compatibility.mjs\n?? template/render-backdrop-smoke.mjs\n?? template/render-director-candidate.mjs\n?? template/render-layout-qa.mjs\n?? template/render-material-smoke.mjs\n?? template/render-opening-pilot.mjs\n?? template/render-video-material-qa.mjs\n?? template/repair-layout-qa.mjs\n?? template/report-routing-compatibility.mjs\n?? template/revalidate-card-governance.mjs\n?? template/snapshot-card-governance.mjs\n?? template/src/CardAcceptance.tsx\n?? template/src/NumericCardAcceptance.tsx\n?? template/src/OdometerAcceptance.tsx\n?? template/src/OdometerBaselineProbe.tsx\n?? template/validate-card-governance-batch.mjs\n?? workbench/demosrc/_fixtures/TemplateSkin.ts\n?? workbench/demosrc/data/odometer-digit-roll/odometer-contract.d.mts\n?? workbench/demosrc/data/odometer-digit-roll/odometer-contract.mjs\n",
+      "stderr": ""
+    },
+    "localHead": {
+      "cmd": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "E:\\video-shotcraft\\_audit\\video-talkcraft",
+      "exitCode": 0,
+      "stdout": "914103688cdec20ea35699f73b08e357a817c37a\n",
+      "stderr": ""
+    },
+    "localStatus": {
+      "cmd": "git",
+      "args": [
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "E:\\video-shotcraft\\_audit\\video-talkcraft",
+      "exitCode": 0,
+      "stdout": " M scripts/render_shots.mjs\n",
+      "stderr": ""
+    },
+    "after": {
+      "cmd": "git",
+      "args": [
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "E:\\video-shotcraft",
+      "exitCode": 0,
+      "stdout": " M .gitignore\n M assets/lib/ClipCard.tsx\n D check.js\n M console-music.test.mjs\n M console-server.mjs\n M console-ui.html\n M demos/_fixtures/Motion.tsx\n M demos/data/counter-confetti/CounterConfetti.tsx\n M demos/data/hatch-depth/HatchDepth.tsx\n M demos/data/odometer-digit-roll/OdometerDigitRoll.tsx\n M demos/typography/blur-slide/BlurSlide.tsx\n M demos/typography/brace-expand/BraceExpand.tsx\n M demos/typography/cel-flash-stomp/CelFlashStomp.tsx\n M demos/typography/gradient-word-sweep/GradientWordSweep.tsx\n M demos/typography/lead-word-zoom-assemble/LeadWordZoomAssemble.tsx\n M demos/typography/marker-underline-title/MarkerUnderlineTitle.tsx\n M demos/typography/outline-word-fill/OutlineWordFill.tsx\n M demos/typography/paper-title-card/PaperTitleCard.tsx\n M demos/typography/scramble/Scramble.tsx\n M demos/typography/word-relay-geometry/WordRelayGeometry.tsx\n M demos/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx\n M demos/ui-entrance/clipcard-looping/ClipCardLooping.tsx\n M demos/ui-entrance/list-reveal/ListReveal.tsx\n M director/_input.txt\n M director/b-mode-console.css\n M director/b-mode-console.js\n M director/b-mode-digital-human.mjs\n M director/b-mode-placeholder.mjs\n D director/b-mode-scene-plan.mjs\n D director/b-mode-semantic-annotate.mjs\n D director/b-mode-shotbook-preflight.mjs\n D director/b-mode-shotbook.mjs\n D director/build-storyboard.mjs\n M director/current-theme.json\n M director/mode-c.test.mjs\n M director/mode-c/adapters/image2-adapter.mjs\n M director/mode-c/asset-verifier.mjs\n M director/mode-c/generation-queue.mjs\n M director/mode-c/mode-c-dispatcher.mjs\n M director/props.json\n M director/render.mjs\n D director/scripts/review_v3.py\n M director/storyboard.json\n M director/subtitle-v1.mjs\n M director/subtitle-v1.test.mjs\n M director/talkcraft-input.mjs\n M director/talkcraft-input.test.mjs\n M director/talkcraft-scaffold.mjs\n M director/talkcraft-stages.mjs\n M director/talkcraft-status.mjs\n M director/theme-contract.mjs\n M director/theme-contract.test.mjs\n M director/timing.json\n M director/tts.py\n M director/voice-preview-cache.mjs\n M director/volcengine-tts2.mjs\n M director/volcengine-tts2.test.mjs\n M director/volcengine-voice.mjs\n M package-lock.json\n M package.json\n M shotcraft.bat\n M start-console.bat\n D template/_thumbs.mjs\n D template/_thumbs2.mjs\n M template/src/DynamicVideo.tsx\n M template/src/Root.tsx\n M template/src/TemplateAdapter.tsx\n M template/src/captions/CaptionV1Track.tsx\n D upload_check\n D upload_check2\n M workbench/demosrc/_fixtures/Motion.tsx\n M workbench/demosrc/data/counter-confetti/CounterConfetti.tsx\n M workbench/demosrc/data/hatch-depth/HatchDepth.tsx\n M workbench/demosrc/data/odometer-digit-roll/OdometerDigitRoll.tsx\n M workbench/demosrc/typography/blur-slide/BlurSlide.tsx\n M workbench/demosrc/typography/brace-expand/BraceExpand.tsx\n M workbench/demosrc/typography/cel-flash-stomp/CelFlashStomp.tsx\n M workbench/demosrc/typography/gradient-word-sweep/GradientWordSweep.tsx\n M workbench/demosrc/typography/lead-word-zoom-assemble/LeadWordZoomAssemble.tsx\n M workbench/demosrc/typography/marker-underline-title/MarkerUnderlineTitle.tsx\n M workbench/demosrc/typography/outline-word-fill/OutlineWordFill.tsx\n M workbench/demosrc/typography/paper-title-card/PaperTitleCard.tsx\n M workbench/demosrc/typography/scramble/Scramble.tsx\n M workbench/demosrc/typography/word-relay-geometry/WordRelayGeometry.tsx\n M workbench/demosrc/ui-entrance/bezier-source-converge-merge/BezierSourceConvergeMerge.tsx\n M workbench/demosrc/ui-entrance/clipcard-looping/ClipCardLooping.tsx\n M workbench/demosrc/ui-entrance/list-reveal/ListReveal.tsx\n?? .isolated/\n?? .shotcraft-output.json\n?? .zcode/\n?? .zcodeignore\n?? _audit/\n?? assets/lib/helpers/__tests__/caption-v1.test.ts\n?? assets/lib/helpers/__tests__/video-material.test.ts\n?? console-aspect-sync.test.mjs\n?? console-cleanup.test.mjs\n?? console-production.test.mjs\n?? demos/_fixtures/TemplateSkin.ts\n?? demos/data/odometer-digit-roll/odometer-contract.d.mts\n?? demos/data/odometer-digit-roll/odometer-contract.mjs\n?? director/AGENTS.md\n?? director/a-mode-ark-client.mjs\n?? director/a-mode-ark-client.test.mjs\n?? director/a-mode-fallback-http.test.mjs\n?? director/a-mode-global.schema.json\n?? director/a-mode-governance.test.mjs\n?? director/a-mode-plan-checkpoint.mjs\n?? director/a-mode-provider-config.mjs\n?? director/a-mode-provider-config.test.mjs\n?? director/a-mode-render-preflight.mjs\n?? director/a-mode-retime.mjs\n?? director/a-mode-revision.mjs\n?? director/a-mode-run.mjs\n?? director/a-mode-run.test.mjs\n?? director/a-mode-shot.schema.json\n?? director/a-mode-supervisor.py\n?? director/a-mode-timing.mjs\n?? director/a-mode-timing.test.mjs\n?? director/approve-card-acceptance.mjs\n?? director/approve-card-governance-batch.mjs\n?? director/approve-card-governance-integration.mjs\n?? director/approve-short-card-acceptance.mjs\n?? director/audio-library-design.md\n?? director/b-mode-acceptance-evidence.md\n?? director/b-mode-digital-human-mock.mjs\n?? director/b-mode-interaction-design.md\n?? director/b-mode-long-sample-script.txt\n?? director/b-mode-main-paid-20260928.json\n?? director/b-mode-main-paid-once.mjs\n?? director/b-mode-real-sample-20260928.json\n?? director/b-mode-real-sample-once.mjs\n?? director/b-mode-workflow-design.md\n?? director/background-music-b-smoke.mjs\n?? director/background-music-design.md\n?? director/background-music-smoke.mjs\n?? director/background-policy.mjs\n?? director/build-card-governance-progress.mjs\n?? director/build-card-index.mjs\n?? director/build-card-index.test.mjs\n?? director/card-acceptance-plan.mjs\n?? director/card-acceptance-plan.test.mjs\n?? director/card-admission.mjs\n?? director/card-admission.test.mjs\n?? director/card-capability-index.json\n?? director/card-production-admission.json\n?? director/card-runtime-choice.d.mts\n?? director/card-runtime-choice.mjs\n?? director/card-runtime-choice.test.mjs\n?? director/card-source-audit.json\n?? director/card-source-audit.mjs\n?? director/card-source-audit.test.mjs\n?? director/card-variant-aliases.mjs\n?? director/clear-drafts.html\n?? director/digital-human-composition-pipeline-audit.svg\n?? director/graphic-contracts.mjs\n?? director/graphic-contracts.test.mjs\n?? director/numeric-card-admission.mjs\n?? director/numeric-card-admission.test.mjs\n?? director/numeric-card-contracts.mjs\n?? director/numeric-card-contracts.test.mjs\n?? director/numeric-card-integration.test.mjs\n?? director/numeric-card-production-admission.json\n?? director/odometer-component.test.mjs\n?? director/opening-short-policy.mjs\n?? director/opening-short-policy.test.mjs\n?? director/opening-visual-timeline.mjs\n?? director/opening-visual-timeline.test.mjs\n?? director/render-runtime.mjs\n?? director/render-runtime.test.mjs\n?? director/shared-listener-preflight-audit.md\n?? director/short-card-admission.mjs\n?? director/short-card-production-admission.json\n?? director/storyboard-candidate.json\n?? director/subtitle-v1-settings.json\n?? director/subtitle-v1-smoke-props.json\n?? director/talkcraft-integration-status.md\n?? director/talkcraft-migration-audit.md\n?? director/talkcraft-revised-script.txt\n?? director/talkcraft-scaffold-aspect.test.mjs\n?? director/talkcraft-template-usage.mjs\n?? director/template-usage.mjs\n?? director/template-usage.test.mjs\n?? director/video-material-policy.mjs\n?? director/video-material-policy.test.mjs\n?? director/voice-speed.mjs\n?? director/voice-speed.test.mjs\n?? docs/audits/\n?? start-console-runtime.py\n?? template/accept-card-library.mjs\n?? template/accept-card-variants.mjs\n?? template/accept-numeric-cards.mjs\n?? template/accept-odometer.mjs\n?? template/accept-short-cards.mjs\n?? template/accept-short-graphics.mjs\n?? template/check-video-material-compatibility.mjs\n?? template/fixtures/\n?? template/governance-baseline-loader.cjs\n?? template/governance-baseline.mjs\n?? template/inspect-a-mode-render.mjs\n?? template/public/audio/bgm-ac7e28f0cdd6c607.mp3\n?? template/recover-routing-compatibility.mjs\n?? template/render-backdrop-smoke.mjs\n?? template/render-director-candidate.mjs\n?? template/render-layout-qa.mjs\n?? template/render-material-smoke.mjs\n?? template/render-opening-pilot.mjs\n?? template/render-video-material-qa.mjs\n?? template/repair-layout-qa.mjs\n?? template/report-routing-compatibility.mjs\n?? template/revalidate-card-governance.mjs\n?? template/snapshot-card-governance.mjs\n?? template/src/CardAcceptance.tsx\n?? template/src/NumericCardAcceptance.tsx\n?? template/src/OdometerAcceptance.tsx\n?? template/src/OdometerBaselineProbe.tsx\n?? template/validate-card-governance-batch.mjs\n?? workbench/demosrc/_fixtures/TemplateSkin.ts\n?? workbench/demosrc/data/odometer-digit-roll/odometer-contract.d.mts\n?? workbench/demosrc/data/odometer-digit-roll/odometer-contract.mjs\n",
+      "stderr": ""
+    }
+  },
+  "sourceManifest": [
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards-index.json",
+      "sha256": "bfb976ddf5e4dbd68dd8b23ae58f43a97d57d208ed1ad7f51c0418614f6d861b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\registry.ts",
+      "sha256": "c68cfe82ec0560abb4349bbed053cb3249c6b2095519c5fa7307d49c098e2449"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen-index.ts",
+      "sha256": "6579671198ff7fec6c386d0ff8e3c30f0ae72cd17dd4f80cbcdd5caef0d3ba4d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\alt-block-lines.tsx",
+      "sha256": "18c005f067e095c1676db707f59d21e509341a10e718b5a217891bb2d57af9c8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\alt-block-lines.md",
+      "sha256": "b00567f0bd47328c8b9e57642e0e53a9519b91e3dc1033753adfb8566cd19a7d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\alt-block-lines.tsx",
+      "sha256": "b0c1ce748e685d543e169c24f5d18ae9bcb4c99f036e14126b5fe3ed2464bec5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\types.ts",
+      "sha256": "888751010860aa048479a0e9afb5ec861f24fa9cf51c67467a4e6a7a1b343eeb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\shared.tsx",
+      "sha256": "e58add837c73afc9970327e32d32fc5a862cfe566f6e59212ea3abeaf2618ae4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\bar-chart-growth.tsx",
+      "sha256": "e0bd22c5dc44d8c8f60da86f30180bed614769074578aa1a072797d875822a3e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\bar-chart-growth.md",
+      "sha256": "13682ffe9c99b0ddee5cc301b3de13c3bcaf308230e411a8cbc702c92e8da842"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\bar-chart-growth.tsx",
+      "sha256": "03e7310f5e0872a1821a99144687622ae8b44f327bad28c7daca6d5a982d6131"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\bed-echo-blur.tsx",
+      "sha256": "c71053e648a5cd4c195c0178be1dcb97c2db10e73a1f06c69e53fdb453e53097"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\bed-echo-blur.md",
+      "sha256": "047d9f856326b8086884fb0626158f930331066cf79d19e9856c6354765899fd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\bed-echo-blur.tsx",
+      "sha256": "b093cca2fdaa59eb3065d400483c1e65bc237d047dc2e2cbb602075176392cf1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\behind-text-title.tsx",
+      "sha256": "e3c7d8ebf1a8e6dd802160e8e50fd897ed8899011b16ee51ed0268f55e2df464"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\behind-text-title.md",
+      "sha256": "9a406036e701c4f29d3741e0062b495092f37e86b0fb8a32e23694df81eb8980"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\behind-text-title.tsx",
+      "sha256": "fee798e82c87f9b6434955e15149a97f25008760d98f1ab63b10bfbdd830e625"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\black-slam-transition.tsx",
+      "sha256": "0d0b2b80e447dcba60d9c88ca8cc4a5a5a15742fa704a62c6f2ff14e5ffb6313"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\black-slam-transition.md",
+      "sha256": "4b163cae929c35b648a53d2898ed3f0c5c445dc8fac2ed3fa3a31137e174647b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\black-slam-transition.tsx",
+      "sha256": "82cf1b87d60981504d7b1e5ed5816493dd35ffc73683ba3b9f7828ddae2c35ee"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\callout-line-label.tsx",
+      "sha256": "1fdb5e85473266d543816bffb267307749c5249ca0ac2e4fde9824d442477a5c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\callout-line-label.md",
+      "sha256": "4da5977a3a6135fc733c27ac822bf907e1ecdf9cf2f9205d1c747023581133b0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\callout-line-label.tsx",
+      "sha256": "3c3ab006f67cadc4b7a485d79c4b30d33df0a587ee3b89bc3bb4ba605383224e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\caret-wipe-transition.tsx",
+      "sha256": "4db022ad6d7774bef541aad87f2e472bf4b0df751b1978c65bbac11618681c3e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\caret-wipe-transition.md",
+      "sha256": "76d4b8ac98387d0c171c7d456fbaf547f0ef779fb08f606ed98b95f78fc77651"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\caret-wipe-transition.tsx",
+      "sha256": "783a43d01903b9df94c33b02d488e4b028e102dab5195c8de15385b6358065ef"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chapter-progress-list.tsx",
+      "sha256": "dba7d6793ed02d48e7b36cdc182a716a8f10557c952f79a40c1566a70af0ed45"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chapter-progress-list.md",
+      "sha256": "8c11065a41da4ef4f1f64e920a1776f09a10838384c422ec75c5a284c88e5050"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chapter-progress-list.tsx",
+      "sha256": "c999f69457dd9aa4929b4dd667e49bbf8588d1742654e0d4e6b42af0334a714b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\chapter-title-card.tsx",
+      "sha256": "35eb80ba1db45162c2b6f065c0f9ecddacecd1c18a42e9ba389a9fcf0bab0e3a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chapter-title-card.md",
+      "sha256": "fdfaa098e2d5ed2b4b12ecec0a9312ef19bf1d84a7a8d7e0c011831719ecef78"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chapter-title-card.tsx",
+      "sha256": "6b10c356b7f4da9f6d988bcf26b51d37abb19aa27b95d7aa3ddbeea84d79637b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chart-grow.tsx",
+      "sha256": "d0f94b50ad055812e14f36fa4a4436aee50f8e84e171732acca30421fa0b559e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chart-grow.md",
+      "sha256": "c60150a446912a44b0c8549f348a978d08cf98ecc6ad6d0ab979844847d2f955"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chart-grow.tsx",
+      "sha256": "7fe5776721693dd90602244fb5ee9f3c91425bf7b553810dad885a1c335086da"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chat-gpt.tsx",
+      "sha256": "6e146c2d2903578956e04b14c05633bd8e9131265a20a54859c320bd57e5f163"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chat-gpt.md",
+      "sha256": "7aee30e537d83b385e41f477a155ad20d70399ad1abf9637958a00d335ccf4d3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chat-gpt.tsx",
+      "sha256": "6b16ddb4eb3c816dd4f081888e6014d1af44b63c9a3f4638bfe196ee120f2d77"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chat-message-flow.tsx",
+      "sha256": "50987652e0c99a8191df49f72cea59a3c4b4150f253b7f7b925add3257cf69ab"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chat-message-flow.md",
+      "sha256": "3f6e45dde91a5b28d14fc7a14942130386f65b9eb26788da8b0d92e51c3f8ae5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chat-message-flow.tsx",
+      "sha256": "9cca809d077c4c2f8067216d009066abf85b8fb97c791cac26efcea7cba97d09"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chevron-lower-third.tsx",
+      "sha256": "e7b9572d889dc6b2f507da731eadbd134cfcafabeb29d5fe02093e123c8d8d12"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chevron-lower-third.md",
+      "sha256": "5eba72c11ca32ea224a54a48f37fca99a956da30a9dc46658fbf72e747796326"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chevron-lower-third.tsx",
+      "sha256": "5d85cb68dcacfd8b33d332d7322174531dc07dd068d1b267b763a7dd0cab80fa"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\chip-grid-single-select.tsx",
+      "sha256": "d7f69cd1f2a34d0b5de59d99431864bead68545a710449c081a38d76a4da443f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\chip-grid-single-select.md",
+      "sha256": "bb96ef8d408e83333ab48882c0b501b470608a6c3785ab40609e46a01456f4b2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\chip-grid-single-select.tsx",
+      "sha256": "8c902dca222138ffada7216fcc5b772dc963c8f9ca93f9837f97b13024c2638e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\claude-code.tsx",
+      "sha256": "2eeee49981cf4492b53cee3e9e1a6d918365ccfed129c8827b50074ff3f0db15"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\claude-code.md",
+      "sha256": "ff669a862fea2f1c2bc4518c30da9a593d26aab9bdb1de5df37436f041ebb13d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\claude-code.tsx",
+      "sha256": "f48534ac298786fe96fe7fc2da32bd521484bb4bc31bf06f37eb8db6550878b8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\color-slam-beat-card.tsx",
+      "sha256": "2896f42e3c78219a964d72645291b38db43a3d3925182f993c37a58947e45022"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\color-slam-beat-card.md",
+      "sha256": "04e223fa0628d14abc2ad8328469dfe3ba1135bae135ac291a7b0446e4343e32"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\color-slam-beat-card.tsx",
+      "sha256": "6964b5609f14774dc4d0a9f6e63b998756cade2caa389d6077e2f1814ab0e2e5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\converging-arrows.tsx",
+      "sha256": "7e6767e77ce79085676159a1894b83035ecc3fac619260eb77c546aafab13633"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\converging-arrows.md",
+      "sha256": "678e71c2d272aea9851b6b20ec2145041e3b861f6fd1086a643a1b71e654fd4f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\converging-arrows.tsx",
+      "sha256": "61f25ea5bf390bd6d88fb76f2c3b7fa468552ec27ff4b11fb12555e995f8d5c4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\corner-bracket-frame.tsx",
+      "sha256": "df700f76f81b92c82d877737cb68511083d1bf2e216c4bd98b22f3e55ee516c6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\corner-bracket-frame.md",
+      "sha256": "21036c6bd6cf980bf87e0727968ed31f0d564bd7ad23be3565520c5ea38a3b88"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\corner-bracket-frame.tsx",
+      "sha256": "52ebdbdce58aa2beb8d3147835a3d56ba4e9f651ec667942d8761ce69a865868"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\count-badge-title.tsx",
+      "sha256": "32e6e5d88cb05f16d7ce04fb5b98c7b553bca58e698868038845a62c0596ea50"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\count-badge-title.md",
+      "sha256": "94917a8ddb414fd379a7513db45b4084be31b7637522755a4d27918584b828fb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\count-badge-title.tsx",
+      "sha256": "5c80cc81e19aa949e3cdee965414eee1bbe2474b7446beac5538a012c0b05bcd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\countdown-arc-scatter.tsx",
+      "sha256": "8e647fb05c1b9b3b16df5fd9a8ce3a9fb783c03b70a20dc53d14f78336d85889"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\countdown-arc-scatter.md",
+      "sha256": "cc8962b7aa324b535c51640fbd28fcaf83338c66d8b4baf457ea370403b1170a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\countdown-arc-scatter.tsx",
+      "sha256": "264b5e143f580de88a6fa3e9a4f84ad4ef35fd67f47cbb3cc85e31a9ed5d8b40"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\crash-zoom-punch.tsx",
+      "sha256": "25a9e6098b9881b1e2d1261bde222c5707e0d1585428660bac22c5ddc3f0b6bc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\crash-zoom-punch.md",
+      "sha256": "a40521e57fc0352e759ec772e30193aa706d156a77c6f7a657b51453351f62d3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\crash-zoom-punch.tsx",
+      "sha256": "7ab6ac29e87afa752fa5eac675af2fbc19f284ace88a72465ba15e87aa5cf8c0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\cursor-actor-demo.tsx",
+      "sha256": "f3adc8c2d49807db6e81b911b17cc3f64aca3f14c1d27e9bf819dd839016f892"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\cursor-actor-demo.md",
+      "sha256": "caf346f9bd80ab6118dd9e7aa9c62f6211fef07b71b236a3da146a2994f9b7bc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\cursor-actor-demo.tsx",
+      "sha256": "b2faa08dffd16dfa14ac4c446a272968b58a87629bbaa5a051be79fabf029f7a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\cursor-locked-zoom.tsx",
+      "sha256": "25879ba8d634b8519090762cfe70357557c31fa929effe1ab6a274407e19b694"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\cursor-locked-zoom.md",
+      "sha256": "c5a85caf346ea54c0ab678523ebc76271ffb956a07d3e4fa5d2c1d86cfd421d1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\cursor-locked-zoom.tsx",
+      "sha256": "1e2a3cb4ddaa020fa195d859eeadd5907aa8ea6e27e0730f058016b5149f093a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\danmu-bubble-praise.tsx",
+      "sha256": "35a6c27c901c05c3e21e29df6132836b03ba800e816c3ee399a4430cfe3e1bd8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\danmu-bubble-praise.md",
+      "sha256": "a1d12e4b68a580d95da0680980089cb5157b87828065d0b2f614f8c631a181d5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\danmu-bubble-praise.tsx",
+      "sha256": "ee624adbf1e0836bb5e6f643cb75e8084d0c249a4225314c21a2fbbd021c344a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\doc-park-left-pill-deal.tsx",
+      "sha256": "6489eba49f987fe0f4fc9146aa9a6b8ede63ffd3006af41921c7ae1564875d71"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\doc-park-left-pill-deal.md",
+      "sha256": "f9371bbdcda60e921c100a4005c6e54d5f326600f37f8b35b38abb8bce8b15d8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\doc-park-left-pill-deal.tsx",
+      "sha256": "cf85382afba3f9d03cb06dd3938bf65d9dc57dea58029aec290cebc6448f9683"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\douyin-follow-card.tsx",
+      "sha256": "d813e87dedd661ba8d6cacde1b2a43aedef3054b171656c98a72ae8084d391e4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\douyin-follow-card.md",
+      "sha256": "f55735af728b251a34e6b706c176403ad453ce77bb9f1811abe78bb1cae4f6e1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\douyin-follow-card.tsx",
+      "sha256": "1a9c41b436f810fa8b669ec1878d270a36917a7e2580f4d72ad947b05c236592"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\error-retype.tsx",
+      "sha256": "fe4159650e1594f747b8d4620f7cbb74c113a9905dddb82e9a644721e68d7236"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\error-retype.md",
+      "sha256": "70751254ba1a7a31268e8d34ac142cc163c12f6b79f0b883a041640503675427"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\error-retype.tsx",
+      "sha256": "5b05b59c5ba133e61d1d655a47e7e8fd5086cae5c8723ddff72137dd86640eb6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\evidence-scroll-tour.tsx",
+      "sha256": "bbb98957677254d1669a3f40fe76c827df4103091f5aab4198a512e52aa6e8be"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\evidence-scroll-tour.md",
+      "sha256": "369ecfff5f4e3df99983d29d471a7ea7cdc4ae2cd64bd96491654e853f4f5125"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\evidence-scroll-tour.tsx",
+      "sha256": "6775aff2611f10fe2010f114e266a8df9f28735e130df1868fce9b39349fd446"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\filmstrip-conveyor.tsx",
+      "sha256": "ded28272a4d3f1e88a0774f11eaeffdb9ebdac96cceb16ba95eb8989e1302a7a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\filmstrip-conveyor.md",
+      "sha256": "522462c11352d387d904e61ad10103220bdf373969e69cb43fc2a07f8100ed1d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\filmstrip-conveyor.tsx",
+      "sha256": "6986bc667ec48ce32c6a90e1d5555968bab27415ee5f10eb06f3fd6ad58a9aab"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\flying-words.tsx",
+      "sha256": "5f6debfe316a329661c07ba5dc106ad202c1e3b3a87e94201fabfd0429bdc480"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\flying-words.md",
+      "sha256": "8fb1360742dd9e1654c901796816010c48a0700fd860bfedc3600f541beb09ac"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\flying-words.tsx",
+      "sha256": "7b28de9580ce2a80ef6c8df8a7969bebbe9d5b5fe67e526cd05e21f16cd22bd4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\focus-dim-spotlight.tsx",
+      "sha256": "058c1e1f6611d5ea4aacca405e3beb0181cccb11cebd4cc717391106049b32cb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\focus-dim-spotlight.md",
+      "sha256": "d26f9af697c645c46912c8213eca09e1f9e88c22c5c8ba245284bc028ac86e86"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\focus-dim-spotlight.tsx",
+      "sha256": "285397ced097fbddad78cf61ad7e432932d4db8a75077d36f2111252880acc1f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\gallery-wall-dolly.tsx",
+      "sha256": "7e474d9369d49f77ad5500ac966cd9c62251f350439f623c25e06858e8f13d56"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\gallery-wall-dolly.md",
+      "sha256": "d4f674e2d0f6def20ccf4bba094029e8d235f9237536a84e4bfb845956186adf"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\gallery-wall-dolly.tsx",
+      "sha256": "bff7702f8a8e06d1a965ce0d7c2b86d3e6f3e3a434ad3f071b1815f05148fc67"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\glass-code-walk.tsx",
+      "sha256": "ff2d47efcf77241eaf8f237de2b20d1e0de13033715b46e8c17c33822172a78b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\glass-code-walk.md",
+      "sha256": "e8270ed353e645a9b64a4eeb159cd23ac07310265356c46dc04e9482cea23a65"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\glass-code-walk.tsx",
+      "sha256": "e44b8c1c531bcd14def170cf18548dd65b04f36143cec911624038ec80fb8bb5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\gooey-morph.tsx",
+      "sha256": "fc12462f7cfa8e3eb5e857c91157d6c6246ca814e80dda49aa9da2e0d0b9cef1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\gooey-morph.md",
+      "sha256": "eae5fc39ef9f3ceeeb4a13dfbb4c539f11fdcf6374fc99ad0f3bbb2e2fe6adf5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\gooey-morph.tsx",
+      "sha256": "62bc90ad055baabc86ca4d28f14683eb3160c1ee05215bc4f8d0ad550de592a0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\grid-to-hero.tsx",
+      "sha256": "a874a30b9db4d992d13217600a6a44d244d0b78b99e17c95a2eb7d925ac23743"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\grid-to-hero.md",
+      "sha256": "f8dfd1df0caa98442032b8632b25a6ecf46d819dd27780aa16286ebbf27bcf4c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\grid-to-hero.tsx",
+      "sha256": "483e3aa589efdfb6cc3fc8b62ce78e2ff392a75b673657dd67b41d5330b63aaf"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\hand-drawn-ellipse.tsx",
+      "sha256": "836ff8459a1e404bfe21718e0c158e3bd83aa80826e91522c838d67a76a1e7e2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\hand-drawn-ellipse.md",
+      "sha256": "aec03ad3b1237beeacd7ee5eaaf4ed1898ee1e0caf53b3bdbce0bf9d2047e295"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\hand-drawn-ellipse.tsx",
+      "sha256": "8dfef1a4a4a8f76bbe3e1cd61397a8b239b6e6b5c0da8fe0a7307acb63c5d545"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\highlighter-sweep.tsx",
+      "sha256": "1eed400a09c73aff9739e8eeadac4e6a131feaafc2194c194cebcbc356247eac"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\highlighter-sweep.md",
+      "sha256": "9975a4825144c7b9793037cd4d66f53377d1cedc012fe0e84b51890a4875a6f6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\highlighter-sweep.tsx",
+      "sha256": "fc943253400a057145ec648c91963b7003a2b235f92de0c60e5e22f172cd1a91"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\host-card-glass-board.tsx",
+      "sha256": "0c68cf611e2d7ed442f26d3ab64f5f939e58178ac66a874a53edb2702dc98e86"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\host-card-glass-board.md",
+      "sha256": "5c765a24ed9f3e9dce4013997e23c3528cbf9827de2ed3a6f0e0b4f8d026f8b3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\host-card-glass-board.tsx",
+      "sha256": "acf5c499cfa2137070fac77719d7cd6f4a2ac8cfd909aa794a076a1c2a957da2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\host-shrink-to-chip.tsx",
+      "sha256": "09ff330de8972f577a81c920b2e53f4e3ed3cba4754db05dcd4ad1a54b619d06"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\host-shrink-to-chip.md",
+      "sha256": "ca17566afe76d0722aec51f8e10c197021b1f285de43a3e5553f0b982e422a24"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\host-shrink-to-chip.tsx",
+      "sha256": "6f28d5d722df87fbe050d848f960780aa4b125e39b991fdc62f6b90bf207bbc9"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\impact-open-title.tsx",
+      "sha256": "309e2968b414ec02de382089f8adb4afea48e49e0a960003e7785e149f573815"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\impact-open-title.md",
+      "sha256": "0736eeb83aca37697fddc0b5f992aedc36cba48e71e539f6a580f93b10eda0c3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\impact-open-title.tsx",
+      "sha256": "5766bd9e7dec55e742b7597bf235f7eca0efa5f1e063bec88d1e76c427904de7"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\info-card-assemble.tsx",
+      "sha256": "0006f7790d923b913aa47edfe047ca4a309c3ac93240144bdfd34d8980210bde"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\info-card-assemble.md",
+      "sha256": "ed2f2cfb049d1edd2085b01fc877d9220f3db946ecee230e97aef410e7acc952"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\info-card-assemble.tsx",
+      "sha256": "fe57411b559552133f7b1a199904e9c37cffb08b8466181b991d207d32d82e42"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\info-term-card.tsx",
+      "sha256": "81e0f7e8d85c1366a7412873e438f59c84a68edb5d77185e71361c591cb10d8a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\info-term-card.md",
+      "sha256": "a40448ef629b866ba1b0c665371e293346b5acce3beb5972860a45d1a7b75b4b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\info-term-card.tsx",
+      "sha256": "8f2cc842cde3aa2e7e35700f7bf693fa2bcddcafd817d3679adf6f9427defc0b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ink-underline.tsx",
+      "sha256": "69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ink-underline.md",
+      "sha256": "80cc4a571402c260b60a7ac4371676a5543219ae77964ca69db894830bce6706"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ink-underline.tsx",
+      "sha256": "6b6978590e515407dc0f52ac4e8bf960af84d45b2ad2be39e792e2d8e44b531b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\keyword-pop-highlight.tsx",
+      "sha256": "2e563efe31a7bda3bf218432b51086ebc9066365b5e901ea395ec47c4e059938"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\keyword-pop-highlight.md",
+      "sha256": "a7da3f215e20e6afd5465e8ddb673a7e7d41247fd54aacc06798594486a4023b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\keyword-pop-highlight.tsx",
+      "sha256": "adf2451f0d992ecf6534662634765cd96bc250ed200b8904f5d4bcee591f02b3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\lead-word-zoom-assemble.tsx",
+      "sha256": "28112b20df4ab0f35104ab1c29267f6452e09ee25a3a764043fdccfdea1e86e8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\lead-word-zoom-assemble.md",
+      "sha256": "8979a26bea47bf45a9004979445bc7ea8026f921b99b0f71cd1d220cbcf00219"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\lead-word-zoom-assemble.tsx",
+      "sha256": "1e512f979d9f77174da81d5671d7658281f0f514dcdf3038cd96a9551da07185"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-by-line-slide.tsx",
+      "sha256": "57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-by-line-slide.md",
+      "sha256": "1ff1427d3304c4bca979b905f44458292a7b1f9e0b97e5cb3db4cf7ae8e751b7"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-by-line-slide.tsx",
+      "sha256": "3e97ac8a963f1d38da67596f75924f71057804c74902f0aa9003ca2016dc1c2e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-carry-transition.tsx",
+      "sha256": "b593aa48ba26650a0e797a1fea600d4cf6623ec22389a4da82de5498caeb77d4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-carry-transition.md",
+      "sha256": "01a21ec8239e27b262ab7100598621de64a7c5dc43259c041267959555c2b495"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-carry-transition.tsx",
+      "sha256": "7658bdf3d1c0b40c8f575c09e09cfdcfd6b5882fd324f6cfea678d7b623a6df8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\line-chart-story-draw.tsx",
+      "sha256": "8800aab4857ae624f91a6e496a2dfa7a31c984f9c1e020b7ef7f051434cf1103"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\line-chart-story-draw.md",
+      "sha256": "19d33b126b22d6a46092c3e47319c9925d013c35d2e7d8031c310c8abe0ae4d3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\line-chart-story-draw.tsx",
+      "sha256": "82a47ae4b8f8263181735efc2f12d8907926f8c372d2d3abc666bafbc159f5f6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\logo-enter.tsx",
+      "sha256": "75325b0a5d8b116529022624eb66e2601fc79bd7cde83f6844e82dee040280a2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\logo-enter.md",
+      "sha256": "d0ba0ec6add779cbe2bd44a3dd89db45eea8d9a6c561ffe27781840166961d92"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\logo-enter.tsx",
+      "sha256": "911828e701f257f449bf7b6ef671d58b4f00ae6186f9f9a2f5f6484c2661880c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\long-take-world.tsx",
+      "sha256": "79803b2eac8ad52f3af95cd09a0e8f916ec484d9edd5ba02271882504513f246"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\long-take-world.md",
+      "sha256": "f56e5e29f932960da203f9c3ce022bc59c5a8f2823bc1a16478bb028c73d4f5f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\long-take-world.tsx",
+      "sha256": "6eebe0a260f6707a76511df2bcb0056f66f2082f6166f851d0528863dc0fef73"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\lower-third-nameplate.tsx",
+      "sha256": "898fc867d80fc46dd394fcf70c0af58298c199a9fcbb206c971e3d02872cd884"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\lower-third-nameplate.md",
+      "sha256": "df66e48bb5b2f42af7c815b879a59bd2ae1b3eec8bfa41f08a01ed66572defb0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\lower-third-nameplate.tsx",
+      "sha256": "48810b4bd7f557f2c9298345aab41399fe368a2ea441c5b37c783c65b163ff64"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\magnifier-detail.tsx",
+      "sha256": "b739da450a406273affb24c332d9947009b0548004f4446a26fb53a039f3ddaf"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\magnifier-detail.md",
+      "sha256": "e862f183d98ee422737e84d5c1122834a9fb17944561ab15c345e60d173b889b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\magnifier-detail.tsx",
+      "sha256": "c0b634820118548e483d164304299da5da58f08cebe89deebd2bf79cdadff187"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\map-route-pin.tsx",
+      "sha256": "72a2d95964d91ecdca2f223c68cc4f2befb8847a9136881162dc24c11701b62b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\map-route-pin.md",
+      "sha256": "58c9a9fe45343a924c87a4b835ab6f9ad226c9b8de853600a50de6b9c2d5b1ff"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\map-route-pin.tsx",
+      "sha256": "98e9015497172cab76a21915cfe9b22c9b86fdb16cfaf200d8a52d65b0513703"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\media-pop-in.tsx",
+      "sha256": "c2c84bf38da9da4e5206bdf158955a8619b8b5f57cb61ee805d316e733fc6bea"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\media-pop-in.md",
+      "sha256": "193cd6ef932cc2a78e2f43dc498ad7159b218c3f4c9730465ed6d2589eda7f25"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\media-pop-in.tsx",
+      "sha256": "fbd9199ac648b81e6b8ce65d6b1b7f960c40c1129d9de44333141bb4b1d81ac5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\metric-with-sparkline.tsx",
+      "sha256": "69264f88f92415e51028f09ffaba7d6de75852863122b84fce73bbbb95ee6afb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\metric-with-sparkline.md",
+      "sha256": "c4de4c39fbd8b8fd724e68d340241244be745767f0a068386a0262609a5d852e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\metric-with-sparkline.tsx",
+      "sha256": "0485486817197624fcfe45e57aec72549a8fd63459c74b4964aa20b56b1bccf8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\motion-blur-slam-in.tsx",
+      "sha256": "ccb5dcb11c899ff58b48a5129897bfabfb48556cd8912b65269c1f2cdec83989"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\motion-blur-slam-in.md",
+      "sha256": "74274fa61aba18d789c384d4d00e627480b3b25cfc29c04dca2f2030a05c1538"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\motion-blur-slam-in.tsx",
+      "sha256": "b2f578a0973948ba967fb66aeea801e5e52f3b811e8792968e758c820f85827b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\news-card-desk.tsx",
+      "sha256": "3b215f264f59cbd5eed898d46d333abb20b978da98ac06ae0e95751be154ce25"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\news-card-desk.md",
+      "sha256": "bbd3db64e1f20a0a0e57e9dcf5c8f4eb1a447e8aac0f2d10366750e71b3911f4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\news-card-desk.tsx",
+      "sha256": "ec7f3f488fcd6f5a3ba82efd01d0beef84128a3197ddee0588e10ad7e315cf5e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\number-counter.tsx",
+      "sha256": "565acdc416b9bcb236ce79dc3655ccf32d7ccdf6976e55235bda93cec47e598e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\number-counter.md",
+      "sha256": "4e3b2867d551d90121f2acfb2a081e996c75c6dee6bd4f30ec6749670a49e35f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\number-counter.tsx",
+      "sha256": "9949f6fc207ca1925ac77b8c3ab3f573f48bca3d4e37d800cca8a5e78d9aec30"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\number-slab-pop.tsx",
+      "sha256": "ed5dc01bf03297529bd714b9e63b3f2f41d6a5dbc473d06edb283861bd7fc137"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\number-slab-pop.md",
+      "sha256": "fe9497868580fd39d128afc30bdfb6cd15fedec19fcbefa5dd0f6acd00af4fbb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\number-slab-pop.tsx",
+      "sha256": "66596a8342c6460e9f9d8b72db32e94e8364706bb65b16cc31805baaccc9c1d7"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\numbered-step-stack.tsx",
+      "sha256": "a4481a711d7338913d45309ea317c2de9760904cfeb7eee7332513742278c385"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\numbered-step-stack.md",
+      "sha256": "709f27850ad61ba53a2f33076e84c9eb1eb504c4b978bebf23bd47aa6cedbc0d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\numbered-step-stack.tsx",
+      "sha256": "a0a55b700e8371c1dacb8986c3faa9189fc26450340e03ce78acc7f5b4ba2b81"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\orbit-drift.tsx",
+      "sha256": "dc0d98ef5d847d2e35e9a69618ff64b7e48fc90c0674af05acc9804562c63ce3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\orbit-drift.md",
+      "sha256": "f118275b4f901feff25796ebae3878fd0cbab206b404f42a8ed69a3eb2ddc1f8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\orbit-drift.tsx",
+      "sha256": "400e6e8f764e7bb3d9745217b06f1de440683cdf29df28be8e2001f027a9a6d2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\outline-box-title.tsx",
+      "sha256": "610dbf29c8322dc49b1e07c3d43f25bc511406f4e815038ee23487a5f4f4fb10"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\outline-box-title.md",
+      "sha256": "6706dbf3981efb5b35c0b94318d287888ea7e73b427a5d683fe007e774a8d784"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\outline-box-title.tsx",
+      "sha256": "b0b26442589d91d53886520fa0d28a575bb22b41316da07bada1662fc8477255"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\overexpose-flip-transition.tsx",
+      "sha256": "4f7f0d7c137dc5e13f070955d6ac9468b70ae045e6847e15c2366226826251d4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\overexpose-flip-transition.md",
+      "sha256": "5938481444e77bea512b4b4b9daeff480dc499bd5af8f9a8e1c18f338c372dfc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\overexpose-flip-transition.tsx",
+      "sha256": "23db309530891209c30d1c6a25b6c7b461be810bbc548787871dc0c57bf633f4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\parallel-items-with-host.tsx",
+      "sha256": "90fc2c074e9d800cd065a7aa9e6d8f6b5eeaa3aee1698351266e615ae88b1513"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\parallel-items-with-host.md",
+      "sha256": "b10270d7828314fd508029a49389f213f6c13a55a2074f8d554d945f5c2f3c14"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\parallel-items-with-host.tsx",
+      "sha256": "327fa8dee1b389b18a4415c04e3cc4b36702ab0ab820ac0d01496b40de4bbd99"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\particle-weld-transition.tsx",
+      "sha256": "b44abd6711256d9f3e0c08d23c1a61cf6ad2259917d81e6ba84eb0066741bad4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\particle-weld-transition.md",
+      "sha256": "4aba562dae85573151056621f15f46002cf69a96bec4851824b119f76c87c2a5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\particle-weld-transition.tsx",
+      "sha256": "09f89e1a5d8ff0b19d2b53e091d681390009b8376345c6dab25118601c3a06d4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pencil-sketch-draw.tsx",
+      "sha256": "bfdc8d9fde7654175d9b45fb8b4ce8506389fd1ae2ddb2e15124001a1652f0f2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pencil-sketch-draw.md",
+      "sha256": "e6073d4039f126e70ecf44121029d1e5d3ab3fd2d6c87a3ce33d3cc2256a43af"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pencil-sketch-draw.tsx",
+      "sha256": "5eaa94419334c56204f2bc7cbf0b58a037a8d9c06c3e9de7ca2d4d854d04262d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\per-character-rise.tsx",
+      "sha256": "3c4e65d8064892dc0a15a2b03c45a4f82d5d3e95201145cbedd4908125f14386"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\per-character-rise.md",
+      "sha256": "f2e197d10c1ff2b641662e22e053a3d25802aa98e01492f375c59055d8d8ccbb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\per-character-rise.tsx",
+      "sha256": "3437015e2d05a34de708047023d6f16e42f7f1a4a22f76e225e1f5d2b150d18e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pip-zoom-box.tsx",
+      "sha256": "dab5cdca542be7a042f8bb0e75419b9301aa0b2c5eeb848b9acd9f28555476b3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pip-zoom-box.md",
+      "sha256": "4208611676ab1d67364e086853595a1e1f2c3207341dbf398c3906a2cd507b8b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pip-zoom-box.tsx",
+      "sha256": "ff1382bdb6f722695636ef8c25bb39c9ae7fee0a772fb6606b58097cfb7e7833"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\pullback-cool-transition.tsx",
+      "sha256": "05a1ae9351ff2f3708313285109286a3eea3c73a0540c98859667a8368a59000"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\pullback-cool-transition.md",
+      "sha256": "50b0cd352e801e396c563222622a5f46445781284731f1f829115873d5f86ae0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\pullback-cool-transition.tsx",
+      "sha256": "624632a08774c91244fbac3200161d586412f43e672c0084d2f1111e5f58190f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\push-through-transition.tsx",
+      "sha256": "4cb02ae0a434bf7582719fe45351a8aa449e9f7b96259903e7caf3927d90b2aa"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\push-through-transition.md",
+      "sha256": "4e5ed1993132b6aff50741f865ac58e9c8ba4b243a6fbd52e5f416b6105228f3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\push-through-transition.tsx",
+      "sha256": "c7fff3260ae01e4d0e905a74a9538992f20b6c218de4e3c52ad3b5644ca6184e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-bracket-pull.tsx",
+      "sha256": "683288faf619b72e689fb3a493b3e1d2ef8e0dbcbcc78c90094463014068dbdc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-bracket-pull.md",
+      "sha256": "19ba23fd8e20f758a0df0ac1845a4968abfa0dec5459a5dbc407eddcac3df2d3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-bracket-pull.tsx",
+      "sha256": "5c396d70bb6f8fb8f51708a5d56b56091b6d5a67ad69ff08e6f2444e5f4a2ee1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-card.tsx",
+      "sha256": "001ae838a8e812d86a93aaeaa74cc9794978fa784dc55d80055a0965c2b1a4dd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-card.md",
+      "sha256": "fd1d32b63bc63b4f8d60c289f96808c1b58e65674d23191c47d8f8c3f6da88ac"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-card.tsx",
+      "sha256": "43c0a57a72f02063cc73189f07b0914679f653ad66f7c54cc82ecdbff9641e0a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\quote-hold-arrow.tsx",
+      "sha256": "0d4d73b9a93b5c28d043b2df81d1f9f41dc096fb0e48a34c4efbea399a668ff0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\quote-hold-arrow.md",
+      "sha256": "c2572cc8e4d4c0eb8aecb0d66ae4b7dfdcdc2a66986f5be5381b70964e5f29e2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\quote-hold-arrow.tsx",
+      "sha256": "0a4edbe9c2377f8d013b5bfa5d4561ada4ca596487efa26ceb740a977b0c4277"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\rack-focus-pair.tsx",
+      "sha256": "4c662aa167f73cf689794b60140dccbe1b903ef6b4ac3bc3913edc530b21bde5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\rack-focus-pair.md",
+      "sha256": "3caa3eaa470cf79b27afe9ed2e129621896f0bcfb056b342e27f5a9b70ca6f0f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\rack-focus-pair.tsx",
+      "sha256": "a5088a4dddb98abcea16947ccd01f7e3e3043215bdd73c04cfcd353709b7cf92"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\reticle-lock-on.tsx",
+      "sha256": "cf55ab65772a46723e2f28deb19e271c602d8e863db7ffa3c97e97fec4d384e6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\reticle-lock-on.md",
+      "sha256": "c8e51bde07d97bba1375bd41387e8986bc419067270ec7a9f4fde29514ce1e06"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\reticle-lock-on.tsx",
+      "sha256": "e78daae39e70e3e23719068e4cde4803b09df305dede715c73f84eb52a102d77"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\scanline-annotate.tsx",
+      "sha256": "237724da1781f78a4d4c50a5b5b3fb351711ec5c70d6faa671734cfe940bcf32"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\scanline-annotate.md",
+      "sha256": "a9fdfca9cf773c10ca3a1722a2f4c71d62626684431defe36e8b40cd6f9b6c60"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\scanline-annotate.tsx",
+      "sha256": "e9d726db2edd8706c2234030d8c4e66fc006e16645901399363daf4d8b3d88bd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\scribble-annotation.tsx",
+      "sha256": "9b593574d030aa2f03de9d7bd1637b01970227bb22bfcd7776d87ecaa3cdb8f3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\scribble-annotation.md",
+      "sha256": "36b010b6e8e5d810eccaa735885bfb6e891dda676dbe3ad7bef4a44eb501c129"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\scribble-annotation.tsx",
+      "sha256": "8fc086f9ea73dffff1bf8fbc3886d775e513a77cc50b1614c5543a7132cdbf16"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\shape-wipe-transition.tsx",
+      "sha256": "d7ab1edb023fdf0258219a183e74ddddaa43938f710482e454236ef5678f088b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\shape-wipe-transition.md",
+      "sha256": "ed1af71a45f0eaac41df812a34755338acc30e56fc138b68ff874f9a292a9037"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\shape-wipe-transition.tsx",
+      "sha256": "4bc3729c4765ab8de66d309a2083dcefaf7967b96556559c0cc0af4621a07225"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slab-punch-title.tsx",
+      "sha256": "fe5f5db0d29c69c0bcfe80a887d0fdb1f8ad36557b87b7b0bd969d71a14a4e99"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slab-punch-title.md",
+      "sha256": "b5bcb16eb6eb12a7f773cc4b617c0367260f74d6a80ff6f7ee1a442b72ff7f40"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slab-punch-title.tsx",
+      "sha256": "6142bf9f135cb9effd269646e0401b3a96f89b3d666c7766f50b3cd3772ae3e2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slow-pull-reveal.tsx",
+      "sha256": "0b0dbb4edcbc6ad40f4df0dbb4e3b80fd04e619fb05409b7838c4e4db3f77569"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slow-pull-reveal.md",
+      "sha256": "ab77d6467178181f6c342b9fe53e6cde275b314163be591bcbdeef5a6f7c1014"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slow-pull-reveal.tsx",
+      "sha256": "8449b4278b7f0bdfb714514a8039eb85fe1a7562d22e71fa0006c9823f44959a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\slow-push-in.tsx",
+      "sha256": "9bc740c0556abe7f79da41d79d765c11be6575da351e47e9c926d1787a9dc079"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\slow-push-in.md",
+      "sha256": "2c57868f3160985b095568e4d8912699d381d627f7753961b66da9a6cc56ee54"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\slow-push-in.tsx",
+      "sha256": "289602d9b70c9ba1bbde6a5c739de0d82275101c3280f01c4be07f9f4d7a4afb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\soft-blur-in.tsx",
+      "sha256": "ca2c362e43682de035b55d41ab6d8fcc534b6c2e5b6c76daf7e73092cdbf2f96"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\soft-blur-in.md",
+      "sha256": "a3a345256b448a6e06c30ed21faf4287f936ae66828a3b4efaa248c3642a81d0"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\soft-blur-in.tsx",
+      "sha256": "5eb3f85f7f38f1211c5a33ac4bce0ff8966ef58761e272a4c3cab4097a6d104b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\source-converge.tsx",
+      "sha256": "a802be509d3e64e96dc82658c3e3609335cd178ce6e220f7b2d19699792479ed"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\source-converge.md",
+      "sha256": "95d04a356b17fb4f5ca5bfad106c760a557eec3a2306d998421469907641eee6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\source-converge.tsx",
+      "sha256": "b331a3e1abfe5ff7fabee028fb887ae57bc8c893581d6c2eb494c9d0268c4cc2"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\speed-slab-title.tsx",
+      "sha256": "a2e08d0696c15040ee22cf49aeaab9c003e91f7706e26409c08a520da0f09964"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\speed-slab-title.md",
+      "sha256": "5602076446846c20ffab1ae4cd72aeaf649addf1645b322ce16d16b150ff9d1b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\speed-slab-title.tsx",
+      "sha256": "a89de0cf045bdf64f614122f4546f89e5f93d41f467b410bae20300597a77cbd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-60-40-story.tsx",
+      "sha256": "d99757e5da89418eff5af6490afb1d5868e58cb57ea95f7fa022b2b3624cff8e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-60-40-story.md",
+      "sha256": "6e15f2fabb7072203111b62d61f0bed939bad1b00aa6f59458529862f4d69c16"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-60-40-story.tsx",
+      "sha256": "5ab5f8b5aee4819e3867d55d8feedf97c3cdfa9a00466279c878a3d8cd75b157"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-compare-slider.tsx",
+      "sha256": "c18e4b28f327f3ebe9567d826bebee0ad18551417a8dfed3d3d858ba60b20e6d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-compare-slider.md",
+      "sha256": "02557433c27daf3ea6544b4fd61ab609164bc320ab9fde4d2ced7e2080fcce3f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-compare-slider.tsx",
+      "sha256": "c3ac33fb20484d1a21692534d3ab688a2ab48c178dff38db56ffa10e5ae2fed3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\split-text-stagger.tsx",
+      "sha256": "82a1a84e11a331a6df591efbaa4546ce957aa8e5de8c5db037bce81e07588cbb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\split-text-stagger.md",
+      "sha256": "77fd9b285367ce140eda7d0fc0bbe5c9a699ca3a5ef6ea0602d55a17707c000f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\split-text-stagger.tsx",
+      "sha256": "29d66047fdde9981a18332f89a0641474d9177a2cb34d187e129258a107630e7"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\stack-fan-out.tsx",
+      "sha256": "e551600532ab1d23a8ba5dd35cc4c20e11c0543c00e17216e95a8d3b95d78a2e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\stack-fan-out.md",
+      "sha256": "7ce68ec533570bf9b8d822ea2ecd7b781f09dd877c8646a300ab46752fdd5336"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\stack-fan-out.tsx",
+      "sha256": "0b2c8addeb2e2ea454e9b1ce6f2505434a00b4134cd3094230c1d84089038c0a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\stage-keyframe-tour.tsx",
+      "sha256": "c3a3403f831c6ac46d8423aa180bdc0b02c2dc5f6c629b36ebd785a6299025b4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\stage-keyframe-tour.md",
+      "sha256": "bd17e5f7f6f4be0e45f11d4912e52cfad031b14f58dd4aa59cb075daa5e611df"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\stage-keyframe-tour.tsx",
+      "sha256": "2faec43f9ffcc05ce1888202f8f960901b68133a80ec92622ef17ae27fda994b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\step-timeline-vertical.tsx",
+      "sha256": "818631730d80c316f3373b8c5da6562c228a5c5d357f3a58698bf72f9bd93bca"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\step-timeline-vertical.md",
+      "sha256": "df99494ed1179243f8bdb0cea23fed028d8a6850c4a18309c08e97cf9733bd59"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\step-timeline-vertical.tsx",
+      "sha256": "e396d3080be6b8785e827316074c603acde77fb0afa6f7f6759296456610b4b6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\still-layout-relay.tsx",
+      "sha256": "99458f5b38ee3052c0a5ecee34cc8f0c30fadfab6e3da444cd5131225938612b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\still-layout-relay.md",
+      "sha256": "aa92af353c9ea6942f68f38fa6dc8531d9009bec78c0b07796ed9413d307845f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\still-layout-relay.tsx",
+      "sha256": "26e58045fda4fdfec1d95a82b262fbadd79434bc911eaf672b12bbe5998159bb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\strike-and-replace.tsx",
+      "sha256": "675ee80a3a9de8888d3a46ecefd136a24de24503f5aabacce9cc8648e1c427c8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\strike-and-replace.md",
+      "sha256": "e1843896b09bff2d49dc754a1c05eb5a299cc486036744712b026da926d428b8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\strike-and-replace.tsx",
+      "sha256": "68915319627a9636c8b7818963842398f88050e340cbb3a0262288c20ef00a58"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\subscribe-cta.tsx",
+      "sha256": "c5f4347c9122bf96c3a5687043734f5234ea862e2260a45b564dde2340ee983a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\subscribe-cta.md",
+      "sha256": "c2b0f0a2e954779f176aaea6926ca263c15c059776c8a736b4a5e55430ff6b7f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\subscribe-cta.tsx",
+      "sha256": "91a525e6bc4293f724aceaa3d69ff0a37f90e76186afd6cd9e7479861af353d5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\sway-parallax.tsx",
+      "sha256": "75486cb4060fee65f6a4c4980713581a60f29cba5d0ab8161c276fc22c3a7d3b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\sway-parallax.md",
+      "sha256": "568692e9e1d137dc0a76638345c6f6160f6f984c9c20aa782ad412f4b39bd117"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\sway-parallax.tsx",
+      "sha256": "4c97edfc301402f5c841f5a14626cbf9fe14b0a31b22d9d8f85acc2e0db04371"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\terminal-typing-log.tsx",
+      "sha256": "c6ccf22b7327833346f46634ed9883b9016656d401742afcc2b3ad852a8c1fe4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\terminal-typing-log.md",
+      "sha256": "de60aaa8bed184f20ae39db78563ed64b9c8663f49abfa81a9e083974a42ef9e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\terminal-typing-log.tsx",
+      "sha256": "2695c55b87859f19669e1b1ef28e7d297ce449775bbc8f75628e71a3b401e64c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\tilt-3d-page.tsx",
+      "sha256": "d21255594131cb6feebe8073d9c8c0eb3dd10086a81a97c37ffb962910f75d44"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\tilt-3d-page.md",
+      "sha256": "10e7a43f4a256e88eb3494d4721b9490db3746337c7d02403a4efb08558a05f7"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\tilt-3d-page.tsx",
+      "sha256": "d3dc54d8671bb53fe519ca438b9076d97ca474bc4a2e9eb7db8093b10a91d52b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\timeline-photo-strip.tsx",
+      "sha256": "c398f976b38ae0906196a8ee8d40afebe149102a8f1ab1f1a743e6207aeb88c1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\timeline-photo-strip.md",
+      "sha256": "163d7cf59163c7c172e915d1dd5fd5bae95d30eb2ead1f5d1e62b3a95e577243"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\timeline-photo-strip.tsx",
+      "sha256": "a6c7f23a218514aeded6c506e0486e1b709b98ecec04179d73f3360025c6b60a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\title-demote-to-label.tsx",
+      "sha256": "d3cee2019fe2597120d05aecbaf73e5ee8d48b2a8057cd5f1fe029197be8c0bc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\title-demote-to-label.md",
+      "sha256": "f05a80b420b1989d51ee404f0aab5d45c8b2b4a81adb7f8cf82b8399a4c953cc"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\title-demote-to-label.tsx",
+      "sha256": "cdb2337438699ddeae64eb304e395d6a5bcf603dc3cb4e66a6ed807b436703a6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\tracking-in.tsx",
+      "sha256": "caa9b80a94df45df9e5856add729d33bfadcc62bd2b0b5c451ced6095da8c854"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\tracking-in.md",
+      "sha256": "d1057ee329c08f42765e457bbbb6499e873058560203ee7980a7368bdc2b6daa"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\tracking-in.tsx",
+      "sha256": "a56e9b4421ffd96f9471f3392c7ebe1fb836c8067baa0a127524f28b889f908b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\type-contrast-emphasis.tsx",
+      "sha256": "5e1a90977f4003002bb4aa45847782e9f594ae0f93a0c5ed6b11201ffcb605a3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\type-contrast-emphasis.md",
+      "sha256": "aabe83492f6898dbca8ec2eb0c7b0f6103d5786986d817b087a67e0bd7117aa4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\type-contrast-emphasis.tsx",
+      "sha256": "544de354cfaf63a83d0bee54f953f009bd60f79f282e6e249e56df5103caa8de"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\typewriter-reveal.tsx",
+      "sha256": "551bf93a16cea8c23e801a56c2a85a0ae6d53aeadfa2f007cc17784c277953d5"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\typewriter-reveal.md",
+      "sha256": "729ab5d30177f347e893ad66615e06b1f102af2f70e9f20c0429a1209256972a"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\typewriter-reveal.tsx",
+      "sha256": "2be4554374d9f24397f236c60fb2fdbb78be0a77b6b4399b0f4fbd0ca59d0d64"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ui-flow-theater.tsx",
+      "sha256": "a4656c5cc2210057caa00dbe01e6117f390a7b8edd54679874f0e5db44aeeeeb"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ui-flow-theater.md",
+      "sha256": "0dceb959feff5c148ad98c4d6966ca79714853a4655f288adc6f3241cb2ead41"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ui-flow-theater.tsx",
+      "sha256": "7ca3a39a1b952c8aaca0d85595de5d4b1715da6937d98654ed0bf9ab591d3eb8"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\ui-prop-theater.tsx",
+      "sha256": "0de735873ce43f8b31004549e018f694f0e263000ccb40a5faaf156adef543f9"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\ui-prop-theater.md",
+      "sha256": "49b56c7d947c4beeb1ea4f5070286ec68425b7213d9718645b245382c9765fce"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\ui-prop-theater.tsx",
+      "sha256": "88b1eef3a47dac9b7980c3772c808c975377aa7789d28de1ff386b85e9b9ce71"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\unit-grid-proportion.tsx",
+      "sha256": "37617fc22bc2908ea6b8d7d21a3fbac21a622fa51bef96bdab1826bd29770c76"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\unit-grid-proportion.md",
+      "sha256": "30229815480e681c2e1456b81eb6d68350efcece18e92f16a553ba1a45d60fe9"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\unit-grid-proportion.tsx",
+      "sha256": "af712f6dc9e857f0f364ff9d26674c84a1ed91a2be7f3824201773ee9ed9717c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\whip-pan-transition.tsx",
+      "sha256": "2ea8afd48a57bf12f540d6b25bca91a38d6b4cc8cacddeeb736729782abd6417"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\whip-pan-transition.md",
+      "sha256": "8d18d846aff3823b16c8c4de3cc96ad1399b32ee3aa194b6e348d365d74ada1d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\whip-pan-transition.tsx",
+      "sha256": "3d3694b36cd43e05012a2c092237472494bd82ebb42ee443203f6efe359f270f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\word-relay-filmstrip.tsx",
+      "sha256": "6fa7e70e3c6718f130978605803e4d38d1a112fb62f1e1aaa02a23af88bf3b7b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\word-relay-filmstrip.md",
+      "sha256": "473de92830182e17f25ccd3f3b2f6093520a5497d9fec6d8804b6e2c7314e3e1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\word-relay-filmstrip.tsx",
+      "sha256": "304a3abe724b418e1464ef41cea3f26c139afb13f868e30bbea1c97b61cfe3c4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\word-slot-cycle.tsx",
+      "sha256": "c182d426966d84b348975aa6bc9dbe9eb417191f7a09357fa8b0cf59880c8b7f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\word-slot-cycle.md",
+      "sha256": "63aff516456673cbe8e4a8927f132dd86574151d2e512a1443b2710a77452eda"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\word-slot-cycle.tsx",
+      "sha256": "8821808d8fcf3226ebce45a954b3fad3f99472ab976c5e2f72f768aa734a7a79"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\gen\\x-follow-card.tsx",
+      "sha256": "05b0980aa7f9d144ca53bd5563a32c2ba3c52bcdd989f4d93f0af33d97c6a702"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\references\\cards\\x-follow-card.md",
+      "sha256": "0dff2cb57739c534fc750af30cfe10766ef283b8e49c3a2ede37bae2130aeaca"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\cards\\x-follow-card.tsx",
+      "sha256": "1c993930d3af454313b0b55bb92c45681386f4e5a8d16aa5e4a671c2509549b3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\shots.json",
+      "sha256": "a51f3d0e01d2371a0b9b37414bd2f63e4451a0a985b8d8d2b3987110f2c5a7b6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s01.tsx",
+      "sha256": "3db098835b19b28490934765cb95719d9db46fd5317639902bae4e457d975689"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s02.tsx",
+      "sha256": "1d3f9c332b4d321f376584e9020bd64910ec3db486cf8114ecd0e7ca583e7383"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s03.tsx",
+      "sha256": "339aae6119ac3b8e344b5750c3805754d4fa161967af0434a6631526568ab79e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s04.tsx",
+      "sha256": "72332dd925004b66be70be06c5d3d3d34a789683f2847574fe8d32cccb8babd6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s05.tsx",
+      "sha256": "9b29594931177877b093d4a54a994ede3520adc5d59d3ff879cf59aa9f7bc050"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s06.tsx",
+      "sha256": "ffe960da78956fef7e36566a350ffa61ec1d2ed23321ca6cd446c2006a61d02d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s07.tsx",
+      "sha256": "389504d5baa1ab6964c3c9b6c76f95635e1374e096380d2cb020b23b1e435096"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\scenes\\s08.tsx",
+      "sha256": "1bdf7d6ed8cbf0f1d0ae38591e4b79d90c6d33a5f690084f72cd71f3b1c2a7e3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\overrides.json",
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\remotion\\src\\Main.tsx",
+      "sha256": "1c45a852e638754caa8d8634df1e13dbd6c3ad973cdb62c7295a23630fd0bbcd"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\qa\\failures\\1790417371166-66311930-5299-45e6-8ed2-3be5152de221.json",
+      "sha256": "1d88fb6f484dd50f26c30e40f36253728d69e04c51d7b2d6f3eb12e58fdf7f4e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\qa\\failures\\1790417620048-a83d6ce0-fee9-43f2-9c7d-e2998351fa7a.json",
+      "sha256": "daec8127369581299238300e9582ff576ec422bd564380712eb88961bb6cac1d"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\qa\\failures\\1790418284108-3eb8f301-510b-4d01-b189-3323f806adf9.json",
+      "sha256": "f025318f540bdca8f9f10ef320a68c6d7a296dcdbba81d51d047fedb6d948116"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\qa\\failures\\1790418407933-bd825703-2f4e-4fd0-8d2f-91e61210875f.json",
+      "sha256": "7753c73c1c02b054ee9da30854cc2356995c830d5dfcf4b8f1c460a7ce970db4"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\b-mode-runs\\feaeb277-9c7d-4ff5-97e0-4cd2969b1d87\\talkcraft\\qa\\failures\\1790418632394-00d1808b-6c40-465e-ad5e-f5ac9a706714.json",
+      "sha256": "9064663db26b4695a9eef89857952cd64594a02d7da363926b1fd890368e4c64"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\AGENTS.md",
+      "sha256": "c0b5273d04e8c1a40c493b91942b67af7c54b43ccd27a6926d13139627e5e5fa"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-skill-root.mjs",
+      "sha256": "cb55e2b09fae84ce53be679aabe9125bcfbc91f71c3ead1e3dc24025bae5dd2f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-stages.mjs",
+      "sha256": "04da9c18c649ace65c2588fed2e443f5126e57de5bcf52a36d39fb67aaf7312c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-scaffold.mjs",
+      "sha256": "526f8c83e8bc413302d388e7c732e7c6bac2b682d0630867f5a9270645c858b3"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-workbench.mjs",
+      "sha256": "df09ec47f6ee9feba4532c1c6718eae3f2ee42b5add753175e22b1768459da33"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-template-usage.mjs",
+      "sha256": "1239f76a2716c894b12bbcb2f9c3af2460ae0efd988c8ad9ff2c84e61286d16b"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-status.mjs",
+      "sha256": "6c397c13d83d51858bd71800f8278c08d55d4c274580b37c1f998f0d2cf9df36"
+    },
+    {
+      "file": "E:\\video-shotcraft\\director\\talkcraft-semantic-decisions.mjs",
+      "sha256": "5d1210766986236311244c40ca182b5271566bddabab3570c8e29e6355745913"
+    },
+    {
+      "file": "E:\\video-shotcraft\\console-server.mjs",
+      "sha256": "67471a8033af1b88812fd059da9a51903e1cc030cda8b9c317835014ccab29e1"
+    },
+    {
+      "file": "E:\\video-shotcraft\\console-ui.html",
+      "sha256": "56b45f631e4271992cc30599c860d311b01957db5e96915a83bcf53d43873d63"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\SKILL.md",
+      "sha256": "eaf9c4d879f7f10f28f65409d0cd02f9750c2807b8fd9b490bdea08321a9451f"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\README.md",
+      "sha256": "674535e4bba0ef3bb305d67a0e0028e5de063357e2bd0595e2dbd26ea0cd1add"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\cards_index.py",
+      "sha256": "538c081ff867293eb87a328688af7ecdc0a2df2d89d0b728695070019d4b9768"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\card_match.py",
+      "sha256": "df31f57d82945e4e800ad25c2fffe533c925b97bb65cdca15097a5546dca4849"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\scripts\\render_shots.mjs",
+      "sha256": "4297a0a729b14974e64a147957a20d0c5ae52796bd66b52788b157d5ae874378"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\template\\motion-systems\\params.ts",
+      "sha256": "672a26142e43eb7fd24ec3476cbe27ce24be4964d9a19a4c6d839c8194908c10"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\koubo-skill.tsx",
+      "sha256": "8c49f37d8e9e0e7bbc1e81758a968438a7d03ec21763e7ba0c84eed8f55c76fe"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\preview\\Composition.tsx",
+      "sha256": "16a8f889344833f9e3b74a04953785c692dd006081c82571d38f9be033019ad6"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\vite.config.ts",
+      "sha256": "5e263554ddf6e6e2381136929f880334fd8ddd342bbe2d6a2b252417c40ea97c"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\overridesSync.ts",
+      "sha256": "54c5f0c1d9ea1944826fe089f2976f734c44db7212976e08204adfadcafdbc4e"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\remotion.config.ts",
+      "sha256": "e0bac703114e34c095d1b5e373540cc466267fdd2257309115201a26a7f8a6ac"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\templateCards.ts",
+      "sha256": "5e3be6fba3426c2c2d738c4cd037611508aa0e3ca1c57f28384bb683c9d15290"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\workbench\\src\\cards\\tpl-index.ts",
+      "sha256": "c779bc39c8052f3ecca2dda46d04f51346b1503f02175ec6c55eeda332e61d62"
+    },
+    {
+      "file": "E:\\video-shotcraft\\_audit\\video-talkcraft\\runtime\\package.json",
+      "sha256": "3424b62530ff1515c90f99feff88871016439c1a10df3ffc07b13349078d91e0"
+    }
+  ]
+}

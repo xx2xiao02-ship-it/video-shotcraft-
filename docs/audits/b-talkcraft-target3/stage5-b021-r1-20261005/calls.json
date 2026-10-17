@@ -1,0 +1,3067 @@
+{
+  "schema": "b-talkcraft-call-v1",
+  "calls": [
+    {
+      "id": "pair-source-check",
+      "cardId": "alt-block-lines",
+      "implementationSha256": "18c005f067e095c1676db707f59d21e509341a10e718b5a217891bb2d57af9c8",
+      "props": {
+        "line1": "核对原始来源",
+        "line2": "再呈现结论",
+        "blockColor": "#c53d52",
+        "ink": "#1d1d1f",
+        "fontSize": 58,
+        "posX": 82
+      },
+      "evidence": []
+    },
+    {
+      "id": "synthetic-bars",
+      "cardId": "bar-chart-growth",
+      "implementationSha256": "e0bd22c5dc44d8c8f60da86f30180bed614769074578aa1a072797d875822a3e",
+      "props": {
+        "title": "样板趋势",
+        "barsData": "甲|12\n乙|24\n丙|36\n丁|48\n戊|60",
+        "chipText": "仅作回读验证",
+        "maxVal": 100,
+        "barColor": "#176eb0",
+        "titleSize": 34,
+        "posX": 96,
+        "posY": 96
+      },
+      "evidence": [
+        {
+          "field": "barsData",
+          "path": "docs/audits/b-talkcraft-target3/evidence/synthetic-bars.json",
+          "sha256": "4e5c79aa90383ba1e59008e397729964ab5a164186dcc01c9e31fcb27c7a0942",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "existing-photo-relay",
+      "cardId": "still-layout-relay",
+      "implementationSha256": "99458f5b38ee3052c0a5ecee34cc8f0c30fadfab6e3da444cd5131225938612b",
+      "props": {
+        "layout": "triptych",
+        "cap1": "海岸素材",
+        "cap2": "图库样本乙",
+        "cap3": "图库样本丙",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "accent": "#c53d52"
+      },
+      "evidence": []
+    },
+    {
+      "id": "core-source-emphasis",
+      "cardId": "highlighter-sweep",
+      "implementationSha256": "1eed400a09c73aff9739e8eeadac4e6a131feaafc2194c194cebcbc356247eac",
+      "props": {
+        "docHead": "校验记录",
+        "linesBefore": "先查看证据",
+        "keyText": "确认参数回读",
+        "linesAfter": "",
+        "fontSize": 26,
+        "hlColor": "#176eb0",
+        "dimTo": 0.4
+      },
+      "evidence": []
+    },
+    {
+      "id": "blur-content",
+      "cardId": "soft-blur-in",
+      "implementationSha256": "ca2c362e43682de035b55d41ab6d8fcc534b6c2e5b6c76daf7e73092cdbf2f96",
+      "props": {
+        "text": "检查证据",
+        "textColor": "#176eb0",
+        "fontSize": 64
+      },
+      "evidence": []
+    },
+    {
+      "id": "synthetic-spark",
+      "cardId": "metric-with-sparkline",
+      "implementationSha256": "69264f88f92415e51028f09ffaba7d6de75852863122b84fce73bbbb95ee6afb",
+      "props": {
+        "label": "测试趋势",
+        "target": 36,
+        "unit": "%",
+        "sparkData": "甲|12\n乙|18\n丙|24\n丁|36",
+        "color": "#176eb0",
+        "numSize": 86,
+        "posX": 96,
+        "posY": 138
+      },
+      "evidence": [
+        {
+          "field": "target",
+          "path": "docs/audits/b-talkcraft-target3/stage5/evidence/36-target.json",
+          "sha256": "d57b36afc79ba6fcc2a8cce54403027e3817623089af204742bee7f61b1e15c6",
+          "sourceUrl": "https://example.com/synthetic-stage5-36"
+        },
+        {
+          "field": "sparkData",
+          "path": "docs/audits/b-talkcraft-target3/stage5/evidence/36-sparkData.json",
+          "sha256": "84f14e7651359f5de95c7b8ed3fcdc7d8a6a412da0e6f426cd3ec86c8d8591a9",
+          "sourceUrl": "https://example.com/synthetic-stage5-36"
+        }
+      ]
+    },
+    {
+      "id": "focus-media",
+      "cardId": "rack-focus-pair",
+      "implementationSha256": "4c662aa167f73cf689794b60140dccbe1b903ef6b4ac3bc3913edc530b21bde5",
+      "props": {
+        "labelFront": "前景样本",
+        "labelBack": "后景样本",
+        "srcFront": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "srcBack": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "composited-nameplate",
+      "cardId": "lower-third-nameplate",
+      "implementationSha256": "898fc867d80fc46dd394fcf70c0af58298c199a9fcbb206c971e3d02872cd884",
+      "props": {
+        "name": "校对",
+        "title": "素材检查",
+        "nameSize": 42,
+        "barColor": "#176eb0",
+        "ink": "#1d1d1f",
+        "titleColor": "#555555",
+        "posX": 56,
+        "posY": 64
+      },
+      "evidence": []
+    },
+    {
+      "id": "typed-proof",
+      "cardId": "typewriter-reveal",
+      "implementationSha256": "551bf93a16cea8c23e801a56c2a85a0ae6d53aeadfa2f007cc17784c277953d5",
+      "props": {
+        "line1": "参数回读",
+        "line2": "重开仍一致",
+        "fontSize1": 36,
+        "fontSize2": 24,
+        "ink": "#176eb0",
+        "subColor": "#555555",
+        "posX": 460.8,
+        "posY": 112
+      },
+      "evidence": []
+    },
+    {
+      "id": "quote-proof",
+      "cardId": "quote-card",
+      "implementationSha256": "001ae838a8e812d86a93aaeaa74cc9794978fa784dc55d80055a0965c2b1a4dd",
+      "props": {
+        "lines": "查**证**\n回**读**",
+        "source": "测试",
+        "fontSize": 42,
+        "panelColor": "#176eb0",
+        "textColor": "#ffffff",
+        "kwColor": "#ffd23e"
+      },
+      "evidence": []
+    },
+    {
+      "id": "synthetic-slab",
+      "cardId": "number-slab-pop",
+      "implementationSha256": "ed5dc01bf03297529bd714b9e63b3f2f41d6a5dbc473d06edb283861bd7fc137",
+      "props": {
+        "intPart": "24",
+        "decPart": ".8",
+        "unit": "%",
+        "caption": "测试读数",
+        "slabColor": "#176eb0",
+        "numColor": "#ffffff",
+        "numSize": 80,
+        "posX": 108,
+        "posY": 270
+      },
+      "evidence": [
+        {
+          "field": "intPart",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b003/evidence/s11-1-intPart.json",
+          "sha256": "1aa63a29dfe1b18e127b97612a55e4aa68a3aa96742a8e79bded0f86bcb10523",
+          "sourceUrl": "https://example.com/synthetic-b003-s11-1"
+        },
+        {
+          "field": "decPart",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b003/evidence/s11-1-decPart.json",
+          "sha256": "44bd00816cd16d47300582ce29139c65983f4c76159be4a797cca4fa8e96693b",
+          "sourceUrl": "https://example.com/synthetic-b003-s11-1"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-unit-grid",
+      "cardId": "unit-grid-proportion",
+      "implementationSha256": "37617fc22bc2908ea6b8d7d21a3fbac21a622fa51bef96bdab1826bd29770c76",
+      "props": {
+        "target": 32,
+        "unit": "%",
+        "label": "测试",
+        "legendHit": "染",
+        "legendRest": "灰",
+        "legendNote": "测",
+        "accent": "#176eb0"
+      },
+      "evidence": [
+        {
+          "field": "target",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b003/evidence/s12-1-target.json",
+          "sha256": "3dd835256c72f8ea02b8e8fe299915f5c1104fa43a5b03335f75d6e03aeda687",
+          "sourceUrl": "https://example.com/synthetic-b003-s12-1"
+        }
+      ]
+    },
+    {
+      "id": "same-frame-compare",
+      "cardId": "split-compare-slider",
+      "implementationSha256": "c18e4b28f327f3ebe9567d826bebee0ad18551417a8dfed3d3d858ba60b20e6d",
+      "props": {
+        "srcBefore": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "srcAfter": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "labelBefore": "样本前",
+        "labelAfter": "样本后"
+      },
+      "evidence": []
+    },
+    {
+      "id": "composited-chevron",
+      "cardId": "chevron-lower-third",
+      "implementationSha256": "e7b9572d889dc6b2f507da731eadbd134cfcafabeb29d5fe02093e123c8d8d12",
+      "props": {
+        "name": "校对",
+        "chipText": "回读",
+        "nameSize": 44,
+        "accent": "#176eb0",
+        "ink": "#1d1d1f",
+        "posX": 72,
+        "posY": 96
+      },
+      "evidence": []
+    },
+    {
+      "id": "fixed-path-ellipse",
+      "cardId": "hand-drawn-ellipse",
+      "implementationSha256": "836ff8459a1e404bfe21718e0c158e3bd83aa80826e91522c838d67a76a1e7e2",
+      "props": {
+        "leadText": "先看样本",
+        "ringWord": "核对参数值",
+        "strokeColor": "#176eb0",
+        "ink": "#1d1d1f",
+        "fontSize": 28,
+        "strokeWidth": 3.2,
+        "posX": 100,
+        "posY": 0
+      },
+      "evidence": []
+    },
+    {
+      "id": "gallery-native-tour",
+      "cardId": "gallery-wall-dolly",
+      "implementationSha256": "7e474d9369d49f77ad5500ac966cd9c62251f350439f623c25e06858e8f13d56",
+      "props": {
+        "label1": "素材甲",
+        "label2": "素材乙",
+        "label3": "素材丙",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "behind-title-depth",
+      "cardId": "behind-text-title",
+      "implementationSha256": "e3c7d8ebf1a8e6dd802160e8e50fd897ed8899011b16ee51ed0268f55e2df464",
+      "props": {
+        "title": "校检",
+        "sub": "样本",
+        "fontSize": 180,
+        "faceTop": "#168b75",
+        "faceBottom": "#0c0c0d",
+        "subColor": "#555555",
+        "titleTop": 7
+      },
+      "evidence": []
+    },
+    {
+      "id": "two-ink-marks",
+      "cardId": "ink-underline",
+      "implementationSha256": "69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d",
+      "props": {
+        "line1Pre": "先看",
+        "line1Key": "来源",
+        "line1Post": "。",
+        "line2Pre": "再查",
+        "line2Key": "参数",
+        "line2Post": "。",
+        "inkColor": "#168b75",
+        "ink": "#1d1d1f",
+        "fontSize": 30,
+        "posX": 420,
+        "posY": 270,
+        "inkOpacity": 0.85
+      },
+      "evidence": []
+    },
+    {
+      "id": "retype-correction",
+      "cardId": "error-retype",
+      "implementationSha256": "fe4159650e1594f747b8d4620f7cbb74c113a9905dddb82e9a644721e68d7236",
+      "props": {
+        "prefix": "校验：",
+        "first": "默认参数",
+        "second": "实际参数",
+        "accent": "#168b75"
+      },
+      "evidence": []
+    },
+    {
+      "id": "diagonal-brackets",
+      "cardId": "corner-bracket-frame",
+      "implementationSha256": "df700f76f81b92c82d877737cb68511083d1bf2e216c4bd98b22f3e55ee516c6",
+      "props": {
+        "line1": "核对来源",
+        "line2": "检查参数",
+        "accent": "#168b75",
+        "ink": "#1d1d1f",
+        "fontSize": 48,
+        "posX": 66,
+        "posY": 152,
+        "frameW": 408,
+        "frameH": 200
+      },
+      "evidence": []
+    },
+    {
+      "id": "two-slide-lines",
+      "cardId": "line-by-line-slide",
+      "implementationSha256": "57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304",
+      "props": {
+        "lines": "查证\n回读",
+        "ink": "#168b75",
+        "fontSize": 60
+      },
+      "evidence": []
+    },
+    {
+      "id": "floating-definition",
+      "cardId": "info-term-card",
+      "implementationSha256": "81e0f7e8d85c1366a7412873e438f59c84a68edb5d77185e71361c591cb10d8a",
+      "props": {
+        "term": "回读",
+        "termSmall": "验证",
+        "desc": "核对保存值",
+        "iconChar": "验",
+        "inkColor": "#168b75",
+        "cardBg": "#ffffff",
+        "termSize": 24,
+        "descSize": 20,
+        "cardW": 420,
+        "posRight": 56,
+        "posY": 194.4
+      },
+      "evidence": []
+    },
+    {
+      "id": "portrait-echo-proof-r2",
+      "cardId": "bed-echo-blur",
+      "implementationSha256": "c71053e648a5cd4c195c0178be1dcb97c2db10e73a1f06c69e53fdb453e53097",
+      "props": {
+        "title1": "既有素材",
+        "title2": "竖屏回读",
+        "note1": "竖屏素材 · 原比例 9:16",
+        "note2": "演示占位 · 非生产素材",
+        "src": "_audit/video-talkcraft/demos/_lib/dh-host.webm"
+      },
+      "evidence": [
+        {
+          "field": "note1",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s23-note1.json",
+          "sha256": "7e3e04325c31460ced3ea25dbfcf38bd17c76a23a76035f5d5de9dbcc0e274a5",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "hard-cut-sample-r2",
+      "cardId": "black-slam-transition",
+      "implementationSha256": "0d0b2b80e447dcba60d9c88ca8cc4a5a5a15742fa704a62c6f2ff14e5ffb6313",
+      "props": {
+        "textA": "先停一拍",
+        "textB": "直接切入",
+        "tag": "黑场重音 · 转场样本",
+        "fontSize": 72,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "flashColor": "#141418",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "dual-callout-r2",
+      "cardId": "callout-line-label",
+      "implementationSha256": "1fdb5e85473266d543816bffb267307749c5249ca0ac2e4fde9824d442477a5c",
+      "props": {
+        "label1Title": "主摄",
+        "label1Sub": "核心参数",
+        "label2Title": "中框",
+        "label2Sub": "减重说明",
+        "color": "#176eb0",
+        "ink": "#1d1d1f",
+        "labelFontSize": 17,
+        "target1X": 422,
+        "target1Y": 114,
+        "target2X": 588,
+        "target2Y": 300,
+        "phoneX": 380,
+        "phoneY": 70
+      },
+      "evidence": [
+        {
+          "field": "target1X",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s25-target1X.json",
+          "sha256": "1192539387a77f54c9de3907c15b0c0e743034bd3a87213d1cc2908c8a45284b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target1Y",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s25-target1Y.json",
+          "sha256": "6ebc443bbee502f34a5264922512e4e46f7e2b4c2b2cd847b8fb41761451e3bc",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target2X",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s25-target2X.json",
+          "sha256": "d20466368938080f0e73a6cc1024c19cda862be507eadc36c2753c29aa2cd6e0",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target2Y",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s25-target2Y.json",
+          "sha256": "33340730525a8624758254392f9377f081b8a5006ec1d82711e64a5d5e7bd788",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "caret-transition-r2",
+      "cardId": "caret-wipe-transition",
+      "implementationSha256": "4db022ad6d7774bef541aad87f2e472bf4b0df751b1978c65bbac11618681c3e",
+      "props": {
+        "textA": "旧内容退场",
+        "textB": "新内容出现",
+        "tag": "光标擦除 · 过渡样本",
+        "dir": "right",
+        "fontSize": 62,
+        "caretColor": "#1d1d1f",
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "chapter-progress-r2",
+      "cardId": "chapter-progress-list",
+      "implementationSha256": "dba7d6793ed02d48e7b36cdc182a716a8f10557c952f79a40c1566a70af0ed45",
+      "props": {
+        "rows": "01|先看结论\n02|核对来源|current\n03|回读参数\n04|确认画面",
+        "headText": "CHAPTER",
+        "fontSize": 23,
+        "accent": "#176eb0",
+        "dim": "#a1a1a6",
+        "bg": "#1d1d1f",
+        "listRight": 74
+      },
+      "evidence": []
+    },
+    {
+      "id": "chapter-title-core-r2",
+      "cardId": "chapter-title-card",
+      "implementationSha256": "35eb80ba1db45162c2b6f065c0f9ecddacecd1c18a42e9ba389a9fcf0bab0e3a",
+      "props": {
+        "num": "07",
+        "name": "证据如何闭环",
+        "sub": "CHAPTER 07 · 回读",
+        "bg": "#1d1d1f",
+        "textColor": "#ffffff"
+      },
+      "evidence": [
+        {
+          "field": "num",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s28-num.json",
+          "sha256": "35257d44650b3ccca02718963af00f05a94e5c9a194ca002b624b5a50c16fcc6",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "sub",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s28-sub.json",
+          "sha256": "51f3497c3bb22474ccae467c5ad1f4b2c9c6eb0b33f4157a6bbd7eb8aa46e173",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "synthetic-chart-grow-r2",
+      "cardId": "chart-grow",
+      "implementationSha256": "d0f94b50ad055812e14f36fa4a4436aee50f8e84e171732acca30421fa0b559e",
+      "props": {
+        "title": "阶段示意（虚构）",
+        "colsData": "甲|18\n乙|42\n丙|67|hot",
+        "maxVal": 80,
+        "baseColor": "#8aa8c3",
+        "hotColor": "#176eb0",
+        "titleSize": 30,
+        "valSize": 24,
+        "posX": 120,
+        "posY": 62
+      },
+      "evidence": [
+        {
+          "field": "colsData",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b005-r2-20261003/evidence/s29-colsData.json",
+          "sha256": "2bc59ed9241f65cffcd4e724d3be19650cb74850974eba0d8d746c8fc29da7e1",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "chat-gpt-source-dialog-b006",
+      "cardId": "chat-gpt",
+      "implementationSha256": "6e146c2d2903578956e04b14c05633bd8e9131265a20a54859c320bd57e5f163",
+      "props": {
+        "greeting": "今天先把问题说清楚",
+        "prompt": "请帮我核对这条记录的来源",
+        "reply": "我会先拆出关键依据，再给出清晰结论。",
+        "placeholder": "输入你的问题",
+        "chips": "查看原文\n整理要点\n回读结论",
+        "accent": "#176eb0",
+        "msgSize": 15,
+        "greetSize": 30,
+        "posX": 0,
+        "posY": 0
+      },
+      "evidence": []
+    },
+    {
+      "id": "chat-message-review-b006",
+      "cardId": "chat-message-flow",
+      "implementationSha256": "50987652e0c99a8191df49f72cea59a3c4b4150f253b7f7b925add3257cf69ab",
+      "props": {
+        "messages": "me|先把筛选器收起吧？\nthem|同意，首屏先留给结论\nthem|默认值我改成近一周|好",
+        "contactName": "林工 · 设计评审",
+        "contactSub": "在线",
+        "avatarChar": "林",
+        "placeholder": "发消息…",
+        "ink": "#1d1d1f",
+        "themBg": "#f0f0f2",
+        "fontSize": 16,
+        "posX": 250,
+        "posY": 46
+      },
+      "evidence": []
+    },
+    {
+      "id": "chip-grid-single-select-b006",
+      "cardId": "chip-grid-single-select",
+      "implementationSha256": "d7f69cd1f2a34d0b5de59d99431864bead68545a710449c081a38d76a4da443f",
+      "props": {
+        "question": "方案很多，先选哪个？",
+        "options": "轻量方案\n标准方案\n自动方案\n协作方案\n暂缓方案",
+        "selected": 3,
+        "equation": "每周节奏 × 产出 = 稳定结果"
+      },
+      "evidence": []
+    },
+    {
+      "id": "claude-code-theme-b006",
+      "cardId": "claude-code",
+      "implementationSha256": "2eeee49981cf4492b53cee3e9e1a6d918365ccfed129c8827b50074ff3f0db15",
+      "props": {
+        "logLines": "tool|0.42|读取主题配置\nres|0.50|⎿ 已读取配置\ntool|0.28|更新主题配置\ndel|0.34|  - 旧主题常量\nadd|0.14|  + 主题跟随系统偏好\nres|0.32|⎿ 已完成一处修改\nok|0.44|主题切换已接好，请在本地预览",
+        "prompt": "给主题配置加一个深色模式开关",
+        "capTitle": "Claude Code",
+        "hello": "欢迎回来，今天继续处理主题。",
+        "metaDsl": "本地模型 · 交互预览\n~/code/talkcraft",
+        "whatsNewTitle": "本次更新",
+        "whatsNewDsl": "/agents 创建子智能体\n/security-review 调用审查\nctrl+b 放到后台\ndim|… /help 查看更多",
+        "placeholder": "试试修改一个文件",
+        "accent": "#D97757",
+        "addColor": "#33d16b",
+        "fontSize": 12.5,
+        "posX": 116,
+        "posY": 30
+      },
+      "evidence": [
+        {
+          "field": "prompt",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b006-r1-20261003/evidence/s33-prompt.json",
+          "sha256": "9962873aab44a6539230d614a6eeb4aae6b3f3a323ef29b54df41d8bbfe1c995",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "placeholder",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b006-r1-20261003/evidence/s33-placeholder.json",
+          "sha256": "4ffd925441a6dd101bebd8ec684cd9ed2819ebff8c499c280c4c666bd984c2b9",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "color-slam-priority-b006",
+      "cardId": "color-slam-beat-card",
+      "implementationSha256": "2896f42e3c78219a964d72645291b38db43a3d3925182f993c37a58947e45022",
+      "props": {
+        "title1": "先看结果\n再看过程",
+        "sub1": "优先判断方向",
+        "bg1": "#176eb0",
+        "tint1": "#8db8d5",
+        "title2": "确认重点\n再做表达",
+        "sub2": "随后补足证据",
+        "bg2": "#c53d52",
+        "tint2": "#e8a1ad",
+        "shotCap": "画面重点提示",
+        "fontSize": 62
+      },
+      "evidence": []
+    },
+    {
+      "id": "converging-arrows-focus-b006",
+      "cardId": "converging-arrows",
+      "implementationSha256": "7e6767e77ce79085676159a1894b83035ecc3fac619260eb77c546aafab13633",
+      "props": {
+        "leadText": "今天只要你",
+        "preText": "记住",
+        "focusText": "关键重点",
+        "postText": "就够了",
+        "accent": "#176eb0",
+        "ink": "#1d1d1f",
+        "fontSize": 32,
+        "focusSize": 40,
+        "posX": 118,
+        "posY": 0,
+        "boxX": 182,
+        "boxY": 262.4,
+        "boxW": 130.64,
+        "boxH": 76
+      },
+      "evidence": []
+    },
+    {
+      "id": "count-badge-title-b006",
+      "cardId": "count-badge-title",
+      "implementationSha256": "32e6e5d88cb05f16d7ce04fb5b98c7b553bca58e698868038845a62c0596ea50",
+      "props": {
+        "num": "三",
+        "restText": "个步骤",
+        "line2": "把事情讲清楚",
+        "numSize": 138,
+        "accent": "#176eb0",
+        "ink": "#1d1d1f"
+      },
+      "evidence": []
+    },
+    {
+      "id": "countdown-arc-scatter-b007",
+      "cardId": "countdown-arc-scatter",
+      "implementationSha256": "8e647fb05c1b9b3b16df5fd9a8ce3a9fb783c03b70a20dc53d14f78336d85889",
+      "props": {
+        "numbers": "9, 8, 7, 6, 5, 4, 3",
+        "pick": 5,
+        "words": "分钟\n完成\n复盘",
+        "accent": "#176eb0"
+      },
+      "evidence": [
+        {
+          "field": "numbers",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s37-numbers.json",
+          "sha256": "a8df8a8d24fd31bbac2fd9536b438d8e38a15e8227661fa81f5c5d51e5231040",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "crash-zoom-punch-b007",
+      "cardId": "crash-zoom-punch",
+      "implementationSha256": "25a9e6098b9881b1e2d1261bde222c5707e0d1585428660bac22c5ddc3f0b6bc",
+      "props": {
+        "src": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "tx": 250,
+        "ty": 160,
+        "tw": 360,
+        "th": 180,
+        "label": "导出设置",
+        "sub": "画面尺寸 1080 × 1920"
+      },
+      "evidence": [
+        {
+          "field": "tx",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s38-tx.json",
+          "sha256": "0c0d46accc2e0292065997056609e3f1391c5301398e36886c6f810f27811efb",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "ty",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s38-ty.json",
+          "sha256": "f1a8b501089620debe9710dea57eb21fc017d96cdd4c1833eaba95d05e6f526e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "tw",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s38-tw.json",
+          "sha256": "3e5a16edc0858c1b890f5ca883ad22837a20fc896df1ba9c250201ed734b6f86",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "th",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s38-th.json",
+          "sha256": "65e1effc83880ae80ef716a95aba6f111aefecaab504e8b6c0cdf8b99f6977c6",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "sub",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s38-sub.json",
+          "sha256": "534806c589f3adcdf495af0c4d8cb65e8ffad66a909bed8bbd1c25aa8100b895",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "cursor-actor-demo-b007",
+      "cardId": "cursor-actor-demo",
+      "implementationSha256": "f3adc8c2d49807db6e81b911b17cc3f64aca3f14c1d27e9bf819dd839016f892",
+      "props": {
+        "rows": "自动字幕|按语音逐句对齐|on\n高清增强|输出 4K，渲染稍慢|on\n背景音乐|这次先不要",
+        "winTitle": "生成设置",
+        "secLabel": "输出偏好",
+        "trayLabel": "素材库",
+        "composerPh": "描述你想要的画面，或拖一张参考图进来…",
+        "ink": "#1d1d1f",
+        "fontSize": 15.5,
+        "posX": 64,
+        "posY": 44
+      },
+      "evidence": [
+        {
+          "field": "rows",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s39-rows.json",
+          "sha256": "7fe09e291edd3731dfefe461042dcf2e989c7367b44dcde262e0603366c7793b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "cursor-locked-zoom-b007",
+      "cardId": "cursor-locked-zoom",
+      "implementationSha256": "25879ba8d634b8519090762cfe70357557c31fa929effe1ab6a274407e19b694",
+      "props": {
+        "cmd": "ffmpeg -i source.mov -vf scale=1080:-2 -crf 18 final.mp4",
+        "path": "~/code/talkcraft-demo",
+        "prevCmd": "ls shots/",
+        "prevOut": "source.mov   notes.md   cover.png",
+        "fontSize": 20,
+        "termBg": "#17171a",
+        "termText": "#f2f2f4"
+      },
+      "evidence": []
+    },
+    {
+      "id": "danmu-bubble-praise-b007",
+      "cardId": "danmu-bubble-praise",
+      "implementationSha256": "35a6c27c901c05c3e21e29df6132836b03ba800e816c3ee399a4430cfe3e1bd8",
+      "props": {
+        "bubbles": "这个拆法很清楚|96,92|灰深\n终于看懂了|700,158|强调\n收藏备用|62,296|灰浅\n已经用上了|686,372|灰中",
+        "fontSize": 21,
+        "accent": "#e0452c"
+      },
+      "evidence": [
+        {
+          "field": "bubbles",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s41-bubbles.json",
+          "sha256": "31e8b02c04214b4d4ce8bbc41ad47a188a3df2ce482e4f6fa9b4ef41c2a20220",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "doc-park-left-pill-deal-b007",
+      "cardId": "doc-park-left-pill-deal",
+      "implementationSha256": "6489eba49f987fe0f4fc9146aa9a6b8ede63ffd3006af41921c7ae1564875d71",
+      "props": {
+        "docTitle": "口播画面复盘报告",
+        "pills": "先给结论再给过程\n每个镜头只讲一件事\n关键画面留出停顿",
+        "notes": "观众先知道要记什么\n画面跟随口播逐层进入\n收尾用一句话回读",
+        "hint": "读完这页，我记下三条",
+        "docSrc": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "accent": "#176eb0"
+      },
+      "evidence": []
+    },
+    {
+      "id": "douyin-follow-card-b007",
+      "cardId": "douyin-follow-card",
+      "implementationSha256": "d813e87dedd661ba8d6cacde1b2a43aedef3054b171656c98a72ae8084d391e4",
+      "props": {
+        "nickname": "镜头研究所",
+        "douyinId": "shotcraft_lab",
+        "verified": true,
+        "likeCount": "2.8万",
+        "followCount": "128",
+        "fansCount": "1.6万",
+        "bio": "分享口播画面的节奏与证据\n[[@镜头研究所]] 的每次复盘",
+        "avatar": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "bgImage": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "topNav": true,
+        "followText": "＋关注",
+        "followDoneText": "已关注",
+        "msgText": "发私信",
+        "nameSize": 48,
+        "posX": 480,
+        "posY": 270
+      },
+      "evidence": [
+        {
+          "field": "likeCount",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s43-likeCount.json",
+          "sha256": "8a6ba5e042714b217ffb1fac9b9bdd8de484a16e0f663292371018b005b88348",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "followCount",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s43-followCount.json",
+          "sha256": "a8aee871c8ecc3e20fc4ad27aae5df475e2ba9de6f3e05d5e5aae76875aa9c3b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "fansCount",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b007-r1-20261003/evidence/s43-fansCount.json",
+          "sha256": "281afdb78e52ef72b727f88aab2db70400f173c6af866cdfff5ff1d51b1fa21a",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "evidence-scroll-tour-b008",
+      "cardId": "evidence-scroll-tour",
+      "implementationSha256": "bbb98957677254d1669a3f40fe76c827df4103091f5aab4198a512e52aa6e8be",
+      "props": {
+        "docLines": "h|隔离镜头验收\nbars|92,85,lt78,92,lt66\nh|第一段 参数回读\nbars|92,lt85\nmark|本批只验证模板绑定|，不代表生产事实。\nbars|85,lt78,66,lt40\nh|第二段 构图检查\nbars|92,lt85,78\nstop|横竖画幅均需检查|，完成后留出停顿。\nbars|85,lt52,66",
+        "docTitle": "B008 隔离证据页",
+        "docMeta": "仅作模板回读 · synthetic fixture",
+        "fileName": "talkcraft-b008-evidence.txt",
+        "markColor": "#e0452c",
+        "fontSize": 14,
+        "posX": 150,
+        "posY": 54
+      },
+      "evidence": [
+        {
+          "field": "docLines",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s44-docLines.json",
+          "sha256": "7afcce3a3dd0b94150b7b4d9bf12cadc3bc528b9364240c2c238406c62497cd0",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "docTitle",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s44-docTitle.json",
+          "sha256": "765c23c323ec2b80b34973ed34ac54bc934a4ef992d95af1387e86545fc17535",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "fileName",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s44-fileName.json",
+          "sha256": "bd7d2c140d03b8ad4b3f9e79855201b575b513761724fb4478ece29e3e146b53",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "flying-words-b008",
+      "cardId": "flying-words",
+      "implementationSha256": "5f6debfe316a329661c07ba5dc106ad202c1e3b3a87e94201fabfd0429bdc480",
+      "props": {
+        "words": "口播\n分镜\n参数\n渲染\n回读\n横屏\n竖屏\n验收\n停顿\n成片\n交验\n归档\n隔离\n复盘\n清单"
+      },
+      "evidence": []
+    },
+    {
+      "id": "focus-dim-spotlight-b008",
+      "cardId": "focus-dim-spotlight",
+      "implementationSha256": "058c1e1f6611d5ea4aacca405e3beb0181cccb11cebd4cc717391106049b32cb",
+      "props": {
+        "eyebrow": "B008 · 逐条核对",
+        "tableHead": "镜头|模板|横屏|竖屏",
+        "tableRows": "s44|长页|通过|通过\ns45|词云|通过|通过\ns46|聚焦|检查|检查\ns47|代码|通过|通过",
+        "cardFoot": "仅作隔离验证 · 不代表生产结论",
+        "labelA": "通道③　当前行聚焦",
+        "labelB": "通道①　整页回看",
+        "ringColor": "#176eb0",
+        "dimTo": 0.4,
+        "fontSize": 18,
+        "posX": 120,
+        "posY": 126
+      },
+      "evidence": [
+        {
+          "field": "eyebrow",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s46-eyebrow.json",
+          "sha256": "ca4b3c96d91ac9c381ccfd85ca03498a21695405af465ed88e7a55e5efe87d2e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "tableRows",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s46-tableRows.json",
+          "sha256": "59e11d5215784f2620a6ada0efc1a6fd1f7985e3b133938cd9077160bd2d3e92",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "glass-code-walk-b008",
+      "cardId": "glass-code-walk",
+      "implementationSha256": "ff2d47efcf77241eaf8f237de2b20d1e0de13033715b46e8c17c33822172a78b",
+      "props": {
+        "code": "import { AbsoluteFill } from \"remotion\";\nexport function RenderCheck() {\n  const status = \"isolated\";\n  return <AbsoluteFill>{status}</AbsoluteFill>;\n}",
+        "fileName": "b008-render-check.tsx",
+        "keywordColor": "#176eb0",
+        "stringColor": "#168b75",
+        "numberColor": "#e0452c",
+        "fontSize": 17,
+        "posX": 180,
+        "posY": 48
+      },
+      "evidence": [
+        {
+          "field": "fileName",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s47-fileName.json",
+          "sha256": "a7cb958172eb7ad2fdd4c831d8bff28bd8a93cddbcc78d298e5b8a498d961058",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "gooey-morph-b008",
+      "cardId": "gooey-morph",
+      "implementationSha256": "fc12462f7cfa8e3eb5e857c91157d6c6246ca814e80dda49aa9da2e0d0b9cef1",
+      "props": {
+        "count": 5,
+        "photoBg": "#f1f1f3",
+        "hillColor": "#b3b3bc",
+        "farHillColor": "#ceced4",
+        "sunColor": "#d8d8de",
+        "picW": 96,
+        "gap": 6,
+        "posX": 450,
+        "posY": 4
+      },
+      "evidence": []
+    },
+    {
+      "id": "host-card-glass-board-b008",
+      "cardId": "host-card-glass-board",
+      "implementationSha256": "0c68cf611e2d7ed442f26d3ab64f5f939e58178ac66a874a53edb2702dc98e86",
+      "props": {
+        "tag": "B008 · 隔离批次",
+        "title": "从参数到成片",
+        "en": "PARAMS → FRAME → MP4",
+        "steps": "✎|参数|PROPS\n◉|回读|TRACE\n▶|成片|MP4",
+        "result": "横竖各一份 · 完整解码",
+        "hostSrc": "_audit/video-talkcraft/demos/_lib/dh-host.webm"
+      },
+      "evidence": [
+        {
+          "field": "tag",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s49-tag.json",
+          "sha256": "8f8486e8edb9d3bad856f261bfda7c47d1282e70b9610d887c3a4e793998307b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "en",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s49-en.json",
+          "sha256": "caab5ebe551326c2872cdeee0499e09f2cc09748f8596801c3b41d53cd089741",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "steps",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s49-steps.json",
+          "sha256": "a4a1fbb34952680877896b0d483c2e16f8a27a3d0a649d5d7973e2bea06f4f67",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "host-shrink-to-chip-b008",
+      "cardId": "host-shrink-to-chip",
+      "implementationSha256": "09ff330de8972f577a81c920b2e53f4e3ed3cba4754db05dcd4ad1a54b619d06",
+      "props": {
+        "gfxHead": "隔离批次 · 画面交接",
+        "gfxBig": "43 → 50",
+        "gfxNote": "七张新卡完成横竖验证",
+        "yearLabels": "s44 s45 s46 s47 s48 s49 s50",
+        "ink": "#1d1d1f",
+        "barColor": "#176eb0",
+        "bigSize": 30,
+        "posX": 48,
+        "posY": 88
+      },
+      "evidence": [
+        {
+          "field": "gfxBig",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s50-gfxBig.json",
+          "sha256": "b2831b3773671fc5d3d672aa5aa1c0d21e31a5742afa2237e2599e61756b77c0",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "yearLabels",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b008-r1-20261003/evidence/s50-yearLabels.json",
+          "sha256": "71ebe4acf88e8c99c633646f268c99ff4cf94a94fb4d547a9ea9822ec27efe51",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "alt-block-lines-b009",
+      "cardId": "alt-block-lines",
+      "implementationSha256": "18c005f067e095c1676db707f59d21e509341a10e718b5a217891bb2d57af9c8",
+      "props": {
+        "line1": "先做减法",
+        "line2": "再做加法",
+        "fontSize": 62,
+        "blockColor": "#0aa3a3",
+        "ink": "#1d1d1f",
+        "posX": 96
+      },
+      "evidence": []
+    },
+    {
+      "id": "impact-open-title-b009",
+      "cardId": "impact-open-title",
+      "implementationSha256": "309e2968b414ec02de382089f8adb4afea48e49e0a960003e7785e149f573815",
+      "props": {
+        "lineStart": "先把边界",
+        "lastWord": "说清楚",
+        "sub": "本批只验证隔离卡绑定",
+        "fontSize": 70,
+        "accent": "#e0452c",
+        "ink": "#1d1d1f",
+        "dotsOpacity": 0.35
+      },
+      "evidence": []
+    },
+    {
+      "id": "keyword-pop-highlight-b009",
+      "cardId": "keyword-pop-highlight",
+      "implementationSha256": "2e563efe31a7bda3bf218432b51086ebc9066365b5e901ea395ec47c4e059938",
+      "props": {
+        "textBefore": "参数先对齐",
+        "keyword": "再做渲染",
+        "textAfter": "，结果才可回读",
+        "fontSize": 32,
+        "kwColor": "#176eb0",
+        "blockColor": "#f4c542",
+        "ink": "#1d1d1f"
+      },
+      "evidence": []
+    },
+    {
+      "id": "lead-word-zoom-assemble-b009",
+      "cardId": "lead-word-zoom-assemble",
+      "implementationSha256": "28112b20df4ab0f35104ab1c29267f6452e09ee25a3a764043fdccfdea1e86e8",
+      "props": {
+        "words": "隔离\n验证\n再合并\n交验",
+        "subline": "每一步都留下证据",
+        "accentIndex": -2,
+        "accent": "#e0452c"
+      },
+      "evidence": []
+    },
+    {
+      "id": "logo-enter-b009",
+      "cardId": "logo-enter",
+      "implementationSha256": "75325b0a5d8b116529022624eb66e2601fc79bd7cde83f6844e82dee040280a2",
+      "props": {
+        "brand": "TalkCraft 隔离",
+        "tag": "逐卡验证 · 保留证据",
+        "fontSize": 44,
+        "tagSize": 16,
+        "ink": "#1d1d1f",
+        "tagColor": "#707070",
+        "posX": 480,
+        "posY": 270
+      },
+      "evidence": []
+    },
+    {
+      "id": "per-character-rise-b009",
+      "cardId": "per-character-rise",
+      "implementationSha256": "3c4e65d8064892dc0a15a2b03c45a4f82d5d3e95201145cbedd4908125f14386",
+      "props": {
+        "text": "逐卡核对再交验",
+        "fontSize": 68,
+        "ink": "#176eb0"
+      },
+      "evidence": []
+    },
+    {
+      "id": "tracking-in-b009",
+      "cardId": "tracking-in",
+      "implementationSha256": "caa9b80a94df45df9e5856add729d33bfadcc62bd2b0b5c451ced6095da8c854",
+      "props": {
+        "text": "参数绑定可回读",
+        "textColor": "#1d1d1f",
+        "fontSize": 68
+      },
+      "evidence": []
+    },
+    {
+      "id": "line-chart-story-draw-b010",
+      "cardId": "line-chart-story-draw",
+      "implementationSha256": "8800aab4857ae624f91a6e496a2dfa7a31c984f9c1e020b7ef7f051434cf1103",
+      "props": {
+        "title": "B010 趋势回读",
+        "sub": "历史段与推演段分区",
+        "annotText": "隔离拐点",
+        "historyPts": "200,354\n256,338\n312,350\n368,310\n424,324\n480,278",
+        "seg1Pts": "480,278\n536,268\n592,262\n648,248",
+        "seg2Pts": "648,248\n704,234\n760,216\n816,198",
+        "altPts": "480,278\n560,240\n648,196\n736,152\n816,118",
+        "seg1Label": "阶段一",
+        "altLabel": "对比线",
+        "hotColor": "#e0452c",
+        "altColor": "#176eb0",
+        "xTicks": "256|2020\n368|2022\n480|今年\n648|+3 年\n816|+5 年",
+        "bands": "312|112|历史同期\n648|200|推演分歧",
+        "vBase": 3000,
+        "vStep": 400,
+        "labelSize": 16,
+        "posX": 0,
+        "posY": 0
+      },
+      "evidence": [
+        {
+          "field": "title",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-title.json",
+          "sha256": "85eb7faef43889bdf2ea19ff936c375bec920811cd0404c6c10d9ada5aafb562",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "historyPts",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-historyPts.json",
+          "sha256": "ac1b8661e03ab7f332edc8ac45d236db0f18f56633b5ed14764f9b65de7efb48",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "seg1Pts",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-seg1Pts.json",
+          "sha256": "80e91d0d6e59fc3b9057b751b7a2a17801af6aa9ac9571caa2865daba5e39d5f",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "seg2Pts",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-seg2Pts.json",
+          "sha256": "d534412b437a06e87fd513e6331f146605cd82e1ac9ba9b82e8d2ba601e57e08",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "altPts",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-altPts.json",
+          "sha256": "5e6f5f0e3f8d9189e8fbcde9b93be1d41133659d71e23194ef67e5635bcfbb74",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "xTicks",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-xTicks.json",
+          "sha256": "a33032954d46f4b7abd835ee052bf874b21c473355eb31169757c8c8fce1747b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "bands",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s58-bands.json",
+          "sha256": "c12114d09b05249e7229c7d6ff6fc422e92774fce94ca732ee982a505fde6fa4",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "number-counter-b010",
+      "cardId": "number-counter",
+      "implementationSha256": "565acdc416b9bcb236ce79dc3655ccf32d7ccdf6976e55235bda93cec47e598e",
+      "props": {
+        "labelA": "B010 渲染成本",
+        "prefix": "¥",
+        "target": 1280000000,
+        "deltaText": "↑ 28%",
+        "labelB": "每日核对镜头",
+        "odoTarget": "0614",
+        "odoUnit": "项 / 日",
+        "numColor": "#1d1d1f",
+        "deltaColor": "#d8383a",
+        "valueSize": 46,
+        "posX": 451.2,
+        "posY": 0
+      },
+      "evidence": [
+        {
+          "field": "labelA",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s59-labelA.json",
+          "sha256": "c78e677a6bb66e87edcf1006f4d329a3fcbd23377b715ed937b67f0cf8940032",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s59-target.json",
+          "sha256": "401d9b54c0f9618baeb317fbe7045b571e20603821a08619456a27d7b46b72c5",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "deltaText",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s59-deltaText.json",
+          "sha256": "b49f6efeb7e316f5b18339f43afffefc1ac39aef91d8af3b627a06d55c1ca231",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "odoTarget",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s59-odoTarget.json",
+          "sha256": "ff8a3928370a659e1efa4bb47d4a0d255928b8971b2d4f0f22f752aecca92c39",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "outline-box-title-b010",
+      "cardId": "outline-box-title",
+      "implementationSha256": "610dbf29c8322dc49b1e07c3d43f25bc511406f4e815038ee23487a5f4f4fb10",
+      "props": {
+        "titleText": "卡片映射",
+        "chipText": "B010",
+        "titleFontSize": 54,
+        "chipFontSize": 36,
+        "accent": "#176eb0",
+        "ink": "#1d1d1f",
+        "posX": 100,
+        "posY": 154
+      },
+      "evidence": [
+        {
+          "field": "chipText",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s60-chipText.json",
+          "sha256": "f81c38b0457ddc99902a62cac5ff0605d9ed56b0d9893e45d803d6cf0de1964d",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "slab-punch-title-b010",
+      "cardId": "slab-punch-title",
+      "implementationSha256": "fe5f5db0d29c69c0bcfe80a887d0fdb1f8ad36557b87b7b0bd969d71a14a4e99",
+      "props": {
+        "line1": "先看参数",
+        "line2": "再看成片",
+        "fontSize": 82,
+        "slabColor": "#e0452c",
+        "ink": "#1d1d1f",
+        "l2Color": "#ffffff",
+        "posX": 82
+      },
+      "evidence": []
+    },
+    {
+      "id": "speed-slab-title-b010",
+      "cardId": "speed-slab-title",
+      "implementationSha256": "a2e08d0696c15040ee22cf49aeaab9c003e91f7706e26409c08a520da0f09964",
+      "props": {
+        "line1": "速度来自校准",
+        "slabText": "不是盲目加速",
+        "fontSize": 74,
+        "accent": "#176eb0",
+        "ink": "#1d1d1f",
+        "slabTextColor": "#ffffff",
+        "posX": 82,
+        "posY": 0
+      },
+      "evidence": []
+    },
+    {
+      "id": "split-text-stagger-b010",
+      "cardId": "split-text-stagger",
+      "implementationSha256": "82a1a84e11a331a6df591efbaa4546ce957aa8e5de8c5db037bce81e07588cbb",
+      "props": {
+        "text": "逐镜核对再交验",
+        "sub": "每一张卡都保留回读证据"
+      },
+      "evidence": []
+    },
+    {
+      "id": "tilt-3d-page-b010",
+      "cardId": "tilt-3d-page",
+      "implementationSha256": "d21255594131cb6feebe8073d9c8c0eb3dd10086a81a97c37ffb962910f75d44",
+      "props": {
+        "tag": "B010 隔离预览",
+        "title": "参数映射到成片",
+        "desc": "从模板绑定到 MP4，横竖画幅都要保留证据。",
+        "featsDsl": "模板映射\n参数回读\n完整解码",
+        "priceValue": "¥ 隔离",
+        "priceNote": "本批只做本地核验",
+        "titleSize": 28,
+        "ink": "#1d1d1f"
+      },
+      "evidence": [
+        {
+          "field": "tag",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s64-tag.json",
+          "sha256": "9238aaa86f44c3de0518371429a735bde0444d81616f5d7db1cf385a792c16a2",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "desc",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b010-r1-20261004/evidence/s64-desc.json",
+          "sha256": "d9b995515db47fd5b6b246b7b5df435887855e6cabe22def89dc3618a41f327a",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "bar-chart-growth-b011",
+      "cardId": "bar-chart-growth",
+      "implementationSha256": "e0bd22c5dc44d8c8f60da86f30180bed614769074578aa1a072797d875822a3e",
+      "props": {
+        "title": "B011 增长柱",
+        "barsData": "1月|18\n2月|26\n3月|34\n4月|48\n5月|57\n6月|72\n7月|88",
+        "chipText": "累计增长 42%",
+        "maxVal": 100,
+        "barColor": "#e8720c",
+        "titleSize": 34,
+        "posX": 96,
+        "posY": 96
+      },
+      "evidence": [
+        {
+          "field": "title",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s65-title.json",
+          "sha256": "c02dda223c5f4f14ade68b88ecbc7608325596debcbd2f23e2e180f14b764306",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "barsData",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s65-barsData.json",
+          "sha256": "80e4582e2a90db49a1bbcd7fffbe91647a3a10e6fb6c3ebf665cc8ac9069f11d",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "chipText",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s65-chipText.json",
+          "sha256": "4a973a56bce4327cecaaa175b6ff43d2ae24261badbd30bf64e88f3415376fb1",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "highlighter-sweep-b011",
+      "cardId": "highlighter-sweep",
+      "implementationSha256": "1eed400a09c73aff9739e8eeadac4e6a131feaafc2194c194cebcbc356247eac",
+      "props": {
+        "docHead": "《B011 隔离验证记录》 · 第 11 页",
+        "linesBefore": "先核对模板字段，再核对真实渲染。\n每个样本都保留参数证据，",
+        "keyText": "只有完整解码的 MP4 才能进入复核",
+        "linesAfter": "浏览器和媒体检查都在隔离批次内完成，\n生产入口仍保持关闭。",
+        "fontSize": 21,
+        "hlColor": "#FFE949",
+        "dimTo": 0.4
+      },
+      "evidence": [
+        {
+          "field": "docHead",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s66-docHead.json",
+          "sha256": "68b71d49898b7f65f8dd92c010b1c26f42448ed794f367a6e73552dfd32d703d",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "keyText",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s66-keyText.json",
+          "sha256": "63b7597fe2dac858454c1f2a1420604b2c725e628f2ecd6ea4482d353a6c0b9e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "lower-third-nameplate-b011",
+      "cardId": "lower-third-nameplate",
+      "implementationSha256": "898fc867d80fc46dd394fcf70c0af58298c199a9fcbb206c971e3d02872cd884",
+      "props": {
+        "name": "B011 审计员",
+        "title": "隔离批次 · 模板映射复核",
+        "nameSize": 42,
+        "barColor": "#1d1d1f",
+        "ink": "#1d1d1f",
+        "titleColor": "#8a8a8a",
+        "posX": 56,
+        "posY": 64
+      },
+      "evidence": [
+        {
+          "field": "name",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s67-name.json",
+          "sha256": "c1bc625c57ceb96ec4a1e25b4d3361ebcbcbe2a33db133a88a28834c5cf5f864",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "map-route-pin-b011",
+      "cardId": "map-route-pin",
+      "implementationSha256": "72a2d95964d91ecdca2f223c68cc4f2befb8847a9136881162dc24c11701b62b",
+      "props": {
+        "pinsDsl": "430|150|北京\n612|292|上海|580|170\n472|458|深圳|622|420",
+        "accentColor": "#d8383a",
+        "labelSize": 16,
+        "offsetX": 0,
+        "offsetY": 0
+      },
+      "evidence": [
+        {
+          "field": "pinsDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s68-pinsDsl.json",
+          "sha256": "550e6d5efca7c629ed139ffb68a9fbf0cb9bd615ccf365c26bd7f4ca7a934c66",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "metric-with-sparkline-b011",
+      "cardId": "metric-with-sparkline",
+      "implementationSha256": "69264f88f92415e51028f09ffaba7d6de75852863122b84fce73bbbb95ee6afb",
+      "props": {
+        "label": "B011 样本通过率",
+        "target": 94,
+        "unit": "%",
+        "sparkData": "阶段一|62\n阶段二|74\n阶段三|86\n当前|94",
+        "color": "#2fb344",
+        "numSize": 86,
+        "posX": 96,
+        "posY": 138
+      },
+      "evidence": [
+        {
+          "field": "label",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s69-label.json",
+          "sha256": "f839111197a4bd6d95c9f426768c210b9202fe0de3b9440081d93577f4481cbb",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s69-target.json",
+          "sha256": "4895328c0bdd6cf677f262f205667d87d66655d045682423bebaa5d9768b1635",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "sparkData",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b011-r1-20261004/evidence/s69-sparkData.json",
+          "sha256": "fb0e8240b9cc8909b436fe941917e385a7eb84e4736fe1f90c2be9c715a9894f",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "motion-blur-slam-in-b011",
+      "cardId": "motion-blur-slam-in",
+      "implementationSha256": "ccb5dcb11c899ff58b48a5129897bfabfb48556cd8912b65269c1f2cdec83989",
+      "props": {
+        "hiColor": "#8a8a8a",
+        "aPosX": 60,
+        "aPosY": 150,
+        "bPosX": 200,
+        "bPosY": 236
+      },
+      "evidence": []
+    },
+    {
+      "id": "quote-bracket-pull-b011",
+      "cardId": "quote-bracket-pull",
+      "implementationSha256": "683288faf619b72e689fb3a493b3e1d2ef8e0dbcbcc78c90094463014068dbdc",
+      "props": {
+        "line1": "隔离验证要留证据",
+        "line2": "每张卡都要经过真实渲染",
+        "line3Head": "最后再做",
+        "keyText": "保护锁复核",
+        "fontSize": 32,
+        "ink": "#1d1d1f",
+        "markerColor": "#FFE949"
+      },
+      "evidence": []
+    },
+    {
+      "id": "long-take-world-b012",
+      "cardId": "long-take-world",
+      "implementationSha256": "79803b2eac8ad52f3af95cd09a0e8f916ec484d9edd5ba02271882504513f246",
+      "props": {
+        "stations": "起点 · 输入|先把问题放上画布\n中段 · 核对|镜头沿空间走向证据\n终点 · 结论|结论在同一世界落地",
+        "fontSize": 42,
+        "bg": "#ffffff",
+        "gridColor": "#ececef",
+        "ink": "#1d1d1f",
+        "accent": "#c53d52"
+      },
+      "evidence": []
+    },
+    {
+      "id": "media-pop-in-b012",
+      "cardId": "media-pop-in",
+      "implementationSha256": "c2c84bf38da9da4e5206bdf158955a8619b8b5f57cb61ee805d316e733fc6bea",
+      "props": {
+        "shots": "browser|40|46|300|200|-7\nchat|190|130|240|210|5\npay|90|270|250|170|-4",
+        "posX": 14,
+        "posY": 0
+      },
+      "evidence": []
+    },
+    {
+      "id": "numbered-step-stack-b012",
+      "cardId": "numbered-step-stack",
+      "implementationSha256": "a4481a711d7338913d45309ea317c2de9760904cfeb7eee7332513742278c385",
+      "props": {
+        "stepsDsl": "步骤一|确认模板字段\n步骤二|检查上下游映射\n步骤三|执行隔离渲染\n步骤四|回读最终参数",
+        "noColor": "#176eb0",
+        "fontSize": 22,
+        "barW": 486,
+        "posRight": 62,
+        "posY": 270
+      },
+      "evidence": []
+    },
+    {
+      "id": "overexpose-flip-transition-b012",
+      "cardId": "overexpose-flip-transition",
+      "implementationSha256": "4f7f0d7c137dc5e13f070955d6ac9468b70ae045e6847e15c2366226826251d4",
+      "props": {
+        "textA": "旧证据退场",
+        "textB": "新结论出现",
+        "tag": "亮心翻页 · 隔离样本",
+        "fontSize": 76,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "flashColor": "#141418",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "quote-hold-arrow-b012",
+      "cardId": "quote-hold-arrow",
+      "implementationSha256": "0d4d73b9a93b5c28d043b2df81d1f9f41dc096fb0e48a34c4efbea399a668ff0",
+      "props": {
+        "line1": "先核对输入",
+        "line2": "再观察画面",
+        "lastLine": "最后回读参数",
+        "fontSize": 33,
+        "hlColor": "#FFE949",
+        "ink": "#1d1d1f",
+        "posX": 84,
+        "posY": 270
+      },
+      "evidence": []
+    },
+    {
+      "id": "title-demote-to-label-b012",
+      "cardId": "title-demote-to-label",
+      "implementationSha256": "d3cee2019fe2597120d05aecbaf73e5ee8d48b2a8057cd5f1fe029197be8c0bc",
+      "props": {
+        "title": "复核步骤",
+        "items": "先锁定字段\n再核对映射\n最后回读画面",
+        "bg1": "#E8F0FF",
+        "bg2": "#E6F7F2",
+        "bg3": "#FFF4DC",
+        "bg4": "#FFE9F0",
+        "accent": "#0066cc"
+      },
+      "evidence": []
+    },
+    {
+      "id": "type-contrast-emphasis-b012",
+      "cardId": "type-contrast-emphasis",
+      "implementationSha256": "5e1a90977f4003002bb4aa45847782e9f594ae0f93a0c5ed6b11201ffcb605a3",
+      "props": {
+        "words": "留住人的 | 0.00\n不是 | 0.72\n速度 | 1.02 | serif\n而是 | 1.36\n信任 | 1.52 | color",
+        "fontSize": 32,
+        "accent": "#0066cc",
+        "ink": "#1d1d1f"
+      },
+      "evidence": []
+    },
+    {
+      "id": "behind-text-title-b013",
+      "cardId": "behind-text-title",
+      "implementationSha256": "e3c7d8ebf1a8e6dd802160e8e50fd897ed8899011b16ee51ed0268f55e2df464",
+      "props": {
+        "title": "画面会说话",
+        "sub": "VISUAL STORY · EP.03",
+        "fontSize": 150,
+        "faceTop": "#4a4a50",
+        "faceBottom": "#0c0c0d",
+        "subColor": "#8a8a8a",
+        "titleTop": 7
+      },
+      "evidence": [
+        {
+          "field": "sub",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b013-r1-20261004/evidence/s79-sub.json",
+          "sha256": "8a08c035de15bc6b11dce6ff71bfd9142fe946635247628d751fbcfddbbea62d",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "chevron-lower-third-b013",
+      "cardId": "chevron-lower-third",
+      "implementationSha256": "e7b9572d889dc6b2f507da731eadbd134cfcafabeb29d5fe02093e123c8d8d12",
+      "props": {
+        "name": "林知行",
+        "chipText": "内容导演 · TalkCraft",
+        "nameSize": 44,
+        "accent": "#0066cc",
+        "ink": "#1d1d1f",
+        "posX": 72,
+        "posY": 96
+      },
+      "evidence": []
+    },
+    {
+      "id": "corner-bracket-frame-b013",
+      "cardId": "corner-bracket-frame",
+      "implementationSha256": "df700f76f81b92c82d877737cb68511083d1bf2e216c4bd98b22f3e55ee516c6",
+      "props": {
+        "line1": "只讲一个问题",
+        "line2": "证据如何落到画面",
+        "fontSize": 46,
+        "accent": "#0aa3a3",
+        "ink": "#1d1d1f",
+        "posX": 66,
+        "posY": 152,
+        "frameW": 520,
+        "frameH": 220
+      },
+      "evidence": [
+        {
+          "field": "line1",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b013-r1-20261004/evidence/s81-line1.json",
+          "sha256": "81de19e84108452e0bdc49ec7660cbf0f094911d8a8af4e6c8bdfeb6e877ef01",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "error-retype-b013",
+      "cardId": "error-retype",
+      "implementationSha256": "fe4159650e1594f747b8d4620f7cbb74c113a9905dddb82e9a644721e68d7236",
+      "props": {
+        "prefix": "复杂问题，先看的是",
+        "first": "模型参数",
+        "second": "证据结构",
+        "accent": "#0066cc"
+      },
+      "evidence": []
+    },
+    {
+      "id": "gallery-wall-dolly-b013",
+      "cardId": "gallery-wall-dolly",
+      "implementationSha256": "7e474d9369d49f77ad5500ac966cd9c62251f350439f623c25e06858e8f13d56",
+      "props": {
+        "label1": "案例一 · 笔记本",
+        "label2": "案例二 · 海岸",
+        "label3": "案例三 · 陈列",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "hand-drawn-ellipse-b013",
+      "cardId": "hand-drawn-ellipse",
+      "implementationSha256": "836ff8459a1e404bfe21718e0c158e3bd83aa80826e91522c838d67a76a1e7e2",
+      "props": {
+        "leadText": "真正的重点不是把话说满，而是",
+        "ringWord": "让观众记住",
+        "strokeColor": "#e8720c",
+        "ink": "#1d1d1f",
+        "fontSize": 28,
+        "strokeWidth": 3.2,
+        "posX": 100,
+        "posY": 0
+      },
+      "evidence": []
+    },
+    {
+      "id": "info-card-assemble-b013",
+      "cardId": "info-card-assemble",
+      "implementationSha256": "0006f7790d923b913aa47edfe047ca4a309c3ac93240144bdfd34d8980210bde",
+      "props": {
+        "src": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "caption": "本期推荐的一张图",
+        "title": "《画面会讲故事》",
+        "pills": "叙事\n节奏\n构图",
+        "price": "3 个关键层",
+        "lines": "先定主角再排证据\n每个动效服务一个重音\n最后回读画面绑定",
+        "highlightLines": "1,3",
+        "swatch1": "#E8F0FF",
+        "swatch2": "#FFE9F0",
+        "swatch3": "#E6F7F2"
+      },
+      "evidence": [
+        {
+          "field": "price",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b013-r1-20261004/evidence/s85-price.json",
+          "sha256": "2c07ffef9a9c3bab860ffcd797966d40b9ba1b6d48a5a9af6e76b80a788ff0a4",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "lines",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b013-r1-20261004/evidence/s85-lines.json",
+          "sha256": "3e0d2b53c94090019b3029183f41b0eb320a69d0157e327743efe32a67358f0b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "highlightLines",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b013-r1-20261004/evidence/s85-highlightLines.json",
+          "sha256": "4591fb88fd48b1fc30244bb1fbf35a510bc7d891edc709ded4333401c86200ca",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "filmstrip-conveyor-b014",
+      "cardId": "filmstrip-conveyor",
+      "implementationSha256": "ded28272a4d3f1e88a0774f11eaeffdb9ebdac96cceb16ba95eb8989e1302a7a",
+      "props": {
+        "title": "六种封面构图",
+        "note": "逐张停靠，最后回到主角",
+        "label1": "留白构图",
+        "label2": "中心构图",
+        "label3": "对角构图",
+        "label4": "层叠构图",
+        "label5": "局部特写",
+        "label6": "人物留位",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "src4": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src5": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src6": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "grid-to-hero-b014",
+      "cardId": "grid-to-hero",
+      "implementationSha256": "a874a30b9db4d992d13217600a6a44d244d0b78b99e17c95a2eb7d925ac23743",
+      "props": {
+        "heroIdx": "2",
+        "label1": "候选一 · 留白",
+        "label2": "候选二 · 中心",
+        "label3": "候选三 · 最终选它",
+        "label4": "候选四 · 局部",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "src4": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "info-term-card-b014",
+      "cardId": "info-term-card",
+      "implementationSha256": "81e0f7e8d85c1366a7412873e438f59c84a68edb5d77185e71361c591cb10d8a",
+      "props": {
+        "term": "关键帧",
+        "termSmall": "KEYFRAME",
+        "desc": "把动作锁在关键时刻，画面才会有节奏。",
+        "iconChar": "+",
+        "inkColor": "#1d1d1f",
+        "cardBg": "#ffffff",
+        "termSize": 24,
+        "descSize": 16,
+        "cardW": 330,
+        "posRight": 56,
+        "posY": 194.4
+      },
+      "evidence": []
+    },
+    {
+      "id": "ink-underline-b014",
+      "cardId": "ink-underline",
+      "implementationSha256": "69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d",
+      "props": {
+        "line1Pre": "很多人只盯着",
+        "line1Key": "结果数字",
+        "line1Post": "，",
+        "line2Pre": "其实更重要的是",
+        "line2Key": "过程证据",
+        "line2Post": "。",
+        "fontSize": 30,
+        "inkColor": "#e8720c",
+        "ink": "#1d1d1f",
+        "posX": 420,
+        "posY": 270,
+        "inkOpacity": 0.85
+      },
+      "evidence": []
+    },
+    {
+      "id": "line-by-line-slide-b014",
+      "cardId": "line-by-line-slide",
+      "implementationSha256": "57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304",
+      "props": {
+        "lines": "定主角\n排证据\n留呼吸",
+        "fontSize": 60,
+        "ink": "#171717"
+      },
+      "evidence": []
+    },
+    {
+      "id": "line-carry-transition-b014",
+      "cardId": "line-carry-transition",
+      "implementationSha256": "b593aa48ba26650a0e797a1fea600d4cf6623ec22389a4da82de5498caeb77d4",
+      "props": {
+        "titleA": "第一部分 · 先看问题",
+        "subA": "把复杂内容拆开",
+        "titleB": "第二部分 · 再给证据",
+        "subB": "让每一行都能被读懂",
+        "srcB": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "magnifier-detail-b014",
+      "cardId": "magnifier-detail",
+      "implementationSha256": "b739da450a406273affb24c332d9947009b0548004f4446a26fb53a039f3ddaf",
+      "props": {
+        "title": "关键参数 · 实测记录",
+        "sub": "同一负载连续三轮取均值",
+        "rows": "亮|612\n续|4h\n重|1.3",
+        "fontSize": 16,
+        "accent": "#ff4d4d",
+        "ink": "#1d1d1f",
+        "magSize": 210,
+        "magX": 745,
+        "magY": 252,
+        "targetX": 468.6,
+        "targetY": 218,
+        "targetW": 92.8,
+        "shotX": 56,
+        "shotY": 116,
+        "shotW": 540,
+        "dimTo": 0.8
+      },
+      "evidence": [
+        {
+          "field": "rows",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-rows.json",
+          "sha256": "1b97fbd877fb9414f7e9256984b6424cf15508b6af3e9222a7022e410ff789f2",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "magSize",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-magSize.json",
+          "sha256": "9bd2bea130e68a0f8ac6f40f01e41ede489b966b001d5df0e89115a58de63d43",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "magX",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-magX.json",
+          "sha256": "2f97c8c7a2c0393de64159146fccbe89097d72e8f86ca25dc6268f87e956da28",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "magY",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-magY.json",
+          "sha256": "0a7d4d5b82b4a9fdd2717faf75c88b3488f58a9ea153aa987bef53b44f176838",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "targetX",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-targetX.json",
+          "sha256": "82a8c1cf0ca87da10c2ce77b94e5f91fa3b6b1a40e3ed73538313a445b3d6a3f",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "targetY",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-targetY.json",
+          "sha256": "292892e5b022fd437d50db27f33bd12268fdbaface2b99aebeeb1e59ad16babc",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "targetW",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-targetW.json",
+          "sha256": "7f52ed5de319cdb15e3e68ef471fb4677d9b5ce314d47b363da4f83120f8159c",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "shotX",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-shotX.json",
+          "sha256": "531cb458589838b2e5840ef2bb3dfc094737429a3ddbd211f285998e49c2c643",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "shotY",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-shotY.json",
+          "sha256": "f7c3d0fa79d904242bae84bcc72f835f42313050f6c7744eed6d549ea6af1a29",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "shotW",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b014-r2-20261004/evidence/s92-shotW.json",
+          "sha256": "3e2bc023bf8a82ea7f33964568a58d93deffc87cbe85c8511e1ee5750b963fcc",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "ui-prop-theater-b015",
+      "cardId": "ui-prop-theater",
+      "implementationSha256": "0de735873ce43f8b31004549e018f694f0e263000ccb40a5faaf156adef543f9",
+      "props": {
+        "appName": "模型安装器",
+        "appVer": "v0.9.0",
+        "initStatus": "正在准备资源…",
+        "status1": "正在解包组件…",
+        "status2": "正在校验依赖…",
+        "statusDone": "准备完成",
+        "stepsDsl": "准备资源|3 个文件\n解包组件|12 个文件\n校验依赖|1 轮",
+        "accentColor": "#0066cc",
+        "statusSize": 19,
+        "posX": 180,
+        "posY": 96,
+        "cardW": 600
+      },
+      "evidence": [
+        {
+          "field": "appVer",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s93-appVer.json",
+          "sha256": "9e98a9e6f84e2db2ccc4a989ecd8ec0f5db346dac755a79fcff83a16dec986a8",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "stepsDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s93-stepsDsl.json",
+          "sha256": "68cf8b42fb0ec79bc37420a3f997342dbdc919ce6abd4add21ff7940bedc3b63",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "unit-grid-proportion-b015",
+      "cardId": "unit-grid-proportion",
+      "implementationSha256": "37617fc22bc2908ea6b8d7d21a3fbac21a622fa51bef96bdab1826bd29770c76",
+      "props": {
+        "target": 42,
+        "unit": "%",
+        "label": "的观众\n在首屏停留",
+        "legendHit": "离开 · 42 人",
+        "legendRest": "留下 · 58 人",
+        "legendNote": "每格 = 1 人（示意数据）",
+        "accent": "#0066cc"
+      },
+      "evidence": [
+        {
+          "field": "target",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s94-target.json",
+          "sha256": "3ac137f28eb469372c87d428ca69e7d6f6676a6ce543e68c2108adb4006e9268",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "legendHit",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s94-legendHit.json",
+          "sha256": "9563d392e2cecece3b004514e44f715fd881b88aa15c301d5c7331f5cee0e165",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "legendRest",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s94-legendRest.json",
+          "sha256": "0f417f996a813634c0b41752772d12217056df47120090f7e0967d81fbf7a9f3",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "legendNote",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s94-legendNote.json",
+          "sha256": "5568b2377cab7cbf674f9cab00d5dcf8b6938a3bb37136ac2075891700cdbcac",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "whip-pan-transition-b015",
+      "cardId": "whip-pan-transition",
+      "implementationSha256": "2ea8afd48a57bf12f540d6b25bca91a38d6b4cc8cacddeeb736729782abd6417",
+      "props": {
+        "textA": "前一画面",
+        "textB": "下一画面",
+        "tag": "向左甩出 → 同向刹住 · 0.35s 回稳",
+        "fontSize": 76,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": [
+        {
+          "field": "tag",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s95-tag.json",
+          "sha256": "74ee299b777e86717d19266dd678cddbc3e0f16bcdfe87e76157e8448db7de2a",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "word-relay-filmstrip-b015",
+      "cardId": "word-relay-filmstrip",
+      "implementationSha256": "6fa7e70e3c6718f130978605803e4d38d1a112fb62f1e1aaa02a23af88bf3b7b",
+      "props": {
+        "noun": "一个工作流，能",
+        "verbs": "拆解问题\n整理证据\n生成画面\n交付成片",
+        "labels": "问题 · 原始\n证据 · 结构\n画面 · 版本\n成片 · 时间线\n交付 · 归档",
+        "srcs": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg\n_audit/video-talkcraft/demos/_lib/media/p-1057.jpg\n_audit/video-talkcraft/demos/_lib/media/p-1059.jpg\n_audit/video-talkcraft/demos/_lib/media/p-0.jpg\n_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "accent": "#0066cc"
+      },
+      "evidence": [
+        {
+          "field": "noun",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s96-noun.json",
+          "sha256": "8daa736bf8ade57e1175feceab490093bd5be53fc635a95c7756a6394aa052bc",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "word-slot-cycle-b015",
+      "cardId": "word-slot-cycle",
+      "implementationSha256": "c182d426966d84b348975aa6bc9dbe9eb417191f7a09357fa8b0cf59880c8b7f",
+      "props": {
+        "stem": "一套流程，帮你",
+        "words": "找出重点\n整理结构\n配好画面\n输出成片",
+        "final": "把复杂事讲清楚",
+        "accent": "#0066cc"
+      },
+      "evidence": []
+    },
+    {
+      "id": "x-follow-card-b015",
+      "cardId": "x-follow-card",
+      "implementationSha256": "05b0980aa7f9d144ca53bd5563a32c2ba3c52bcdd989f4d93f0af33d97c6a702",
+      "props": {
+        "name": "林知行",
+        "handle": "@linzhixing",
+        "bio": "记录内容工作流，也整理每次迭代的证据。",
+        "metaLoc": "深圳",
+        "metaSite": "linzhixing.dev",
+        "metaJoin": "2024 年 6 月加入",
+        "followingCount": "128",
+        "followingLabel": "正在关注",
+        "followersFrom": "8.6万",
+        "followersTo": "8.7万",
+        "followersLabel": "关注者",
+        "tabsDsl": "帖子 回复 媒体 喜欢",
+        "postMeta": "@linzhixing · 1天",
+        "postText": "把一条复杂流程拆成可复用的步骤，下一次就能更快交付。",
+        "postCounts": "18 63 204",
+        "followText": "关注",
+        "followDoneText": "已关注",
+        "accent": "#1d9bf0",
+        "cardBg": "#16181c",
+        "nameSize": 24,
+        "posX": 480,
+        "posY": 270
+      },
+      "evidence": [
+        {
+          "field": "metaJoin",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-metaJoin.json",
+          "sha256": "997442a06609b3b1aab0152908921d7c38c43c9421fc53995d944cf6fc26435b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "followingCount",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-followingCount.json",
+          "sha256": "61e08de4b14baee17efca144706cca7c98ad84b5de766244125ded8031e2e1b6",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "followersFrom",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-followersFrom.json",
+          "sha256": "1c9b99c09c739a9223dfa793ca968a6e5366ebdfa7b2acb36edaecfa7de0fa6e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "followersTo",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-followersTo.json",
+          "sha256": "dda8f4fe0e02490530401903fee0e2ee8612e740b71e7d3885e6efb3b482f665",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "postMeta",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-postMeta.json",
+          "sha256": "83561f722b2080b44d4c278405d8befa787b5d39228ca9958076c591f0de9457",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "postCounts",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b015-r1-20261005/evidence/s98-postCounts.json",
+          "sha256": "61e42ebbb4c9f3d5f017e85481123ee177ac446f2685ecb4304d85bc547c5227",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "news-card-desk-b016",
+      "cardId": "news-card-desk",
+      "implementationSha256": "3b215f264f59cbd5eed898d46d333abb20b978da98ac06ae0e95751be154ce25",
+      "props": {
+        "cards": "样本日报|2026-10-05 · 样本版|流程验证[关键句]，^只记录技术样本|3|120|96|560|-1.5\n隔离快讯|10:42|第二张卡压叠入场，保留读取空间|2|540|248|330|2",
+        "lineColor": "#c53d52",
+        "fontSize": 27,
+        "posX": 0,
+        "posY": 0
+      },
+      "evidence": [
+        {
+          "field": "cards",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s99-cards.json",
+          "sha256": "df20d87c95aa0745387128f1f70ed2a9997ec6e2e8df88ddfac2755cd6e03a85",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "orbit-drift-b016",
+      "cardId": "orbit-drift",
+      "implementationSha256": "dc0d98ef5d847d2e35e9a69618ff64b7e48fc90c0674af05acc9804562c63ce3",
+      "props": {
+        "appName": "TalkCraft",
+        "groupA": "样本工作台",
+        "groupB": "技术证据",
+        "barTitle": "隔离验证队列",
+        "chip": "7 张卡",
+        "detailTitle": "b016-isolated-run",
+        "detailMeta": "960×540 · 30fps · 保护锁通过",
+        "kv1": "渲染耗时|18m",
+        "kv2": "静止段|0",
+        "titleSize": 16,
+        "ink": "#176eb0"
+      },
+      "evidence": [
+        {
+          "field": "chip",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s100-chip.json",
+          "sha256": "586bdafd1b122c8f437b7bf14d03b6c86dbdf7e8ff141c30cf56098c0529a6be",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "detailTitle",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s100-detailTitle.json",
+          "sha256": "a714a7c8356d45709d7dcaa3694b3aa743e5e6f09587ad1c608a02999d9ebbed",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "detailMeta",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s100-detailMeta.json",
+          "sha256": "797ecb5e3c3acb06deee5ad3cd51b54cee9b7902e4a978067df052aec5c0a8ba",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "kv1",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s100-kv1.json",
+          "sha256": "458206809e90c893aee226aeda8bbd56638ed8436a693fbe61362e02a67dc19c",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "kv2",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s100-kv2.json",
+          "sha256": "dcb51b3b8fb040fe2d7de51236f4812abd6fb512df38a19a52c8fc1ff3a1492c",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "parallel-items-with-host-b016",
+      "cardId": "parallel-items-with-host",
+      "implementationSha256": "90fc2c074e9d800cd065a7aa9e6d8f6b5eeaa3aee1698351266e615ae88b1513",
+      "props": {
+        "layout": "diagonal-bands",
+        "item1": "拆解问题",
+        "item2": "整理证据",
+        "item3": "交付成片",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "hostSrc": "_audit/video-talkcraft/demos/_lib/dh-host.webm"
+      },
+      "evidence": []
+    },
+    {
+      "id": "particle-weld-transition-b016",
+      "cardId": "particle-weld-transition",
+      "implementationSha256": "b44abd6711256d9f3e0c08d23c1a61cf6ad2259917d81e6ba84eb0066741bad4",
+      "props": {
+        "textA": "文案碎解",
+        "textB": "结果成形",
+        "tag": "同一批粒子：出场碎解 → 入场成形",
+        "fontSize": 78,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "particleColor": "#176eb0",
+        "labelColor": "#55555a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "pencil-sketch-draw-b016",
+      "cardId": "pencil-sketch-draw",
+      "implementationSha256": "bfdc8d9fde7654175d9b45fb8b4ce8506389fd1ae2ddb2e15124001a1652f0f2",
+      "props": {
+        "label": "结构先画出来",
+        "ink": "#176eb0",
+        "labelSize": 28,
+        "posX": 480,
+        "posY": 237.6,
+        "handSrc": "_audit/video-talkcraft/demos/pencil-sketch-draw/hand-pencil.png"
+      },
+      "evidence": []
+    },
+    {
+      "id": "pip-zoom-box-b016",
+      "cardId": "pip-zoom-box",
+      "implementationSha256": "dab5cdca542be7a042f8bb0e75419b9301aa0b2c5eeb848b9acd9f28555476b3",
+      "props": {
+        "boxW": 260,
+        "boxH": 250,
+        "targetX": 770,
+        "targetY": 270,
+        "faceX": 0.275,
+        "faceY": 0.315,
+        "frameColor": "#176eb0"
+      },
+      "evidence": [
+        {
+          "field": "targetX",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s104-targetX.json",
+          "sha256": "61ebfe83abaf20528cdbbe4ed0cdb5d393016f39fabdf8b3db0b9388a1a5b4b9",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "targetY",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s104-targetY.json",
+          "sha256": "05f12181e6666285790d245c7a2dc20d85cbe86141cb0567bec54c69a03be404",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "faceX",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s104-faceX.json",
+          "sha256": "4d92ae19c98d2648e7e4ed977033c96e28253a7d8cfd9350b3ab6814f3470d37",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "faceY",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b016-r1-20261005/evidence/s104-faceY.json",
+          "sha256": "ff1ba0fdcf8e89cf44184ae1cf841cb41d10ca5d46d72fadee48812b60ee09a7",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "pullback-cool-transition-b016",
+      "cardId": "pullback-cool-transition",
+      "implementationSha256": "05a1ae9351ff2f3708313285109286a3eea3c73a0540c98859667a8368a59000",
+      "props": {
+        "textA": "前段收束",
+        "textB": "呼吸落定",
+        "tag": "出场沉暗 → 入场慢后拉 · 合成节奏样本",
+        "fontSize": 78,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "labelColor": "#176eb0"
+      },
+      "evidence": []
+    },
+    {
+      "id": "number-slab-pop-b017",
+      "cardId": "number-slab-pop",
+      "implementationSha256": "ed5dc01bf03297529bd714b9e63b3f2f41d6a5dbc473d06edb283861bd7fc137",
+      "props": {
+        "intPart": "42",
+        "decPart": ".8",
+        "unit": "%",
+        "caption": "完成率提升",
+        "slabColor": "#176eb0",
+        "numColor": "#ffffff",
+        "numSize": 96,
+        "posX": 140,
+        "posY": 270
+      },
+      "evidence": [
+        {
+          "field": "intPart",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s106-intPart.json",
+          "sha256": "881bca6be80f7a1a38f12379513dfa3f9f607a6659f78d72bf416b699ccf1b12",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "decPart",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s106-decPart.json",
+          "sha256": "ba79130e1aaf6b86a4c6ae91a35015bd326a8b7c14064573e1a0eca9e0dd9788",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "push-through-transition-b017",
+      "cardId": "push-through-transition",
+      "implementationSha256": "4cb02ae0a434bf7582719fe45351a8aa449e9f7b96259903e7caf3927d90b2aa",
+      "props": {
+        "textA": "旧路径",
+        "textB": "新路径",
+        "tag": "同向推穿 → 反向沉降 · 过渡样本",
+        "fontSize": 76,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "labelColor": "#176eb0"
+      },
+      "evidence": []
+    },
+    {
+      "id": "quote-card-b017",
+      "cardId": "quote-card",
+      "implementationSha256": "001ae838a8e812d86a93aaeaa74cc9794978fa784dc55d80055a0965c2b1a4dd",
+      "props": {
+        "lines": "先看证据\n再做判断\n最后交付成片",
+        "source": "—— B017 隔离验证",
+        "fontSize": 42,
+        "panelColor": "#1d1d1f",
+        "textColor": "#ffffff",
+        "kwColor": "#ffd23e"
+      },
+      "evidence": [
+        {
+          "field": "source",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s108-source.json",
+          "sha256": "ac2ac4e48e376c3cd09a9a005b2de57644ddf9b8b895415f46ed736eb0bf3db1",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "rack-focus-pair-b017",
+      "cardId": "rack-focus-pair",
+      "implementationSha256": "4c662aa167f73cf689794b60140dccbe1b903ef6b4ac3bc3913edc530b21bde5",
+      "props": {
+        "labelFront": "原始页面",
+        "labelBack": "关键证据",
+        "srcFront": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "srcBack": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "reticle-lock-on-b017",
+      "cardId": "reticle-lock-on",
+      "implementationSha256": "cf55ab65772a46723e2f28deb19e271c602d8e863db7ffa3c97e97fec4d384e6",
+      "props": {
+        "src": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "tx": 240,
+        "ty": 260,
+        "tw": 300,
+        "th": 70,
+        "label": "锁定关键按钮",
+        "buttonText": "开始验证"
+      },
+      "evidence": [
+        {
+          "field": "tx",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s110-tx.json",
+          "sha256": "6dc22d5e3d22a9a8f58619f56798107854b9acb99bdf72d0995fd9a179ad6392",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "ty",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s110-ty.json",
+          "sha256": "0dae87d129057ec8fa2a59cc820bd8fe8a7a68a3992fa1381da9d7fa73d528f2",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "tw",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s110-tw.json",
+          "sha256": "f04ca608500d2102129e06313ebcaeb39828dfa1f65b6aca3aa84278bd773598",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "th",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s110-th.json",
+          "sha256": "2e58cb1c52e48c6391c74e0c87f4d568d2b9edad401d2c5209752a3dfa9dbb3c",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "scanline-annotate-b017",
+      "cardId": "scanline-annotate",
+      "implementationSha256": "237724da1781f78a4d4c50a5b5b3fb351711ec5c70d6faa671734cfe940bcf32",
+      "props": {
+        "src": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "targets": "26,62,320,42\n26,162,548,100\n26,274,150,42",
+        "labels": "标题区域|01 · 首屏\n证据区域|02 · 关键项\n按钮文案|03 · CTA"
+      },
+      "evidence": [
+        {
+          "field": "targets",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s111-targets.json",
+          "sha256": "c9ce5c937c638739266c2e2b855622dd6654dbb31a8f6a995ea444c01332022e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "labels",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s111-labels.json",
+          "sha256": "89b372dd97da24df84a0c141983300364648eeba9c45ccc412a34fb3bb128361",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "scribble-annotation-b017",
+      "cardId": "scribble-annotation",
+      "implementationSha256": "9b593574d030aa2f03de9d7bd1637b01970227bb22bfcd7776d87ecaa3cdb8f3",
+      "props": {
+        "title": "「流程验证」交付证据",
+        "priceMain": "¥0",
+        "priceOld": "¥0",
+        "spec": "技术样本 · 30fps · 双画幅",
+        "fineText": "仅用于隔离验证，不代表业务事实",
+        "btnText": "查看证据",
+        "inkColor": "#176eb0",
+        "underlineColor": "#ffd23e",
+        "strokeW": 6,
+        "titleFontSize": 24,
+        "priceFontSize": 42,
+        "posX": 130,
+        "posY": 55
+      },
+      "evidence": [
+        {
+          "field": "priceMain",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s112-priceMain.json",
+          "sha256": "81d5c95b4db831d308357a83b54380a412cda8051d50170cc6915fa6dca78720",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "priceOld",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s112-priceOld.json",
+          "sha256": "931a234ad7b050382ee2cc0786c2d031e2a83c3b6622ca5cc82372b9b9255bd1",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "spec",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b017-r1-20261005/evidence/s112-spec.json",
+          "sha256": "547fa4c7e8e1b0252baa979fd05a0cd7b710874596284ec02f5178f3498e1cd9",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "shape-wipe-transition-b018",
+      "cardId": "shape-wipe-transition",
+      "implementationSha256": "d7ab1edb023fdf0258219a183e74ddddaa43938f710482e454236ef5678f088b",
+      "props": {
+        "tagA": "01 · 讲概念",
+        "tagB": "02 · 看数据",
+        "chartTitle": "隔离验证通过率",
+        "bars": "B018|+7 张|56\n横屏|7/7|84\n竖屏|7/7|128\n保护|0 hash 错误|182|hot",
+        "chartSrc": "数据来源：B018 合成验证",
+        "chartFontSize": 21,
+        "wipeLight": "#d8d8dc",
+        "wipeMid": "#8a8a8e",
+        "wipeDeep": "#176eb0",
+        "bg": "#ffffff"
+      },
+      "evidence": [
+        {
+          "field": "tagA",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s113-tagA.json",
+          "sha256": "d707b5bb59e11d70e0eae49001e3cfbf330d0874b177385101d23a99054016d8",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "tagB",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s113-tagB.json",
+          "sha256": "a422ddbcb1a3c6d92b55507362a96081521c232717ec3e78226975cb09b5de8e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "bars",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s113-bars.json",
+          "sha256": "75f259cfd626d257759843cce32196a95e3a51e693bf0fea75be65efe3f86413",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "chartSrc",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s113-chartSrc.json",
+          "sha256": "6ed1b5ed6f6e2e4fb041795ebabcda7852fca5e5c4abe689cae17e44a86c501a",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "slow-pull-reveal-b018",
+      "cardId": "slow-pull-reveal",
+      "implementationSha256": "0b0dbb4edcbc6ad40f4df0dbb4e3b80fd04e619fb05409b7838c4e4db3f77569",
+      "props": {
+        "pageTitle": "隔离看板 · B018",
+        "kpisDsl": "验证卡数|7|本批新增\n横屏成片|7|全部解码\n竖屏成片|7|全部解码\n保护错误|0|hash 错误",
+        "chartTitle": "验证窗口稳定度",
+        "listTitle": "本批卡片 TOP 7",
+        "tileLabels": "横屏成片 竖屏成片 参数绑定 保护校验",
+        "ink": "#1d1d1f",
+        "chartLine": "#176eb0",
+        "numSize": 22
+      },
+      "evidence": [
+        {
+          "field": "pageTitle",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s114-pageTitle.json",
+          "sha256": "45ae7cc7ca8118bb64ee844e10fc24f710f237d8fd64af5f31f2737d180baaa9",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "kpisDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s114-kpisDsl.json",
+          "sha256": "1db59d6729b6cc1bbd3caa1b7140d6de8f3989bd0cc5d93123c8404c241c2651",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "listTitle",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s114-listTitle.json",
+          "sha256": "109a6600f6047a0e62b9b099d7cb9b7410abcf26b39777213165288662c4b139",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "slow-push-in-b018",
+      "cardId": "slow-push-in",
+      "implementationSha256": "9bc740c0556abe7f79da41d79d765c11be6575da351e47e9c926d1787a9dc079",
+      "props": {
+        "kicker": "隔离验证 · B018",
+        "headline": "七张卡的参数与成片都可追溯",
+        "bylineLead": "本批验证",
+        "bylineName": "B018",
+        "bylineRest": "2026 年 10 月 5 日 · 技术样本",
+        "figCap": "图 1　横竖成片与保护校验均已登记",
+        "quoteText": "真实组件、真实参数、真实成片逐项对账。",
+        "quoteSource": "—— B018 隔离证据",
+        "sideTitle": "验证记录",
+        "statsDsl": "7|新增卡片\n0|hash 错误",
+        "ink": "#1d1d1f",
+        "hiBar": "#176eb0",
+        "titleSize": 27,
+        "quoteSize": 14.5
+      },
+      "evidence": [
+        {
+          "field": "kicker",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-kicker.json",
+          "sha256": "20990d69296fbe55d1124e4e177e2ae40b0c06e7ea1d0dc510872eb80d744921",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "bylineName",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-bylineName.json",
+          "sha256": "39b11c3230189f3b1e13ea10a142681b76c6197be16b6b313b4d4dee79b5ca2a",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "bylineRest",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-bylineRest.json",
+          "sha256": "76f668591d244e938546f5e24b7f40f0a0fe223fedd006a7229ac1ca08f6696b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "figCap",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-figCap.json",
+          "sha256": "8fae8fd3623f782c8d49c146fe1a70a233bac62fb2ad5250c18629fcf31d9636",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "quoteSource",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-quoteSource.json",
+          "sha256": "ca968011144b5133d99badd5ef5762956956faed0c97efab0c2bb4dc243e35ca",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "statsDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s115-statsDsl.json",
+          "sha256": "bc1cede0be323248de6bada230705e89dfa0d8833eb718dfa23ab2c31c3716c5",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "split-60-40-story-b018",
+      "cardId": "split-60-40-story",
+      "implementationSha256": "d99757e5da89418eff5af6490afb1d5868e58cb57ea95f7fa022b2b3624cff8e",
+      "props": {
+        "title": "这一轮验证\n完成三件事",
+        "chip1": "跑完真实组件",
+        "chip2": "核对双画幅",
+        "chip3": "锁定保护哈希",
+        "chipBg1": "#E8F0FF",
+        "chipBg2": "#FFE9F0",
+        "chipBg3": "#E6F7F2",
+        "src": "_audit/video-talkcraft/demos/_lib/dh-host.webm",
+        "hostSrc": ""
+      },
+      "evidence": []
+    },
+    {
+      "id": "stack-fan-out-b018",
+      "cardId": "stack-fan-out",
+      "implementationSha256": "e551600532ab1d23a8ba5dd35cc4c20e11c0543c00e17216e95a8d3b95d78a2e",
+      "props": {
+        "title": "本批保留五张验证画面",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "src4": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src5": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "subscribe-cta-b018",
+      "cardId": "subscribe-cta",
+      "implementationSha256": "c5f4347c9122bf96c3a5687043734f5234ea862e2260a45b564dde2340ee983a",
+      "props": {
+        "platA": "隔离验证台 · 订阅 + 铃铛",
+        "subText": "订阅",
+        "subDoneText": "已订阅",
+        "platB": "技术证据 · 一键三连",
+        "triLabels": "点赞 投币 收藏",
+        "platC": "B018 · 关注验证",
+        "followText": "关注",
+        "followDoneText": "已关注",
+        "accent": "#176eb0",
+        "followBg": "#1d1d1f",
+        "subSize": 26,
+        "followSize": 25,
+        "posY": 58
+      },
+      "evidence": [
+        {
+          "field": "platC",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b018-r1-20261005/evidence/s118-platC.json",
+          "sha256": "dcac708158ef6ad9734dc476d033d1dfe3dc212dac7e4c3174dd6d97396b94f2",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "strike-and-replace-b018",
+      "cardId": "strike-and-replace",
+      "implementationSha256": "675ee80a3a9de8888d3a46ecefd136a24de24503f5aabacce9cc8648e1c427c8",
+      "props": {
+        "pre": "验证结果是",
+        "from": "待核对",
+        "to": "已通过",
+        "post": "，证据已留档",
+        "fontSize": 32,
+        "strikeColor": "#c53d52",
+        "ink": "#1d1d1f",
+        "posX": 432,
+        "posY": 270,
+        "keepStrike": true
+      },
+      "evidence": []
+    },
+    {
+      "id": "bed-echo-blur-b019",
+      "cardId": "bed-echo-blur",
+      "implementationSha256": "c71053e648a5cd4c195c0178be1dcb97c2db10e73a1f06c69e53fdb453e53097",
+      "props": {
+        "title1": "隔离批次",
+        "title2": "真实画面底床",
+        "note1": "竖屏素材 · 前景与底床同源",
+        "note2": "B019 隔离验证 · 技术样本",
+        "src": "_audit/video-talkcraft/demos/_lib/dh-host.webm"
+      },
+      "evidence": [
+        {
+          "field": "note2",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s120-note2.json",
+          "sha256": "bf55d9e1271a308f31de67a4575c8a7b30b7535dda9ea660e0af560b74fc255e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "black-slam-transition-b019",
+      "cardId": "black-slam-transition",
+      "implementationSha256": "0d0b2b80e447dcba60d9c88ca8cc4a5a5a15742fa704a62c6f2ff14e5ffb6313",
+      "props": {
+        "textA": "旧状态",
+        "textB": "新状态",
+        "tag": "零交叠硬切 · 重音后拉刹住",
+        "fontSize": 72,
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "flashColor": "#141418",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "callout-line-label-b019",
+      "cardId": "callout-line-label",
+      "implementationSha256": "1fdb5e85473266d543816bffb267307749c5249ca0ac2e4fde9824d442477a5c",
+      "props": {
+        "label1Title": "主画面焦点",
+        "label1Sub": "第一处标注",
+        "label2Title": "参数证据",
+        "label2Sub": "第二处标注",
+        "color": "#176eb0",
+        "ink": "#1d1d1f",
+        "labelFontSize": 17,
+        "target1X": 422,
+        "target1Y": 114,
+        "target2X": 588,
+        "target2Y": 300,
+        "phoneX": 380,
+        "phoneY": 70
+      },
+      "evidence": [
+        {
+          "field": "target1X",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s122-target1X.json",
+          "sha256": "1192539387a77f54c9de3907c15b0c0e743034bd3a87213d1cc2908c8a45284b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target1Y",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s122-target1Y.json",
+          "sha256": "6ebc443bbee502f34a5264922512e4e46f7e2b4c2b2cd847b8fb41761451e3bc",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target2X",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s122-target2X.json",
+          "sha256": "d20466368938080f0e73a6cc1024c19cda862be507eadc36c2753c29aa2cd6e0",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "target2Y",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s122-target2Y.json",
+          "sha256": "33340730525a8624758254392f9377f081b8a5006ec1d82711e64a5d5e7bd788",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "caret-wipe-transition-b019",
+      "cardId": "caret-wipe-transition",
+      "implementationSha256": "4db022ad6d7774bef541aad87f2e472bf4b0df751b1978c65bbac11618681c3e",
+      "props": {
+        "textA": "旧文案正在退场",
+        "textB": "新文案已经出现",
+        "tag": "光标即边界 · 走过之处完成替换",
+        "dir": "right",
+        "fontSize": 58,
+        "caretColor": "#176eb0",
+        "bgA": "#ffffff",
+        "bgB": "#f1f1f4",
+        "labelColor": "#8a8a8a"
+      },
+      "evidence": []
+    },
+    {
+      "id": "chapter-progress-list-b019",
+      "cardId": "chapter-progress-list",
+      "implementationSha256": "dba7d6793ed02d48e7b36cdc182a716a8f10557c952f79a40c1566a70af0ed45",
+      "props": {
+        "rows": "01|先看验证范围\n02|核对真实参数|current\n03|生成横竖成片\n04|保留保护哈希",
+        "headText": "B019 · CHAPTER",
+        "fontSize": 23,
+        "accent": "#176eb0",
+        "dim": "#a1a1a6",
+        "bg": "#1d1d1f",
+        "listRight": 74
+      },
+      "evidence": [
+        {
+          "field": "headText",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s124-headText.json",
+          "sha256": "c6d1f963728acd6fa58e1ebdc22f762c15272b4d3fd6234374e3abf58963fe17",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "chapter-title-card-b019",
+      "cardId": "chapter-title-card",
+      "implementationSha256": "35eb80ba1db45162c2b6f065c0f9ecddacecd1c18a42e9ba389a9fcf0bab0e3a",
+      "props": {
+        "num": "B019",
+        "name": "隔离验证交验",
+        "sub": "TARGET 3 · TECHNICAL REVIEW",
+        "bg": "#1d1d1f",
+        "textColor": "#ffffff"
+      },
+      "evidence": [
+        {
+          "field": "num",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s125-num.json",
+          "sha256": "eb2d74c5728e82ba08781be518badc2aa1483e33a9ca2d5be80480f7f7a3e003",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "sub",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s125-sub.json",
+          "sha256": "96b52ed17b7b0cd87110d0c6181e21fd836b9ded9689b3302fa6d485b24aff8b",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "chart-grow-b019",
+      "cardId": "chart-grow",
+      "implementationSha256": "d0f94b50ad055812e14f36fa4a4436aee50f8e84e171732acca30421fa0b559e",
+      "props": {
+        "title": "B019 验证通过率",
+        "colsData": "契约|20\n浏览器|40\n横屏|60\n竖屏|80\n保护|100|hot",
+        "maxVal": 100,
+        "baseColor": "#d2d2d7",
+        "hotColor": "#176eb0",
+        "titleSize": 22,
+        "valSize": 20,
+        "posX": 120,
+        "posY": 62
+      },
+      "evidence": [
+        {
+          "field": "title",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s126-title.json",
+          "sha256": "e801ac8a21f70fc358df98d472593a6e1d582379decabd117b05af8f33b57d91",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "colsData",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b019-r1-20261005/evidence/s126-colsData.json",
+          "sha256": "3066bbe53c65292bb8712511a4009b356b7248a1281f1dd7142803aceaa49644",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "soft-blur-in-b020",
+      "cardId": "soft-blur-in",
+      "implementationSha256": "ca2c362e43682de035b55d41ab6d8fcc534b6c2e5b6c76daf7e73092cdbf2f96",
+      "props": {
+        "text": "先把复杂问题讲清楚",
+        "textColor": "#171717",
+        "fontSize": 72
+      },
+      "evidence": []
+    },
+    {
+      "id": "split-compare-slider-b020",
+      "cardId": "split-compare-slider",
+      "implementationSha256": "c18e4b28f327f3ebe9567d826bebee0ad18551417a8dfed3d3d858ba60b20e6d",
+      "props": {
+        "srcBefore": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "srcAfter": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "labelBefore": "前",
+        "labelAfter": "后"
+      },
+      "evidence": []
+    },
+    {
+      "id": "stage-keyframe-tour-b020",
+      "cardId": "stage-keyframe-tour",
+      "implementationSha256": "c3a3403f831c6ac46d8423aa180bdc0b02c2dc5f6c629b36ebd785a6299025b4",
+      "props": {
+        "heroTag": "版本巡游样本",
+        "heroTitle": "把验证过程讲成一条清晰路径",
+        "heroDesc": "从输入到输出，逐段检查绑定、画面和成片。",
+        "featsDsl": "绑定参数|检查输入\n逐帧观察|检查构图\n导出复核|检查成片",
+        "metricsDsl": "7|新增卡\n14|横竖成片\n0|媒体加载错误",
+        "pricingDsl": "横屏|通过|样本\n竖屏|通过|样本\n保护|通过|样本",
+        "titleSize": 52,
+        "ink": "#1d1d1f"
+      },
+      "evidence": [
+        {
+          "field": "metricsDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b020-r1-20261005/evidence/s129-metricsDsl.json",
+          "sha256": "72921e281480adbcb511a36d6deaeb34d1fa0362c51b72d35996f1e33c61267e",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        },
+        {
+          "field": "pricingDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b020-r1-20261005/evidence/s129-pricingDsl.json",
+          "sha256": "4eecda875166c492dc8517c00e9b4813fdf46d1fddba27b6fe51fd8d6e29acfd",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "step-timeline-vertical-b020",
+      "cardId": "step-timeline-vertical",
+      "implementationSha256": "818631730d80c316f3373b8c5da6562c228a5c5d357f3a58698bf72f9bd93bca",
+      "props": {
+        "stepsDsl": "第一步|登记参数\n第二步|逐帧检查\n第三步|复核成片",
+        "accentColor": "#e0452c",
+        "titleSize": 25,
+        "posX": 132,
+        "posY": 118,
+        "rowGap": 110
+      },
+      "evidence": []
+    },
+    {
+      "id": "still-layout-relay-b020",
+      "cardId": "still-layout-relay",
+      "implementationSha256": "99458f5b38ee3052c0a5ecee34cc8f0c30fadfab6e3da444cd5131225938612b",
+      "props": {
+        "layout": "hero-duo",
+        "cap1": "主画面",
+        "cap2": "细节",
+        "cap3": "收尾",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "accent": "#0066cc"
+      },
+      "evidence": []
+    },
+    {
+      "id": "sway-parallax-b020",
+      "cardId": "sway-parallax",
+      "implementationSha256": "75486cb4060fee65f6a4c4980713581a60f29cba5d0ab8161c276fc22c3a7d3b",
+      "props": {
+        "brandTitle": "从参数到成片，逐项核对",
+        "brandDesc": "每个阶段都留下可复核的中间结果。",
+        "brandLabel": "隔离批次",
+        "flowLabel": "验证步骤",
+        "stepsDsl": "登记输入\n检查绑定\n生成成片\n保留证据",
+        "hiStep": 2,
+        "sumLabel": "样本结果",
+        "cellsDsl": "新卡|7|逐卡验证\n成片|14|横竖各一\n错误|0|媒体加载\n保护|通过|哈希复核",
+        "titleSize": 27,
+        "ink": "#1d1d1f"
+      },
+      "evidence": [
+        {
+          "field": "cellsDsl",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b020-r1-20261005/evidence/s132-cellsDsl.json",
+          "sha256": "fc324f0a89a3ff54cdf928476de7e9145db78c336c8ca6f00295e83acbe44e74",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "typewriter-reveal-b020",
+      "cardId": "typewriter-reveal",
+      "implementationSha256": "551bf93a16cea8c23e801a56c2a85a0ae6d53aeadfa2f007cc17784c277953d5",
+      "props": {
+        "line1": "B020 · 隔离验证",
+        "line2": "逐字出现后交接第二行",
+        "fontSize1": 36,
+        "fontSize2": 18,
+        "ink": "#1d1d1f",
+        "subColor": "#8a8a8a",
+        "posX": 460.8,
+        "posY": 112
+      },
+      "evidence": [
+        {
+          "field": "line1",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b020-r1-20261005/evidence/s133-line1.json",
+          "sha256": "9d8ce262a22646d40f7b1dfce878bd89e6bdf40ed7efb352086fdec45736f172",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "source-converge-b021",
+      "cardId": "source-converge",
+      "implementationSha256": "a802be509d3e64e96dc82658c3e3609335cd178ce6e220f7b2d19699792479ed",
+      "props": {
+        "title": "多个入口，如何汇成一个结果",
+        "sources": "输入一\n输入二\n输入三\n输入四",
+        "hub": "统一结果",
+        "caption": "按批次自动更新"
+      },
+      "evidence": [
+        {
+          "field": "title",
+          "path": "docs/audits/b-talkcraft-target3/stage5-b021-r1-20261005/evidence/s134-title.json",
+          "sha256": "aa9f9c08be1b22a45df8f76ea33b79bc6b1c5635c26882fa33206943d0b8e8c5",
+          "sourceUrl": "https://example.com/synthetic-only-not-business-facts"
+        }
+      ]
+    },
+    {
+      "id": "terminal-typing-log-b021",
+      "cardId": "terminal-typing-log",
+      "implementationSha256": "c6ccf22b7327833346f46634ed9883b9016656d401742afcc2b3ad852a8c1fe4",
+      "props": {
+        "lines": "cmd|0|检查开始\nlog|0.20|读取隔离配置\nlog|0.27|参数绑定已确认\nlog|0.12|准备浏览器验证\ncmd|0.50|执行构建\nlog|0.20|生成浏览器包\nlog|0.24|读取卡片清单\nlog|0.12|整理渲染任务\nlog|0.10|检查媒体登记\nlog|0.12|保留验证证据\nok|0.34|检查通过",
+        "termPath": "~/isolated/talkcraft",
+        "okColor": "#33d16b",
+        "fontSize": 21,
+        "posX": 62,
+        "posY": 66
+      },
+      "evidence": []
+    },
+    {
+      "id": "timeline-photo-strip-b021",
+      "cardId": "timeline-photo-strip",
+      "implementationSha256": "c398f976b38ae0906196a8ee8d40afebe149102a8f1ab1f1a743e6207aeb88c1",
+      "props": {
+        "label1": "阶段一 · 输入",
+        "label2": "阶段二 · 绑定",
+        "label3": "阶段三 · 渲染",
+        "label4": "阶段四 · 复核",
+        "src1": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg",
+        "src2": "_audit/video-talkcraft/demos/_lib/media/p-1057.jpg",
+        "src3": "_audit/video-talkcraft/demos/_lib/media/p-1059.jpg",
+        "src4": "_audit/video-talkcraft/demos/_lib/media/p-0.jpg"
+      },
+      "evidence": []
+    },
+    {
+      "id": "ui-flow-theater-b021",
+      "cardId": "ui-flow-theater",
+      "implementationSha256": "a4656c5cc2210057caa00dbe01e6117f390a7b8edd54679874f0e5db44aeeeeb",
+      "props": {
+        "panelTitle": "导出设置",
+        "panelSub": "字幕、主题与音量，修改后保存",
+        "rowsDsl": "字幕对齐|按语音逐句检查\n界面主题|预览和封面同步切换\n输出音量|混音后的整体电平",
+        "segLabels": "浅色|深色|跟随",
+        "cancelLabel": "取消",
+        "saveLabel": "保存设置",
+        "toastTitle": "设置已保存",
+        "toastSub": "下一条样本开始生效",
+        "accent": "#d8383a",
+        "titleSize": 20,
+        "rowSize": 15,
+        "posX": 150,
+        "posY": 84,
+        "sldFrom": 28,
+        "sldTo": 76
+      },
+      "evidence": []
+    }
+  ]
+}

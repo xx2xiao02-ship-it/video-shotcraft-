@@ -55,7 +55,7 @@ export function parseCardsFromShotbook(markdown, skillRoot) {
   const byShot = {};
   let shotId = null;
   for (const line of markdown.split(/\r?\n/u)) {
-    const heading = /^#{2,}\s+(S\d{2})\b/u.exec(line);
+    const heading = /^#{2,}\s+(S\d{2,})\b/iu.exec(line);
     if (heading) {
       shotId = heading[1].toLowerCase();
       byShot[shotId] ||= [];
@@ -106,19 +106,39 @@ export function writeTalkcraftQaManifests(root,runId,skillRootOverride) {
   const ts = require('typescript');
   const shots = json(path.join(remotion,'shots.json'));
   const sourceRun = json(path.join(project,'source-run.json'));
+  const cardCallsRequired = sourceRun.cardCallsRequired === true &&
+    (sourceRun.aspectRatio || sourceRun.themeSnapshot?.aspectRatio || '16:9') === '16:9';
   const binding = assertTalkcraftCardCallsBound(root,skillRoot,runId, {
-    requireCardCalls:sourceRun.cardCallsRequired === true,
-    requireCompleteCoverage:sourceRun.cardCallsRequired === true,
+    requireCardCalls:cardCallsRequired,
+    requireCompleteCoverage:cardCallsRequired,
   });
+  const formalFile = path.join(project, 'qa', 'formal-bindings.json');
+  const formal = existsSync(formalFile) ? json(formalFile) : null;
   let cards;
-  if (binding.present) {
+  if (formal?.schema === 'talkcraft-formal-bindings-v1' && Array.isArray(formal.bindings)) {
+    const byShot = Object.fromEntries(formal.bindings.map(item => [item.shotId, [item.shotCard]]));
+    cards = {slugs:[...new Set(formal.bindings.map(item => item.shotCard))], byShot};
+  } else if (binding.present) {
     const byShot = {};
     for (const call of binding.record.calls) byShot[call.shotId] = [call.cardId];
     cards = {slugs:[...new Set(binding.record.calls.map(call => call.cardId))],byShot};
   } else {
-    cards = parseCardsFromShotbook(readFileSync(path.join(project,'SHOTBOOK.md'),'utf8'),skillRoot);
+    try {
+      cards = parseCardsFromShotbook(readFileSync(path.join(project,'SHOTBOOK.md'),'utf8'),skillRoot);
+      // 竖屏 B 模式的旧 SHOTBOOK 可能仍记录 native-scene；若工程已经有
+      // 真实模板绑定清单，沿用运行时绑定，避免 QA 阶段把它重写为空。
+      const existingCardsPath = path.join(remotion, 'cards-used.json');
+      if (!cards.slugs.length && existsSync(existingCardsPath)) {
+        const existingCards = json(existingCardsPath);
+        if (Array.isArray(existingCards.slugs) && existingCards.slugs.length) cards = existingCards;
+      }
+    } catch (error) {
+      if (cardCallsRequired) throw error;
+      // 竖屏占位运行不要求正式镜头卡；保留空清单，让通用 QA 继续执行。
+      cards = {slugs:[], byShot:Object.fromEntries(shots.map(shot => [shot.id, []]))};
+    }
     const missingShotCards = shots.map(shot => shot.id).filter(id => !cards.byShot[id]?.length);
-    if (missingShotCards.length) throw new Error(`SHOTBOOK 没有选卡登记：${missingShotCards.join(', ')}`);
+    if (cardCallsRequired && missingShotCards.length) throw new Error(`SHOTBOOK 没有选卡登记：${missingShotCards.join(', ')}`);
     const missingCopies = cards.slugs.filter(slug => !existsSync(path.join(remotion,'src','cards',`${slug}.tsx`)) &&
       !existsSync(path.join(remotion,'src','cards','gen',`${slug}.tsx`)));
     if (missingCopies.length) throw new Error(`工程未复制这些卡片源码：${missingCopies.join(', ')}`);
@@ -136,7 +156,8 @@ export function writeTalkcraftQaManifests(root,runId,skillRootOverride) {
       throw new Error(`音效文件不存在或路径非法：${cue.file}`);
     }
   }
-  const anchors = anchorsFromBeats(json(path.join(remotion,'beats.json')));
+  const beatsFile = path.join(remotion,'beats.json');
+  const anchors = existsSync(beatsFile) ? anchorsFromBeats(json(beatsFile)) : [];
   const cardsUsed = {schema:'talkcraft-cards-used-v1',slugs:cards.slugs,byShot:cards.byShot};
   const outputs = {
     'cues.json':cues,

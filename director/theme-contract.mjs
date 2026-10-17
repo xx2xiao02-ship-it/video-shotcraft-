@@ -28,6 +28,10 @@ const DEFAULTS = {
   fontFamily: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif",
   titleSize: 36,
   radius: 12,
+  textShadowStrength: 0,
+  textStrokeColor: '#000000',
+  textStrokeWidth: 0,
+  textGradient: 'none',
   captionSize: 36,
   captionWeight: 600,
   captionColor: '#ffffff',
@@ -75,7 +79,7 @@ export function normalizeTheme(input = {}) {
   const raw = input && typeof input === 'object' ? input : {};
   const nested = raw.tokens && typeof raw.tokens === 'object' ? raw.tokens : {};
   const value = (name, ...aliases) => {
-    for (const candidate of [nested[name], ...aliases.map(key => raw[key])]) {
+    for (const candidate of [nested[name], raw[name], ...aliases.map(key => raw[key])]) {
       if (candidate !== undefined && candidate !== null && candidate !== '') return candidate;
     }
     return DEFAULTS[name];
@@ -93,6 +97,10 @@ export function normalizeTheme(input = {}) {
     fontFamily: value('fontFamily'),
     titleSize: numberOr(value('titleSize'), DEFAULTS.titleSize),
     radius: numberOr(value('radius'), DEFAULTS.radius),
+    textShadowStrength: Math.min(100, Math.max(0, numberOr(value('textShadowStrength'), 0))),
+    textStrokeColor: value('textStrokeColor'),
+    textStrokeWidth: Math.min(10, Math.max(0, numberOr(value('textStrokeWidth'), 0))),
+    textGradient: ['none', 'accent', 'ink'].includes(value('textGradient')) ? value('textGradient') : 'none',
     captionSize: numberOr(value('captionSize'), DEFAULTS.captionSize),
     captionWeight: numberOr(value('captionWeight'), DEFAULTS.captionWeight),
     captionColor: value('captionColor'),
@@ -121,6 +129,10 @@ export function normalizeTheme(input = {}) {
     fontFamily: tokens.fontFamily,
     titleSize: tokens.titleSize,
     radius: tokens.radius,
+    textShadowStrength: tokens.textShadowStrength,
+    textStrokeColor: tokens.textStrokeColor,
+    textStrokeWidth: tokens.textStrokeWidth,
+    textGradient: tokens.textGradient,
     captionSize: tokens.captionSize,
     captionWeight: tokens.captionWeight,
     captionColor: tokens.captionColor,
