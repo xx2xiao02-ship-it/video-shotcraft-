@@ -7,12 +7,13 @@ import {cardStageLayout,nativeCardSkin,subtitleSkin} from './talkcraft-presentat
 import {installPresentationSkin} from './talkcraft-presentation-install.mjs';
 import {minimumContrast,compositeColor} from './talkcraft-color-contrast.mjs';
 
-test('实际42px正文缩到390px手机后仍达12px，保留独立字幕区',()=>{
+test('默认模板完整等比适配画幅，不再为字幕统一缩卡',()=>{
  for(const [width,height] of [[1920,1080],[1080,1920]]){
   const p=cardStageLayout(width,height);
   assert.ok(42*p.scale*390/width>=12);
   assert.ok(p.left>=0&&p.left+960*p.scale<=width);
-  assert.ok(p.top+540*p.scale<=height*(height>width?.73:.82)+.01);
+  assert.ok(p.top>=0&&p.top+540*p.scale<=height+.01);
+  assert.ok(Math.abs(960*p.scale-width)<.01||Math.abs(540*p.scale-height)<.01);
  }
  assert.throws(()=>cardStageLayout(0,1080),/画幅/);
  const material=cardStageLayout(1920,1080,{separateMaterial:true});assert.ok(material.top>=1080*.55);

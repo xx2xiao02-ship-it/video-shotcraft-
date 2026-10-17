@@ -1,9 +1,13 @@
 import {chooseReadableText,compositeColor} from './talkcraft-color-contrast.mjs';
 
 // The 960x540 card retains its aspect ratio and native coordinate system.
-// Reserve a separate caption band instead of shrinking every card to 64%.
+// Default full-scene cards use the entire canvas; never shrink for captions.
 export function cardStageLayout(width,height,{separateMaterial=false}={}){
   if(!(width>0&&height>0))throw Error('画幅尺寸无效');
+  if(!separateMaterial){
+    const scale=Math.min(width/960,height/540);
+    return {scale,left:(width-960*scale)/2,top:(height-540*scale)/2};
+  }
   const portrait=height>width;
   const top=separateMaterial?height*.55:portrait?height*.20:height*.06;
   const bottom=portrait?height*.73:height*.82;
@@ -58,4 +62,14 @@ export function subtitleSkin(theme){
   const selected=theme.captionColor||theme.text||'#1a1a1a';
   const pick=chooseReadableText(selected,backgrounds);
   return {color:pick.color,background:pick.backgroundColor||`color-mix(in srgb, ${surface} 76%, transparent)`};
+}
+
+// This upstream card already owns the spoken caption. Suppress only an exact
+// duplicate external caption, never unrelated narration or missing card text.
+export function cardOwnsNarrationCaption(shot,text){
+  if(shot?.shotCard!=='keyword-pop-highlight')return false;
+  const p=shot.templateParams?.cardProps||{};
+  const normalize=s=>String(s??'').replace(/[\s\p{P}]/gu,'');
+  const card=normalize(String(p.textBefore??'')+String(p.keyword??'')+String(p.textAfter??''));
+  return Boolean(card)&&card===normalize(text);
 }

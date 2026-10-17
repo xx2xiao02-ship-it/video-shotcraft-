@@ -24,6 +24,12 @@ export function installPresentationSkin(project){
   const subtitles=path.join(src,'Subtitles.tsx');
   if(fs.existsSync(subtitles)){
     let code=fs.readFileSync(subtitles,'utf8');
+    const captionReturn='return line ? <SubtitleLine text={line.text} /> : null;';
+    if(code.includes(captionReturn)&&code.includes('const now=frame/fps;')){
+      code="import {cardOwnsNarrationCaption} from './talkcraft-presentation-skin.mjs';\nimport {SHOTS} from './shots';\n"+code;
+      code=code.replace(captionReturn,"const shot=SHOTS.find(s=>now>=s.startSec&&now<s.startSec+s.durationSec);\n  return line && !cardOwnsNarrationCaption(shot,line.text) ? <SubtitleLine text={line.text} /> : null;");
+      fs.writeFileSync(subtitles,code);
+    }
     const old="color:'var(--sc-caption-color, var(--sc-text))', background:'color-mix(in srgb, var(--sc-surface) 76%, transparent)'";
     if(code.includes(old)){
       code="import {subtitleSkin} from './talkcraft-presentation-skin.mjs';\nimport {THEME} from './theme';\n"+code;
