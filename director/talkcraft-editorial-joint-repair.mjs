@@ -20,7 +20,7 @@ export function editorialRequiredNumericFields(card){
 
 // This is a comparison contract, not a new selector. Keep semantic matching,
 // source acquisition, business props and actual visibility in their own gates.
-export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot}){
+export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot,repairBatch}){
   if(!proposal?.shots?.length)return null;
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
   const materials=auditEditorialMaterialContract({shots,sentences:proposal.sentences,
@@ -32,7 +32,13 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   for(const issue of failedChecks.filter(i=>i.code==='template_window_reuse'))
     if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
   if(!ids.size)shots.forEach(s=>ids.add(s.id));
-  const targets=shots.filter(s=>ids.has(s.id));
+  const pending=shots.filter(s=>ids.has(s.id));
+  if(repairBatch&&(!Number.isInteger(repairBatch.maxShots)||repairBatch.maxShots<1||repairBatch.maxShots>2))
+    throw Error('局部修订批量必须是1或2镜');
+  const targets=repairBatch?pending.slice(0,repairBatch.maxShots):pending;
+  // Deferred shots are LOCKED during this request. Recompute all candidate
+  // conflicts against that smaller editable set, not the original failure set.
+  if(repairBatch){ids.clear();targets.forEach(s=>ids.add(s.id));}
   const windows=targets.map(shot=>{
     if(!Number.isInteger(shot.firstSentence)||!Number.isInteger(shot.lastSentence)||shot.firstSentence<0||
       shot.lastSentence<shot.firstSentence||shot.lastSentence>=aligned.length)
@@ -106,7 +112,9 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       nextAction:candidates.length?'编导比较可行卡并同时重写参数、资料展示字段和原生展示计划':'按真实自然句边界重排；已生成口型窗口仍精确保留'};
   });
   return {schema:'talkcraft-editorial-joint-repair-v1',
-    inputSha256:digest({proposal,failedChecks,aligned,personWindows}),reviewedCount:catalog.cards.length,
+    inputSha256:digest({proposal,failedChecks,aligned,personWindows,...(repairBatch?{repairBatch}:{})}),reviewedCount:catalog.cards.length,
+    ...(repairBatch?{batch:{maxShots:repairBatch.maxShots,pendingShotIds:pending.map(s=>s.id),
+      deferredShotIds:pending.filter(s=>!ids.has(s.id)).map(s=>s.id)}}:{}),
     windows,materialIssues:materials.issues,
     rules:'全108张已审卡仍可比较，排除项是后端硬约束而非语义白名单。candidates只证明当前句范围的时长/人物、真实资料槽能力及与固定镜头的去重可行性，不代替语义、参数、来源授权、实际槽位绑定或文字可见性检查；修订镜之间仍须联合去重。requestedPlaybackRate=null表示正式字段省略，绝非填1；参考驻留点只用于算容量，正式驻留须依据源码重新计算并通过全部原门禁。换卡必须同步重写cardProps、templateMaterialQueries、research的displayShotId/displayField、personDisplays的姓名字段和nativePresentation；不得复用旧卡方案或用理由豁免硬约束。无可行卡时按真实句边界重排，不自动选第一名、不改原配音或口型、不触发付费调用。',
     productionAdmitted:false,userAcceptance:false};

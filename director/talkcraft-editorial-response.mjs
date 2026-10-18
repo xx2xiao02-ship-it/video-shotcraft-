@@ -68,6 +68,17 @@ export function recoverBoundEditorialSelectionResponse(project,{runId,request}){
   return parsedEnvelope(retainedEnvelope(project,{runId,requestId}));
 }
 
+// Diagnostic evidence only. A truncated response NEVER becomes a valid design.
+// The same immutable receipt, request and input bindings apply as for recovery.
+export function inspectBoundEditorialResponse(project,{runId,request}){
+  const {requestId,...contract}=request||{};
+  if(contract.schema!=='talkcraft-editorial-selection-request-v2'||requestId!==sha(JSON.stringify(contract)))
+    throw fail('EDITORIAL_RESPONSE_BINDING_INVALID','已保存局部请求的内容指纹不符');
+  const e=retainedEnvelope(project,{runId,requestId}),body=JSON.parse(e.body);
+  return {httpStatus:e.transport.httpStatus,provider:e.transport.provider,status:body.status,
+    reason:body.incomplete_details?.reason,usage:body.usage};
+}
+
 export function responseFailureDetails(error){
   return {code:error.code||'EDITORIAL_PROVIDER_ERROR',message:String(error.message||error),
     ...(Number.isInteger(error.outputLength)?{outputLength:error.outputLength}:{}),productionAdmitted:false};

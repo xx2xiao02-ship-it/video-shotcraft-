@@ -33,6 +33,18 @@ test('本次超时无返回只保留已授权基稿与失败范围，不发布�
  write(w,'qa/planning-editorial-repair.json',{...feedback,proposal:{shots:[]}});assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);write(w,'qa/planning-editorial-repair.json',feedback);
  write(p,'input.txt','changed');assert.throws(()=>currentEditorialRepairFeedback(p),/输入变化/);write(p,'input.txt',entries['input.txt']);
  write(w,'qa/editorial-provider-receipt.json',{old:true});assert.equal(currentEditorialRepairFeedback(p),null);
+ submission.outcome='provider-response-invalid';
+ write(p,'qa/editorial-single-submission.json',submission);write(w,'qa/editorial-single-submission.json',submission);
+ captureEditorialResponse(w,{runId:'current',requestId:request.requestId,prompt:'current'})(
+  JSON.stringify({status:'incomplete',incomplete_details:{reason:'max_output_tokens'},output_text:'{"repairs":['}),
+  {httpStatus:200,provider:'acctoken'});
+ const truncated=currentEditorialRepairFeedback(p);
+ assert.deepEqual(truncated.proposal,base);assert.deepEqual(truncated.failedChecks,failedChecks);
+ assert.equal(truncated.responseIncomplete,true);assert.equal(truncated.providerOutcomeUnknown,false);
+ assert.equal(truncated.passed,false);assert.deepEqual(fs.readFileSync(path.join(p,'remotion/shots.json')),published);
+ captureEditorialResponse(w,{runId:'other',requestId:request.requestId,prompt:'current'})(
+  JSON.stringify({status:'incomplete',incomplete_details:{reason:'max_output_tokens'}}),{httpStatus:200,provider:'acctoken'});
+ assert.throws(()=>currentEditorialRepairFeedback(p),/当前任务/);
 });
 test('本次已编译结果的两处失败覆盖旧五镜清单，归档后仍锁定其余设计；篡改拒绝且不发布',t=>{
  const p=fs.mkdtempSync(path.join(os.tmpdir(),'latest-repair-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));

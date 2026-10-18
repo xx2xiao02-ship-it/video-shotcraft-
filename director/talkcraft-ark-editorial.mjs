@@ -406,7 +406,7 @@ export function saveEditorialDerivedArtifact(project,name,content,{replay=false}
 export function prepareEditorialRepairInput({previousFailures,aligned,catalog,personWindows,promptCatalog,theme,projectRoot}){
   const planningContract=buildEditorialPlanningContract({aligned,catalog,personWindows,previousShots:previousFailures?.proposal?.shots||[]});
   const repairInputs=previousFailures?.proposal?{proposal:previousFailures.proposal,failedChecks:previousFailures.failedChecks,
-    aligned,catalog,personWindows,projectRoot}:null;
+    aligned,catalog,personWindows,projectRoot,repairBatch:{maxShots:1}}:null;
   if(repairInputs)planningContract.jointRepair=buildEditorialJointRepairContract(repairInputs);
   const selectionRequest=repairInputs?buildEditorialSelectionRequest(repairInputs):null;
   const selectionModelInput=selectionRequest?editorialSelectionModelInput(selectionRequest,{promptCatalog,theme}):null;

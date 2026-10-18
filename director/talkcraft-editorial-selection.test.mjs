@@ -21,6 +21,33 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
 
+test('正式局部编导按镜分批，延后镜头锁定并参与去重，完整失败范围留存且发送前同源复核',()=>{
+ const args=fixture();args.failedChecks=[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},{code:'NATIVE_EDITORIAL_PLAN',shotId:'s19'}];
+ args.repairBatch={maxShots:1};
+ const request=buildEditorialSelectionRequest(args);
+ assert.deepEqual(request.editableShotIds,['s15']);
+ assert.deepEqual(request.batch,{maxShots:1,pendingShotIds:['s15','s19'],deferredShotIds:['s19']});
+ assert.deepEqual(request.failedChecks,args.failedChecks);
+ assert.ok(!request.windows[0].choices.some(c=>c.slug==='split-compare-slider'));
+ assert.deepEqual(auditEditorialSelectionRequest(request,args),[]);
+ const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+ const model=editorialSelectionModelInput(request,{promptCatalog});
+ assert.deepEqual(model.failedChecks.map(r=>r.shotId),['s15']);
+ const ready=structuredClone(args);ready.catalog=catalog;
+ ready.aligned=[{start:0,end:2.5},{start:2.5,end:5},{start:5,end:7.5},{start:7.5,end:10},...ready.aligned];
+ ready.proposal.sentences=[...Array.from({length:4},(_,i)=>({i,text:`开场原句${i}`})),...ready.proposal.sentences];
+ for(const shot of ready.proposal.shots){shot.firstSentence+=4;shot.lastSentence+=4;}
+ const prepared=prepareEditorialRepairInput({previousFailures:{proposal:ready.proposal,failedChecks:ready.failedChecks},
+   ...ready,promptCatalog,theme:{}});
+ assert.equal(prepared.requestAudit.passed,true);assert.deepEqual(prepared.selectionRequest.editableShotIds,['s15']);
+ const result=compileEditorialSelection(response(request),request,args);
+ assert.deepEqual(result.shots[1],request.baseProposal.shots[1]);
+ assert.deepEqual(result.sentences,request.baseProposal.sentences);
+ const changed=structuredClone(request);changed.batch.deferredShotIds=[];
+ assert.ok(auditEditorialSelectionRequest(changed,args).length);
+ assert.throws(()=>buildEditorialSelectionRequest({...args,repairBatch:{maxShots:0}}),/批量/);
+});
+
 test('单镜修订发送前逐选项核对锁定相邻镜头的纯文字三连，前三镜豁免不扩散',()=>{
  const request=buildEditorialSelectionRequest(fixture()),w=request.windows[0];
  const shot=request.baseProposal.shots.find(s=>s.id===w.shotId);

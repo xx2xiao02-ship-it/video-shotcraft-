@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
-import {recoverBoundEditorialSelectionResponse} from './talkcraft-editorial-response.mjs';
+import {recoverBoundEditorialSelectionResponse,inspectBoundEditorialResponse} from './talkcraft-editorial-response.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
@@ -168,10 +168,11 @@ function retainedRejectedNodeFeedback(project,work,j,a){
 function retainedTransportBaseFeedback(project,work,j){
  const read=n=>JSON.parse(fs.readFileSync(path.join(work,n),'utf8'));
  const required=['qa/editorial-selection-request.json','qa/editorial-single-submission.json','qa/editorial-revision-authorization.json','qa/planning-editorial-repair.json'];
- if(required.some(n=>!fs.existsSync(path.join(work,n)))||fs.existsSync(path.join(work,'qa/editorial-provider-receipt.json'))||fs.existsSync(path.join(work,'qa/ark-editorial-response.json')))return null;
+ if(required.some(n=>!fs.existsSync(path.join(work,n)))||fs.existsSync(path.join(work,'qa/ark-editorial-response.json')))return null;
  if(fs.realpathSync(work)!==work)throw Error('超时事务工作区不能是链接');
  const submission=read(required[1]);
- if(submission.outcome!=='provider-outcome-unconfirmed'||!submission.submittedAt||!submission.finishedAt)return null;
+ const hasReceipt=fs.existsSync(path.join(work,'qa/editorial-provider-receipt.json'));
+ if(submission.outcome!==(hasReceipt?'provider-response-invalid':'provider-outcome-unconfirmed')||!submission.submittedAt||!submission.finishedAt)return null;
  const request=read(required[0]),authorization=read(required[2]),feedback=read(required[3]);
  const {requestId,...contract}=request;
  if(contract.schema!=='talkcraft-editorial-selection-request-v2'||requestId!==createHash('sha256').update(JSON.stringify(contract)).digest('hex')||
@@ -183,8 +184,13 @@ function retainedTransportBaseFeedback(project,work,j){
    feedback.schema!=='talkcraft-candidate-editorial-repair-v1'||feedback.stage!=='planning-check'||feedback.passed!==false||
    !feedback.failedChecks?.length||!isDeepStrictEqual(feedback.proposal,request.baseProposal)||
    !isDeepStrictEqual(feedback.failedChecks,request.failedChecks)||authorization.repairScopeSha256!==editorialRepairScopeSha256(feedback)||
-   feedback.failedChecks.some(i=>!i.shotId||!request.editableShotIds?.includes(i.shotId)||!feedback.proposal.shots?.some(s=>s.id===i.shotId)))
+   feedback.failedChecks.some(i=>!i.shotId||!(request.batch?.pendingShotIds||request.editableShotIds)?.includes(i.shotId)||!feedback.proposal.shots?.some(s=>s.id===i.shotId)))
   throw Error('当前超时提交的基稿、失败范围或授权不一致');
+ if(hasReceipt){
+  const evidence=inspectBoundEditorialResponse(work,{runId:j.runId,request});
+  if(evidence.httpStatus!==200||evidence.provider!=='acctoken'||evidence.status!=='incomplete'||evidence.reason!=='max_output_tokens')
+   return null;
+ }
  if(fileHash(project,'qa/editorial-single-submission.json')!==fileHash(work,'qa/editorial-single-submission.json'))throw Error('超时记录不是当前正式提交');
  const authName='qa/editorial-revision-authorization.json',oldAuthHash=fileHash(work,authName);
  if(oldAuthHash!==j.initial?.[authName])throw Error('超时授权记录已变化');
@@ -208,7 +214,8 @@ function retainedTransportBaseFeedback(project,work,j){
  if(!isDeepStrictEqual(submission.inputs,inputHashes(project)))throw Error('超时提交的稿件或时间轴变化');
  return {schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',sourceGate:'provider-transport',passed:false,
   inputs:candidateFeedbackHashes(project,'planning-check'),proposal:structuredClone(request.baseProposal),failedChecks:structuredClone(feedback.failedChecks),
-  retainedTransaction:j.directory,requestId,providerOutcomeUnknown:true,paidCalls:0,userAcceptance:false};
+  retainedTransaction:j.directory,requestId,providerOutcomeUnknown:!hasReceipt,
+  ...(hasReceipt?{responseIncomplete:true,incompleteReason:'max_output_tokens'}:{}),paidCalls:0,userAcceptance:false};
 }
 function retainedNodeEditorialFeedback(project){
   const journalFile=path.join(project,'qa/node-repair.json');

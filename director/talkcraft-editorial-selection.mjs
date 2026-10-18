@@ -51,7 +51,7 @@ export function buildEditorialSelectionRequest(inputs){
     r.bindings?.some(s=>editableShotIds.includes(s.displayShotId))).map(r=>r.shotId);
   for(const w of windows)if(w.requiresSource&&!materialShotIds.includes(w.shotId))materialShotIds.push(w.shotId);
   const contract={schema:'talkcraft-editorial-selection-request-v2',jointInputSha256:joint.inputSha256,
-    reviewedCount:joint.reviewedCount,editableShotIds,materialShotIds,windows,
+    reviewedCount:joint.reviewedCount,editableShotIds,materialShotIds,windows,...(joint.batch?{batch:joint.batch}:{}),
     failedChecks:structuredClone(inputs.failedChecks||[]),baseProposal:proposal};
   return {...contract,requestId:digest(contract)};
 }
@@ -136,7 +136,8 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           directSemanticMatch:(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[]).some(s=>w.actualCandidateSemantics.includes(s)),
           instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
       backgroundCycleContract:cycleContract(w),anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
-    failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
+    failedChecks:request.failedChecks.filter(r=>!request.batch||[r.shotId,r.displayShotId].some(id=>request.editableShotIds.includes(id)))
+      .map(r=>pick(r,['code','shotId','displayShotId','field'])),
     materials:request.materialShotIds.map(id=>({...materialInput(
       request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request),
       ...(request.failedChecks.some(c=>c.shotId===id&&c.code==='GRAPHIC_COMPARISON_REQUIRED')?{
