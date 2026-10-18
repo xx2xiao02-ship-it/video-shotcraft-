@@ -6,6 +6,7 @@ import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {auditHostContext} from './talkcraft-host-context.mjs';
 import {assertCaptionScene} from './talkcraft-caption-layer.mjs';
 import {visualPreference} from './talkcraft-visual-preference.mjs';
+import {assertReviewedShellExtension} from './talkcraft-shell-extension.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
 const read=file=>{
@@ -227,7 +228,7 @@ export function assertNoCustomDrawing(project,{requiredShotIds=null}={}) {
       const allowed=name==='Main.tsx'?new Set(['./shots','./scenes','./sfx','./Subtitles','./Environment','./camera','./theme','./BundledFonts','./timing','./WordRevealAudit','./ContrastAudit','./talkcraft-host-context.mjs']):
         name==='NativePresentationRoot.tsx'?new Set(['./native-time-map.mjs','../native-presentation.json','../shots.json','./shots','./WordRevealRoot']):
           new Set(['../NativePresentationRoot','../shots','../talkcraft-template-adapter','../theme','../talkcraft-presentation-skin.mjs']);
-      if(!allowed.has(target))throw Error('渲染壳引入未经登记的扩展：'+name+' → '+target);
+      if(!allowed.has(target)&&!assertReviewedShellExtension(project,name,target))throw Error('渲染壳引入未经登记的扩展：'+name+' → '+target);
     }
   }
   const presentation=path.join(project,'remotion/native-presentation.json');
