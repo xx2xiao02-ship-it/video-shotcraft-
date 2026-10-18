@@ -65,7 +65,8 @@ export function editorialResponseContract(request){
     sourceFactKeys:[...SOURCE_FACT_KEYS],
     repairs:request.windows.map((w,i)=>({shotId:w.shotId,choicesPath:`windows[${i}].choices`,
       requiredFields:['shotId','choiceId','intent','visual','templateParams','nativePresentation'],
-      anchorScopeId:w.anchorScope.scopeId,eventSentenceRule:'same-shot-same-sentence'})),
+      anchorScopeId:w.anchorScope.scopeId,eventSentenceRule:'same-shot-same-sentence',anchorProtocol:'sentence-ref-character-offsets-v1',
+      wordEventFields:['field','text','sentenceRef','fromOffset','throughOffset','role','reason']})),
     materials:request.materialShotIds.map(shotId=>{
       const row=rows.find(r=>r.shotId===shotId),editable=request.editableShotIds.includes(shotId);
       return {shotId,mode:editable?'replace-design':'retarget-only',

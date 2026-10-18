@@ -18,14 +18,38 @@ export function buildEditorialAnchorScope({shotId,firstSentence,lastSentence,sen
     /[\p{L}\p{N}\p{S}]/u.test(text)?[{anchorId:`a_${hash({scopeId,i:row.sentenceIndex,offset}).slice(0,24)}`,offset,text}]:[])}))};
 }
 
+// Model projection exposes one sentence reference, never combinable endpoint IDs.
+// Keep the persisted request scope unchanged so bound provider results remain replayable.
+export function editorialAnchorModelScope(scope,shotId){
+  return {scopeId:scope.scopeId,sentences:scope.sentences.map(row=>({
+    ...Object.fromEntries(Object.entries(row).filter(([key])=>key!=='anchors')),
+    sentenceRef:`${shotId}:q${row.sentenceIndex}:${hash([scope.scopeId,shotId,row.sentenceIndex]).slice(0,24)}`,
+    characters:row.anchors.map(({offset,text})=>({offset,text}))
+  }))};
+}
+
 export function compileEditorialAnchorEvents(events,scope,shotId){
   if(!Array.isArray(events)||!events.length)throw invalid(`${shotId}缺少可见字段和真实锚词事件`);
   const anchors=new Map(scope.sentences.flatMap(row=>row.anchors.map(a=>[a.anchorId,{...a,row}])));
+  const projected=editorialAnchorModelScope(scope,shotId);
   return events.map(event=>{
+    const single=event&&Object.hasOwn(event,'sentenceRef');
     if(!event||typeof event!=='object'||Array.isArray(event)||Object.keys(event).some(k=>
-      !['field','text','fromAnchorId','throughAnchorId','role','reason'].includes(k)))
+      !(single?['field','text','sentenceRef','fromOffset','throughOffset','role','reason']:
+        ['field','text','fromAnchorId','throughAnchorId','role','reason']).includes(k)))
       throw invalid(`${shotId}只允许本镜字符编号，不得自由填写sentenceIndex、anchor、carry或时间`);
-    const from=anchors.get(event.fromAnchorId),through=anchors.get(event.throughAnchorId);
+    let from,through;
+    if(single){
+      const index=projected.sentences.findIndex(row=>row.sentenceRef===event.sentenceRef);
+      const row=scope.sentences[index];
+      if(!row||!Number.isInteger(event.fromOffset)||!Number.isInteger(event.throughOffset))
+        throw invalid(`${shotId}单句引用未知、过期、跨镜或字符位置不是整数`);
+      const first=row.anchors.find(a=>a.offset===event.fromOffset);
+      const last=row.anchors.find(a=>a.offset===event.throughOffset);
+      from=first&&{...first,row};through=last&&{...last,row};
+    }else{
+      from=anchors.get(event.fromAnchorId);through=anchors.get(event.throughAnchorId);
+    }
     if(!from||!through||from.row!==through.row||from.offset>through.offset)
       throw invalid(`${shotId}锚点编号未知、过期、跨镜、跨句或倒序`);
     const anchor=[...from.row.text].slice(from.offset,through.offset+1).join('');
@@ -37,7 +61,7 @@ export function compileEditorialAnchorEvents(events,scope,shotId){
     if(typeof event.field!=='string'||!event.field.trim()||typeof event.text!=='string'||!event.text.trim()||
       !['spoken','context'].includes(event.role)||event.role==='context'&&(typeof event.reason!=='string'||!event.reason.trim()))
       throw invalid(`${shotId}事件缺少字段、展示文字、角色或背景说明依据`);
-    const {fromAnchorId,throughAnchorId,...rest}=event;
+    const {fromAnchorId,throughAnchorId,sentenceRef,fromOffset,throughOffset,...rest}=event;
     return {...rest,sentenceIndex:from.row.sentenceIndex,anchor};
   });
 }

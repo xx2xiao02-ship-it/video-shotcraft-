@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildEditorialAnchorScope,compileEditorialAnchorEvents} from './talkcraft-editorial-anchor-scope.mjs';
+import {buildEditorialAnchorScope,compileEditorialAnchorEvents,editorialAnchorModelScope} from './talkcraft-editorial-anchor-scope.mjs';
 
 const make=(overrides={})=>buildEditorialAnchorScope({shotId:'s02',firstSentence:1,lastSentence:2,
   inputSha256:'当前任务输入',sentences:[{text:'后镜不可见'},{text:'很多国际大奖，'},{text:'听着宏大，'}],...overrides});
@@ -49,4 +49,33 @@ test('重复短词不会静默锚到第一次；Unicode字符范围和原标点�
 
 test('有真实时间轴原文时逐字核对，不能给旧稿字符重新签发有效编号',()=>{
   assert.throws(()=>make({aligned:[{}, {text:'擅自换稿'}, {text:'听着宏大，'}]}),/与真实时间轴原文不一致/);
+});
+
+
+test('单句投影不暴露可混拼编号；句内位置与旧合法锚点编译一致且不改变输入',()=>{
+  const scope=make(),before=structuredClone(scope),model=editorialAnchorModelScope(scope,'s02');
+  assert.ok(!JSON.stringify(model).includes('anchorId'));
+  const e={field:'keyword',text:'宏大',role:'spoken',sentenceRef:model.sentences[1].sentenceRef,fromOffset:2,throughOffset:3};
+  assert.deepEqual(compileEditorialAnchorEvents([e],scope,'s02'),compileEditorialAnchorEvents([event(scope,2)],scope,'s02'));
+  assert.deepEqual(scope,before);
+});
+
+test('单句引用拒绝跨镜、过期、越界、标点、倒序、小数和混合旧协议',()=>{
+  const scope=make(),model=editorialAnchorModelScope(scope,'s02');
+  const valid={field:'keyword',text:'宏大',role:'spoken',sentenceRef:model.sentences[1].sentenceRef,fromOffset:2,throughOffset:3};
+  for(const patch of [
+    {sentenceRef:editorialAnchorModelScope(make({shotId:'s03'}),'s03').sentences[1].sentenceRef},
+    {sentenceRef:editorialAnchorModelScope(make({inputSha256:'旧输入'}),'s02').sentences[1].sentenceRef},
+    {fromOffset:-1},{throughOffset:99},{throughOffset:4},{fromOffset:3,throughOffset:2},
+    {fromOffset:1.5},{fromAnchorId:event(scope).fromAnchorId},{sentenceIndex:2},{anchor:'宏大'}]){
+    assert.throws(()=>compileEditorialAnchorEvents([{...valid,...patch}],scope,'s02'));
+  }
+});
+
+test('单句引用仍拒绝歧义短词，支持Unicode字符位置',()=>{
+  const scope=make({firstSentence:0,lastSentence:0,sentences:[{text:'宏大，宏大😀'}]});
+  const sentenceRef=editorialAnchorModelScope(scope,'s02').sentences[0].sentenceRef;
+  const e={field:'title',text:'宏大',role:'spoken',sentenceRef,fromOffset:3,throughOffset:4};
+  assert.throws(()=>compileEditorialAnchorEvents([e],scope,'s02'),/重复/);
+  assert.equal(compileEditorialAnchorEvents([{...e,throughOffset:5}],scope,'s02')[0].anchor,'宏大😀');
 });

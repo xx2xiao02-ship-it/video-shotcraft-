@@ -216,11 +216,26 @@ test('实际请求只含可编辑镜原句；全文、旧画面、失败说明�
   assert.ok(JSON.stringify(request).includes(foreign));
   assert.ok(!JSON.stringify(model).includes(foreign));assert.ok(!prompt.includes(foreign));
   assert.deepEqual(model.windows[0].anchorScope.sentences.map(r=>r.text),['央行的预期管理']);
+  assert.ok(!JSON.stringify(model.windows.map(w=>w.anchorScope)).includes('anchorId'));
+  const row=model.windows[0].anchorScope.sentences[0];
+  assert.ok(row.sentenceRef.startsWith(request.windows[0].shotId+':q'));
+  assert.ok(row.characters.every(c=>Number.isInteger(c.offset)&&typeof c.text==='string'));
   assert.equal(model.reviewedCount,108);assert.ok(!Object.hasOwn(model,'baseProposal'));
   assert.ok(!model.catalog.contracts.some(c=>Object.hasOwn(c,'dslExamples')));
   const r=response(request);r.materialResearchUpdates[0].research[0].reason='当前新资料理由';
   for(const key of ['backgroundReason','graphicIntent','pureTextReason'])r.materialResearchUpdates[0][key]='按本镜原句重新设计';
   r.materialResearchUpdates[0].graphicAlternatives=[];
+  const offsetResponse=structuredClone(r);
+  const oldEvents=offsetResponse.repairs[0].nativePresentation.wordEvents;
+  for(const e of oldEvents){
+    const internal=request.windows[0].anchorScope.sentences.find(s=>s.anchors.some(a=>a.anchorId===e.fromAnchorId));
+    const projected=model.windows[0].anchorScope.sentences.find(s=>s.sentenceIndex===internal.sentenceIndex);
+    e.sentenceRef=projected.sentenceRef;
+    e.fromOffset=internal.anchors.find(a=>a.anchorId===e.fromAnchorId).offset;
+    e.throughOffset=internal.anchors.find(a=>a.anchorId===e.throughAnchorId).offset;
+    delete e.fromAnchorId;delete e.throughAnchorId;
+  }
+  assert.deepEqual(compileEditorialSelection(offsetResponse,request,args),compileEditorialSelection(r,request,args));
   const compiled=compileEditorialSelection(r,request,args);
   assert.equal(compiled.materialResearch.shots[0].backgroundReason,'按本镜原句重新设计');
   delete r.materialResearchUpdates[0].graphicIntent;
@@ -238,7 +253,9 @@ test('发送前自检核对实际投影；缺锚点、夹带全文、串用旧�
   const audit=selectionModelInput=>auditEditorialRequestContract({...p,selectionModelInput,promptCatalog,catalog});
   assert.equal(audit(p.selectionModelInput).passed,true);
   for(const mutate of [m=>delete m.windows[0].anchorScope,m=>m.fullInput='锁定后镜',
-    m=>m.windows[0].anchorScope.sentences.push({sentenceIndex:1,text:'后镜'}),m=>m.windows[0].anchorScope.scopeId='旧记录']){
+    m=>m.windows[0].anchorScope.sentences.push({sentenceIndex:1,text:'后镜'}),m=>m.windows[0].anchorScope.scopeId='旧记录',
+    m=>m.windows[0].anchorScope.sentences[0].sentenceRef='其他镜引用',
+    m=>m.windows[0].anchorScope.sentences[0].characters[0].offset=999]){
     const m=structuredClone(p.selectionModelInput);mutate(m);
     assert.equal(audit(m).passed,false);
     assert.throws(()=>editorialSelectionPrompt(p.selectionRequest,{promptCatalog,modelInput:m}),/投影不一致/);
