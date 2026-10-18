@@ -57,6 +57,24 @@ export function resolveEditorialMaterialRefs(response,request){
   return copy;
 }
 
+// Field names alone are insufficient instructions for a model. These describe
+// output shape, never copy creative values from the bound historical design.
+const designDefinitions={
+  background:{type:'string',instruction:'本镜背景表达；按当前选卡设计，不沿用旧卡说明'},
+  backgroundQuery:{type:'string',instruction:'本镜相关背景检索词；不需要背景时可为空字符串，但仍须返回本字段'},
+  backgroundDecision:{type:'string',enum:['compare','use','omit'],instruction:'明确比较、使用或不使用背景；自行判断，代码不默认选择'},
+  backgroundConcepts:{type:'array',items:{type:'string'},instruction:'本镜背景视觉概念词；不需要时可为空数组，不能省略'},
+  backgroundReason:{type:'string',instruction:'本次背景决定的理由，说明与当前镜头的关系'},
+  graphicIntent:{type:'string',instruction:'本镜图形表达意图，按当前选卡与真实口播填写'},
+  graphicAlternatives:{type:'array',items:{type:'object',required:['cardId','reason'],properties:{cardId:{type:'string'},reason:{type:'string'}}},instruction:'比较可行图形卡及理由；无可行替代可返回空数组，不能省略'},
+  pureTextReason:{type:'string',instruction:'若保留纯文字，说明本次依据；非纯文字可为空字符串，不能省略'}
+};
+export function editorialMaterialDesignFields(request,shotId){
+  const row=request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===shotId);
+  return Object.fromEntries((request.editableShotIds.includes(shotId)?MATERIAL_CREATIVE_KEYS:[])
+    .filter(key=>Object.hasOwn(row||{},key)).map(key=>[key,structuredClone(designDefinitions[key])]));
+}
+
 export function editorialResponseContract(request){
   const rows=request.baseProposal.materialResearch?.shots||[];
   return {schema:'talkcraft-editorial-response-contract-v1',requestId:request.requestId,
@@ -70,6 +88,7 @@ export function editorialResponseContract(request){
     materials:request.materialShotIds.map(shotId=>{
       const row=rows.find(r=>r.shotId===shotId),editable=request.editableShotIds.includes(shotId);
       return {shotId,mode:editable?'replace-design':'retarget-only',
+        designFields:editorialMaterialDesignFields(request,shotId),
         requiredFields:['shotId','research',...(editable?MATERIAL_CREATIVE_KEYS.filter(k=>Object.hasOwn(row||{},k)):[]),
           ...(row?.personDisplays?['personDisplays']:[])],
         writablePaths:editable?['research.reason','research.displayShotId','research.displayField','bindings.field',
@@ -97,6 +116,7 @@ export function auditEditorialConstraintInput(request,{catalog,modelInput}){
     const row=modelInput?.materials?.find(r=>r.shotId===spec.shotId);
     if(row?.mode!==spec.mode||spec.mode==='retarget-only'&&row?.rewriteFields?.length)
       add(`${spec.shotId}锁定换槽与创意重写任务冲突`);
+    if(!isDeepStrictEqual(row?.designFields,spec.designFields))add(`${spec.shotId}实际输入缺少逐字段类型及填写说明`);
     if(!isDeepStrictEqual(row?.requiredArrays,spec.requiredFields.filter(k=>['research','personDisplays'].includes(k)))||
       !isDeepStrictEqual(row?.rewriteFields,spec.requiredFields.filter(k=>MATERIAL_CREATIVE_KEYS.includes(k))))
       add(`${spec.shotId}输入必填数组或创意字段与执行合同不一致`);

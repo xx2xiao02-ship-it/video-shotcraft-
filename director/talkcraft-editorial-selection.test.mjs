@@ -422,3 +422,22 @@ test('正式局部请求明确同字段多句拆事件，事务编译保留完�
     assert.equal(error.issues[1].field,'docTitle');assert.equal(error.issues[1].eventIndex,0);return true;
   });
 });
+
+
+test('215同类漏填不能恢复旧设计，发送投影逐字段说明且错误定位完整，不修改原始返回',()=>{
+  const args=fixture(),old=args.proposal.materialResearch.shots[0];
+  Object.assign(old,{backgroundQuery:'旧背景检索',backgroundDecision:'omit',backgroundConcepts:[],backgroundReason:'旧背景理由',graphicIntent:'旧图形意图',graphicAlternatives:[],pureTextReason:''});
+  const request=buildEditorialSelectionRequest(args),r=response(request);
+  for(const key of ['backgroundQuery','backgroundDecision','backgroundConcepts','backgroundReason','graphicIntent','graphicAlternatives','pureTextReason'])delete r.materialResearchUpdates[0][key];
+  const before=structuredClone(r),prepared=prepareEditorialMaterialUpdates(r,request);
+  assert.equal(prepared.passed,false);assert.equal(prepared.issues.length,7);
+  assert.deepEqual(new Set(prepared.issues.map(i=>i.field)),new Set(Object.keys(old).filter(k=>['backgroundQuery','backgroundDecision','backgroundConcepts','backgroundReason','graphicIntent','graphicAlternatives','pureTextReason'].includes(k))));
+  assert.deepEqual(r,before);assert.throws(()=>compileEditorialSelection(r,request,args),/须重新填写资料创意字段/);
+  const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog),model=editorialSelectionModelInput(request,{promptCatalog});
+  assert.deepEqual(Object.keys(model.materials[0].designFields),model.materials[0].rewriteFields);
+  assert.deepEqual(model.materials[0].designFields,model.responseContract.materials[0].designFields);
+  assert.ok(!JSON.stringify(model).includes('旧背景检索'));
+  const prompt=editorialSelectionPrompt(request,{promptCatalog,modelInput:model});
+  assert.match(prompt,/即使research为空也不能省略背景和图形决定/);
+  assert.match(prompt,/materialResearchUpdates行顶层返回/);
+});

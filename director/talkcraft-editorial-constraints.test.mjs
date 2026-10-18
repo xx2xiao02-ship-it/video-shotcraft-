@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {editorialResponseContract,auditEditorialConstraintInput,auditEditorialMaterialOwnership,
-  SOURCE_FACT_KEYS,editorialMaterialRefs,resolveEditorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
+  SOURCE_FACT_KEYS,editorialMaterialRefs,resolveEditorialMaterialRefs,editorialMaterialDesignFields} from './talkcraft-editorial-constraints.mjs';
 
 const binding={kind:'identity',query:'央行官方资料',field:'src',localPath:'sources/central-bank.png',
   sha256:'a'.repeat(64),license:'原许可',verified:true,sourceUrl:'https://example.org/official'};
@@ -14,8 +14,8 @@ function fixture(){
       {shotId:'s07',research:[research],bindings:[structuredClone(binding)]}]}}};
   const catalog={cards:[{cardId:'原卡',policy:{media:{src:'image',hostSrc:'portrait-video'}}}]};
   const modelInput={responseContract:editorialResponseContract(request),materials:[
-    {shotId:'s04',mode:'retarget-only',rewriteFields:[],requiredArrays:['research'],research:[]},
-    {shotId:'s07',mode:'replace-design',rewriteFields:[],requiredArrays:['research'],
+    {shotId:'s04',mode:'retarget-only',designFields:{},rewriteFields:[],requiredArrays:['research'],research:[]},
+    {shotId:'s07',mode:'replace-design',designFields:{},rewriteFields:[],requiredArrays:['research'],
       research:[{kind:research.kind,query:research.query,entityType:research.entityType,entityName:research.entityName}],
       bindings:[{kind:binding.kind,query:binding.query,field:'src'}]}]};
   const response={materialResearchUpdates:[{shotId:'s04',research:[]},{shotId:'s07',research:[structuredClone(research)]}]};
@@ -123,4 +123,24 @@ test('新增资料只能规划；已有研究记录的URL、哈希与授权不�
   assert.ok(auditEditorialMaterialOwnership(args.response,args.request).issues.some(i=>i.field==='verified'));
   delete row.research[0].verified;row.unauthorizedApproval=true;
   assert.ok(auditEditorialMaterialOwnership(args.response,args.request).issues.some(i=>i.code==='EDITORIAL_MATERIAL_FIELD_NOT_WRITABLE'));
+});
+
+
+test('资料设计合同逐项提供类型和说明，不泄露旧创意；锁定行没有重写字段',()=>{
+  const a=fixture(),row=a.request.baseProposal.materialResearch.shots[1];
+  Object.assign(row,{backgroundQuery:'旧稿绝不可抄',backgroundDecision:'omit',backgroundConcepts:[],backgroundReason:'旧理由',graphicIntent:'旧意图',graphicAlternatives:[],pureTextReason:''});
+  const fields=editorialMaterialDesignFields(a.request,'s07');
+  assert.deepEqual(Object.keys(fields),['backgroundQuery','backgroundDecision','backgroundConcepts','backgroundReason','graphicIntent','graphicAlternatives','pureTextReason']);
+  assert.ok(!JSON.stringify(fields).includes('旧稿绝不可抄'));
+  assert.deepEqual(fields.backgroundDecision.enum,['compare','use','omit']);
+  assert.equal(fields.graphicAlternatives.items.type,'object');
+  assert.deepEqual(editorialMaterialDesignFields(a.request,'s04'),{});
+  a.modelInput.responseContract=editorialResponseContract(a.request);
+  a.modelInput.materials[1].rewriteFields=Object.keys(fields);
+  a.modelInput.materials[1].designFields=fields;
+  assert.equal(auditEditorialConstraintInput(a.request,a).passed,true);
+  for(const mutate of [r=>delete r.designFields,r=>delete r.designFields.backgroundQuery,r=>r.designFields.backgroundDecision.enum=['omit']]){
+    const b=structuredClone(a);mutate(b.modelInput.materials[1]);
+    assert.equal(auditEditorialConstraintInput(b.request,b).passed,false);
+  }
 });
