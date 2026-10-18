@@ -1,4 +1,6 @@
-export const CORE_PERSON_RULES='身份研究中的人物默认按核心人物处理，须逐人提供personDisplays:[{entityName,role:"core|mention",reason,presentation:"portrait|official-profile|research-source",bindingQuery,labelField,labelText}]。仅顺带提及可声明mention并给出理由；核心人物首次正式介绍须在本镜展示本人授权头像或可核验的官方人物/研究资料，逐人对应姓名。数字人不充当名人肖像；无头像许可时使用真实机构资料。核心介绍不得用后续集中来源代替；仅有搜索词/未绑定文件/名称文字均不通过。标签必须来自原卡公开文字字段，资料须实际进入原卡媒体槽；保持原构图、真实字级时钟。';
+const corePersonRules=bindingField=>'身份研究中的人物默认按核心人物处理，须逐人提供personDisplays:[{entityName,role:"core|mention",reason,presentation:"portrait|official-profile|research-source",'+bindingField+',labelField,labelText}]。仅顺带提及可声明mention并给出理由；核心人物首次正式介绍须在本镜展示本人授权头像或可核验的官方人物/研究资料，逐人对应姓名。数字人不充当名人肖像；无头像许可时使用真实机构资料。核心介绍不得用后续集中来源代替；仅有搜索词/未绑定文件/名称文字均不通过。标签必须来自原卡公开文字字段，资料须实际进入原卡媒体槽；保持原构图、真实字级时钟。';
+export const CORE_PERSON_RULES=corePersonRules('bindingQuery');
+export const CORE_PERSON_SELECTION_RULES=corePersonRules('bindingResearchRef');
 export function checkCorePersonDisplays(rows,shots){
  const issues=[];
  for(const row of rows||[])for(const person of row.research||[]){

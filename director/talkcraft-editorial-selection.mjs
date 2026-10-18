@@ -8,7 +8,7 @@ import {auditEditorialMaterialContract} from './talkcraft-editorial-material-con
 import {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
 import {buildEditorialAnchorScope,compileEditorialAnchorEvents} from './talkcraft-editorial-anchor-scope.mjs';
 import {MATERIAL_CREATIVE_KEYS,PERSON_DISPLAY_KEYS,SOURCE_FACT_KEYS,RESEARCH_IDENTITY_KEYS,
-  editorialResponseContract,auditEditorialMaterialOwnership} from './talkcraft-editorial-constraints.mjs';
+  editorialResponseContract,auditEditorialMaterialOwnership,editorialMaterialRefs,resolveEditorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -97,13 +97,13 @@ export function auditEditorialSelectionContent(result,request,{catalog}){
 const pick=(value,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(value||{},k)).map(k=>[k,structuredClone(value[k])]));
 const sourceKeys=[...RESEARCH_IDENTITY_KEYS,'displayShotId','displayField','field',...SOURCE_FACT_KEYS];
 const creativeKeys=MATERIAL_CREATIVE_KEYS,personDisplayKeys=PERSON_DISPLAY_KEYS;
-function materialInput(row,editable){
+function materialInput(row,editable,request){
   return {shotId:row.shotId,mode:editable?'replace-design':'retarget-only',
     rewriteFields:editable?creativeKeys.filter(k=>Object.hasOwn(row,k)):[],
     requiredArrays:['research',...(row.personDisplays?['personDisplays']:[])],
     preservedBindingCount:row.bindings?.length||0,
-    research:(row.research||[]).map(r=>pick(r,[...RESEARCH_IDENTITY_KEYS,'displayShotId','displayField'])),
-    ...(row.bindings?{bindings:row.bindings.map(r=>pick(r,['kind','query','displayShotId','field']))}:{}),
+    research:editorialMaterialRefs(request,row.shotId,'research').map(r=>({researchRef:r.ref,...pick(r.item,[...RESEARCH_IDENTITY_KEYS,'displayShotId','displayField'])})),
+    ...(row.bindings?{bindings:editorialMaterialRefs(request,row.shotId,'bindings').map(r=>({bindingRef:r.ref,...pick(r.item,['kind','query','displayShotId','field'])}))}:{}),
     ...(row.personDisplays?{personDisplays:row.personDisplays.map(r=>pick(r,personDisplayKeys))}:{})};
 }
 export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
@@ -113,7 +113,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:structuredClone(request.windows),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
     materials:request.materialShotIds.map(id=>materialInput(
-      request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id))),
+      request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request)),
     responseContract:editorialResponseContract(request),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
       contracts:promptCatalog.contracts.filter(c=>slugs.has(c.slug)).map(c=>{const {dslExamples,...contract}=c;return contract;}),
@@ -131,10 +131,11 @@ repairs恰好覆盖editableShotIds一次；materialResearchUpdates恰好覆盖ma
 新semanticDeviations的每个键只能使用该镜actualCandidateSemantics，旧卡理由不能沿用。唯一口播内容输入是该镜anchorScope.sentences；不得猜补后句或从材料检索词引入口播。事件仅从该镜同一句选择首尾字符编号；句序及锚词由代码还原。禁止自由填写sentenceIndex、anchor、carry或秒数；context也只能锚定本镜本句，说明不能豁免。原句重复短词须选更长的唯一原文片段。quantitativeInput=false时不能引入数值图表、借源码演示值或用后续补来源承诺代替真实量化输入。
 一个可见字段承载多句时，必须逐句拆成多条wordEvents，同一field允许且需要重复；每条事件的text只写该句对应的展示片段，首尾字符编号必须来自同一个anchorScope.sentences条目。禁止把两句或多句的首尾编号拼成一条事件。逐镜核对choiceId必须来自该镜choices，其他镜有同名卡也不能借编号。
 nativePresentation.textFields与wordEvents均不得为空。textFields逐项填写真实文字字段key、visibility（visible/hidden），隐藏写reason；wordEvents逐项填写field、text、fromAnchorId、throughAnchorId及role（spoken/context），背景说明写reason。所有可见文字必须登记，不能用空数组、颜色和位置参数冒充内容。capabilities中无内容替换和真实媒体入口的固定示意卡不能声称会显示本片标签或真实资料；无法实现就报告阻断，不编造字段。
-重写对应卡的全部业务参数、逐槽检索、资料目标字段、核心人物姓名标签及图形比较。资料行若属于锁定镜头，只能修正指向失败镜的既有research.displayField或bindings.field；其他内容及真实素材记录必须原样保留。保留已核验来源许可；新素材不可声称已采集。固定镜头不受本次修订影响；修订镜间仍检查30镜去重。真实字级、配音和既有数字人不变；保持原模板构图、图形优先、中文资料优先及原版语义偏离理由。不得伪造事实、资料或承接关系。
+仅可编辑镜重写对应卡的业务参数、逐槽检索、资料目标字段、核心人物姓名标签及图形比较。锁定资料行不重写背景规划，不回抄背景创意和来源事实，仅返回本次资料引用及获准换槽字段。固定镜头不受本次修订影响；修订镜间仍检查30镜去重。真实字级、配音和既有数字人不变；保持原模板构图、图形优先、中文资料优先及原版语义偏离理由。不得伪造事实、资料或承接关系。
 ${rules}
 responseContract由执行校验的同一代码生成，是本次逐镜字段合同。codeOwned字段由代码管理，模型不回填、不计算。choicesPath指向本镜的choices，合法choiceId和sourceDisplayFields均以该处为准，不借用其他镜方案；requiredFields和requiredResearch逐项核对，不能用其他镜资料代替。
-资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。research项须保留kind/query/entityType/entityName身份，填写本次reason及实际displayShotId/displayField；不得用backgroundReason代替research。已有bindings由服务端按本次基稿保留，不要求模型回传文件、哈希或许可；需要改槽时按相同kind/query返回bindings中的field，不得删除绑定或改写来源事实。新资料只填规划，不能声称已下载或自行填写localPath、sha256、license、verified。personDisplays须沿用已有核心人物身份，按当前原卡填写labelField/labelText及bindingQuery，不能用nameField/imageField另造协议。mode=replace-design的rewriteFields必须逐项重新设计并返回，不得沿用旧创意；mode=retarget-only的rewriteFields为空，只返回指向可编辑镜的research.displayField或bindings.field及其身份键，禁止改写backgroundQuery、背景理由或其他锁定创意。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
+资料输入仅含只读检索身份，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。已有research每项必须按本镜researchRef恰好引用一次：可编辑镜仅填researchRef、reason、displayShotId/displayField/displayReason；锁定镜仅填researchRef及需要修改的displayField。kind/query/entityType/entityName及来源事实由代码按引用还原，不回抄、不翻译检索词、不自行填identityContext。可编辑镜reason仍必须是本次设计理由，不得用backgroundReason替代；不能以research:[]或漏填数组删除已登记需求。
+已有bindings由服务端保留；需要改槽时仅填bindingRef及field等bindingResponseKeys字段，不回传文件、哈希或许可。新增资料无researchRef时仍需完整规划，不能声称已采集。personDisplays须沿用核心人物entityName/role，按原卡填写labelField/labelText，使用bindingResearchRef引用同一人物的本镜researchRef，由代码还原bindingQuery，禁止自行编写检索词。mode=replace-design的rewriteFields必须逐项重新设计；mode=retarget-only的rewriteFields为空，禁止改写背景或其他锁定创意。模板DSL只按字段格式填写，不借用演示内容。
 受控本镜输入：${JSON.stringify(payload)}`;
 }
 
@@ -202,6 +203,7 @@ export function compileEditorialSelection(response,request,inputs){
   };
   exact(response.repairs,'shotId',request.editableShotIds,'修订镜头');
   exact(response.materialResearchUpdates,'shotId',request.materialShotIds,'资料规划');
+  response=resolveEditorialMaterialRefs(response,request);
   const bindings=auditEditorialSelectionResponseBindings(response,request);
   const materials=prepareEditorialMaterialUpdates(response,request);
   const initialIssues=[...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];

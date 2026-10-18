@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {editorialResponseContract,auditEditorialConstraintInput,auditEditorialMaterialOwnership,
-  SOURCE_FACT_KEYS} from './talkcraft-editorial-constraints.mjs';
+  SOURCE_FACT_KEYS,editorialMaterialRefs,resolveEditorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 
 const binding={kind:'identity',query:'央行官方资料',field:'src',localPath:'sources/central-bank.png',
   sha256:'a'.repeat(64),license:'原许可',verified:true,sourceUrl:'https://example.org/official'};
@@ -19,6 +19,8 @@ function fixture(){
       research:[{kind:research.kind,query:research.query,entityType:research.entityType,entityName:research.entityName}],
       bindings:[{kind:binding.kind,query:binding.query,field:'src'}]}]};
   const response={materialResearchUpdates:[{shotId:'s04',research:[]},{shotId:'s07',research:[structuredClone(research)]}]};
+  modelInput.materials[1].research[0].researchRef=editorialMaterialRefs(request,'s07','research')[0].ref;
+  modelInput.materials[1].bindings[0].bindingRef=editorialMaterialRefs(request,'s07','bindings')[0].ref;
   return {request,catalog,modelInput,response};
 }
 
@@ -31,9 +33,57 @@ test('实际发送前独立检查资料覆盖、只读任务和原卡槽；合�
     a=>a.modelInput.materials[0].rewriteFields.push('backgroundReason'),
     a=>a.modelInput.materials[0].requiredArrays=[],
     a=>a.modelInput.materials[1].research[0].entityName='其他镜的主体',
+    a=>a.modelInput.materials[1].research[0].researchRef='其他事务引用',
     a=>a.modelInput.materials[1].bindings[0].license='让模型重抄许可',
     a=>a.request.windows[0].choices[0].sourceDisplayFields=['hostSrc'],
   ]){const args=fixture();mutate(args);assert.equal(auditEditorialConstraintInput(args.request,args).passed,false);}
+});
+
+test('本次本镜引用只还原身份与已核验事实，设计理由和目标槽仍必须显式提供',()=>{
+  const {request}=fixture(),researchRef=editorialMaterialRefs(request,'s07','research')[0].ref,
+    bindingRef=editorialMaterialRefs(request,'s07','bindings')[0].ref;
+  const response={materialResearchUpdates:[{shotId:'s07',research:[{researchRef,reason:'本次对央行机构的展示设计',displayField:'srcAfter'}],
+    bindings:[{bindingRef,field:'srcAfter'}]}]},before=structuredClone(response);
+  const normalized=resolveEditorialMaterialRefs(response,request);
+  assert.equal(auditEditorialMaterialOwnership(normalized,request).passed,true);
+  assert.deepEqual(normalized.materialResearchUpdates[0].bindings,[{...binding,field:'srcAfter'}]);
+  assert.equal(normalized.materialResearchUpdates[0].research[0].query,'央行官方资料');
+  assert.deepEqual(response,before);
+  for(const mutate of [
+    r=>r.materialResearchUpdates[0].research[0].researchRef='旧任务引用',
+    r=>r.materialResearchUpdates[0].shotId='s04',
+    r=>delete r.materialResearchUpdates[0].research[0].reason,
+    r=>r.materialResearchUpdates[0].research[0].query='被改写的检索词',
+    r=>r.materialResearchUpdates[0].research[0].identityContext='伪造新身份',
+    r=>r.materialResearchUpdates[0].bindings[0].license='伪造许可',
+    r=>r.materialResearchUpdates[0].research.push(r.materialResearchUpdates[0].research[0]),
+  ]){const bad=structuredClone(response);mutate(bad);assert.throws(()=>resolveEditorialMaterialRefs(bad,request));}
+  const other=structuredClone(request);other.requestId='另一请求';
+  assert.throws(()=>resolveEditorialMaterialRefs(response,other),/不属于本次本镜/);
+});
+
+test('锁定资料只按引用换槽；既有返回违规不能借引用恢复静默丢弃',()=>{
+  const {request}=fixture();request.editableShotIds=[];
+  const researchRef=editorialMaterialRefs(request,'s07','research')[0].ref;
+  const r={materialResearchUpdates:[{shotId:'s07',research:[{researchRef,displayField:'srcAfter'}]}]};
+  const normalized=resolveEditorialMaterialRefs(r,request);
+  assert.equal(normalized.materialResearchUpdates[0].research[0].reason,'机构身份');
+  r.materialResearchUpdates[0].research[0].reason='改写锁定理由';
+  assert.throws(()=>resolveEditorialMaterialRefs(r,request),/展示补丁/);
+  const legacy={materialResearchUpdates:[{shotId:'s07',research:[{kind:'identity',query:'中文化后新检索词',reason:'模型新理由'}]}]};
+  assert.equal(auditEditorialMaterialOwnership(resolveEditorialMaterialRefs(legacy,request),request).passed,false);
+});
+
+test('人物展示引用必须指向同一人物的本镜资料；不能把另一人物的资料借来',()=>{
+  const {request}=fixture(),row=request.baseProposal.materialResearch.shots[1];
+  row.research=[{kind:'identity',entityType:'person',entityName:'人物甲',query:'official profile A',reason:'原理由'}];
+  const researchRef=editorialMaterialRefs(request,'s07','research')[0].ref;
+  const response={materialResearchUpdates:[{shotId:'s07',research:[{researchRef,reason:'本次人物展示'}],
+    personDisplays:[{entityName:'人物甲',bindingResearchRef:researchRef,labelField:'labelFront',labelText:'人物甲'}]}]};
+  const result=resolveEditorialMaterialRefs(response,request);
+  assert.equal(result.materialResearchUpdates[0].personDisplays[0].bindingQuery,'official profile A');
+  response.materialResearchUpdates[0].personDisplays[0].entityName='人物乙';
+  assert.throws(()=>resolveEditorialMaterialRefs(response,request),/人物身份/);
 });
 
 test('响应逐行合同保留非空研究身份，不能以空数组、同类其他检索或背景理由替代',()=>{

@@ -1,4 +1,5 @@
 import {isDeepStrictEqual} from 'node:util';
+import {createHash} from 'node:crypto';
 
 // Model-facing rules and response enforcement share these field definitions.
 export const MATERIAL_CREATIVE_KEYS=['background','backgroundQuery','backgroundDecision','backgroundConcepts',
@@ -11,6 +12,50 @@ const pick=(row,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(row||{},k
 const sameIdentity=(a,b)=>RESEARCH_IDENTITY_KEYS.every(k=>isDeepStrictEqual(a?.[k],b?.[k]));
 const sourceMatch=(a,b)=>a?.kind===b?.kind&&a?.query===b?.query;
 const nonempty=value=>typeof value==='string'&&!!value.trim();
+
+// References belong to one request, source row and array item. They are not
+// global asset IDs and cannot resolve against another run or another shot.
+export function editorialMaterialRefs(request,shotId,key){
+  const row=request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===shotId);
+  return (row?.[key]||[]).map((item,index)=>({ref:createHash('sha256').update(JSON.stringify(
+    [request.requestId,shotId,key,index,item])).digest('hex'),item:structuredClone(item)}));
+}
+
+export function resolveEditorialMaterialRefs(response,request){
+  const copy=structuredClone(response),issues=[];
+  for(const row of copy.materialResearchUpdates||[]){
+    const editable=request.editableShotIds.includes(row.shotId);
+    const add=message=>issues.push({code:'EDITORIAL_MATERIAL_REF_INVALID',shotId:row.shotId,message:`${row.shotId}${message}`});
+    for(const [key,refKey,editableKeys]of [
+      ['research','researchRef',['reason','displayShotId','displayField','displayReason']],
+      ['bindings','bindingRef',['field','displayShotId','displayReason']]]){
+      if(!Array.isArray(row[key]))continue;
+      const refs=editorialMaterialRefs(request,row.shotId,key),seen=new Set();
+      row[key]=row[key].map(item=>{
+        if(!Object.hasOwn(item||{},refKey))return item; // Strict legacy protocol remains unchanged.
+        const found=refs.find(r=>r.ref===item[refKey]);
+        if(!found||seen.has(item[refKey])){add(`${key}引用不属于本次本镜或重复使用`);return item;}
+        seen.add(item[refKey]);
+        const allowed=editable?editableKeys:[key==='research'?'displayField':'field'];
+        if(Object.keys(item).some(k=>k!==refKey&&!allowed.includes(k))){
+          add(`${key}引用仅允许填写展示补丁，禁止重写身份、检索词或来源事实`);return item;
+        }
+        if(key==='research'&&editable&&!nonempty(item.reason))add('资料引用仍须填写本次设计理由，不能沿用旧卡理由');
+        const { [refKey]:ignored,...patch}=item;
+        return {...found.item,...patch};
+      });
+    }
+    for(const person of row.personDisplays||[]){
+      if(!Object.hasOwn(person||{},'bindingResearchRef'))continue;
+      const found=editorialMaterialRefs(request,row.shotId,'research').find(r=>r.ref===person.bindingResearchRef);
+      if(!found||found.item.entityType!=='person'||found.item.entityName!==person.entityName||Object.hasOwn(person,'bindingQuery'))
+        add('核心人物引用与本次本镜人物身份不一致，或同时回填了检索词');
+      else {person.bindingQuery=found.item.query;delete person.bindingResearchRef;}
+    }
+  }
+  if(issues.length)throw Object.assign(Error(issues.map(i=>i.message).join('；')),{issues});
+  return copy;
+}
 
 export function editorialResponseContract(request){
   const rows=request.baseProposal.materialResearch?.shots||[];
@@ -30,6 +75,10 @@ export function editorialResponseContract(request){
           'bindings.displayShotId','personDisplays.labelField','personDisplays.labelText','personDisplays.bindingQuery',
           ...MATERIAL_CREATIVE_KEYS.filter(k=>Object.hasOwn(row||{},k))]:['research.displayField','bindings.field'],
         requiredResearch:(row?.research||[]).map(r=>pick(r,RESEARCH_IDENTITY_KEYS)),
+        researchRefs:editorialMaterialRefs(request,shotId,'research').map(r=>r.ref),
+        bindingRefs:editorialMaterialRefs(request,shotId,'bindings').map(r=>r.ref),
+        researchResponseKeys:editable?['researchRef','reason','displayShotId','displayField','displayReason']:['researchRef','displayField'],
+        bindingResponseKeys:editable?['bindingRef','field','displayShotId','displayReason']:['bindingRef','field'],
         retainedBindings:(row?.bindings||[]).map(r=>pick(r,['kind','query','displayShotId','field'])),
         corePeople:(row?.personDisplays||[]).filter(p=>p.role==='core').map(p=>p.entityName)};
     })};
@@ -52,6 +101,9 @@ export function auditEditorialConstraintInput(request,{catalog,modelInput}){
       add(`${spec.shotId}输入必填数组或创意字段与执行合同不一致`);
     if(!isDeepStrictEqual((row?.research||[]).map(r=>pick(r,RESEARCH_IDENTITY_KEYS)),spec.requiredResearch))
       add(`${spec.shotId}发送投影遗漏了已登记的研究身份`);
+    if(!isDeepStrictEqual((row?.research||[]).map(r=>r.researchRef),spec.researchRefs)||
+      !isDeepStrictEqual((row?.bindings||[]).map(r=>r.bindingRef),spec.bindingRefs))
+      add(`${spec.shotId}发送投影的资料引用与本次本镜记录不一致`);
     for(const binding of row?.bindings||[])if(SOURCE_FACT_KEYS.some(k=>Object.hasOwn(binding,k)))
       add(`${spec.shotId}来源事实应由代码保存，不能变成模型回抄任务`);
   }

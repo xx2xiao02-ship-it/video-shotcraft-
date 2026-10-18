@@ -8,6 +8,7 @@ import {recompileRetainedEditorialSelection} from './talkcraft-editorial-selecti
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings,prepareEditorialMaterialUpdates} from './talkcraft-editorial-selection.mjs';
 import {buildEditorialAnchorScope} from './talkcraft-editorial-anchor-scope.mjs';
+import {editorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 import {createHash} from 'node:crypto';
 import {prepareEditorialRepairInput} from './talkcraft-ark-editorial.mjs';
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
@@ -36,6 +37,16 @@ test('资料协议区分锁定换槽与创意重写，逐行明确数组和已�
   assert.equal(model.materials[0].mode,'replace-design');
   const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
   assert.match(prompt,/research:\[\]/);assert.match(prompt,/bindings由服务端/);assert.match(prompt,/mode=retarget-only/);
+});
+
+test('实际组合规则不再附带全量研究重写样例或要求人物重抄bindingQuery',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog),
+    rules:EDITORIAL_SELECTION_NATIVE_RULES+EDITORIAL_SELECTION_MATERIAL_RULES});
+  assert.match(prompt,/researchRef/);assert.match(prompt,/bindingResearchRef/);
+  assert.doesNotMatch(EDITORIAL_SELECTION_MATERIAL_RULES,/research:\[\{kind/);
+  assert.doesNotMatch(EDITORIAL_SELECTION_MATERIAL_RULES,/presentation:[^\]]*,bindingQuery/);
+  assert.match(EDITORIAL_SELECTION_MATERIAL_RULES,/锁定资料行仅换槽/);
 });
 
 test('仅恢复本次基稿明确的空research和已有绑定；非空规划及锁定改写一次完整报告',()=>{
@@ -76,12 +87,31 @@ test('正式编译接受按kind/query换槽并保留服务端来源事实；模�
   assert.deepEqual(result.materialResearch.shots[0].bindings,[{...row.bindings[0],field}]);
   assert.deepEqual(r,before);
   const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
-  assert.deepEqual(model.materials[0].bindings,[{kind:'identity',query:'央行官方资料',field:'srcBefore'}]);
+  assert.deepEqual(model.materials[0].bindings,[{bindingRef:editorialMaterialRefs(request,'s15','bindings')[0].ref,kind:'identity',query:'央行官方资料',field:'srcBefore'}]);
   assert.equal(model.responseContract.materials[0].retainedBindings.length,1);
   update.bindings[0].license='模型随意声明的许可';
   assert.throws(()=>compileEditorialSelection(r,request,args),/不能改写真实素材的license/);
   delete update.bindings[0].license;update.research=[];
   assert.throws(()=>compileEditorialSelection(r,request,args),/遗漏或修改已登记/);
+});
+
+test('正式编译执行引用补丁而非身份回抄；锁定镜头原样保留，省略研究不能通过',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
+  for(const row of r.materialResearchUpdates){
+    const refs=editorialMaterialRefs(request,row.shotId,'research');
+    row.research=row.research.map(item=>{
+      const ref=refs.find(x=>x.item.kind===item.kind&&x.item.query===item.query);
+      assert.ok(ref);
+      const {reason,displayField}=item;
+      return {researchRef:ref.ref,...(request.editableShotIds.includes(row.shotId)?{reason}:{}),displayField};
+    });
+  }
+  const before=structuredClone(r),result=compileEditorialSelection(r,request,args);
+  assert.deepEqual(result.shots.filter(s=>s.id!=='s15'),args.proposal.shots.filter(s=>s.id!=='s15'));
+  assert.deepEqual(result.materialResearch.shots[1],args.proposal.materialResearch.shots[1]);
+  assert.deepEqual(r,before);
+  delete r.materialResearchUpdates[0].research;
+  assert.throws(()=>compileEditorialSelection(r,request,args),/缺少完整资料规划/);
 });
 
 test('需补资料而基稿没有该镜资料行时，发送合同仍完整列出该镜，不依赖模型猜漏行',()=>{

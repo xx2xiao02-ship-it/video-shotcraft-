@@ -3,12 +3,12 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {MATERIAL_POLICY_VERSION,MATERIAL_POLICY_RULES,checkMaterialPolicy} from './talkcraft-material-policy.mjs';
-import {CORE_PERSON_RULES,checkCorePersonDisplays} from './talkcraft-core-person.mjs';
+import {CORE_PERSON_RULES,CORE_PERSON_SELECTION_RULES,checkCorePersonDisplays} from './talkcraft-core-person.mjs';
 import {auditTextVideoFiles} from './talkcraft-text-video-audit.mjs';
 
-const materialResearchRules = output => '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；使用原卡公开能力或经源码核对的text-video-v1受控透明底适配；原布局与动效不变，实色遮挡不能放行，不缩卡。背景按已定黑色遮罩压暗。'+output+'；检索词具体到人名、事件或机构，视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+CORE_PERSON_RULES+MATERIAL_POLICY_RULES;
+const materialResearchRules = (output,selection=false) => '选卡前先按每句need和entities规划真实素材：身份对应本人照片、官方人物页或采访；量化对应原发布机构、报告日期及原始图表；证据对应真实来源页。通用背景仅承接语境，不能充当人物身份或事实证据。为纯文字、低变化镜头比较相关背景视频与图形表达，不机械给每镜铺视频；使用原卡公开能力或经源码核对的text-video-v1受控透明底适配；原布局与动效不变，实色遮挡不能放行，不缩卡。背景按已定黑色遮罩压暗。'+output+(selection?'；已登记资料的检索身份只读，按本次引用保留；只有新增规划才填写具体检索词。':'；检索词具体到人名、事件或机构。')+'视频检索另给2至3个英文视觉概念词。搜索结果只是候选：本人身份、来源真实性、素材授权和本地媒体须核验，不能仅有URL或搜索词就标为已采集；缺项明确列出，不调用付费服务自动补齐。'+(selection?CORE_PERSON_SELECTION_RULES:CORE_PERSON_RULES)+MATERIAL_POLICY_RULES;
 export const MATERIAL_RESEARCH_RULES=materialResearchRules('返回顶层materialResearch={shots:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,queryZh,reason}],graphicIntent,graphicAlternatives:[{cardId,reason}],pureTextReason}]}，逐镜完整覆盖');
-export const MATERIAL_RESEARCH_SELECTION_RULES=materialResearchRules('只返回materialResearchUpdates:[{shotId,backgroundQuery,backgroundDecision:"compare|use|omit",backgroundConcepts:["中文本地库标签"],backgroundReason,research:[{kind:"identity|evidence|data",query,entityType:"person|other",entityName,identityContext,queryZh,reason}],graphicIntent,graphicAlternatives:[{cardId,reason}],pureTextReason}]，恰好覆盖materialShotIds；不得返回顶层materialResearch或改写锁定行');
+export const MATERIAL_RESEARCH_SELECTION_RULES=materialResearchRules('只返回materialResearchUpdates，恰好覆盖materialShotIds。逐行按responseContract的mode、requiredFields、researchResponseKeys和bindingResponseKeys返回：已有research引用researchRef且可编辑镜填写新reason；锁定资料行仅换槽，不回抄背景、检索身份和来源事实；新增资料才填写完整规划。不得返回顶层materialResearch或改写锁定行',true);
 
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
