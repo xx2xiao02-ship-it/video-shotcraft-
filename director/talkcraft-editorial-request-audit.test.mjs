@@ -29,6 +29,8 @@ test('模型输入漏用途、空值政策、容量或伪造时长时，自检�
   a=>{a.promptCatalog.contracts[0].originalFrames=1;},
   a=>{a.planningContract.limits.openingMaxShotSec=5;}
   ,a=>{delete a.promptCatalog.crossFieldChecks;}
+  ,a=>{delete a.promptCatalog.textEffectTiming;}
+  ,a=>{a.promptCatalog.textEffectTiming.evaluator='return null';}
   ,a=>{a.promptCatalog.crossFieldChecks='function crossFieldChecks(){return [];}';}
   ,a=>{a.planningContract.timingDomains[0].maxHoldAtNativeFrame++;}
   ,a=>{a.planningContract.timingDomains[0].maxExtraHoldFrames++;}
@@ -42,6 +44,8 @@ test('模型收到完整跨字段源码，折线衔接、图片数量和动态�
  assert.match(args.promptCatalog.crossFieldChecks,/LINE_CONTINUITY/);
  assert.match(args.promptCatalog.crossFieldChecks,/MEDIA_TEXT_CARDINALITY/);
  assert.match(args.promptCatalog.crossFieldChecks,/SELECTION_RANGE/);
+ assert.match(args.promptCatalog.textEffectTiming.evaluator,/line-highlight-/);
+ assert.match(args.promptCatalog.textEffectTiming.validator,/textReadyFrame/);
  assert.ok(args.planningContract.timingDomains.every(c=>c.maxHoldAtNativeFrame===c.nativeFrames-2));
  assert.ok(args.planningContract.timingDomains.every(c=>c.maxExtraHoldFrames===(c.embeddedMediaRateLocked?0:60)));
 });

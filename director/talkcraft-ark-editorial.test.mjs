@@ -207,6 +207,8 @@ test('正式免费输入检查复用发送器，重复检查不消耗授权、�
     {id:'s03',firstSentence:3,lastSentence:3,subject:'other',shotCard:'per-character-rise'}],materialResearch:{shots:[{shotId:'s02',research:[]}]},
     editorialSelectionRejection:{issues:[{code:'EDITORIAL_WORD_EVENT_SCOPE',shotId:'s02',message:'后句被借用'}]}};
   const files={'input.txt':texts.join(''),'aligned-sentences.json':JSON.stringify(a),'semantics.json':JSON.stringify({sentences}),
+    'remotion/timing.json':JSON.stringify({scenes:texts.map((text,i)=>({id:`s${i+1}`,text,
+      chars:[...text].map((ch,k)=>({ch,t:a[i].start+k*.04,e:a[i].start+k*.04+.03}))}))}),
     'audio/timestamps.json':JSON.stringify({sentences:a.map(r=>({...r,ok:true,match:1}))}),
     'qa/ark-editorial-response.json':JSON.stringify(proposal),'qa/rebuild-inputs.json':JSON.stringify({personWindows:[{start:2.36,end:4.805}]}),
     'qa/editorial-submission-authorization.json':'保留已有费用授权记录','qa/editorial-completion.json':JSON.stringify({passed:false}),

@@ -33,6 +33,12 @@ test('正式局部编导按镜分批，延后镜头锁定并参与去重，完�
  const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
  const model=editorialSelectionModelInput(request,{promptCatalog});
  assert.deepEqual(model.failedChecks.map(r=>r.shotId),['s15']);
+ request.failedChecks[0]={...request.failedChecks[0],effectId:'initial-underline-titleA',effectFrame:0,textReadyFrame:48,allowedCarrierLeadFrames:0};
+ const timed=editorialSelectionModelInput(request,{promptCatalog});
+ assert.equal(timed.failedChecks[0].textReadyFrame,48);
+ assert.equal(timed.failedChecks[0].effectId,'initial-underline-titleA');
+ assert.match(timed.catalog.textEffectTiming.evaluator,/line-carry-transition/);
+ request.failedChecks=structuredClone(args.failedChecks);
  const ready=structuredClone(args);ready.catalog=catalog;
  ready.aligned=[{start:0,end:2.5},{start:2.5,end:5},{start:5,end:7.5},{start:7.5,end:10},...ready.aligned];
  ready.proposal.sentences=[...Array.from({length:4},(_,i)=>({i,text:`开场原句${i}`})),...ready.proposal.sentences];
@@ -180,12 +186,16 @@ test('需补资料而基稿没有该镜资料行时，发送合同仍完整列�
 });
 
 test('已拒绝的原始响应可反复免费重编译；当前请求、原文与基稿必须全部相符',t=>{
-  const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
+  const args={...fixture(),repairBatch:{maxShots:1}},request=buildEditorialSelectionRequest(args),r=response(request);
   const project=fs.mkdtempSync(path.join(os.tmpdir(),'selection-replay-'));
   t.after(()=>fs.rmSync(project,{recursive:true,force:true}));
   fs.mkdirSync(path.join(project,'qa/editorial-provider-responses'),{recursive:true});
   const write=(name,value)=>fs.writeFileSync(path.join(project,name),JSON.stringify(value));
   fs.writeFileSync(path.join(project,'input.txt'),'当前原稿');write('aligned-sentences.json',args.aligned);
+  // The submitted request predates clock projection. Today's clock must not
+  // re-sign historical IDs, while current production validation remains strict.
+  fs.mkdirSync(path.join(project,'audio'));fs.mkdirSync(path.join(project,'remotion'));
+  fs.writeFileSync(path.join(project,'audio/full.mp3'),'paid');write('remotion/timing.json',{scenes:[]});
   const hash=v=>createHash('sha256').update(v).digest('hex');
   write('qa/editorial-single-submission.json',{submittedAt:'2026-10-18T12:43:08.164Z',inputs:Object.fromEntries(
     ['input.txt','aligned-sentences.json'].map(n=>[n,hash(fs.readFileSync(path.join(project,n)))]))});

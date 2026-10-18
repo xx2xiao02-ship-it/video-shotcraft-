@@ -226,6 +226,15 @@ export function checkTextEffectDependencies(shots,presentation,reveals){
  }
  return {schema:'talkcraft-text-effect-dependencies-v1',passed:issues.length===0,issues,checks,runtimeVerified:false,userAcceptance:false};
 }
+
+// Send the SAME audited parameter-dependent evaluator, not a prose summary
+// which omits fixed decoration timing. This is design input, never admission.
+export function editorialTextEffectInput(){
+ return {fps:30,frameConvention:'zero-based native frames; map to output with the chosen native timeline',rules:TEXT_EFFECT_RULES,
+  helpers:[`const frames=${frames.toString()};`,`const lines=${lines.toString()};`,`const num=${num.toString()};`],
+  evaluator:textEffectContract.toString(),validator:checkTextEffectDependencies.toString(),
+  instruction:'Use the final cardProps to evaluate every text window and decoration. Native effect time is not the speech time. At output, decoration begins after its target is readable (or within its explicit carrier lead); fixed early effects cannot be repaired by a reason or by moving real anchors. Compare another compatible card or redesign fields while preserving meaning. Do not disable an existing decoration to hide a timing error. Exact output timing is rechecked by production code.'};
+}
 export function recordTextEffectDependencies(project,shots,presentation,reveals,{requireSources=false}={}){
  const report=checkTextEffectDependencies(shots,presentation,reveals);
  const manifest=JSON.parse(fs.readFileSync(new URL('./talkcraft-text-effect-sources.json',import.meta.url),'utf8'));

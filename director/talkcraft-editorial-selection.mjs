@@ -42,7 +42,8 @@ export function buildEditorialSelectionRequest(inputs){
       quantitativeInput:editorialQuantitativeInput(proposal,proposal.shots.find(s=>s.id===w.shotId)),
       frames:w.frames,requiredSubject:w.requiredSubject,requiresSource:w.requiresSource,
       corePeople:w.corePeople,obligations:w.obligations,retainedInternalSlots:w.retainedInternalSlots,
-      anchorScope:buildEditorialAnchorScope({...w,sentences:proposal.sentences,aligned:inputs.aligned,inputSha256:joint.inputSha256}),
+      anchorScope:buildEditorialAnchorScope({...w,sentences:proposal.sentences,aligned:inputs.aligned,inputSha256:joint.inputSha256,
+        projectRoot:inputs.projectRoot,includeTiming:inputs.anchorTiming!==false}),
       choices:w.candidates.map(c=>({...c,choiceId:digest({input:joint.inputSha256,shotId:w.shotId,choice:c})}))};
   });
   const editableShotIds=windows.map(w=>w.shotId);
@@ -137,7 +138,8 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
       backgroundCycleContract:cycleContract(w),anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.filter(r=>!request.batch||[r.shotId,r.displayShotId].some(id=>request.editableShotIds.includes(id)))
-      .map(r=>pick(r,['code','shotId','displayShotId','field'])),
+      .map(r=>pick(r,['code','shotId','displayShotId','field','effectId','targetEventId','effectFrame','textReadyFrame',
+        'allowedCarrierLeadFrames','begin','end','wordFrame','firstReadableFrame','minimumTotalFrames'])),
     materials:request.materialShotIds.map(id=>({...materialInput(
       request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request),
       ...(request.failedChecks.some(c=>c.shotId===id&&c.code==='GRAPHIC_COMPARISON_REQUIRED')?{
@@ -148,7 +150,8 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
     parameterContracts:editorialRequiredParameterContracts(request,{contracts:promptCatalog.contracts}),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
       contracts:promptCatalog.contracts.filter(c=>slugs.has(c.slug)).map(c=>{const {dslExamples,...contract}=c;return contract;}),
-      crossFieldChecks:promptCatalog.crossFieldChecks,materialDisplayRules:promptCatalog.materialDisplayRules},
+      crossFieldChecks:promptCatalog.crossFieldChecks,materialDisplayRules:promptCatalog.materialDisplayRules,
+      textEffectTiming:structuredClone(promptCatalog.textEffectTiming)},
     theme:structuredClone(theme||{})};
 }
 

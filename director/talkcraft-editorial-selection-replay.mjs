@@ -44,7 +44,12 @@ export function recompileRetainedEditorialSelection(project,{runId,aligned,catal
   const rawFile=path.join(project,relative);
   if(fs.lstatSync(rawFile).isSymbolicLink())throw fail('原始解析结果不能是链接');
   if(!isDeepStrictEqual(response,read(rawFile)))throw fail('解析缓存与本次完整原始响应不一致');
-  const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot:project};
+  // Reconstruct the immutable contract version actually submitted. New senders
+  // always include real clocks; a bound older response may still be recompiled
+  // under every CURRENT content/timing gate without re-signing its anchor IDs.
+  const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot:project,
+    anchorTiming:request.windows.some(w=>w.anchorScope?.sentences.some(s=>Array.isArray(s.clock))),
+    ...(request.batch?{repairBatch:{maxShots:request.batch.maxShots}}:{})};
   const outdated=auditEditorialSelectionRequest(request,inputs);
   if(outdated.length)throw fail(outdated.join('；'));
   const material=prepareEditorialMaterialUpdates(response,request);

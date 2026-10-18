@@ -34,6 +34,7 @@ import {restoreEditorialReviewedBindings} from './talkcraft-editorial-binding-re
 import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {buildEditorialSelectionRequest,editorialSelectionPrompt,editorialSelectionModelInput,compileEditorialSelection,preservedEditorialSelectionShots,auditEditorialSelectionContent} from './talkcraft-editorial-selection.mjs';
 import {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
+import {editorialTextEffectInput} from './talkcraft-text-effect-dependencies.mjs';
 export {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
 
 const json = file => JSON.parse(readFileSync(file, 'utf8'));
@@ -122,7 +123,8 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
   const comparisonOrder=[...cards].sort((a,b)=>Number(b.category==='数据信息图')-Number(a.category==='数据信息图')).map(c=>c.slug);
   // These constraints execute in the locked validator. Send that same function,
   // rather than maintaining another partial prose list beside the compiler.
-  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES};
+  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES,
+    textEffectTiming:editorialTextEffectInput()};
 }
 export function editorialSelectionNotes(shot,semanticWords) {
   const lines=[];

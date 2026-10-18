@@ -8,6 +8,7 @@ import {editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './t
 import {auditEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {auditEditorialSelectionRequest,editorialSelectionModelInput} from './talkcraft-editorial-selection.mjs';
 import {auditEditorialConstraintInput} from './talkcraft-editorial-constraints.mjs';
+import {editorialTextEffectInput} from './talkcraft-text-effect-dependencies.mjs';
 
 // Verify the actual serialized request data, not a second prose-only rule list.
 export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null,selectionRequest=null,selectionModelInput=null,theme}){
@@ -23,6 +24,7 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
  else if(planningContract.jointRepair)issues.push('联合修订契约缺少原始提案与当前输入，不能只信缓存');
  if(promptCatalog.crossFieldChecks!==crossFieldChecks.toString())issues.push('模型跨字段规则与正式校验源码不一致');
  if(promptCatalog.materialDisplayRules!==EDITORIAL_MATERIAL_DISPLAY_RULES)issues.push('模型素材展示规则与正式校验不一致');
+ if(!same(promptCatalog.textEffectTiming,editorialTextEffectInput()))issues.push('模型文字窗口与装饰帧数合同和正式校验不一致');
  if(!same(planningContract.limits,editorialPlanningLimits()))issues.push('规划数值与正式校验常量不一致');
  if(!planningContract.readiness?.passed)issues.push('真实时间轴与人物窗口没有可行覆盖路径');
  if(!same(promptCatalog.cards.map(c=>c.slug),catalog.cards.map(c=>c.cardId))||

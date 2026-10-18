@@ -1,11 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {buildEditorialAnchorScope,compileEditorialAnchorEvents,editorialAnchorModelScope} from './talkcraft-editorial-anchor-scope.mjs';
 
 const make=(overrides={})=>buildEditorialAnchorScope({shotId:'s02',firstSentence:1,lastSentence:2,
   inputSha256:'当前任务输入',sentences:[{text:'后镜不可见'},{text:'很多国际大奖，'},{text:'听着宏大，'}],...overrides});
 const event=(scope,first=0,last=-1)=>({field:'keyword',text:'宏大',role:'spoken',
   fromAnchorId:scope.sentences[1].anchors.at(first).anchorId,throughAnchorId:scope.sentences[1].anchors.at(last).anchorId});
+
+test('输入暴露真实字符输出帧但禁止模型回写时间，缺时钟和副本冲突在付费前拒绝',t=>{
+ const projectRoot=fs.mkdtempSync(path.join(os.tmpdir(),'anchor-clock-'));t.after(()=>fs.rmSync(projectRoot,{recursive:true,force:true}));
+ fs.mkdirSync(path.join(projectRoot,'remotion/src'),{recursive:true});fs.mkdirSync(path.join(projectRoot,'audio'));
+ fs.writeFileSync(path.join(projectRoot,'audio/full.mp3'),'retained');
+ const args={projectRoot,shotId:'s07',inputSha256:'current',firstSentence:0,lastSentence:0,
+   sentences:[{text:'经济冷了，'}],aligned:[{start:17.90025,end:19.005249}]};
+ assert.throws(()=>buildEditorialAnchorScope(args),/真实字级时间轴/);
+ const timing={scenes:[{text:'经济冷了，',chars:[{ch:'经',t:17.9,e:18.035},{ch:'济',t:18.035,e:18.165},
+   {ch:'冷',t:18.165,e:18.455},{ch:'了',t:18.455,e:18.685},{ch:'，',t:18.685,e:18.685}]}]};
+ const file=path.join(projectRoot,'remotion/timing.json');fs.writeFileSync(file,JSON.stringify(timing));
+ const scope=buildEditorialAnchorScope(args),model=editorialAnchorModelScope(scope,'s07');
+ assert.deepEqual(model.sentences[0].characters.map(c=>c.localFrame),[0,4,8,17]);
+ const event={field:'title',text:'经济冷了',role:'spoken',sentenceRef:model.sentences[0].sentenceRef,fromOffset:0,throughOffset:3};
+ assert.equal(compileEditorialAnchorEvents([event],scope,'s07')[0].anchor,'经济冷了');
+ assert.throws(()=>compileEditorialAnchorEvents([{...event,localFrame:0}],scope,'s07'),/不得自由填写/);
+ fs.writeFileSync(path.join(projectRoot,'remotion/src/timing.json'),'{}');
+ assert.throws(()=>buildEditorialAnchorScope(args),/副本不一致/);
+});
 
 test('只生成本镜可发音字符编号，从合法首尾编号恢复真实句序和原文，完全保留输入',()=>{
   const scope=make(),before=structuredClone(scope);
