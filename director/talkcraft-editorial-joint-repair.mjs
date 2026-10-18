@@ -48,13 +48,16 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     // cross-shot plan. The unchanged material gate still checks approval.
     const corePeople=(row?.research||[]).filter(r=>r.entityType==='person'&&
       row?.personDisplays?.find(d=>d.entityName===r.entityName)?.role!=='mention').map(r=>r.entityName);
-    const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length);
+    const retainedInternalSlots=(row?.materialBindings||[]).map(b=>({field:b.field,localPath:b.localPath}));
+    const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length||retainedInternalSlots.length);
     const rejected={},candidates=[];
     const reject=(code,slug)=>(rejected[code]??=[]).push(slug);
     for(const card of catalog.cards){
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');
+      if(retainedInternalSlots.some(b=>!b.field||!['image','image-or-video'].includes(card.policy?.media?.[b.field])||/host/iu.test(b.field)))
+        reasons.push('RETAINED_INTERNAL_SOURCE_SLOT_REQUIRED');
       // A fixed illustration with no authored content or media inlet cannot
       // implement a new content design under the existing native text gate.
       const capability=card.policy?.capabilities;
@@ -95,7 +98,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     selectedIssues.push(...materials.issues.filter(i=>i.shotId===shot.id||i.displayShotId===shot.id),
       ...auditTemplateReuse(shots).filter(i=>i.shotId===shot.id||i.previousShotId===shot.id));
     return {shotId:shot.id,firstSentence:shot.firstSentence,lastSentence:shot.lastSentence,frames:range.frames,
-      requiredSubject:range.requiredSubject,requiresSource,requiredKinds,missingKinds,corePeople,obligations,
+      requiredSubject:range.requiredSubject,requiresSource,requiredKinds,missingKinds,corePeople,obligations,retainedInternalSlots,
       selected:{slug:shot.shotCard,requestedPlaybackRate:shot.nativePresentation?.playbackRate??null,
         timing:selectedTiming,issues:selectedIssues},candidates,rejected,
       nextAction:candidates.length?'编导比较可行卡并同时重写参数、资料展示字段和原生展示计划':'按真实自然句边界重排；已生成口型窗口仍精确保留'};

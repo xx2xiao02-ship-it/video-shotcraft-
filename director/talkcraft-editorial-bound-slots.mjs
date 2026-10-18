@@ -9,6 +9,33 @@ const local=v=>typeof v==='string'?v.replace(/^remotion\/public\//u,''):v;
 export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,slotRetargets=[],bindingSelections=[]}){
   const repairs=[],rejected=[];
   if(!projectRoot)return {repairs,rejected};
+  // Internal source records have no research kind/query. They are immutable
+  // current-request inputs, not old design fields or a pool to pick from.
+  for(const row of result.materialResearch?.shots||[]){
+    if(!request.editableShotIds.includes(row.shotId))continue;
+    const original=request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===row.shotId);
+    const target=result.shots.find(s=>s.id===row.shotId);
+    for(const source of original?.materialBindings||[]){
+      const field=source.field,props=target?.templateParams?.cardProps;
+      try{
+        if(!props||JSON.stringify(row.materialBindings)!==JSON.stringify(original.materialBindings))throw Error('内部资料来源记录被改写');
+        const media=catalog.cards.find(c=>c.cardId===target.shotCard)?.policy?.media||{};
+        if(!field||/host/iu.test(field)||!['image','image-or-video'].includes(media[field]))throw Error('目标缺少已绑定内部资料的原卡固定图片槽');
+        if(props[field]&&local(props[field])!==source.localPath)throw Error('固定内部资料槽已有不同内容，不能覆盖');
+        if(!source.localPath||path.isAbsolute(source.localPath)||/^(?:[a-z]+:|[/\\])/iu.test(source.localPath))throw Error('内部资料不是相对本地路径');
+        const root=fs.realpathSync(path.join(projectRoot,'remotion/public'));
+        const file=fs.realpathSync(path.resolve(root,source.localPath)),relative=path.relative(root,file);
+        if(!relative||relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative)||!fs.statSync(file).isFile()||
+          !/\.(png|jpe?g|webp)$/iu.test(file)||createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==source.sha256)
+          throw Error('内部资料路径越界、文件缺失或哈希变化');
+        if(source.sourceVerified!==true||source.licenseVerified!==true||!/^https:\/\//u.test(source.sourceUrl||source.url||'')||
+          !source.license||!source.licenseUrl||!(source.identityReason||source.reason||source.matchReason)||!source.contentLanguage||source.contentLanguage==='und'||
+          !/^(zh(?:-[a-z]+)*|zxx)$/iu.test(source.contentLanguage)&&!source.languageReason)throw Error('内部资料来源、授权或语言核验不完整');
+        if(!props[field]){props[field]='remotion/public/'+source.localPath;
+          repairs.push({shotId:row.shotId,displayShotId:row.shotId,field,localPath:source.localPath,sha256:source.sha256,internal:true});}
+      }catch(error){rejected.push({shotId:row.shotId,displayShotId:row.shotId,field,message:error.message});}
+    }
+  }
   for(const row of result.materialResearch?.shots||[])for(const binding of row.bindings||[]){
     const original=request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===row.shotId);
     const old=original?.bindings?.filter(b=>b.kind===binding.kind&&b.query===binding.query);

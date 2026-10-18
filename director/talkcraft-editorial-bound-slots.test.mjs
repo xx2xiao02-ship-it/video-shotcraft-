@@ -82,3 +82,24 @@ test('显式换槽按本次编导声明恢复同一来源；不推断槽位、�
  row.research[0].displayField='src2';row.bindings[0].displayShotId='s08';f.result.shots[0].id='s08';f.request.editableShotIds=['s08'];
  assert.equal(restoreEditorialBoundSlots(f.result,f.request,options).repairs.length,0);
 });
+
+
+test('无research的内部资料按本请求固定槽和核验文件恢复，重复继续无副作用',t=>{
+ const f=fixture(t),b=f.request.baseProposal.materialResearch.shots[0].bindings[0];
+ delete b.kind;delete b.query;
+ for(const row of [f.request.baseProposal.materialResearch.shots[0],f.result.materialResearch.shots[0]]){
+   row.research=[];delete row.bindings;row.materialBindings=[structuredClone(b)];
+ }
+ const before=structuredClone(f.request),r=restoreEditorialBoundSlots(f.result,f.request,f.options);
+ assert.equal(r.repairs.length,1);assert.equal(r.repairs[0].internal,true);assert.deepEqual(r.rejected,[]);
+ assert.equal(f.result.shots[0].templateParams.cardProps.src,'remotion/public/pages/source.png');
+ assert.equal(restoreEditorialBoundSlots(f.result,f.request,f.options).repairs.length,0);assert.deepEqual(f.request,before);
+ for(const mutate of [g=>g.result.materialResearch.shots[0].materialBindings[0].sha256='changed',
+   g=>g.options.catalog.cards[0].policy.media={},g=>g.result.shots[0].templateParams.cardProps.src='different.png',
+   g=>g.request.baseProposal.materialResearch.shots[0].materialBindings[0].licenseVerified=false]){
+   const g=structuredClone({...f,options:{catalog:f.options.catalog,projectRoot:f.options.projectRoot}});
+   delete g.result.shots[0].templateParams.cardProps.src;mutate(g);
+   assert.equal(restoreEditorialBoundSlots(g.result,g.request,g.options).repairs.length,0);
+   assert.equal(restoreEditorialBoundSlots(g.result,g.request,g.options).rejected.length,1);
+ }
+});
