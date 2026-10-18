@@ -21,18 +21,28 @@ export function recompileRetainedEditorialSelection(project,{runId,aligned,catal
   const prior=fs.existsSync(replayFile)?read(replayFile):null;
   // A successful local compile is not production admission. Re-check its bound
   // raw response after a later strict gate rejected it, without editing cache.
-  const compiled=audit.passed===true&&audit.compiled===true&&audit.recoveredWithoutProvider===true&&
+  const compiled=audit.passed===true&&audit.compiled===true&&
     audit.productionAdmitted===false&&!editorialSelectionRejection&&
     audit.compiledSha256===createHash('sha256').update(JSON.stringify(cache)).digest('hex')&&
-    prior?.schema==='talkcraft-editorial-free-selection-replay-v1'&&prior.runId===runId&&
-    prior.requestId===request.requestId&&prior.externalRequests===0&&prior.productionAdmitted===false;
+    (audit.rawResponse||!prior||prior.schema==='talkcraft-editorial-free-selection-replay-v1'&&prior.runId===runId&&
+    prior.requestId===request.requestId&&prior.externalRequests===0&&prior.productionAdmitted===false);
   if(audit.requestId!==request.requestId||(!rejected&&!compiled))
     throw fail('仅能重编译本次明确拒绝且基稿一致或哈希核验一致的局部返回');
-  const relative=String(compiled?prior.rawResponse:audit.rawResponse||'').replaceAll('\\','/');
+  const response=recoverBoundEditorialSelectionResponse(project,{runId,request});
+  let relative=String(compiled?(audit.rawResponse||prior?.rawResponse||''):audit.rawResponse||'').replaceAll('\\','/');
+  // Legacy successful compiles did not retain the parsed-file pointer. Recover
+  // from this submission's hash-verified envelope only; never scan history.
+  if(compiled&&!relative){
+    const receipt=read(path.join(qa,'editorial-provider-receipt.json'));
+    const name=String(receipt.submittedAt).replace(/[:.]/g,'-');
+    if(!/^[\dTZ-]+$/u.test(name))throw fail('本次提交时间无效');
+    relative=`qa/editorial-provider-responses/${name}.json`;
+    const target=path.join(project,relative),bytes=JSON.stringify(response,null,2);
+    if(!fs.existsSync(target))fs.writeFileSync(target,bytes,{flag:'wx'});
+  }
   if(!/^qa\/editorial-provider-responses\/[\dTZ-]+\.json$/u.test(relative))throw fail('原始解析结果路径不属于本次事务');
   const rawFile=path.join(project,relative);
   if(fs.lstatSync(rawFile).isSymbolicLink())throw fail('原始解析结果不能是链接');
-  const response=recoverBoundEditorialSelectionResponse(project,{runId,request});
   if(!isDeepStrictEqual(response,read(rawFile)))throw fail('解析缓存与本次完整原始响应不一致');
   const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot:project};
   const outdated=auditEditorialSelectionRequest(request,inputs);

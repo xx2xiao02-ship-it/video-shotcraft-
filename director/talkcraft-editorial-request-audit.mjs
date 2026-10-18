@@ -1,3 +1,4 @@
+import {editorialRequiredParameterContracts} from './talkcraft-editorial-required-props.mjs';
 import {editorialNumericGrid,editorialReplacementBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import {createHash} from 'node:crypto';
 import {editorialPlanningLimits} from './talkcraft-editorial-planning-contract.mjs';
@@ -11,6 +12,7 @@ import {auditEditorialConstraintInput} from './talkcraft-editorial-constraints.m
 // Verify the actual serialized request data, not a second prose-only rule list.
 export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null,selectionRequest=null,selectionModelInput=null,theme}){
  const issues=[],same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+ if(selectionRequest&&!same(selectionModelInput?.parameterContracts,editorialRequiredParameterContracts(selectionRequest,catalog)))issues.push('实际模型输入缺少或篡改了逐方案必填业务参数合同');
  if(repairInputs)issues.push(...auditEditorialJointRepairContract(planningContract.jointRepair,repairInputs));
  if(repairInputs)issues.push(...auditEditorialSelectionRequest(selectionRequest,repairInputs));
  if(repairInputs)try{

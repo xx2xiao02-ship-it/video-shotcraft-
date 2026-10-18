@@ -573,6 +573,7 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
           compiledSelectionRequest=selectionRequest;
           writeFileSync(path.join(qa,'editorial-selection-audit.json'),JSON.stringify({schema:'talkcraft-editorial-selection-audit-v1',
             requestId:selectionRequest.requestId,passed:true,compiled:true,editableShotIds:selectionRequest.editableShotIds,
+            rawResponse:path.relative(project,rawFile),
             compiledSha256:createHash('sha256').update(JSON.stringify(result)).digest('hex'),
             productionAdmitted:false,userAcceptance:false},null,2));
         }catch(error){

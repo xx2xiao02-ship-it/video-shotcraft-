@@ -15,6 +15,7 @@ import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit
 import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
+import {editorialRequiredParameterContracts} from './talkcraft-editorial-required-props.mjs';
 import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
@@ -132,7 +133,7 @@ test('已拒绝的原始响应可反复免费重编译；当前请求、原文�
   const write=(name,value)=>fs.writeFileSync(path.join(project,name),JSON.stringify(value));
   fs.writeFileSync(path.join(project,'input.txt'),'当前原稿');write('aligned-sentences.json',args.aligned);
   const hash=v=>createHash('sha256').update(v).digest('hex');
-  write('qa/editorial-single-submission.json',{submittedAt:'this-submission',inputs:Object.fromEntries(
+  write('qa/editorial-single-submission.json',{submittedAt:'2026-10-18T12:43:08.164Z',inputs:Object.fromEntries(
     ['input.txt','aligned-sentences.json'].map(n=>[n,hash(fs.readFileSync(path.join(project,n)))]))});
   captureEditorialResponse(project,{runId:'current-run',requestId:request.requestId,prompt:'original submitted prompt'})(
     JSON.stringify({output_text:JSON.stringify(r)}),{httpStatus:200,attempt:1});
@@ -151,6 +152,14 @@ test('已拒绝的原始响应可反复免费重编译；当前请求、原文�
   write('qa/editorial-selection-audit.json',{requestId:request.requestId,passed:true,compiled:true,
     recoveredWithoutProvider:true,productionAdmitted:false,compiledSha256:hash(JSON.stringify(compiled))});
   for(let i=0;i<2;i++)assert.deepEqual(recompileRetainedEditorialSelection(project,{runId:'current-run',...args}).result,compiled);
+  // First successful compile followed by a later strict rejection: no prior
+  // replay report or raw-file pointer exists in legacy successful audits.
+  fs.unlinkSync(path.join(project,'qa/editorial-free-selection-replay.json'));
+  fs.unlinkSync(path.join(project,audit.rawResponse));
+  write('qa/editorial-selection-audit.json',{requestId:request.requestId,passed:true,compiled:true,
+    productionAdmitted:false,compiledSha256:hash(JSON.stringify(compiled))});
+  for(let i=0;i<2;i++)assert.deepEqual(recompileRetainedEditorialSelection(project,{runId:'current-run',...args}).result,compiled);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(project,audit.rawResponse))),r);
   write('qa/ark-editorial-response.json',{...compiled,intent:'tampered'});
   assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'current-run',...args}),/哈希核验/);
   write('qa/editorial-selection-audit.json',audit);
@@ -159,6 +168,22 @@ test('已拒绝的原始响应可反复免费重编译；当前请求、原文�
   assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'another-run',...args}),/当前任务|本次提交/);
   write(audit.rawResponse,{...r,repairs:[]});
   assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'current-run',...args}),/不一致/);
+});
+
+test('选卡必填合同逐方案显式发送；空参数在编译前聚合拒绝且不修改返回',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+  const model=editorialSelectionModelInput(request,{promptCatalog});
+  assert.deepEqual(model.parameterContracts,editorialRequiredParameterContracts(request,catalog));
+  const r=response(request),before=structuredClone(r);
+  r.repairs[0].templateParams.cardProps={};
+  const empty=structuredClone(r);
+  assert.throws(()=>compileEditorialSelection(r,request,args),error=>{
+    assert.deepEqual(error.issues.map(i=>i.field),['docTitle','pills','notes','hint']);
+    assert.ok(error.issues.every(i=>i.code==='REQUIRED_PROP'&&i.shotId==='s15'));return true;
+  });
+  assert.deepEqual(r,empty);assert.notDeepEqual(r,before);
+  assert.ok(!editorialSelectionPrompt(request,{promptCatalog}).includes('"cardProps":{}'));
 });
 function fixture(){
   const params={cardProps:{},templateMaterialQueries:{srcBefore:'官方研究资料',srcAfter:'真实生活资料'}};
@@ -181,7 +206,7 @@ function response(request,slug='doc-park-left-pill-deal'){
   const anchors=request.windows[0].anchorScope.sentences[0].anchors;
   return {schema:'talkcraft-editorial-selection-response-v2',requestId:request.requestId,
     repairs:[{shotId:'s15',choiceId:choice.choiceId,intent:'明确展示央行研究',visual:'使用原卡机构资料与标签',
-      templateParams:{cardProps:{},templateMaterialQueries:queries},
+      templateParams:{cardProps:{docTitle:'央行的预期管理',pills:'收入冲击\n消费传导',notes:'官方研究资料',hint:'查看研究出处'},templateMaterialQueries:queries},
       nativePresentation:{holdAtNativeFrame:100,holdReason:'资料可见时驻留',mobileMinTextPx:12,
         textFields:[{key:'docTitle',visibility:'visible'}],
         wordEvents:[{field:'docTitle',text:'央行的预期管理',fromAnchorId:anchors[3].anchorId,throughAnchorId:anchors.at(-1).anchorId,role:'spoken'}]}}],
@@ -261,7 +286,8 @@ test('发送前自检核对实际投影；缺锚点、夹带全文、串用旧�
     ...args,promptCatalog});
   const audit=selectionModelInput=>auditEditorialRequestContract({...p,selectionModelInput,promptCatalog,catalog});
   assert.equal(audit(p.selectionModelInput).passed,true);
-  for(const mutate of [m=>delete m.windows[0].anchorScope,m=>m.fullInput='锁定后镜',
+  for(const mutate of [m=>delete m.parameterContracts,m=>m.parameterContracts[0].choices[0].requiredBusinessFields=[],
+    m=>delete m.windows[0].anchorScope,m=>m.fullInput='锁定后镜',
     m=>m.windows[0].anchorScope.sentences.push({sentenceIndex:1,text:'后镜'}),m=>m.windows[0].anchorScope.scopeId='旧记录',
     m=>m.windows[0].anchorScope.sentences[0].sentenceRef='其他镜引用',
     m=>m.windows[0].anchorScope.sentences[0].characters[0].offset=999]){
