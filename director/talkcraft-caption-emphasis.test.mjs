@@ -48,3 +48,41 @@ test('生成器与渲染门禁共用规则，人工修订不被旧响应覆盖',
   assert.match(CAPTION_EMPHASIS_RULES,/顶层captionEmphasis/);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('04校验实际使用的独立字幕清单，旧草稿的跨标点或超长重点不覆盖有效清单',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caption-effective-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ fs.mkdirSync(path.join(dir,'remotion'),{recursive:true});const {timing,plan}=fixture();
+ const file=path.join(dir,'remotion/caption-emphasis-plan.json'),bytes=JSON.stringify(plan,null,2)+'\n';fs.writeFileSync(file,bytes);
+ for(const incoming of [undefined,{...plan,sentences:plan.sentences.map(r=>({...r,keyword:'收入、稳定，超过八个字'}))}]){
+  const result={sentences:timing.scenes,captionEmphasis:incoming},before=structuredClone(result);
+  const saved=saveEditorialCaptionEmphasis(dir,result);
+  assert.equal(saved.prepared,true);assert.equal(saved.preservedExisting,true);assert.equal(saved.source,'saved-independent-plan');
+  assert.match(saved.planSha256,/^[a-f0-9]{64}$/);assert.equal(fs.readFileSync(file,'utf8'),bytes);assert.deepEqual(result,before);
+  assert.equal(compileCaptionEmphasis(JSON.parse(fs.readFileSync(file)),timing).passed,true);
+ }
+});
+
+test('现有独立清单不合规时仍阻断，不用合法模型草稿偷偷替换',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caption-invalid-saved-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ fs.mkdirSync(path.join(dir,'remotion'),{recursive:true});const {timing,plan}=fixture(),invalid=structuredClone(plan);
+ invalid.sentences[0].keyword='收入、稳定';const file=path.join(dir,'remotion/caption-emphasis-plan.json');
+ fs.writeFileSync(file,JSON.stringify(invalid));const before=fs.readFileSync(file);
+ assert.throws(()=>saveEditorialCaptionEmphasis(dir,{sentences:timing.scenes,captionEmphasis:plan}),/CAPTION_ANNOTATIONS_INVALID/);
+ assert.deepEqual(fs.readFileSync(file),before);
+});
+
+test('独立清单原文过期仍阻断，不能仅凭文件存在绕过原稿对应',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caption-stale-saved-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const {timing,plan}=fixture();saveEditorialCaptionEmphasis(dir,{sentences:timing.scenes,captionEmphasis:plan});
+ const changed=structuredClone(timing.scenes);changed[0].text='已经更换原稿。';
+ assert.throws(()=>saveEditorialCaptionEmphasis(dir,{sentences:changed,captionEmphasis:plan}),/原文或句序已失效/);
+});
+
+test('没有独立清单时仍验证模型标注，非法结果不能首次写入',t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'caption-first-save-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const {timing,plan}=fixture(),invalid=structuredClone(plan);invalid.sentences[0].keyword='入';
+ assert.throws(()=>saveEditorialCaptionEmphasis(dir,{sentences:timing.scenes,captionEmphasis:invalid}),/CAPTION_ANNOTATIONS_INVALID/);
+ assert.equal(fs.existsSync(path.join(dir,'remotion/caption-emphasis-plan.json')),false);
+ const saved=saveEditorialCaptionEmphasis(dir,{sentences:timing.scenes,captionEmphasis:plan});
+ assert.equal(saved.source,'editorial-response');assert.equal(saved.preservedExisting,false);
+});
