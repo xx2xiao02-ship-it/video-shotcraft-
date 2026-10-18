@@ -7,8 +7,15 @@ import {targetFingerprint} from './talkcraft-editorial-fallback.mjs';
 // This is one finite request deadline, never authorization to retry a timeout.
 export const ACCTOKEN_EDITORIAL_TIMEOUT_MS=600000;
 
+// Responses counts reasoning and final JSON against the same output ceiling.
+// The retained s15 response exhausted 32768 tokens (32555 reasoning) before
+// completing its JSON. Keep a finite provider-specific budget, never a retry.
+export function editorialOutputTokenBudget(config){
+ return config?.provider==='acctoken'?65536:32768;
+}
+
 export async function talkcraftEditorialDirector(prompt,options){
- const {config,requestPlan,fetchImpl=globalThis.fetch,timeoutMs=config?.provider==='acctoken'?ACCTOKEN_EDITORIAL_TIMEOUT_MS:120000,maxOutputTokens,
+ const {config,requestPlan,fetchImpl=globalThis.fetch,timeoutMs=config?.provider==='acctoken'?ACCTOKEN_EDITORIAL_TIMEOUT_MS:120000,maxOutputTokens=editorialOutputTokenBudget(config),
   phase='global',onAttempt=()=>{},onResponse}=options;
  if(config.provider!=='acctoken')return arkDirector(prompt,options);
  const target={provider:'acctoken',responsesUrl:`${ACCTOKEN_BASE_URL}/responses`,endpoint:ACCTOKEN_MODEL,apiKey:config.apiKey};

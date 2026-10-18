@@ -5,7 +5,7 @@ import {existsSync, readFileSync, writeFileSync, mkdirSync, openSync, closeSync,
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {talkcraftEditorialDirector} from './talkcraft-editorial-provider-client.mjs';
+import {talkcraftEditorialDirector,editorialOutputTokenBudget} from './talkcraft-editorial-provider-client.mjs';
 import {talkcraftEditorialConfig} from './talkcraft-editorial-provider.mjs';
 import {talkcraftProject, readTalkcraftStatus} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
@@ -584,7 +584,7 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
       const plan=editorialFallbackPlan(config),submission=reserveEditorialSubmission(project,{requestPlan:plan,requireConfiguredFallback:true});
       if(config.provider==='acctoken'&&!submission.limited)throw Error('AccToken正式调用缺少当前任务单次费用授权，未发送');
       const requestPlan=submission.requestPlan||plan;
-      try{result = await call(prompt, {config:{...config,fallbackEnabled:true}, requestPlan,phase:'global', maxOutputTokens:32768,
+      try{result = await call(prompt, {config:{...config,fallbackEnabled:true}, requestPlan,phase:'global', maxOutputTokens:editorialOutputTokenBudget(config),
         onResponse:captureEditorialResponse(project,{runId,prompt,requestId:selectionRequest?.requestId||null}),
         onAttempt:({attempt,fallback,endpoint,totalAttempts})=>{if(requestPlan)recordEditorialAttempt(project,requestPlan[attempt-1]);console.log(`${providerLabel}请求 ${attempt}/${totalAttempts||1}${fallback?'（跌落接入点）':''}：${endpoint||'当前接入点'}`);}});}
       catch(error){recordEditorialSubmissionOutcome(project,{error});throw error;}

@@ -1,11 +1,26 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {ACCTOKEN_BASE_URL,ACCTOKEN_MODEL,editorialProviderSelection,talkcraftEditorialConfig,editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
-import {talkcraftEditorialDirector,ACCTOKEN_EDITORIAL_TIMEOUT_MS} from './talkcraft-editorial-provider-client.mjs';
+import {talkcraftEditorialDirector,ACCTOKEN_EDITORIAL_TIMEOUT_MS,editorialOutputTokenBudget} from './talkcraft-editorial-provider-client.mjs';
 import {editorialFallbackPlan,targetFingerprint} from './talkcraft-editorial-fallback.mjs';
 import {captureEditorialResponse,recoverBoundEditorialSelectionResponse} from './talkcraft-editorial-response.mjs';
 import {createHash} from 'node:crypto';
 const runId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+
+test('DeepSeek推理与JSON共用有限65536预算，截断仍原样留存且不追加请求；原方舟预算不变',async t=>{
+ const f=fixture(t),config=f.config();let requests=0,captured=0;
+ assert.equal(editorialOutputTokenBudget(config),65536);
+ assert.equal(editorialOutputTokenBudget({provider:'ark'}),32768);
+ assert.equal(editorialOutputTokenBudget({}),32768);
+ await assert.rejects(()=>talkcraftEditorialDirector('本镜修订',{
+  config,requestPlan:editorialFallbackPlan(config),
+  fetchImpl:async(url,options)=>{
+   requests++;assert.equal(JSON.parse(options.body).max_output_tokens,65536);
+   return new Response(JSON.stringify({status:'incomplete',incomplete_details:{reason:'max_output_tokens'},output_text:'{"repairs":['}));
+  },onResponse:body=>{captured++;assert.equal(JSON.parse(body).status,'incomplete');}
+ }),e=>{assert.equal(e.retryable,false);return e.code==='ARK_RESPONSE_INCOMPLETE';});
+ assert.equal(requests,1);assert.equal(captured,1);
+});
 test('AccToken局部修订有独立有限等待预算，显式超时仍只发一次且账单结果未知',async t=>{
  const f=fixture(t),config=f.config(),deadlines=[];let requests=0;
  t.mock.method(AbortSignal,'timeout',ms=>{deadlines.push(ms);return new AbortController().signal;});
