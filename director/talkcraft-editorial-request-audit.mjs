@@ -4,11 +4,13 @@ import {editorialDslLocks} from './talkcraft-editorial-params.mjs';
 import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 import {editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
 import {auditEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
+import {auditEditorialSelectionRequest} from './talkcraft-editorial-selection.mjs';
 
 // Verify the actual serialized request data, not a second prose-only rule list.
-export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null}){
+export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null,selectionRequest=null}){
  const issues=[],same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
  if(repairInputs)issues.push(...auditEditorialJointRepairContract(planningContract.jointRepair,repairInputs));
+ if(repairInputs)issues.push(...auditEditorialSelectionRequest(selectionRequest,repairInputs));
  else if(planningContract.jointRepair)issues.push('联合修订契约缺少原始提案与当前输入，不能只信缓存');
  if(promptCatalog.crossFieldChecks!==crossFieldChecks.toString())issues.push('模型跨字段规则与正式校验源码不一致');
  if(promptCatalog.materialDisplayRules!==EDITORIAL_MATERIAL_DISPLAY_RULES)issues.push('模型素材展示规则与正式校验不一致');
@@ -40,6 +42,6 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
   }
  }
  return {schema:'talkcraft-editorial-request-audit-v1',passed:issues.length===0,issues,
-  requestDataSha256:createHash('sha256').update(JSON.stringify({promptCatalog,planningContract})).digest('hex'),
+  requestDataSha256:createHash('sha256').update(JSON.stringify({promptCatalog,planningContract,selectionRequest})).digest('hex'),
   checkedCards:catalog.cards.length,externalRequests:0,userAcceptance:false};
 }

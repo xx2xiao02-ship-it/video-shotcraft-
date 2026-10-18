@@ -424,6 +424,7 @@ export function prepareTalkcraftStoryboardRevision(root, runId) {
     'material-research-plan.json','material-binding-plan.json',
     'semantics.json', 'qa/ark-editorial-response.json', 'qa/editorial-repair-feedback.json', 'qa/preflight-result.json',
     'qa/ark-editorial-response-before-repairs.json', 'qa/ark-design-repairs.json',
+    'qa/editorial-selection-request.json','qa/editorial-selection-audit.json',
     'qa/ark-proposal-audit.json', 'qa/ark-template-design-validation.json',
     'qa/native-editorial-plan.json', 'remotion/native-presentation.json',
     'remotion/word-reveal-plan.json',

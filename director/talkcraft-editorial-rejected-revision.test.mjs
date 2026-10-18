@@ -64,6 +64,8 @@ test('只有合法的未落地结果才可记录修订，不自动通过或产�
 });
 test('正式修订可处理未落地04，归档最新失败与完整提案，保留原06素材快照及配音',async t=>{
  const f=fixture(t),audio=fs.readFileSync(path.join(f.p,'audio/full.mp3'));
+ f.write('qa/editorial-selection-request.json',{requestId:'old-request'});
+ f.write('qa/editorial-selection-audit.json',{passed:false});
  requestTalkcraftStoryboardAdjustment(f.root,id,'解决当前04的三项失败');
  assert.throws(()=>authorizeEditorialRevision(f.root,id),/授权/);
  authorizeEditorialRevision(f.root,id,{approval:'用户明确授权一次修订'});
@@ -75,6 +77,9 @@ test('正式修订可处理未落地04，归档最新失败与完整提案，保
   const snapshot=path.join(f.p,feedback.snapshot);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(snapshot,'qa/ark-editorial-response.json'))),f.proposal);
   assert.ok(fs.existsSync(path.join(snapshot,'qa/editorial-repair-feedback.json')));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(snapshot,'qa/editorial-selection-request.json'))),{requestId:'old-request'});
+  assert.ok(fs.existsSync(path.join(snapshot,'qa/editorial-selection-audit.json')));
+  assert.equal(fs.existsSync(path.join(f.p,'qa/editorial-selection-request.json')),false);
   return {testDouble:true};
  }});
  assert.equal(calls,1);assert.deepEqual(fs.readFileSync(path.join(f.p,'audio/full.mp3')),audio);

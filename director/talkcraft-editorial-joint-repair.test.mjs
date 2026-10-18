@@ -7,6 +7,7 @@ import {auditEditorialMaterialContract} from './talkcraft-editorial-material-con
 import {buildEditorialPlanningContract} from './talkcraft-editorial-planning-contract.mjs';
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
+import {buildEditorialSelectionRequest} from './talkcraft-editorial-selection.mjs';
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json','utf8'));
 const catalog=loadTalkcraftGovernedCatalog(index);
@@ -98,6 +99,11 @@ test('联合契约漏传、速度证据篡改及输入过期均在请求自检�
   assert.ok(auditEditorialRequestContract(args).issues.some(s=>s.includes('联合修订')));
   planningContract.jointRepair=contract;
   assert.ok(!auditEditorialRequestContract(args).issues.some(s=>s.includes('联合修订')));
+  assert.ok(auditEditorialRequestContract(args).issues.some(s=>s.includes('局部修订')));
+  args.selectionRequest=buildEditorialSelectionRequest(inputs);
+  assert.ok(!auditEditorialRequestContract(args).issues.some(s=>s.includes('局部修订')));
+  args.selectionRequest.windows[0].choices[0].timing.requestedPlaybackRate=1.3;
+  assert.ok(auditEditorialRequestContract(args).issues.some(s=>s.includes('局部修订')));
   const bad=structuredClone(contract);bad.windows[2].candidates[0].timing.holdFrames=0;
   assert.ok(auditEditorialJointRepairContract(bad,inputs).length);
   const changed=fixture();changed.proposal.shots[1].lastSentence=2;

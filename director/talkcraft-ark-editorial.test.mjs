@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {existsSync,mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
+import {existsSync,mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,unlinkSync} from 'node:fs';
 import path from 'node:path';
 import {auditEditorialProposal,validateEditorial,bindEditorialTiming,checkEditorial,recoverCachedEditorial,compactTalkcraftEditorialCatalog,repairInvalidSemanticLabels} from './talkcraft-ark-editorial.mjs';
 import {loadTalkcraftGovernedCatalog,talkcraftEditorialContract} from './talkcraft-governed-contract.mjs';
@@ -108,6 +108,24 @@ function savedEditorial(t) {
     writeFileSync(path.join(project,name),JSON.stringify(data));
   return {root,runId};
 }
+
+test('局部修订被拒绝后正式免费恢复仍阻断，不能套回旧底稿通过或修改语义',async t=>{
+  const {root,runId}=savedEditorial(t),project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
+  unlinkSync(path.join(project,'remotion/shots.json'));
+  writeFileSync(path.join(project,'aligned-sentences.json'),JSON.stringify(aligned));
+  writeFileSync(path.join(project,'audio/timestamps.json'),JSON.stringify({sentences:semantics.sentences.map((s,i)=>
+    ({...s,...aligned[i],ok:true,match:1}))}));
+  const responseFile=path.join(project,'qa/ark-editorial-response.json');
+  const result=JSON.parse(readFileSync(responseFile));
+  result.editorialSelectionRejection={issues:[{code:'EDITORIAL_REPAIR_SELECTION_INVALID',message:'s15选择不兼容方案'}]};
+  writeFileSync(responseFile,JSON.stringify(result));
+  const before=readFileSync(path.join(project,'semantics.json')),cached=readFileSync(responseFile);let stages=0;
+  await assert.rejects(()=>recoverCachedEditorial(root,runId,{stage:()=>{stages++;}}),/s15选择不兼容方案/);
+  assert.equal(stages,0);assert.deepEqual(readFileSync(responseFile),cached);
+  assert.deepEqual(readFileSync(path.join(project,'semantics.json')),before);
+  assert.equal(existsSync(path.join(project,'SHOTBOOK.md')),false);
+  assert.equal(existsSync(path.join(project,'remotion/shots.json')),false);
+});
 test('editorial check validates proposal only and never advances candidate or preflight gates', t => {
   const {root,runId}=savedEditorial(t); const calls=[];
   const result=checkEditorial(root,runId,{skillRoot:path.resolve('_audit/video-talkcraft'),stage:(stage,id) => {assert.equal(id,runId);calls.push(stage);}});

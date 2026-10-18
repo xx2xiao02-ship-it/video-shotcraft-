@@ -1,0 +1,122 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
+import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
+import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
+import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
+
+const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
+const catalog=loadTalkcraftGovernedCatalog(index);
+function fixture(){
+  const params={cardProps:{},templateMaterialQueries:{srcBefore:'官方研究资料',srcAfter:'真实生活资料'}};
+  const proposal={sentences:[{i:0,text:'央行的预期管理',need:['身份'],shot:'s15'},
+    {i:1,text:'普通人的生活选择',need:[],shot:'s19'}],captionEmphasis:{sentences:['保持字幕重点']},
+    shots:[{id:'s15',firstSentence:0,lastSentence:0,subject:'other',shotCard:'split-compare-slider',
+      templateParams:structuredClone(params),nativePresentation:{playbackRate:1,holdAtNativeFrame:200,holdReason:'对比可见'}},
+    {id:'s19',firstSentence:1,lastSentence:1,subject:'other',shotCard:'split-compare-slider',
+      intent:'保持原样',visual:'锁定已审安排',templateParams:structuredClone(params),nativePresentation:{playbackRate:1,holdAtNativeFrame:200,holdReason:'对比可见'}}],
+    materialResearch:{policyVersion:'保留原规划版本',shots:[{shotId:'s15',research:[{kind:'identity',query:'央行官方资料',reason:'真实机构身份',displayField:'srcBefore'}]},
+      {shotId:'s19',research:[],background:{decision:'omit',reason:'已审构图'}}]}};
+  return {proposal,catalog,aligned:[{start:10,end:17.8},{start:17.8,end:27.666666666666668}],personWindows:[],projectRoot:process.cwd(),
+    failedChecks:[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},{code:'template_window_reuse',shotId:'s19',previousShotId:'s15'}]};
+}
+function response(request,slug='doc-park-left-pill-deal'){
+  const choice=request.windows[0].choices.find(c=>c.slug===slug);
+  assert.ok(choice,slug);
+  const card=catalog.cards.find(c=>c.cardId===slug);
+  const queries=Object.fromEntries(Object.keys(card.policy.media).filter(k=>k!=='hostSrc').map(k=>[k,'央行官方资料图']));
+  return {schema:'talkcraft-editorial-selection-response-v1',requestId:request.requestId,
+    repairs:[{shotId:'s15',choiceId:choice.choiceId,intent:'明确展示央行研究',visual:'使用原卡机构资料与标签',
+      templateParams:{cardProps:{},templateMaterialQueries:queries},
+      nativePresentation:{holdAtNativeFrame:100,holdReason:'资料可见时驻留',mobileMinTextPx:12,textFields:[],wordEvents:[]}}],
+    materialResearchUpdates:[{shotId:'s15',research:[{kind:'identity',query:'央行官方资料',reason:'真实机构身份',displayField:choice.sourceDisplayFields[0]}]}]};
+}
+
+test('第15镜时长失败与第19镜重复只解锁第15镜，全部108卡仍参与联合比较',()=>{
+  const args=fixture(),before=structuredClone(args),joint=buildEditorialJointRepairContract(args),request=buildEditorialSelectionRequest(args);
+  assert.equal(joint.reviewedCount,108);assert.deepEqual(request.editableShotIds,['s15']);
+  assert.deepEqual(request.materialShotIds,['s15']);
+  assert.ok(joint.windows[0].rejected.TIMING_OR_SUBJECT_INCOMPATIBLE.includes('split-compare-slider'));
+  assert.ok(joint.windows[0].rejected.FIXED_SHOT_REUSE_CONFLICT.includes('split-compare-slider'));
+  assert.ok(!request.windows[0].choices.some(c=>c.slug==='split-compare-slider'));
+  assert.deepEqual(args,before);
+});
+
+test('有效编号由代码编译卡和速度，锁定其他分镜、原句、字幕与资料行',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),before=structuredClone(args.proposal);
+  const result=compileEditorialSelection(response(request),request,args);
+  assert.equal(result.shots[0].shotCard,'doc-park-left-pill-deal');
+  assert.equal(Object.hasOwn(result.shots[0].nativePresentation,'playbackRate'),false);
+  assert.deepEqual(result.shots[1],before.shots[1]);assert.deepEqual(result.sentences,before.sentences);
+  assert.deepEqual(result.captionEmphasis,before.captionEmphasis);
+  assert.deepEqual(result.materialResearch.shots[1],before.materialResearch.shots[1]);
+  assert.equal(result.materialResearch.policyVersion,before.materialResearch.policyVersion);
+  assert.deepEqual(args.proposal,before);
+});
+
+test('296帧卡放234帧的实际错误不能编码为合法编号，也不能伪造卡名或速度',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  assert.throws(()=>nativeEditorialTimeline(234,296,280,'完整卡可见',1),/速度/);
+  const bad=response(request);bad.repairs[0].choiceId='split-compare-slider';
+  assert.throws(()=>compileEditorialSelection(bad,request,args),/不兼容/);
+  for(const mutate of [r=>r.repairs[0].shotCard='split-compare-slider',r=>r.repairs[0].nativePresentation.playbackRate=1.266,
+    r=>r.repairs[0].firstSentence=0,r=>r.shots=args.proposal.shots,r=>r.sentences=[]]){
+    const r=response(request);mutate(r);assert.throws(()=>compileEditorialSelection(r,request,args),/未授权/);
+  }
+});
+
+test('漏镜、重复镜、越范围修改固定镜与遗漏资料同步均拒绝，不默认选择首卡',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  for(const mutate of [r=>r.repairs=[],r=>r.repairs.push(structuredClone(r.repairs[0])),
+    r=>r.repairs[0].shotId='s19',r=>r.materialResearchUpdates=[],r=>delete r.repairs[0].choiceId]){
+    const r=response(request);mutate(r);assert.throws(()=>compileEditorialSelection(r,request,args));
+  }
+});
+
+test('篡改方案、过期输入和其他镜头的编号均拒绝',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  assert.deepEqual(auditEditorialSelectionRequest(request,args),[]);
+  const tampered=structuredClone(request);tampered.windows[0].choices[0].slug='split-compare-slider';
+  assert.ok(auditEditorialSelectionRequest(tampered,args).length);
+  assert.throws(()=>compileEditorialSelection(response(request),tampered,args),/篡改|过期/);
+  const changed={...args,aligned:structuredClone(args.aligned)};changed.aligned[0].end+=.1;
+  assert.throws(()=>compileEditorialSelection(response(request),request,changed),/过期/);
+  const wrong=response(request);wrong.requestId='another-request';
+  assert.throws(()=>compileEditorialSelection(wrong,request,args),/指纹/);
+});
+
+test('正式驻留点仍重新编译，不能凭参考方案、姓名旧字段或无槽记录绕过原门禁',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  const invalidHold=response(request);invalidHold.repairs[0].nativePresentation.holdAtNativeFrame=999;
+  assert.throws(()=>compileEditorialSelection(invalidHold,request,args),/驻留/);
+  const invalidSlot=response(request);invalidSlot.materialResearchUpdates[0].research[0].displayField='madeUp';
+  assert.throws(()=>compileEditorialSelection(invalidSlot,request,args),/真实媒体槽/);
+  const missingQuery=response(request);missingQuery.repairs[0].templateParams.templateMaterialQueries={};
+  assert.throws(()=>compileEditorialSelection(missingQuery,request,args),/采集计划/);
+});
+
+test('修订prompt与生成入口使用局部协议，缺少可行方案在付费前停止',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog),input:'原稿',rules:'原门禁保留',adjustment:'修15镜'});
+  assert.match(prompt,/不重写整片/);assert.match(prompt,/playbackRate/);assert.match(prompt,new RegExp(request.requestId));
+  assert.ok(prompt.length<JSON.stringify({catalog,proposal:args.proposal}).length);
+  assert.throws(()=>buildEditorialSelectionRequest({...args,catalog:{cards:catalog.cards.filter(c=>c.cardId==='split-compare-slider')}}),/没有固定句范围/);
+});
+
+test('入向资料换槽不能删除锁定镜资料或篡改其身份、许可和真实文件',()=>{
+  for(const viaBinding of [false,true]){
+    const args=fixture(),row=args.proposal.materialResearch.shots[1];
+    row.research=[{kind:'identity',query:'官方资料',reason:'集中展示',displayField:'srcBefore',
+      ...(!viaBinding?{displayShotId:'s15'}:{})}];
+    if(viaBinding)row.bindings=[{kind:'identity',query:'官方资料',displayShotId:'s15',field:'srcBefore',localPath:'original.png',license:'原许可'}];
+    const request=buildEditorialSelectionRequest(args),r=response(request);
+    assert.deepEqual(request.materialShotIds,['s15','s19']);
+    for(const mutate of [v=>v.research=[],v=>v.research[0].query='伪造身份',v=>v.background.reason='改其他镜',
+      ...(viaBinding?[v=>v.bindings[0].localPath='replaced.png',v=>v.bindings[0].license='虚假许可']:[])]){
+      const bad=structuredClone(r),update=structuredClone(row);mutate(update);bad.materialResearchUpdates.push(update);
+      assert.throws(()=>compileEditorialSelection(bad,request,args),/锁定资料行/);
+    }
+  }
+});

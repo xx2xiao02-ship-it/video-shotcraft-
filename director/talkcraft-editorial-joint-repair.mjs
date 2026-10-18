@@ -15,7 +15,12 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
   const materials=auditEditorialMaterialContract({shots,sentences:proposal.sentences,
     researchPlan:proposal.materialResearch,catalog,projectRoot});
-  const ids=new Set(failedChecks.flatMap(i=>[i.shotId,i.displayShotId]).filter(Boolean));
+  // A reuse issue names both ends; repair an independently failing end first,
+  // rather than unlocking its otherwise valid counterpart as collateral work.
+  const ids=new Set(failedChecks.filter(i=>i.code!=='template_window_reuse')
+    .flatMap(i=>[i.shotId,i.displayShotId]).filter(Boolean));
+  for(const issue of failedChecks.filter(i=>i.code==='template_window_reuse'))
+    if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
   if(!ids.size)shots.forEach(s=>ids.add(s.id));
   const targets=shots.filter(s=>ids.has(s.id));
   const windows=targets.map(shot=>{
