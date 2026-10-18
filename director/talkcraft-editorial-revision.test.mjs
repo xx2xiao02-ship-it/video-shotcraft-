@@ -92,3 +92,12 @@ test('正式免费恢复在原节点工作区运行；复检失败不发布，�
  assert.deepEqual(stages,['candidates','planning-check']);assert.deepEqual(fs.readFileSync(path.join(f.p,'SHOTBOOK.md')),before);
  assert.equal(f.read('qa/editorial-single-submission.json').submittedAt,'current');
 });
+
+test('服务旧代码保存的未消费范围可在同输入同授权下重新绑定一次，已消费或输入变化不冒充未消费',t=>{
+ const f=fixture(t),approval='用户授权本次两镜修订';
+ const old=authorizeEditorialRevision(f.root,id,{approval});
+ f.write('qa/editorial-revision-authorization.json',{...old,repairScopeSha256:'old-loaded-code-scope'});
+ const updated=authorizeEditorialRevision(f.root,id,{approval});
+ assert.equal(updated.reboundUnsubmittedAuthorization,true);assert.equal(updated.maxTasks,1);assert.equal(updated.repairScopeSha256,old.repairScopeSha256);
+ assert.throws(()=>authorizeEditorialRevision(f.root,id,{approval}),/未消费/);
+});

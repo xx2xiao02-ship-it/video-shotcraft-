@@ -91,8 +91,13 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
     const file=authFile(project);
     if(fs.existsSync(file)){
       const previousAuthorization=read(file);
-      if(previousAuthorization.schema!==record.schema||previousAuthorization.runId!==runId||!previousAuthorization.startedAt)
+      const rebindUnused=!previousAuthorization.startedAt&&!previousAuthorization.completedAt&&
+        previousAuthorization.maxTasks===1&&previousAuthorization.approval===record.approval&&
+        JSON.stringify(previousAuthorization.inputs)===JSON.stringify(record.inputs)&&
+        previousAuthorization.repairScopeSha256!==record.repairScopeSha256;
+      if(previousAuthorization.schema!==record.schema||previousAuthorization.runId!==runId||!previousAuthorization.startedAt&&!rebindUnused)
         throw Error('已有未消费或无法核验的修订授权，禁止覆盖');
+      if(rebindUnused)record.reboundUnsubmittedAuthorization=true;
       const directory=path.join(project,'qa/editorial-revision-authorization-history');
       fs.mkdirSync(directory,{recursive:true});
       const archived=path.join(directory,sha(file)+'.json');
@@ -111,12 +116,20 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
   if(fs.existsSync(path.join(project,'editorial-revision-authorization.lock')))throw Error('修订授权正在保存，禁止并发执行');
   if(record.schema!=='talkcraft-editorial-revision-authorization-v1'||record.runId!==runId||record.maxTasks!==1||record.completedAt||record.resumedAt||record.startedAt&&!record.recoveredInputs||
     JSON.stringify(record.recoveredInputs||record.inputs)!==JSON.stringify(inputs(project)))throw Error('修订授权已使用或当前输入变化，禁止重复调用');
-  const scope=editorialRepairScopeSha256(currentEditorialRepairFeedback(project));
+  const feedback=currentEditorialRepairFeedback(project);
+  const scope=editorialRepairScopeSha256(feedback);
   if(record.repairScopeSha256!==scope)throw Error('修订授权与当前失败范围不一致，未调用模型');
   const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
   try{
     fs.writeFileSync(file,JSON.stringify({...record,startedAt:record.startedAt||new Date().toISOString(),...(record.recoveredAt?{resumedAt:new Date().toISOString()}: {})},null,2));
     const operation=async target=>{
+    if(feedback?.retainedTransaction){
+      if(target===project)throw Error('补全基稿只能进入节点事务，不能直接发布');
+      // Carry the verified retained proposal and latest failures into the new
+      // transaction before archiving; otherwise it would rediscover old 5-shot
+      // failures from the installed, unchanged production storyboard.
+      fs.writeFileSync(path.join(target,'qa/planning-editorial-repair.json'),JSON.stringify(feedback,null,2));
+    }
     const {revision}=prepareTalkcraftStoryboardRevision(root,runId);
     const checked=await stage('semantic-check',runId);
     if(checked?.passed===false)throw Error('修订前逐句语义校验未通过，未调用模型');
