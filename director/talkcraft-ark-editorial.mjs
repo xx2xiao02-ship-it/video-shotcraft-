@@ -5,8 +5,8 @@ import {existsSync, readFileSync, writeFileSync, mkdirSync, openSync, closeSync,
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {arkDirector} from './a-mode-ark-client.mjs';
-import {aModeRuntimeConfig} from './a-mode-provider-config.mjs';
+import {talkcraftEditorialDirector} from './talkcraft-editorial-provider-client.mjs';
+import {talkcraftEditorialConfig} from './talkcraft-editorial-provider.mjs';
 import {talkcraftProject, readTalkcraftStatus} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {applySemanticDecisions,validateSemanticDecisions} from './talkcraft-semantic-decisions.mjs';
@@ -451,7 +451,7 @@ export function recoverCachedSemantics(root,runId,options={}) {
     finally{closeSync(fd);unlinkSync(lock);}
   });
 }
-async function generateEditorialInternal(root, runId, {call = arkDirector, config = aModeRuntimeConfig(), stage = runTalkcraftStage,revisionScopeSha256,recoverExisting=false,recoverProviderOnly=false} = {}) {
+async function generateEditorialInternal(root, runId, {call = talkcraftEditorialDirector, config = null, stage = runTalkcraftStage,revisionScopeSha256,recoverExisting=false,recoverProviderOnly=false} = {}) {
   const project = talkcraftProject(root, runId);
   const skill = resolveTalkcraftSkillRoot(root);
   const lock = path.join(project, 'editorial.lock');
@@ -554,12 +554,15 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
         console.log('正在免费恢复本次请求原文并严格复检，不调用模型');
         result=recoverEditorialResponse(project,{runId,prompt,requestId:selectionRequest?.requestId||null});
       }else{
-      console.log('正在调用火山方舟生成语义和分镜');
+      config ??= talkcraftEditorialConfig(runId);
+      const providerLabel=config.provider==='acctoken'?'AccToken DeepSeek':'火山方舟';
+      console.log(`正在调用${providerLabel}生成语义和分镜`);
       const plan=editorialFallbackPlan(config),submission=reserveEditorialSubmission(project,{requestPlan:plan,requireConfiguredFallback:true});
+      if(config.provider==='acctoken'&&!submission.limited)throw Error('AccToken正式调用缺少当前任务单次费用授权，未发送');
       const requestPlan=submission.requestPlan||plan;
       try{result = await call(prompt, {config:{...config,fallbackEnabled:true}, requestPlan,phase:'global', maxOutputTokens:32768,
         onResponse:captureEditorialResponse(project,{runId,prompt,requestId:selectionRequest?.requestId||null}),
-        onAttempt:({attempt,fallback,endpoint,totalAttempts})=>{if(requestPlan)recordEditorialAttempt(project,requestPlan[attempt-1]);console.log(`火山请求 ${attempt}/${totalAttempts||1}${fallback?'（跌落接入点）':''}：${endpoint||'当前接入点'}`);}});}
+        onAttempt:({attempt,fallback,endpoint,totalAttempts})=>{if(requestPlan)recordEditorialAttempt(project,requestPlan[attempt-1]);console.log(`${providerLabel}请求 ${attempt}/${totalAttempts||1}${fallback?'（跌落接入点）':''}：${endpoint||'当前接入点'}`);}});}
       catch(error){recordEditorialSubmissionOutcome(project,{error});throw error;}
       }
       const rawDir=path.join(qa,'editorial-provider-responses');mkdirSync(rawDir,{recursive:true});

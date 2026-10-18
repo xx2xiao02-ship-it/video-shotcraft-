@@ -24,7 +24,8 @@ export function captureEditorialResponse(project,{runId,prompt,requestId=null}){
     if(!r.submittedAt||JSON.stringify(r.inputs)!==JSON.stringify(inputs))throw fail('EDITORIAL_RESPONSE_BINDING_INVALID','响应留存与本次提交输入不一致');
     const envelope={schema:'talkcraft-editorial-provider-envelope-v1',runId,submittedAt:r.submittedAt,inputs,
       requestId,promptSha256:sha(prompt),bodySha256:sha(body),body,
-      transport:{httpStatus:meta.httpStatus,phase:meta.phase,attempt:meta.attempt,source:meta.source,endpoint:meta.endpoint}};
+      transport:{httpStatus:meta.httpStatus,phase:meta.phase,attempt:meta.attempt,source:meta.source,endpoint:meta.endpoint,
+        ...(meta.provider?{provider:meta.provider,responsesUrl:meta.responsesUrl}:{})}};
     const directory=path.join(project,'qa/editorial-provider-envelopes');fs.mkdirSync(directory,{recursive:true});
     const file=path.join(directory,randomUUID()+'.json'),bytes=JSON.stringify(envelope,null,2);
     fs.writeFileSync(file,bytes,{flag:'wx'});

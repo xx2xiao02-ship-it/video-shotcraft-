@@ -7,7 +7,28 @@ import {reserveEditorialSubmission} from './talkcraft-editorial-submission.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
 import {executeNodeRepair} from './talkcraft-node-repair.mjs';
 import {talkcraftProject} from './talkcraft-status.mjs';
+import {ACCTOKEN_BASE_URL,ACCTOKEN_MODEL} from './talkcraft-editorial-provider.mjs';
 const id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+test('AccToken授权绑定当前模型与凭据；旧授权或Key变化在归档前拒绝',async t=>{
+ const f=fixture(t),configDir=path.join(f.root,'config'),folder=path.join(configDir,'b-mode-editorial-providers');
+ fs.mkdirSync(folder,{recursive:true});
+ const previousDir=process.env.SHOTCRAFT_CONFIG_DIR,previousKey=process.env.ACCTOKEN_API_KEY;
+ t.after(()=>{if(previousDir===undefined)delete process.env.SHOTCRAFT_CONFIG_DIR;else process.env.SHOTCRAFT_CONFIG_DIR=previousDir;
+  if(previousKey===undefined)delete process.env.ACCTOKEN_API_KEY;else process.env.ACCTOKEN_API_KEY=previousKey;});
+ process.env.SHOTCRAFT_CONFIG_DIR=configDir;process.env.ACCTOKEN_API_KEY='test-acctoken-key';
+ authorizeEditorialRevision(f.root,id,{approval:'旧方舟授权'});
+ fs.writeFileSync(path.join(folder,id+'.json'),JSON.stringify({schema:'talkcraft-editorial-provider-v1',runId:id,
+  provider:'acctoken',baseUrl:ACCTOKEN_BASE_URL,model:ACCTOKEN_MODEL,wireApi:'responses'}));
+ let calls=0;const generate=()=>{calls++;return {};};
+ await assert.rejects(()=>executeEditorialRevision(f.root,id,{generate}),/旧修订授权/);assert.equal(calls,0);
+ // Fresh authorization follows the existing exact-input archiving rules.
+ const fresh=fixture(t);
+ const current=authorizeEditorialRevision(fresh.root,id,{approval:'本次DeepSeek单次授权'});
+ assert.equal(current.providerBinding.model,ACCTOKEN_MODEL);assert.ok(!JSON.stringify(current).includes('test-acctoken-key'));
+ process.env.ACCTOKEN_API_KEY='changed-key';
+ await assert.rejects(()=>executeEditorialRevision(fresh.root,id,{generate}),/旧修订授权/);assert.equal(calls,0);
+ assert.ok(fs.existsSync(path.join(f.p,'SHOTBOOK.md')));
+});
 function fixture(t){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'formal-revision-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
  const p=path.join(root,'director/b-mode-runs',id,'talkcraft');for(const d of ['qa','audio','remotion'])fs.mkdirSync(path.join(p,d),{recursive:true});

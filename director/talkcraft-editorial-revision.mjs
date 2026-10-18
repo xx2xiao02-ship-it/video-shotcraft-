@@ -8,6 +8,7 @@ import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {generateEditorial,checkEditorial,recoverProviderEditorial} from './talkcraft-ark-editorial.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
 import {executeNodeRepair} from './talkcraft-node-repair.mjs';
+import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
 
 const read=f=>JSON.parse(fs.readFileSync(f));
 const sha=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
@@ -81,7 +82,9 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
   if(!feedback?.failedChecks?.length)throw Error('缺少当前输入的完整修订失败清单');
   if(fs.existsSync(path.join(project,'editorial.lock'))||fs.existsSync(path.join(project,'editorial-revision.lock')))
     throw Error('已有编导执行锁，禁止并发修订');
+  const providerBinding=editorialProviderBinding(runId);
   const record={schema:'talkcraft-editorial-revision-authorization-v1',runId,approval:approval.trim(),
+    ...(providerBinding?{providerBinding}:{}),
     maxTasks:1,inputs:inputs(project),repairScopeSha256:editorialRepairScopeSha256(feedback),approvedAt:new Date().toISOString(),
     feedbackStage:feedback.stage||'editorial',node:feedback.stage==='planning-check'?'storyboard-review':feedback.stage==='preflight'?'preflight':'editorial'};
   const lock=path.join(project,'editorial-revision-authorization.lock'),fd=fs.openSync(lock,'wx');
@@ -113,6 +116,8 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
 export async function executeEditorialRevision(root,runId,{stage=runTalkcraftStage,generate=generateEditorial,resumeUnsubmitted=false}={}){
   if(resumeUnsubmitted)recoverUnsubmittedEditorialRevision(root,runId);
   const project=talkcraftProject(root,runId),file=authFile(project),record=read(file);
+  if(JSON.stringify(record.providerBinding||null)!==JSON.stringify(editorialProviderBinding(runId)))
+    throw Error('编导供应商、模型或凭据已变化，旧修订授权不能复用，未调用模型');
   if(fs.existsSync(path.join(project,'editorial-revision-authorization.lock')))throw Error('修订授权正在保存，禁止并发执行');
   if(record.schema!=='talkcraft-editorial-revision-authorization-v1'||record.runId!==runId||record.maxTasks!==1||record.completedAt||record.resumedAt||record.startedAt&&!record.recoveredInputs||
     JSON.stringify(record.recoveredInputs||record.inputs)!==JSON.stringify(inputs(project)))throw Error('修订授权已使用或当前输入变化，禁止重复调用');
@@ -139,7 +144,8 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
     fs.writeFileSync(path.join(revision,'qa/editorial-single-submission.json'),JSON.stringify(previous,null,2),{flag:'wx'});
     fs.writeFileSync(submissionFile,JSON.stringify({schema:previous.schema,approved:true,maxTasks:1,
       allowConfiguredFallback:true,inputs:previous.inputs,
-      ...(previous.targetFingerprints?{targetFingerprints:previous.targetFingerprints}:{}),
+      ...(record.providerBinding?{targetFingerprints:[record.providerBinding.targetFingerprint]}:
+        previous.targetFingerprints?{targetFingerprints:previous.targetFingerprints}:{}),
       approvedAt:record.approvedAt,approval:record.approval},null,2));
     const result=await generate(root,runId,{revisionScopeSha256:scope});
     if(result?.passed===false)throw Error('局部分镜修订校验未通过');
