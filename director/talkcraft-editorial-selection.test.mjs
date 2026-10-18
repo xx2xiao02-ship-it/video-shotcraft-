@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {captureEditorialResponse} from './talkcraft-editorial-response.mjs';
+import {recompileRetainedEditorialSelection} from './talkcraft-editorial-selection-replay.mjs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
-import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings,prepareEditorialMaterialUpdates} from './talkcraft-editorial-selection.mjs';
 import {buildEditorialAnchorScope} from './talkcraft-editorial-anchor-scope.mjs';
 import {createHash} from 'node:crypto';
 import {prepareEditorialRepairInput} from './talkcraft-ark-editorial.mjs';
@@ -14,6 +18,79 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
+
+test('资料协议区分锁定换槽与创意重写，逐行明确数组和已有绑定归属',()=>{
+  const args=fixture(),row=args.proposal.materialResearch.shots[1];
+  row.research=[{kind:'identity',query:'官方出处',displayShotId:'s15',displayField:'srcBefore'}];
+  row.bindings=[{kind:'identity',query:'官方出处',displayShotId:'s15',field:'srcBefore',localPath:'verified.png'}];
+  row.backgroundReason='锁定创意不可重写';
+  row.personDisplays=[{entityName:'资料人物',role:'core',displayShotId:'s15',
+    labelField:'docTitle',labelText:'资料人物',bindingQuery:'官方出处',nameField:'错误旧别名'}];
+  const request=buildEditorialSelectionRequest(args);
+  const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+  const locked=model.materials.find(r=>r.shotId==='s19');
+  assert.equal(locked.mode,'retarget-only');assert.deepEqual(locked.rewriteFields,[]);
+  assert.deepEqual(locked.requiredArrays,['research','personDisplays']);assert.equal(locked.preservedBindingCount,1);
+  assert.deepEqual(locked.personDisplays,[{entityName:'资料人物',role:'core',displayShotId:'s15',
+    labelField:'docTitle',labelText:'资料人物',bindingQuery:'官方出处'}]);
+  assert.equal(model.materials[0].mode,'replace-design');
+  const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+  assert.match(prompt,/research:\[\]/);assert.match(prompt,/bindings由服务端/);assert.match(prompt,/mode=retarget-only/);
+});
+
+test('仅恢复本次基稿明确的空research和已有绑定；非空规划及锁定改写一次完整报告',()=>{
+  const request={editableShotIds:['s03','s07'],baseProposal:{materialResearch:{shots:[
+    {shotId:'s03',research:[]},
+    {shotId:'s07',research:[{kind:'identity',query:'真实央行'}],bindings:[{kind:'identity',query:'真实央行',field:'src',sha256:'original'}]},
+    {shotId:'s04',research:[],backgroundReason:'已审理由'}]}}};
+  const r={materialResearchUpdates:[{shotId:'s03'},{shotId:'s07'},{shotId:'s04',research:[],backgroundReason:'新编理由'}]};
+  const before=structuredClone(r),audit=prepareEditorialMaterialUpdates(r,request);
+  assert.deepEqual(audit.rows[0].research,[]);
+  assert.deepEqual(audit.rows[1].bindings,request.baseProposal.materialResearch.shots[1].bindings);
+  assert.deepEqual(audit.issues.map(i=>i.shotId),['s07','s04']);assert.equal(audit.passed,false);
+  assert.deepEqual(r,before);
+  r.materialResearchUpdates[0].research=null;
+  assert.ok(prepareEditorialMaterialUpdates(r,request).issues.some(i=>i.shotId==='s03'));
+});
+
+test('同卡资料绑定由基稿保留，错槽、文件篡改及非空research遗漏仍不能通过',()=>{
+  const args=fixture();
+  args.proposal.materialResearch.shots[0].bindings=[{kind:'identity',query:'央行官方资料',field:'src',localPath:'real.png',sha256:'retained'}];
+  const request=buildEditorialSelectionRequest(args),r=response(request,'doc-park-left-pill-deal');
+  // Source is preserved exactly; this old field is incompatible with the new
+  // card and must be reported, never automatically renamed to a new slot.
+  assert.throws(()=>compileEditorialSelection(r,request,args),/槽位|实际绑定|真实媒体/);
+  delete r.materialResearchUpdates[0].research;
+  assert.throws(()=>compileEditorialSelection(r,request,args),/缺少完整资料规划/);
+});
+
+test('已拒绝的原始响应可反复免费重编译；当前请求、原文与基稿必须全部相符',t=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
+  const project=fs.mkdtempSync(path.join(os.tmpdir(),'selection-replay-'));
+  t.after(()=>fs.rmSync(project,{recursive:true,force:true}));
+  fs.mkdirSync(path.join(project,'qa/editorial-provider-responses'),{recursive:true});
+  const write=(name,value)=>fs.writeFileSync(path.join(project,name),JSON.stringify(value));
+  fs.writeFileSync(path.join(project,'input.txt'),'当前原稿');write('aligned-sentences.json',args.aligned);
+  const hash=v=>createHash('sha256').update(v).digest('hex');
+  write('qa/editorial-single-submission.json',{submittedAt:'this-submission',inputs:Object.fromEntries(
+    ['input.txt','aligned-sentences.json'].map(n=>[n,hash(fs.readFileSync(path.join(project,n)))]))});
+  captureEditorialResponse(project,{runId:'current-run',requestId:request.requestId,prompt:'original submitted prompt'})(
+    JSON.stringify({output_text:JSON.stringify(r)}),{httpStatus:200,attempt:1});
+  const audit={passed:false,compiled:false,requestId:request.requestId,rawResponse:'qa/editorial-provider-responses/2026-10-18T12-43-08-164Z.json'};
+  write(audit.rawResponse,r);write('qa/editorial-selection-request.json',request);
+  write('qa/editorial-selection-audit.json',audit);
+  write('qa/ark-editorial-response.json',{...request.baseProposal,editorialSelectionRejection:audit});
+  const before=fs.readFileSync(path.join(project,'qa/ark-editorial-response.json'));
+  for(let i=0;i<2;i++){
+    const replay=recompileRetainedEditorialSelection(project,{runId:'current-run',...args});
+    assert.equal(replay.result.shots[0].shotCard,'doc-park-left-pill-deal');
+    assert.equal(JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-free-selection-replay.json'))).externalRequests,0);
+  }
+  assert.deepEqual(fs.readFileSync(path.join(project,'qa/ark-editorial-response.json')),before);
+  assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'another-run',...args}),/当前任务|本次提交/);
+  write(audit.rawResponse,{...r,repairs:[]});
+  assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'current-run',...args}),/不一致/);
+});
 function fixture(){
   const params={cardProps:{},templateMaterialQueries:{srcBefore:'官方研究资料',srcAfter:'真实生活资料'}};
   const proposal={sentences:[{i:0,text:'央行的预期管理',need:['身份'],shot:'s15'},

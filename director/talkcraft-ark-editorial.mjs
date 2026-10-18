@@ -18,6 +18,7 @@ import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.
 import {alignNativeShotBoundaries} from './talkcraft-native-preparation.mjs';
 import {reserveEditorialSubmission,recordEditorialSubmissionOutcome,recordEditorialAttempt} from './talkcraft-editorial-submission.mjs';
 import {captureEditorialResponse,recoverEditorialResponse} from './talkcraft-editorial-response.mjs';
+import {recompileRetainedEditorialSelection} from './talkcraft-editorial-selection-replay.mjs';
 import {editorialFallbackPlan} from './talkcraft-editorial-fallback.mjs';
 import {trackTalkcraftExecution,updateTalkcraftExecution} from './talkcraft-execution.mjs';
 import {reusedEditorialWindows,auditEditorialReuse,buildEditorialPlanningContract,saveEditorialRepairFeedback,currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRuleInstructions,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
@@ -470,7 +471,14 @@ async function generateEditorialInternal(root, runId, {call = arkDirector, confi
     const vocab = new Set(index.vocab.map(v => v.word));
     const qa = path.join(project,'qa'); mkdirSync(qa, {recursive:true});
     const responseFile = path.join(qa,'ark-editorial-response.json');
-    if(recoverProviderOnly&&existsSync(responseFile))throw Error('本次已有解析结果，不能用响应恢复替换缓存；请按原检查结果继续');
+    if(recoverProviderOnly&&existsSync(responseFile)){
+      const replay=recompileRetainedEditorialSelection(project,{runId,aligned,catalog,personWindows:reusedEditorialWindows(project,aligned)});
+      writeFileSync(path.join(qa,'editorial-selection-audit.json'),JSON.stringify({schema:'talkcraft-editorial-selection-audit-v1',
+        requestId:replay.request.requestId,passed:true,compiled:true,editableShotIds:replay.request.editableShotIds,
+        compiledSha256:createHash('sha256').update(JSON.stringify(replay.result)).digest('hex'),
+        recoveredWithoutProvider:true,productionAdmitted:false,userAcceptance:false},null,2));
+      writeFileSync(responseFile,JSON.stringify(replay.result,null,2));
+    }
     if(recoverExisting){
       const recovered=restoreRejectedRevisionBase(project);
       if(recovered?.restoredArtifacts?.includes('remotion/shots.json'))

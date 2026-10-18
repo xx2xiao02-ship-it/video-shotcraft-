@@ -33,7 +33,7 @@ export function captureEditorialResponse(project,{runId,prompt,requestId=null}){
   };
 }
 
-export function recoverEditorialResponse(project,{runId,prompt,requestId=null}){
+function retainedEnvelope(project,{runId,requestId=null}){
   const r=submission(project),pointer=pointerFile(project);
   if(!fs.existsSync(pointer))throw fail('EDITORIAL_RESPONSE_NOT_RETAINED','本次请求未留存返回原文，无法免费恢复；禁止串用旧结果，未再次调用模型');
   const p=read(pointer);
@@ -44,10 +44,27 @@ export function recoverEditorialResponse(project,{runId,prompt,requestId=null}){
   const e=read(file),inputs=inputHashes(project);
   if(e.schema!=='talkcraft-editorial-provider-envelope-v1'||e.runId!==runId||e.submittedAt!==r.submittedAt||
     JSON.stringify(e.inputs)!==JSON.stringify(inputs)||JSON.stringify(r.inputs)!==JSON.stringify(inputs)||
-    e.requestId!==requestId||e.promptSha256!==sha(prompt)||sha(e.body)!==e.bodySha256)
+    e.requestId!==requestId||! /^[a-f0-9]{64}$/u.test(e.promptSha256||'')||sha(e.body)!==e.bodySha256)
     throw fail('EDITORIAL_RESPONSE_BINDING_INVALID','响应与当前输入、选卡请求或提示词不一致，拒绝串用');
+  return e;
+}
+function parsedEnvelope(e){
   let payload;try{payload=JSON.parse(e.body);}catch{throw fail('ARK_ENVELOPE_JSON_INVALID','已保存的 HTTP 响应正文不是合法 JSON；未再次调用模型');}
   return parseArkJsonResponse(payload);
+}
+export function recoverEditorialResponse(project,{runId,prompt,requestId=null}){
+  const e=retainedEnvelope(project,{runId,requestId});
+  if(e.promptSha256!==sha(prompt))throw fail('EDITORIAL_RESPONSE_BINDING_INVALID','响应提示词与本次提交不一致，拒绝恢复');
+  return parsedEnvelope(e);
+}
+
+// Recompiling a rejected selection uses its immutable content-addressed
+// request, not today's newly generated prompt. No new prompt or request is sent.
+export function recoverBoundEditorialSelectionResponse(project,{runId,request}){
+  const {requestId,...contract}=request||{};
+  if(contract.schema!=='talkcraft-editorial-selection-request-v2'||requestId!==sha(JSON.stringify(contract)))
+    throw fail('EDITORIAL_RESPONSE_BINDING_INVALID','已保存局部请求的内容指纹不符');
+  return parsedEnvelope(retainedEnvelope(project,{runId,requestId}));
 }
 
 export function responseFailureDetails(error){

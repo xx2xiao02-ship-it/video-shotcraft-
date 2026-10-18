@@ -97,10 +97,15 @@ const sourceKeys=['kind','query','entityType','entityName','displayShotId','disp
   'url','sourceUrl','pageUrl','license','licenseUrl','attribution','localPath','sha256','sourceId','verified'];
 const creativeKeys=['background','backgroundQuery','backgroundDecision','backgroundConcepts','backgroundReason',
   'graphicIntent','graphicAlternatives','pureTextReason'];
-function materialInput(row){
-  return {shotId:row.shotId,rewriteFields:creativeKeys.filter(k=>Object.hasOwn(row,k)),research:(row.research||[]).map(r=>pick(r,sourceKeys)),
+const personDisplayKeys=['entityName','role','displayShotId','labelField','labelText','bindingQuery'];
+function materialInput(row,editable){
+  return {shotId:row.shotId,mode:editable?'replace-design':'retarget-only',
+    rewriteFields:editable?creativeKeys.filter(k=>Object.hasOwn(row,k)):[],
+    requiredArrays:['research',...(row.personDisplays?['personDisplays']:[])],
+    preservedBindingCount:row.bindings?.length||0,
+    research:(row.research||[]).map(r=>pick(r,sourceKeys)),
     ...(row.bindings?{bindings:row.bindings.map(r=>pick(r,sourceKeys))}:{}),
-    ...(row.personDisplays?{personDisplays:row.personDisplays.map(r=>pick(r,['entityName','role','displayShotId','nameField','imageField','field']))}:{})};
+    ...(row.personDisplays?{personDisplays:row.personDisplays.map(r=>pick(r,personDisplayKeys))}:{})};
 }
 export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   if(request.schema!=='talkcraft-editorial-selection-request-v2')throw fail('新局部请求必须使用本镜字符锚点协议');
@@ -108,7 +113,8 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:structuredClone(request.windows),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
-    materials:(request.baseProposal.materialResearch?.shots||[]).filter(r=>request.materialShotIds.includes(r.shotId)).map(materialInput),
+    materials:(request.baseProposal.materialResearch?.shots||[]).filter(r=>request.materialShotIds.includes(r.shotId))
+      .map(row=>materialInput(row,request.editableShotIds.includes(row.shotId))),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
       contracts:promptCatalog.contracts.filter(c=>slugs.has(c.slug)).map(c=>{const {dslExamples,...contract}=c;return contract;}),
       crossFieldChecks:promptCatalog.crossFieldChecks,materialDisplayRules:promptCatalog.materialDisplayRules},
@@ -127,7 +133,7 @@ repairs恰好覆盖editableShotIds一次；materialResearchUpdates恰好覆盖ma
 nativePresentation.textFields与wordEvents均不得为空。textFields逐项填写真实文字字段key、visibility（visible/hidden），隐藏写reason；wordEvents逐项填写field、text、fromAnchorId、throughAnchorId及role（spoken/context），背景说明写reason。所有可见文字必须登记，不能用空数组、颜色和位置参数冒充内容。capabilities中无内容替换和真实媒体入口的固定示意卡不能声称会显示本片标签或真实资料；无法实现就报告阻断，不编造字段。
 重写对应卡的全部业务参数、逐槽检索、资料目标字段、核心人物姓名标签及图形比较。资料行若属于锁定镜头，只能修正指向失败镜的既有research.displayField或bindings.field；其他内容及真实素材记录必须原样保留。保留已核验来源许可；新素材不可声称已采集。固定镜头不受本次修订影响；修订镜间仍检查30镜去重。真实字级、配音和既有数字人不变；保持原模板构图、图形优先、中文资料优先及原版语义偏离理由。不得伪造事实、资料或承接关系。
 ${rules}
-资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。服务端保留来源元数据；可编辑镜资料的rewriteFields必须逐项重新设计并返回，不得沿用旧创意。锁定资料行只返回允许修改的指向失败镜槽位及其身份键，其余由代码原样保留。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
+资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。research项须保留kind/query和身份，填写本次reason及实际displayShotId/displayField；不得用backgroundReason代替research。已有bindings由服务端按本次基稿保留，不要求模型回传文件、哈希或许可；需要改槽时按相同kind/query返回bindings中的field，不得改写来源事实。personDisplays须沿用已有核心人物身份，按当前原卡填写labelField/labelText及bindingQuery，不能用nameField/imageField另造协议。mode=replace-design的rewriteFields必须逐项重新设计并返回，不得沿用旧创意；mode=retarget-only的rewriteFields为空，只返回指向可编辑镜的research.displayField或bindings.field及其身份键，禁止改写backgroundQuery、背景理由或其他锁定创意。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
 受控本镜输入：${JSON.stringify(payload)}`;
 }
 
@@ -154,6 +160,33 @@ export function auditEditorialSelectionResponseBindings(response,request){
   return {passed:!issues.length,issues};
 }
 
+// Reuse only source records from this request's bound base. No source, target
+// slot, creative explanation or nonempty research list is invented here.
+export function prepareEditorialMaterialUpdates(response,request){
+  const issues=[],rows=[],restored=[];
+  const add=(shotId,message)=>issues.push({code:'EDITORIAL_REPAIR_SELECTION_INVALID',shotId,message});
+  for(const update of response.materialResearchUpdates||[]){
+    const id=update.shotId,original=request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id);
+    const editable=request.editableShotIds.includes(id),copy=structuredClone(update);
+    if(!Object.hasOwn(copy,'research')&&Array.isArray(original?.research)&&original.research.length===0){
+      copy.research=[];restored.push({shotId:id,field:'research',reason:'本次基稿已明确无资料项，仅恢复空数组表示'});
+    }
+    if(!Array.isArray(copy.research))add(id,`${id}缺少完整资料规划`);
+    if(editable)for(const key of creativeKeys){
+      if(Object.hasOwn(original||{},key)&&!Object.hasOwn(copy,key))add(id,`${id}须重新填写资料创意字段${key}，不能复用旧卡说明`);
+    }else for(const key of creativeKeys){
+      if(Object.hasOwn(copy,key)&&!isDeepStrictEqual(copy[key],original?.[key]))
+        add(id,`${id}锁定资料行只允许修正指向失败镜的槽位，不能修改${key}`);
+    }
+    if(!Object.hasOwn(copy,'bindings')&&Array.isArray(original?.bindings)){
+      copy.bindings=structuredClone(original.bindings);
+      restored.push({shotId:id,field:'bindings',reason:'保留本次基稿已登记的真实来源与原槽位，仍须完整复检'});
+    }
+    rows.push(copy);
+  }
+  return {passed:issues.length===0,issues,rows,restored};
+}
+
 export function compileEditorialSelection(response,request,inputs){
   const outdated=auditEditorialSelectionRequest(request,inputs);
   if(outdated.length)throw fail(outdated.join('；'));
@@ -169,7 +202,9 @@ export function compileEditorialSelection(response,request,inputs){
   exact(response.repairs,'shotId',request.editableShotIds,'修订镜头');
   exact(response.materialResearchUpdates,'shotId',request.materialShotIds,'资料规划');
   const bindings=auditEditorialSelectionResponseBindings(response,request);
-  if(!bindings.passed)throw Object.assign(new Error(bindings.issues.map(issue=>issue.message).join('；')),{issues:bindings.issues});
+  const materials=prepareEditorialMaterialUpdates(response,request);
+  const initialIssues=[...bindings.issues,...materials.issues];
+  if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
     const id=repair.shotId,w=request.windows.find(w=>w.shotId===id);
@@ -191,20 +226,16 @@ export function compileEditorialSelection(response,request,inputs){
   }
   if(request.materialShotIds.length){
     result.materialResearch??={shots:[]};result.materialResearch.shots??=[];
-    for(const update of response.materialResearchUpdates){
+    for(const update of materials.rows){
       // Restore only omitted server-side metadata, never overwrite a returned
       // value or invent a missing research item/slot. Locked rows still pass
       // the original exact comparison below.
       const original=result.materialResearch.shots.find(r=>r.shotId===update.shotId);
-      if(!Array.isArray(update.research))throw fail(`${update.shotId}缺少完整资料规划`,update.shotId);
-      if(request.editableShotIds.includes(update.shotId))for(const key of creativeKeys)
-        if(Object.hasOwn(original||{},key)&&!Object.hasOwn(update,key))
-          throw fail(`${update.shotId}须重新填写资料创意字段${key}，不能复用旧卡说明`,update.shotId);
       const row={...pick(original,Object.keys(original||{}).filter(k=>!['shotId','research','bindings','personDisplays'].includes(k))),...structuredClone(update)};
       for(const key of ['research','bindings','personDisplays'])if(Array.isArray(row[key]))
         row[key]=row[key].map(item=>{
           const old=original?.[key]?.find(r=>key==='personDisplays'?r.entityName===item.entityName:r.kind===item.kind&&r.query===item.query);
-          const visible=key==='personDisplays'?['entityName','role','displayShotId','nameField','imageField','field']:sourceKeys;
+          const visible=key==='personDisplays'?personDisplayKeys:sourceKeys;
           return {...pick(old,Object.keys(old||{}).filter(k=>!visible.includes(k))),...item};
         });
       if(!Array.isArray(row.research))throw fail(`${row.shotId}缺少完整资料规划`,row.shotId);
