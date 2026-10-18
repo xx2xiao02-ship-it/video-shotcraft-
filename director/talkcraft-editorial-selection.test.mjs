@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
-import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,auditEditorialSelectionContent} from './talkcraft-editorial-selection.mjs';
 import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
+import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
@@ -119,4 +120,32 @@ test('入向资料换槽不能删除锁定镜资料或篡改其身份、许可�
       assert.throws(()=>compileEditorialSelection(bad,request,args),/锁定资料行/);
     }
   }
+});
+
+test('局部修订使用真实同源规则但不要求返回全局字幕或全片素材对象',()=>{
+  const request=buildEditorialSelectionRequest(fixture());
+  const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog),
+    input:'原稿',rules:EDITORIAL_SELECTION_NATIVE_RULES+EDITORIAL_SELECTION_MATERIAL_RULES});
+  assert.doesNotMatch(prompt,/返回顶层captionEmphasis|返回顶层materialResearch=/);
+  assert.match(prompt,/只返回materialResearchUpdates/);
+  assert.match(EDITORIAL_NATIVE_RULES,/返回顶层captionEmphasis/);
+  assert.match(EDITORIAL_MATERIAL_RULES,/返回顶层materialResearch=/);
+  const args=fixture(),r=response(request);r.captionEmphasis=args.proposal.captionEmphasis;
+  assert.throws(()=>compileEditorialSelection(r,request,args),/未授权字段：captionEmphasis/);
+});
+
+test('局部内容在写入语义前一次报告错理由、跨镜锚点及无量化输入的图表',()=>{
+  const args=fixture();args.proposal.sentences[0].sem=['例证'];args.proposal.sentences[0].weight='main';
+  const request=buildEditorialSelectionRequest(args),result=structuredClone(request.baseProposal);
+  Object.assign(result.shots[0],{shotCard:'shape-wipe-transition',templateParams:{semanticDeviations:{引用:'不能挪用其他镜头理由'}},
+    nativePresentation:{wordEvents:[{field:'chartTitle',role:'spoken',sentenceIndex:1,anchor:'普通人的生活选择'}]}});
+  const audit=auditEditorialSelectionContent(result,request,args);
+  assert.deepEqual(audit.issues.map(i=>i.code),['SHOT_SEMANTIC_DEVIATION_MISMATCH','EDITORIAL_WORD_EVENT_SCOPE','QUANTITATIVE_INPUT_REQUIRED']);
+  assert.equal(audit.passed,false);assert.deepEqual(args.proposal,request.baseProposal);
+  const joint=buildEditorialJointRepairContract(args);
+  assert.ok(joint.windows[0].rejected.QUANTITATIVE_INPUT_REQUIRED.includes('shape-wipe-transition'));
+  assert.ok(!request.windows[0].choices.some(c=>c.slug==='shape-wipe-transition'));
+  args.proposal.sentences[0].need=['量化'];
+  const allowed=buildEditorialJointRepairContract(args);
+  assert.ok(!allowed.windows[0].rejected.QUANTITATIVE_INPUT_REQUIRED?.includes('shape-wipe-transition'));
 });

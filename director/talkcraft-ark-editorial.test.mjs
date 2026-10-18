@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {existsSync,mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,unlinkSync} from 'node:fs';
 import path from 'node:path';
-import {auditEditorialProposal,validateEditorial,bindEditorialTiming,checkEditorial,recoverCachedEditorial,compactTalkcraftEditorialCatalog,repairInvalidSemanticLabels} from './talkcraft-ark-editorial.mjs';
+import {createHash} from 'node:crypto';
+import {assertEditorialGenerationState,auditEditorialProposal,validateEditorial,bindEditorialTiming,checkEditorial,recoverCachedEditorial,compactTalkcraftEditorialCatalog,repairInvalidSemanticLabels,editorialShotSemantics,assertEditorialShotDeviationSemantics} from './talkcraft-ark-editorial.mjs';
 import {loadTalkcraftGovernedCatalog,talkcraftEditorialContract} from './talkcraft-governed-contract.mjs';
 
 test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
@@ -37,6 +38,87 @@ test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
 const semantics = {sentences:[{i:0,text:'第一句。'},{i:1,text:'第二句。'}]};
 const aligned = [{start:0,end:2},{start:2,end:5}];
 const vocab = new Set(['强调']);
+
+test('偏离理由只允许使用本镜主语义和不分主次的硬语义',()=>{
+  const sentences=[
+    {i:0,text:'很多国际大奖，',sem:['例证'],weight:'main'},
+    {i:1,text:'听着宏大，',sem:['对比'],weight:'sub'},
+    {i:2,text:'请关注。',sem:['号召'],weight:'sub'}];
+  const shot={id:'s02',firstSentence:0,lastSentence:2,templateParams:{semanticDeviations:{例证:'突出具体奖项语境',号召:'保留结尾行动提示'}}};
+  assert.deepEqual([...editorialShotSemantics(sentences,shot)],['例证','号召']);
+  assert.equal(assertEditorialShotDeviationSemantics([shot],sentences).passed,true);
+  shot.templateParams.semanticDeviations={引用:'没有外部引用文献'};
+  assert.throws(()=>assertEditorialShotDeviationSemantics([shot],sentences),/s02.*实际候选语义.*例证.*引用/u);
+  shot.templateParams.semanticDeviations={例证:'突出具体奖项语境',引用:'不属于本镜的旧记录'};
+  const audit=assertEditorialShotDeviationSemantics([shot],sentences);
+  assert.deepEqual(audit.shots[0].matched,['例证']);assert.deepEqual(audit.shots[0].invalid,['引用']);
+});
+
+test('04提案不能用全局词表中的其他语义绕过本镜语义检查',()=>{
+  const value={sentences:[{i:0,text:'第一句。',sem:['强调'],need:['强调'],entities:[],weight:'main'},
+    {i:1,text:'第二句。',sem:['对比'],need:['对比'],entities:[],weight:'sub'}],
+    shots:[{id:'s01',firstSentence:0,lastSentence:1,intent:'强调第一句',visual:'主体展示',
+      templateParams:{semanticDeviations:{对比:'借用第二句对比理由'}}}]};
+  assert.throws(()=>validateEditorial(value,semantics,aligned,new Set(['强调','对比'])),/本镜实际候选语义.*强调.*对比/u);
+});
+
+test('局部编译只原样保留锁定镜头历史理由，修改镜仍严格校验且不能串改锁定内容',()=>{
+  const base={sentences:[{i:0,text:'第一句。',sem:['强调'],need:[],entities:[],weight:'main'},
+    {i:1,text:'第二句。',sem:['强调'],need:[],entities:[],weight:'main'}],shots:[
+    {id:'s01',firstSentence:0,lastSentence:0,intent:'第一观点',visual:'原图形',templateParams:{semanticDeviations:{强调:'突出第一句重点',对比:'原有历史理由'}}},
+    {id:'s02',firstSentence:1,lastSentence:1,intent:'第二观点',visual:'新图形',templateParams:{semanticDeviations:{强调:'针对第二句重点'}}}]};
+  const contract={editableShotIds:['s02'],baseProposal:structuredClone(base)};
+  const request={...contract,requestId:createHash('sha256').update(JSON.stringify(contract)).digest('hex')};
+  const words=new Set(['强调','对比']);
+  assert.throws(()=>validateEditorial(base,semantics,aligned,words),/语义偏离/u);
+  assert.doesNotThrow(()=>validateEditorial(base,semantics,aligned,words,{selectionRequest:request}));
+  for(const mutate of [r=>r.shots[0].visual='修改锁定画面',r=>r.sentences[0].sem=['对比'],
+    r=>r.shots[0].templateParams.semanticDeviations={对比:'只剩错误历史理由'}]){
+    const changed=structuredClone(base);mutate(changed);
+    assert.throws(()=>validateEditorial(changed,semantics,aligned,words,{selectionRequest:request}),/锁定/u);
+  }
+  const invalid=structuredClone(base);invalid.shots[1].templateParams.semanticDeviations.对比='修订镜新增错误理由';
+  assert.throws(()=>validateEditorial(invalid,semantics,aligned,words,{selectionRequest:request}),/语义偏离/u);
+  const allWrong=structuredClone(base);allWrong.shots[0].templateParams.semanticDeviations={对比:'完全错误旧理由'};
+  const c={editableShotIds:['s02'],baseProposal:structuredClone(allWrong)};
+  const q={...c,requestId:createHash('sha256').update(JSON.stringify(c)).digest('hex')};
+  assert.throws(()=>validateEditorial(allWrong,semantics,aligned,words,{selectionRequest:q}),/实际候选语义/u);
+});
+
+test('已有分镜复检失败会撤销旧04完成状态供前后端同步',t=>{
+  const {root,runId}=savedEditorial(t),project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
+  const completion=path.join(project,'qa/editorial-completion.json');
+  writeFileSync(completion,JSON.stringify({schema:'talkcraft-editorial-completion-v1',passed:true,binding:{}}));
+  const current=JSON.parse(readFileSync(path.join(project,'remotion/shots.json')));
+  current[0].templateParams.semanticDeviations={引用:'挪用其他语义理由'};
+  writeFileSync(path.join(project,'remotion/shots.json'),JSON.stringify(current));
+  assert.throws(()=>checkEditorial(root,runId,{skillRoot:path.resolve('_audit/video-talkcraft'),stage:()=>({passed:true})}),/实际候选语义/u);
+  const report=JSON.parse(readFileSync(completion));
+  assert.equal(report.passed,false);assert.equal(report.previousPassed,true);assert.match(report.message,/实际候选语义/u);
+  const feedback=JSON.parse(readFileSync(path.join(project,'qa/editorial-repair-feedback.json')));
+  assert.equal(feedback.failedChecks[0].code,'SHOT_SEMANTIC_DEVIATION_MISMATCH');
+});
+
+test('03已通过的语义标注不能冒充已有分镜，未通过或输入过期仍阻断',t=>{
+  const project=mkdtempSync(path.resolve('tmp/editorial-semantic-only-'));
+  t.after(()=>rmSync(project,{recursive:true,force:true}));
+  writeFileSync(path.join(project,'semantic-decisions.json'),'{"sentences":[]}');
+  assert.doesNotThrow(()=>assertEditorialGenerationState(project,{semanticPassed:true}));
+  for(const semanticPassed of [false,undefined])
+    assert.throws(()=>assertEditorialGenerationState(project,{semanticPassed}),/03校验/);
+  assert.equal(readFileSync(path.join(project,'semantic-decisions.json'),'utf8'),'{"sentences":[]}');
+});
+
+test('实际SHOTBOOK或镜头文件仍独立阻止重复生成，不受语义通过影响',t=>{
+  for(const name of ['SHOTBOOK.md','remotion/shots.json']){
+    const project=mkdtempSync(path.resolve('tmp/editorial-existing-shots-'));
+    t.after(()=>rmSync(project,{recursive:true,force:true}));
+    mkdirSync(path.join(project,'remotion'),{recursive:true});
+    writeFileSync(path.join(project,name),'保留已有成果');
+    assert.throws(()=>assertEditorialGenerationState(project,{semanticPassed:true}),/已有分镜/);
+    assert.equal(readFileSync(path.join(project,name),'utf8'),'保留已有成果');
+  }
+});
 test('免费分镜恢复缺少缓存时明确停止，不能退回外部模型生成', t => {
   const root=mkdtempSync(path.resolve('tmp/recovery-no-cache-'));
   t.after(()=>rmSync(root,{recursive:true,force:true}));
@@ -102,13 +184,14 @@ function savedEditorial(t) {
   const runId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
   const project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
   for (const dir of ['qa','audio','remotion']) mkdirSync(path.join(project,dir),{recursive:true});
+  writeFileSync(path.join(project,'input.txt'),semantics.sentences.map(s=>s.text).join(''));
+  writeFileSync(path.join(project,'aligned-sentences.json'),JSON.stringify(aligned));
   for (const [name,data] of Object.entries({'source-run.json':{runId},'semantics.json':semantics,
     'qa/ark-editorial-response.json':valid(),'audio/timestamps.json':{sentences:semantics.sentences.map((s,i) => ({...s,start:i*2}))},
     'remotion/shots.json':validateEditorial(valid(),semantics,aligned,vocab).map(s=>({...s,shotCard:'impact-open-title',templateParams:{cardProps:{lineStart:'原稿',lastWord:'重点',sub:'基于真实输入'}}}))}))
     writeFileSync(path.join(project,name),JSON.stringify(data));
   return {root,runId};
 }
-
 test('局部修订被拒绝后正式免费恢复仍阻断，不能套回旧底稿通过或修改语义',async t=>{
   const {root,runId}=savedEditorial(t),project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
   unlinkSync(path.join(project,'remotion/shots.json'));

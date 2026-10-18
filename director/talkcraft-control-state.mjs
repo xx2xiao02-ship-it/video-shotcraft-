@@ -8,10 +8,10 @@ const completed = (run, name) => ({
   'talkcraft-word-timing':run.wordTimingReady,
   'talkcraft-semantic-check':run.semanticPassed,
   'talkcraft-media-preflight':run.mediaPreparationPassed??run.mediaPreflightPassed,
-  'talkcraft-editorial':run.semanticPassed && !!run.shotbook,
-  'talkcraft-editorial-check':run.semanticPassed && !!run.shotbook,
-  'talkcraft-editorial-revision':run.semanticPassed && !!run.shotbook,
-  'talkcraft-editorial-recover':run.semanticPassed && !!run.shotbook,
+  'talkcraft-editorial':run.semanticPassed && !!run.shotbook && run.editorialChecked!==false,
+  'talkcraft-editorial-check':run.semanticPassed && !!run.shotbook && run.editorialChecked!==false,
+  'talkcraft-editorial-revision':run.semanticPassed && !!run.shotbook && run.editorialChecked!==false,
+  'talkcraft-editorial-recover':run.semanticPassed && !!run.shotbook && run.editorialChecked!==false,
   'talkcraft-candidates':run.candidatesReady,
   'talkcraft-preflight':run.preflightPassed,
   'talkcraft-planning-check':run.planningPassed,
@@ -57,14 +57,20 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
   if(run.canRecoverAlignment)return state('recover-alignment','复用配音重对齐失败句',['SENTENCE_ALIGNMENT_FAILED']);
   if (!run.inputReady) return state(run.canRecoverTiming ? 'recover-timing' : null, '配音与时间轴', ['INPUT_NOT_READY']);
   if (!run.wordTimingReady) return state('word-timing', '补齐真实字级时间轴', ['WORD_TIMING_REQUIRED']);
+  // Ready sentence annotations must be checked at node 03 before any later
+  // editorial recovery or paid request. A failed check requires intervention.
+  if (!run.shotbook && !run.semanticPassed && run.semanticReady &&
+      failure?.task?.name !== 'talkcraft-semantic-check')
+    return state('semantic-check', '校验已有逐句语义，不调用模型');
   if(run.workflowPath==='recorded-host'&&!run.mediaPreflightPassed)return state('media-preflight','检查真人视频素材与原声',['RECORDED_MEDIA_REQUIRED']);
   if(failure?.task?.name==='talkcraft-media-preflight')
     return state(null,'补齐当前素材输入后重新检查；RunningHub 口型按分镜生成',['MEDIA_PREFLIGHT_FAILED']);
   if(!run.shotbook&&run.editorialRepairReady===true)return state(null,'当前分镜校验未通过，等待本次分镜修订费用授权',['EDITORIAL_REVISION_REQUIRED']);
   if(!run.shotbook&&run.editorialResponseSaved)return state('editorial-recover','复用已保存分镜恢复校验，不调用模型',['CACHED_EDITORIAL_RECOVERY']);
-  if(failure&&run.editorialSubmission?.requiresAuthorization)return state(null,'核对火山接入点和已提交结果；再次调用需要新的单次授权',['EDITORIAL_AUTHORIZATION_USED']);
+  if(!run.shotbook&&run.editorialSubmission?.requiresAuthorization)return state(null,'核对火山接入点和已提交结果；再次调用需要新的单次授权',['EDITORIAL_AUTHORIZATION_USED']);
   if (!run.shotbook) return state('editorial', '生成分镜', ['SHOTBOOK_NOT_READY']);
   if (!run.semanticPassed) return state('editorial-check', '校验已有分镜', ['SEMANTIC_NOT_PASSED']);
+  if (run.editorialChecked===false) return state('editorial-check', '完成04分镜校验，文件存在不代表通过', ['EDITORIAL_CHECK_NOT_PASSED']);
   if(run.digitalHumanGenerationPlanned&&!run.mediaPreparationPassed)return state('media-preflight','核对数字人生成输入');
   if (!run.candidatesReady) return state('candidates', '生成候选并完成正式选卡',run.candidateIssues||[]);
   if(!run.planningPassed)return state('planning-check','校验当前候选版本的分镜规划',run.planningIssues||[]);

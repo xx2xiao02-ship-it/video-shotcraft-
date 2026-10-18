@@ -105,3 +105,36 @@ test('新明确授权只归档已消费授权，不覆盖未消费授权；并�
  f.write('qa/rebuild-inputs.json',{personWindows:[{start:0,end:3}]});
  await assert.rejects(()=>executeEditorialRevision(f.root,id,{generate:()=>assert.fail('不得调用')}),/输入变化/);
 });
+
+test('已落地分镜04复检失败归档后仍只修当前镜，不能退回旧轮次失败',async t=>{
+ const f=fixture(t);
+ f.write('SHOTBOOK.md','已落地分镜');f.write('remotion/shots.json',f.proposal.shots);
+ f.write('qa/editorial-completion.json',{schema:'talkcraft-editorial-completion-v1',passed:false});
+ assert.equal(currentEditorialRepairFeedback(f.p).failedChecks[0].code,'CURRENT_04');
+ requestTalkcraftStoryboardAdjustment(f.root,id,'只修当前第14镜，不接受历史06失败');
+ const auth=authorizeEditorialRevision(f.root,id,{approval:'本次当前失败修订授权'});
+ let calls=0;
+ await executeEditorialRevision(f.root,id,{stage:()=>({passed:true}),generate:(root,runId,options)=>{
+  calls++;assert.equal(options.revisionScopeSha256,auth.repairScopeSha256);
+  assert.equal(currentEditorialRepairFeedback(f.p).failedChecks[0].code,'CURRENT_04');
+ }});
+ assert.equal(calls,1);
+});
+
+test('归档后的失败清单串轮次在模型调用前阻断',async t=>{
+ const f=fixture(t);requestTalkcraftStoryboardAdjustment(f.root,id,'只处理当前04');
+ authorizeEditorialRevision(f.root,id,{approval:'本次当前失败修订授权'});
+ await assert.rejects(()=>executeEditorialRevision(f.root,id,{stage:()=>{
+   const archived=f.read('qa/editorial-revision-feedback.json');
+   archived.failedChecks=[{code:'STALE_04',shotId:'s15'}];f.write('qa/editorial-revision-feedback.json',archived);
+   return {passed:true};
+ },generate:()=>assert.fail('错轮次不得调用模型')}),/范围与授权不一致/);
+});
+
+test('显式已有结果恢复意图不会转换为新付费调用，也不能覆盖正式分镜',()=>{
+ const run={provenance:{verified:true},editorialResponseSaved:true,editorialRepairReady:true,shotbook:false};
+ assert.equal(selectTalkcraftContinuation(run,{intent:'continue',recoverExisting:true}),'editorial-recover');
+ for(const change of [{shotbook:true},{activeTask:{id:186}},{editorialResponseSaved:false}])
+  assert.throws(()=>selectTalkcraftContinuation({...run,...change},{intent:'continue',recoverExisting:true}));
+ assert.throws(()=>selectTalkcraftContinuation(run,{intent:'continue',recoverExisting:true,approveModelCost:true}));
+});

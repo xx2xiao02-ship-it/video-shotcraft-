@@ -5,6 +5,11 @@ export function selectTalkcraftContinuation(run, body = {}) {
     throw new Error('前端只能提交继续意图，不能指定编导阶段');
   if (run.provenance?.verified !== true)
     throw new Error('B 模式管线来源未核验，请先由编导核对运行记录');
+  if(body.recoverExisting===true){
+    if(body.reviseStoryboard||body.approveModelCost||!run.editorialResponseSaved||run.shotbook||run.activeTask)
+      throw new Error('本地恢复只允许无并发的已保存未落地结果，不接受费用授权');
+    return 'editorial-recover';
+  }
   if(body.reviseStoryboard===true){
     if(body.approveModelCost!==true||typeof body.authorizationNote!=='string'||body.authorizationNote.trim().length<4)
       throw new Error('分镜修订需要本次明确费用授权');
@@ -12,10 +17,12 @@ export function selectTalkcraftContinuation(run, body = {}) {
       throw new Error('当前任务不满足正式分镜修订条件');
     return 'editorial-revision';
   }
-  if (run.storyboardAdjustmentPending && run.nextStage!=='editorial-recover')
+  const revisionPreparation=run.editorialChecked===true&&['media-preflight','candidates','planning-check'].includes(run.nextStage);
+  if (run.storyboardAdjustmentPending && !['editorial-recover','editorial-check','semantic-check'].includes(run.nextStage) && !revisionPreparation &&
+      !(run.nextStage==='editorial' && body.approveModelCost===true))
     throw new Error('分镜修改要求已记录，等待编导处理并重新预检');
   const stage = run.nextStage;
-  const supported = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','editorial-recover',
+  const supported = new Set(['recover-timing','recover-alignment','word-timing','semantic-check','editorial','editorial-check','editorial-recover',
     'candidates','planning-check','media-preflight','host-preflight','preflight','scaffold','digital-human','sample','render-all','qa','deliver']);
   if (!supported.has(stage)) throw new Error(run.waitingFor || '当前阶段需要审核或修复，不能启动任务');
   if (stage === 'editorial' && body.approveModelCost !== true)

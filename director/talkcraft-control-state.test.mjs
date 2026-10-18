@@ -1,6 +1,29 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {talkcraftControlState,currentFailure} from './talkcraft-control-state.mjs';
+import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
+
+test('已有逐句标注先执行03真实校验，不被04历史模型失败跳过',()=>{
+  const failure={code:'LOCAL_EXECUTION_FAILED',task:{name:'talkcraft-editorial'}};
+  const input={inputReady:true,wordTimingReady:true,semanticReady:true,semanticPassed:false,
+    shotbook:false,editorialSubmission:{requiresAuthorization:true}};
+  const state=talkcraftControlState(input,failure);
+  assert.equal(state.nextStage,'semantic-check');
+  assert.equal(state.lastFailure.task.name,'talkcraft-editorial');
+  assert.equal(selectTalkcraftContinuation({...state,storyboardAdjustmentPending:true,provenance:{verified:true}},{intent:'continue'}),'semantic-check');
+  const after=talkcraftControlState({...input,semanticPassed:true},failure);
+  assert.equal(after.nextStage,null);
+  assert.deepEqual(after.blockers,['EDITORIAL_AUTHORIZATION_USED']);
+  assert.deepEqual(talkcraftControlState({...input,semanticPassed:true},null).blockers,['EDITORIAL_AUTHORIZATION_USED']);
+});
+
+test('03校验失败不能自动重试；未备齐标注不能冒充03可执行',()=>{
+  const failure={code:'LOCAL_EXECUTION_FAILED',task:{name:'talkcraft-semantic-check'}};
+  const input={inputReady:true,wordTimingReady:true,semanticReady:true,semanticPassed:false,
+    shotbook:false,editorialSubmission:{requiresAuthorization:true}};
+  assert.notEqual(talkcraftControlState(input,failure).nextStage,'semantic-check');
+  assert.notEqual(talkcraftControlState({...input,semanticReady:false},failure).nextStage,'semantic-check');
+});
 test('已保存但尚未落地的分镜先走免费恢复，不要求再次模型授权',()=>{
   const s=talkcraftControlState({inputReady:true,wordTimingReady:true,shotbook:false,editorialResponseSaved:true,
     editorialSubmission:{requiresAuthorization:true}},null);

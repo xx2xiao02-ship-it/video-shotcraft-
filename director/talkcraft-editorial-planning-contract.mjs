@@ -99,6 +99,9 @@ const fileHash=(project,name)=>fs.existsSync(path.join(project,name))?
 const proposalInputHashes=project=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json'].map(n=>[n,fileHash(project,n)]));
 export function currentRejectedEditorialFeedback(project){
   if(fs.existsSync(path.join(project,'remotion/shots.json'))||fs.existsSync(path.join(project,'SHOTBOOK.md')))return null;
+  return verifiedEditorialFeedback(project);
+}
+function verifiedEditorialFeedback(project){
   try{
     const record=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-repair-feedback.json'),'utf8'));
     return record.schema==='talkcraft-editorial-repair-feedback-v1'&&record.failedChecks?.length&&record.responseSha256&&
@@ -108,7 +111,9 @@ export function currentRejectedEditorialFeedback(project){
   }catch{return null;}
 }
 export function preserveRejectedEditorialFeedback(project,revision){
-  const record=currentRejectedEditorialFeedback(project);if(!record)return null;
+  // A failed recheck of an installed storyboard is still the latest 04
+  // failure. Preserve it before preparation removes the installed artifacts.
+  const record=verifiedEditorialFeedback(project);if(!record)return null;
   const base=path.resolve(project,'qa/storyboard-revisions'),relative=path.relative(base,path.resolve(revision));
   if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('修订反馈快照必须位于本任务分镜修订目录');
   for(const name of Object.keys(record.proposalInputs)){
@@ -118,6 +123,8 @@ export function preserveRejectedEditorialFeedback(project,revision){
   const saved={...record,snapshot:path.relative(project,revision)};
   fs.writeFileSync(path.join(project,'qa/editorial-revision-feedback.json'),JSON.stringify(saved,null,2));return saved;
 }
+export const editorialRepairScopeSha256=feedback=>createHash('sha256')
+  .update(JSON.stringify({proposal:feedback?.proposal,failedChecks:feedback?.failedChecks})).digest('hex');
 function archivedRejectedFeedback(project){
   try{
     const record=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-revision-feedback.json'),'utf8'));
@@ -130,6 +137,17 @@ function archivedRejectedFeedback(project){
   }catch{return null;}
 }
 export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=false}={}) {
+  if(!candidateSnapshotOnly){
+    try{
+      const completion=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-completion.json'),'utf8'));
+      const file=path.join(project,'qa/editorial-repair-feedback.json');
+      if(completion.schema==='talkcraft-editorial-completion-v1'&&completion.passed===false&&fs.existsSync(file)){
+        const record=JSON.parse(fs.readFileSync(file,'utf8'));
+        if(record.schema==='talkcraft-editorial-repair-feedback-v1'&&record.failedChecks?.length&&
+          JSON.stringify(record.inputs)===JSON.stringify(inputHashes(project)))return record;
+      }
+    }catch{}
+  }
   // Current node 06 evidence supersedes the earlier node 04 failure list.
   const candidateFile=path.join(project,'qa/candidate-editorial-repair.json');
   if(fs.existsSync(candidateFile)){

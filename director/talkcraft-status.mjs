@@ -9,6 +9,7 @@ import {isNativePresentation,nativeGovernanceStatus} from './talkcraft-native-go
 import {factReviewStatus} from './talkcraft-fact-review.mjs';
 import {editorialSubmissionState} from './talkcraft-editorial-submission.mjs';
 import {preserveCandidateMaterialRepairFeedback,currentRejectedEditorialFeedback,preserveRejectedEditorialFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {editorialCompletionCurrent} from './talkcraft-editorial-completion.mjs';
 import {assertTextContrastProof,wordRevealSourceBinding} from './talkcraft-word-reveal.mjs';
 import {summarizeWordFailures} from './talkcraft-word-runtime-validation.mjs';
 import {createHash} from 'node:crypto';
@@ -309,7 +310,7 @@ export function readTalkcraftStatus(root, runId) {
       sentence.shot && sentence.weight && Array.isArray(sentence.sem) && sentence.sem.length),
     semanticPassed, ...mediaStatus, parallelPreparation:readParallelPreparation(project), workflowPath:source.workflowPath||(mediaStatus.digitalHumanGenerationPlanned?'planned-runninghub':'legacy'),
     planningPassed,planningCompleted,planningIssues:planningCompleted?planningResult.issues:[],
-    editorialResponseSaved:has('qa/ark-editorial-response.json'),
+    editorialResponseSaved:has('qa/ark-editorial-response.json'), editorialChecked:editorialCompletionCurrent(project),
     editorialRepairReady:!!currentRejectedEditorialFeedback(project),
     shotbook:has('SHOTBOOK.md'), preflight:preflightPassed, preflightPassed, preflightCompleted,
     nativeGovernance,factReview,wordRuntimeAudit,textContrastAudit,acceptance:acceptanceResponsibilities,editorialSubmission:editorialSubmissionState(project),

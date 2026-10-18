@@ -1,10 +1,11 @@
 // 只衔接本地阶段；费用授权、创作审核与失败重试均保留显式边界。
-export const LOCAL_AUTO_STAGES = new Set(['word-timing', 'editorial-check', 'candidates',
+export const LOCAL_AUTO_STAGES = new Set(['word-timing', 'semantic-check', 'editorial-check', 'candidates',
   'planning-check','media-preflight','host-preflight','preflight', 'scaffold', 'sample', 'render-all', 'qa', 'deliver']);
 
 export function automaticTalkcraftStage(run) {
+  const revisionPreparation=run?.editorialChecked===true&&['media-preflight','candidates','planning-check'].includes(run.nextStage);
   if (!run?.provenance?.verified || run.activeTask || run.lastFailure || run.failureReport ||
-      run.storyboardAdjustmentPending || run.factReview?.revisionPending) return null;
+      run.storyboardAdjustmentPending&&!revisionPreparation || run.factReview?.revisionPending) return null;
   return LOCAL_AUTO_STAGES.has(run.nextStage) ? run.nextStage : null;
 }
 

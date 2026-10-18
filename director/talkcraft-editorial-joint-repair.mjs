@@ -8,6 +8,16 @@ import {assertNativeMediaClock,assertNativeHoldBudget} from './talkcraft-native-
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
 
+export function editorialQuantitativeInput(proposal,shot){
+  return (proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1)
+    .some(s=>s.need?.includes('量化')||s.sem?.includes('数据'))||
+    !!proposal.materialResearch?.shots?.find(r=>r.shotId===shot.id)?.research?.some(r=>r.kind==='data');
+}
+export function editorialRequiredNumericFields(card){
+  return Object.entries(card?.policy?.dsl||{}).filter(([field,dsl])=>
+    dsl.numeric===true&&card.policy.required?.includes(field)).map(([field])=>field);
+}
+
 // This is a comparison contract, not a new selector. Keep semantic matching,
 // source acquisition, business props and actual visibility in their own gates.
 export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot}){
@@ -45,6 +55,8 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');
+      if(editorialRequiredNumericFields(card).length&&!editorialQuantitativeInput(proposal,shot))
+        reasons.push('QUANTITATIVE_INPUT_REQUIRED');
       const replacement=shots.map(s=>s.id===shot.id?{...s,shotCard:card.cardId}:s);
       const conflicts=auditTemplateReuse(replacement).filter(i=>i.shotId===shot.id||i.previousShotId===shot.id);
       const counterpart=i=>i.shotId===shot.id?i.previousShotId:i.shotId;
