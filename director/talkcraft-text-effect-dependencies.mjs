@@ -9,12 +9,74 @@ export const TEXT_EFFECT_RULES='文字与模板展示窗口必须相容；逐字
 // Native times below are audited against the exact parameterized/original source
 // fingerprints in talkcraft-text-effect-sources.json, not inferred from card names.
 export function textEffectContract(card,p={},nativeFrames=1){
- const texts=[],effects=[],last=nativeFrames-1;
+ const texts=[],effects=[],media=[],last=nativeFrames-1;
  const text=(field,index=0,begin=0,end=last)=>texts.push({field,index,begin,end:Math.min(last,end)});
  const effect=(id,field,index,at,end,lead=0)=>effects.push({id,field,index,begin:frames(at),end:Math.ceil(end*30),leadFrames:lead});
  const group=(field,n,at=()=>0,end=()=>last)=>{for(let i=0;i<n;i++)text(field,i,frames(at(i)),end(i));};
  const all=(fields,at=0,end=last)=>fields.forEach(f=>text(f,0,at,end));
  switch(card){
+ case 'line-carry-transition':{
+  // A starts at x=80; a full label is clipped as soon as camera c exceeds 80.
+  const lastA=Math.floor((1.2+2*Math.cbrt(80/(4*960)))*30);
+  all(['titleA','subA'],frames(.1),lastA);all(['titleB','subB'],frames(3.3),Math.ceil(6.4*30)-1);
+  texts.forEach(w=>w.wholeField=true);
+  // Original L=max(u,camL(c)); camL(0)=560, so the underline is ALREADY
+  // present at native frame zero. Never substitute the intended .4s comment.
+  for(const field of ['titleA','subA'].filter(f=>String(p[f]||'').trim()))effects.push({id:'initial-underline-'+field,field,index:0,begin:0,end:0,leadFrames:0});
+  media.push({field:'srcB',begin:frames(3.3),end:Math.ceil(6.4*30)-1});
+  break;}
+ case 'pullback-cool-transition':
+ case 'push-through-transition':
+ case 'overexpose-flip-transition':{
+  const cut=num(p,'lead',.8)+.45,overlap=card==='pullback-cool-transition'?.55:card==='push-through-transition'?.45:.4;
+  text('textA',0,0,Math.ceil((cut+overlap)*30)-1);text('textB',0,frames(cut));text('tag',0,1);
+  texts.forEach(w=>w.wholeField=true);break;}
+ case 'black-slam-transition':{
+  const cut=num(p,'lead',.8)+.12;
+  text('textA',0,0,Math.ceil(cut*30)-1);text('textB',0,Math.ceil(cut*30));text('tag',0,1);
+  texts.forEach(w=>w.wholeField=true);break;}
+ case 'particle-weld-transition':{
+  const cut=num(p,'lead',.8)+.48;
+  text('textA',0,0,Math.ceil(cut*30)-1);text('textB',0,frames(cut+.4));text('tag',0,1);
+  texts.forEach(w=>w.wholeField=true);break;}
+ case 'strike-and-replace':{
+  const lead=num(p,'lead',.35);
+  all(['pre','post']);text('from',0,0,Math.ceil((lead+.5)*30)-1);text('to',0,frames(lead+.25));
+  texts.forEach(w=>w.wholeField=true);effect('strike','from',0,lead,lead+.15);break;}
+ case 'color-slam-beat-card':{
+  const at=num(p,'lead',.9);
+  for(let i=0;i<2;i++){
+   const start=at+i*3.07,end=Math.ceil((start+2.47+(i?.34:0))*30)-1;
+   text('title'+(i+1),0,Math.ceil(start*30),end);text('sub'+(i+1),0,frames(start+.3),end);
+   if(i)text('shotCap',0,frames(start+.45),end);
+  }
+  texts.forEach(w=>w.wholeField=true);break;}
+ case 'still-layout-relay':{
+  // Public wrapper defaults to hero-duo. A tour repeats the same three captions.
+  const layout=p.layout||'hero-duo';if(!['hero-duo','triptych','tour'].includes(layout))return null;
+  const tables=layout==='tour'?[[0,1.3,.1,7.6],[8.08,.8,.08,6.6]]:layout==='triptych'?[[0,.8,.08,6.6]]:[[0,1.3,.1,7.6]];
+  for(let i=0;i<3;i++){
+   const intervals=tables.map(([offset,at,stagger,out])=>({begin:frames(offset+at+i*stagger),end:Math.min(last,Math.ceil((offset+out+i*.04+.4)*30)-1)}));
+   text('cap'+(i+1),0,intervals[0].begin,intervals.at(-1).end);texts.at(-1).intervals=intervals;texts.at(-1).wholeField=true;
+   const entrance=layout==='triptych'?[.3,.38,.46]:[.3,.8,.95];
+   media.push({field:'src'+(i+1),begin:frames(entrance[i]),end:intervals[0].end});
+  }break;}
+ case 'split-compare-slider':{
+  media.push({field:'srcBefore',begin:0,end:Math.ceil(9.48*30)-1},{field:'srcAfter',begin:0,end:Math.ceil(9.48*30)-1});
+  // Exact chained p(t) from the original: labels disappear below 40% exposure.
+  const ease=x=>x<.5?8*x**4:1-(-2*x+2)**4/2;
+  const ease2=x=>x<.5?4*x**3:1-(-2*x+2)**3/2;
+  const tween=(t,at,d,fn)=>fn(Math.max(0,Math.min(1,(t-at)/d)));
+  const progress=t=>[[50,.6,1.4,ease],[42,3.5,.45,ease2],[50,4,.45,ease2],[8,4.5,1,ease],[50,7,1,ease]].reduce((v,[to,at,d,fn])=>v+(to-v)*tween(t,at,d,fn),100);
+  for(const [field,visible] of [['labelBefore',v=>v>=40],['labelAfter',v=>100-v>=40]]){
+   const intervals=[];let begin=null;
+   for(let f=0;f<=last+1;f++){
+    const yes=f<=last&&f/30<9.4&&visible(progress(f/30));
+    if(yes&&begin===null)begin=f;
+    if(!yes&&begin!==null){intervals.push({begin,end:f-1});begin=null;}
+   }
+   text(field,0,intervals[0]?.begin??last+1,intervals.at(-1)?.end??-1);texts.at(-1).intervals=intervals;texts.at(-1).wholeField=true;
+  }break;}
  case 'split-text-stagger':{
   text('text',0,frames(.3+.067*Math.max(0,[...String(p.text||'')].length-1)+.5),Math.ceil(4.4*30)-1);
   text('sub',0,frames(1.4),Math.ceil(4.4*30)-1);break;}
@@ -113,7 +175,7 @@ export function textEffectContract(card,p={},nativeFrames=1){
   text('num',0,frames(at+wipe),end);text('name',0,frames(at+wipe+.18),end);text('sub',0,frames(at+wipe+.18+.1),end);break;}
  default:return null;
  }
- return {card,texts,effects};
+ return {card,texts,effects,media};
 }
 export function checkTextEffectDependencies(shots,presentation,reveals){
  const issues=[],checks=[];
@@ -126,7 +188,8 @@ export function checkTextEffectDependencies(shots,presentation,reveals){
   const resolved=[];
   for(const window of contract.texts.flatMap(w=>w.wholeField ? events.filter(e=>e.field===w.field).map((_,i)=>({...w,index:i})) : [w])){
    const event=events.filter(e=>e.field===window.field)[window.index];if(!event)continue;
-   const readable=mapping.map((n,f)=>f>=event.localFrame&&n>=window.begin&&n<=window.end);
+   const intervals=window.intervals||[window];
+   const readable=mapping.map((n,f)=>f>=event.localFrame&&intervals.some(w=>n>=w.begin&&n<=w.end));
    const first=readable.findIndex(Boolean);let longest=0,run=0;
    for(const yes of readable){run=yes?run+1:0;longest=Math.max(longest,run);}
    const item={...window,eventId:event.id,wordFrame:event.localFrame,firstReadableFrame:first,longestReadableFrames:longest};resolved.push(item);
@@ -137,12 +200,14 @@ export function checkTextEffectDependencies(shots,presentation,reveals){
   }
   const substantive=resolved.filter(t=>String(events.find(e=>e.id===t.eventId)?.text||'').replace(/[\s\p{P}\p{N}]/gu,'').length>=2);
   const firstContent=Math.min(...substantive.filter(t=>t.firstReadableFrame>=0).map(t=>t.firstReadableFrame));
-  const props=shot.templateParams?.cardProps||{},hasMaterial=Boolean(shot.templateParams?.materialSrc||Object.entries(props).some(([k,v])=>/^(?:src\d*|docSrc|srcFront|srcBack)$/iu.test(k)&&v));
+  const props=shot.templateParams?.cardProps||{},auditedMedia=contract.media.some(w=>typeof props[w.field]==='string'&&props[w.field].trim()&&mapping.slice(0,31).some(n=>n>=w.begin&&n<=w.end));
+  const hasMaterial=Boolean(shot.templateParams?.materialSrc||auditedMedia||Object.entries(props).some(([k,v])=>/^(?:src\d*|docSrc|srcFront|srcBack)$/iu.test(k)&&v));
   if(shot.subject==='other'&&!hasMaterial&&firstContent>30)issues.push({code:'NATIVE_CONTENT_ONSET_GAP',shotId:shot.id,message:shot.id+' 首秒原卡没有实际可见的有效文字承接，不能只凭0帧的文字计划掩盖原卡尚未入场。'});
   const effectChecks=[],constraints=[];
   for(const t of resolved)constraints.push({nativeFrame:Math.max(0,t.end-2),notBeforeFrame:t.wordFrame,kind:'text-window',eventId:t.eventId});
   for(const effect of contract.effects){
-   const target=resolved.find(t=>t.field===effect.field&&t.index===effect.index);
+   const targets=resolved.filter(t=>t.field===effect.field&&(t.wholeField||t.index===effect.index));
+   const target=targets.reduce((latest,t)=>!latest||Math.max(t.wordFrame,t.firstReadableFrame)>Math.max(latest.wordFrame,latest.firstReadableFrame)?t:latest,null);
    if(!target){if(String(shot.templateParams?.cardProps?.[effect.field]||'').trim())issues.push({code:'TEXT_EFFECT_TARGET_MISSING',shotId:shot.id,effectId:effect.id,message:shot.id+' 装饰依赖文字缺少有效绑定，不能让延期/隐藏文字留下空装饰。'});continue;}
    const begin=mapping.findIndex(n=>n>=effect.begin),end=mapping.findIndex(n=>n>=effect.end);
    const ready=Math.max(target.wordFrame,target.firstReadableFrame);

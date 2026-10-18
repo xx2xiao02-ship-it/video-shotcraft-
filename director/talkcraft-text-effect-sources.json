@@ -148,5 +148,55 @@
   "split-text-stagger": {
     "parameterized-cards/gen/split-text-stagger.tsx": "ac42587208f30d2b062cfa494c4d06112fe954daf05f77b789ca37c7584fdaa2",
     "cards/split-text-stagger.tsx": "29d66047fdde9981a18332f89a0641474d9177a2cb34d187e129258a107630e7"
+  },
+  "pullback-cool-transition": {
+    "parameterized-cards/gen/pullback-cool-transition.tsx": "05a1ae9351ff2f3708313285109286a3eea3c73a0540c98859667a8368a59000",
+    "cards/pullback-cool-transition.tsx": "624632a08774c91244fbac3200161d586412f43e672c0084d2f1111e5f58190f",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "black-slam-transition": {
+    "parameterized-cards/gen/black-slam-transition.tsx": "0d0b2b80e447dcba60d9c88ca8cc4a5a5a15742fa704a62c6f2ff14e5ffb6313",
+    "cards/black-slam-transition.tsx": "82cf1b87d60981504d7b1e5ed5816493dd35ffc73683ba3b9f7828ddae2c35ee",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "particle-weld-transition": {
+    "parameterized-cards/gen/particle-weld-transition.tsx": "b44abd6711256d9f3e0c08d23c1a61cf6ad2259917d81e6ba84eb0066741bad4",
+    "cards/particle-weld-transition.tsx": "09f89e1a5d8ff0b19d2b53e091d681390009b8376345c6dab25118601c3a06d4",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "push-through-transition": {
+    "parameterized-cards/gen/push-through-transition.tsx": "4cb02ae0a434bf7582719fe45351a8aa449e9f7b96259903e7caf3927d90b2aa",
+    "cards/push-through-transition.tsx": "c7fff3260ae01e4d0e905a74a9538992f20b6c218de4e3c52ad3b5644ca6184e",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "overexpose-flip-transition": {
+    "parameterized-cards/gen/overexpose-flip-transition.tsx": "4f7f0d7c137dc5e13f070955d6ac9468b70ae045e6847e15c2366226826251d4",
+    "cards/overexpose-flip-transition.tsx": "23db309530891209c30d1c6a25b6c7b461be810bbc548787871dc0c57bf633f4",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "strike-and-replace": {
+    "parameterized-cards/gen/strike-and-replace.tsx": "675ee80a3a9de8888d3a46ecefd136a24de24503f5aabacce9cc8648e1c427c8",
+    "cards/strike-and-replace.tsx": "68915319627a9636c8b7818963842398f88050e340cbb3a0262288c20ef00a58",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "color-slam-beat-card": {
+    "parameterized-cards/gen/color-slam-beat-card.tsx": "2896f42e3c78219a964d72645291b38db43a3d3925182f993c37a58947e45022",
+    "cards/color-slam-beat-card.tsx": "6964b5609f14774dc4d0a9f6e63b998756cade2caa389d6077e2f1814ab0e2e5",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "still-layout-relay": {
+    "parameterized-cards/gen/still-layout-relay.tsx": "d0b5202d3df27cb182b01a0c1a54c35e8a2a70e3d3aa3008e75ebb5118c64736",
+    "cards/still-layout-relay.tsx": "26e58045fda4fdfec1d95a82b262fbadd79434bc911eaf672b12bbe5998159bb",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "split-compare-slider": {
+    "parameterized-cards/gen/split-compare-slider.tsx": "8a4e3fb61943c7f8fa1d587239a371aa2a524c4ffcd7e6d5fea34a411e3be1d9",
+    "cards/split-compare-slider.tsx": "c3ac33fb20484d1a21692534d3ab688a2ab48c178dff38db56ffa10e5ae2fed3",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "line-carry-transition": {
+    "parameterized-cards/gen/line-carry-transition.tsx": "31e12d55619acee382bb83d56bfbd529b27df28726d9a9647c43c19bfe0af242",
+    "cards/line-carry-transition.tsx": "7658bdf3d1c0b40c8f575c09e09cfdcfd6b5882fd324f6cfea678d7b623a6df8",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
   }
 }
