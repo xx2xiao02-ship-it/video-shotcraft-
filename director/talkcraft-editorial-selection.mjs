@@ -140,7 +140,16 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           indexedSemantics:[...(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[])],
           directSemanticMatch:(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[]).some(s=>w.actualCandidateSemantics.includes(s)),
           instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
-      backgroundCycleContract:cycleContract(w),anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
+      backgroundCycleContract:cycleContract(w),
+      backgroundDecisionContract:{
+        choices:w.choices.map(choice=>{
+          const shot=request.baseProposal.shots.find(s=>s.id===w.shotId);
+          const [demand]=materialDemand({shots:[{...shot,shotCard:choice.slug,templateParams:{}}],
+            semantics:{sentences:request.baseProposal.sentences},index:promptCatalog});
+          return {choiceId:choice.choiceId,category:demand.category,requiredWithoutSourceDisplay:demand.considerBackground};
+        }),
+        instruction:'按所选choiceId的requiredWithoutSourceDisplay执行：无真实资料展示的字幕花字、强调标注及指定章节卡都属于背景决策范围，人物出现不豁免。backgroundDecision最终只能use或omit；omit时pureTextReason必须是本次非空具体理由，backgroundReason不能替代；use须有backgroundQuery并由正式素材流程核验绑定。compare、空理由或搜索候选不能通过；三镜视频背景规则仍独立检查。'},
+      anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.filter(r=>!request.batch||[r.shotId,r.displayShotId].some(id=>request.editableShotIds.includes(id)))
       .map(r=>pick(r,['code','shotId','displayShotId','field','effectId','targetEventId','effectFrame','textReadyFrame',
         'allowedCarrierLeadFrames','begin','end','wordFrame','firstReadableFrame','minimumTotalFrames'])),

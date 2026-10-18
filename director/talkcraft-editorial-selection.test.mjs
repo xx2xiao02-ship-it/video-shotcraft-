@@ -85,6 +85,19 @@ test('图形比较失败时发送真实图形分类目录与理由合同，不�
     promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug));
 });
 
+test('圈注强调卡按正式素材分类明确背景必填条件，人物不豁免且不自动编写理由',()=>{
+ const request=buildEditorialSelectionRequest(fixture()),w=request.windows[0];
+ w.choices=[{choiceId:'ring-choice',slug:'hand-drawn-ellipse'},{choiceId:'source-choice',slug:'doc-park-left-pill-deal'}];
+ const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ const contract=model.windows[0].backgroundDecisionContract;
+ assert.equal(contract.choices[0].requiredWithoutSourceDisplay,true);
+ assert.equal(contract.choices[0].category,'强调标注');
+ assert.equal(contract.choices[1].requiredWithoutSourceDisplay,false);
+ assert.match(contract.instruction,/pureTextReason必须/);
+ assert.match(contract.instruction,/backgroundReason不能替代/);
+ assert.ok(!Object.hasOwn(model.materials[0],'pureTextReason'));
+});
+
 test('资料协议区分锁定换槽与创意重写，逐行明确数组和已有绑定归属',()=>{
   const args=fixture(),row=args.proposal.materialResearch.shots[1];
   row.research=[{kind:'identity',query:'官方出处',displayShotId:'s15',displayField:'srcBefore'}];
