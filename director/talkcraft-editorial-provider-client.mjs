@@ -3,8 +3,12 @@ import {arkDirector,parseArkJsonResponse} from './a-mode-ark-client.mjs';
 import {ACCTOKEN_BASE_URL,ACCTOKEN_MODEL} from './talkcraft-editorial-provider.mjs';
 import {targetFingerprint} from './talkcraft-editorial-fallback.mjs';
 
+// A multi-shot structured revision can exceed the generic 120s request budget.
+// This is one finite request deadline, never authorization to retry a timeout.
+export const ACCTOKEN_EDITORIAL_TIMEOUT_MS=600000;
+
 export async function talkcraftEditorialDirector(prompt,options){
- const {config,requestPlan,fetchImpl=globalThis.fetch,timeoutMs=120000,maxOutputTokens,
+ const {config,requestPlan,fetchImpl=globalThis.fetch,timeoutMs=config?.provider==='acctoken'?ACCTOKEN_EDITORIAL_TIMEOUT_MS:120000,maxOutputTokens,
   phase='global',onAttempt=()=>{},onResponse}=options;
  if(config.provider!=='acctoken')return arkDirector(prompt,options);
  const target={provider:'acctoken',responsesUrl:`${ACCTOKEN_BASE_URL}/responses`,endpoint:ACCTOKEN_MODEL,apiKey:config.apiKey};
@@ -31,6 +35,8 @@ export async function talkcraftEditorialDirector(prompt,options){
   // Network errors can echo request headers. Do not expose the error object,
   // cause, stack from the transport, or an unbounded provider body.
   throw Object.assign(Error(String(error.message||'AccToken请求失败').replaceAll(config.apiKey,'[REDACTED]')),
-   {code:error.code||'EDITORIAL_PROVIDER_REQUEST_FAILED',retryable:false,...(error.status?{status:error.status}:{})});
+   {code:error.code||'EDITORIAL_PROVIDER_REQUEST_FAILED',retryable:false,
+    ...(error.name==='TimeoutError'||error.name==='AbortError'?{providerOutcomeUnknown:true}:{}),
+    ...(error.status?{status:error.status}:{})});
  }finally{await dispatcher.close();}
 }

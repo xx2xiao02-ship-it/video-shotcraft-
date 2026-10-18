@@ -162,6 +162,54 @@ function retainedRejectedNodeFeedback(project,work,j,a){
     inputs:candidateFeedbackHashes(project,'planning-check'),proposal:base,failedChecks:structuredClone(a.issues),
     retainedTransaction:j.directory,requestId:request.requestId,paidCalls:0,userAcceptance:false};
 }
+// A transport timeout has no new design to recover. Preserve only the exact
+// verified base and failure scope that were authorized for THIS submission.
+// This never invents a provider result, publishes data or renews authorization.
+function retainedTransportBaseFeedback(project,work,j){
+ const read=n=>JSON.parse(fs.readFileSync(path.join(work,n),'utf8'));
+ const required=['qa/editorial-selection-request.json','qa/editorial-single-submission.json','qa/editorial-revision-authorization.json','qa/planning-editorial-repair.json'];
+ if(required.some(n=>!fs.existsSync(path.join(work,n)))||fs.existsSync(path.join(work,'qa/editorial-provider-receipt.json'))||fs.existsSync(path.join(work,'qa/ark-editorial-response.json')))return null;
+ if(fs.realpathSync(work)!==work)throw Error('超时事务工作区不能是链接');
+ const submission=read(required[1]);
+ if(submission.outcome!=='provider-outcome-unconfirmed'||!submission.submittedAt||!submission.finishedAt)return null;
+ const request=read(required[0]),authorization=read(required[2]),feedback=read(required[3]);
+ const {requestId,...contract}=request;
+ if(contract.schema!=='talkcraft-editorial-selection-request-v2'||requestId!==createHash('sha256').update(JSON.stringify(contract)).digest('hex')||
+   authorization.schema!=='talkcraft-editorial-revision-authorization-v1'||authorization.runId!==j.runId||authorization.node!==j.node||
+   !authorization.startedAt||authorization.completedAt||authorization.providerBinding?.provider!=='acctoken'||
+   ['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json','qa/ark-editorial-response.json'].some(n=>!Object.hasOwn(authorization.inputs||{},n))||
+   submission.attempts?.length!==1||submission.attempts[0].targetFingerprint!==authorization.providerBinding.targetFingerprint||
+   !isDeepStrictEqual(submission.targetFingerprints,[authorization.providerBinding.targetFingerprint])||
+   feedback.schema!=='talkcraft-candidate-editorial-repair-v1'||feedback.stage!=='planning-check'||feedback.passed!==false||
+   !feedback.failedChecks?.length||!isDeepStrictEqual(feedback.proposal,request.baseProposal)||
+   !isDeepStrictEqual(feedback.failedChecks,request.failedChecks)||authorization.repairScopeSha256!==editorialRepairScopeSha256(feedback)||
+   feedback.failedChecks.some(i=>!i.shotId||!request.editableShotIds?.includes(i.shotId)||!feedback.proposal.shots?.some(s=>s.id===i.shotId)))
+  throw Error('当前超时提交的基稿、失败范围或授权不一致');
+ if(fileHash(project,'qa/editorial-single-submission.json')!==fileHash(work,'qa/editorial-single-submission.json'))throw Error('超时记录不是当前正式提交');
+ const authName='qa/editorial-revision-authorization.json',oldAuthHash=fileHash(work,authName);
+ if(oldAuthHash!==j.initial?.[authName])throw Error('超时授权记录已变化');
+ if(fileHash(project,authName)!==oldAuthHash){
+  // authorizeEditorialRevision archives the consumed authorization BEFORE the
+  // worker starts. Accept only that exact archive plus an unused same-scope
+  // authorization; otherwise renewal itself would invalidate its own base.
+  const archive='qa/editorial-revision-authorization-history/'+oldAuthHash+'.json';
+  const current=JSON.parse(fs.readFileSync(path.join(project,authName),'utf8'));
+  if(fileHash(project,archive)!==oldAuthHash||fs.lstatSync(path.join(project,archive)).isSymbolicLink()||
+    current.schema!==authorization.schema||current.runId!==j.runId||current.node!==j.node||current.maxTasks!==1||current.startedAt||current.completedAt||
+    current.repairScopeSha256!==authorization.repairScopeSha256||!isDeepStrictEqual(current.providerBinding,authorization.providerBinding)||
+    !current.inputs||Object.keys(current.inputs).length!==Object.keys(authorization.inputs).length||
+    Object.entries(current.inputs).some(([n,expected])=>!Object.hasOwn(authorization.inputs,n)||fileHash(project,n)!==expected))
+   throw Error('新的未提交授权与本次超时基稿或原授权归档不一致');
+ }
+ for(const [n,expected]of Object.entries(authorization.inputs)){
+  if(n==='qa/editorial-single-submission.json')continue; // exact current reservation checked above
+  if(fileHash(project,n)!==expected||(j.initial?.[n]??null)!==expected)throw Error('超时后正式输入变化，不能恢复基稿：'+n);
+ }
+ if(!isDeepStrictEqual(submission.inputs,inputHashes(project)))throw Error('超时提交的稿件或时间轴变化');
+ return {schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',sourceGate:'provider-transport',passed:false,
+  inputs:candidateFeedbackHashes(project,'planning-check'),proposal:structuredClone(request.baseProposal),failedChecks:structuredClone(feedback.failedChecks),
+  retainedTransaction:j.directory,requestId,providerOutcomeUnknown:true,paidCalls:0,userAcceptance:false};
+}
 function retainedNodeEditorialFeedback(project){
   const journalFile=path.join(project,'qa/node-repair.json');
   if(!fs.existsSync(journalFile))return null;
@@ -171,7 +219,7 @@ function retainedNodeEditorialFeedback(project){
   if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw Error('当前补全事务目录越界');
   const work=path.join(directory,'work'),reportFile=path.join(work,'qa/editorial-free-selection-replay.json');
   const auditFile=path.join(work,'qa/editorial-selection-audit.json');
-  if(!fs.existsSync(auditFile))return null;
+  if(!fs.existsSync(auditFile))return retainedTransportBaseFeedback(project,work,j);
   const a=read(auditFile);
   if(a.compiled===false)return retainedRejectedNodeFeedback(project,work,j,a);
   if(!fs.existsSync(reportFile))return null;

@@ -22,8 +22,17 @@ const authFile=p=>path.join(p,'qa/editorial-revision-authorization.json');
 
 export function recoverUnsubmittedEditorialRevision(root,runId){
   const project=talkcraftProject(root,runId),file=authFile(project),record=read(file);
-  if(record.schema!=='talkcraft-editorial-revision-authorization-v1'||record.runId!==runId||record.maxTasks!==1||!record.startedAt||record.completedAt)
+  if(record.schema!=='talkcraft-editorial-revision-authorization-v1'||record.runId!==runId||record.maxTasks!==1||record.completedAt)
     throw Error('没有可恢复的本次未提交修订授权');
+  if(!record.startedAt){
+    // A worker may fail its read-only base check before it starts/archives or
+    // reserves a provider request. Reuse this exact unused authorization.
+    if(JSON.stringify(record.inputs)!==JSON.stringify(inputs(project))||
+      JSON.stringify(record.providerBinding||null)!==JSON.stringify(editorialProviderBinding(runId))||
+      editorialRepairScopeSha256(currentEditorialRepairFeedback(project))!==record.repairScopeSha256)
+      throw Error('未启动授权的输入、模型或失败范围变化，禁止继续');
+    return record;
+  }
   if(record.recoveredInputs){
     if(JSON.stringify(record.recoveredInputs)!==JSON.stringify(inputs(project)))throw Error('恢复后输入变化，不能重复继续');
     return record;

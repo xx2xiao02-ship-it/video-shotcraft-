@@ -1,11 +1,22 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
 import {ACCTOKEN_BASE_URL,ACCTOKEN_MODEL,editorialProviderSelection,talkcraftEditorialConfig,editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
-import {talkcraftEditorialDirector} from './talkcraft-editorial-provider-client.mjs';
+import {talkcraftEditorialDirector,ACCTOKEN_EDITORIAL_TIMEOUT_MS} from './talkcraft-editorial-provider-client.mjs';
 import {editorialFallbackPlan,targetFingerprint} from './talkcraft-editorial-fallback.mjs';
 import {captureEditorialResponse,recoverBoundEditorialSelectionResponse} from './talkcraft-editorial-response.mjs';
 import {createHash} from 'node:crypto';
 const runId='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+test('AccToken局部修订有独立有限等待预算，显式超时仍只发一次且账单结果未知',async t=>{
+ const f=fixture(t),config=f.config(),deadlines=[];let requests=0;
+ t.mock.method(AbortSignal,'timeout',ms=>{deadlines.push(ms);return new AbortController().signal;});
+ const options={config,requestPlan:editorialFallbackPlan(config),onResponse:()=>{},fetchImpl:async()=>{requests++;return new Response('{"output_text":"{}"}');}};
+ await talkcraftEditorialDirector('本次局部修订',options);
+ assert.deepEqual(deadlines,[600000]);assert.equal(ACCTOKEN_EDITORIAL_TIMEOUT_MS,600000);
+ await assert.rejects(()=>talkcraftEditorialDirector('本次局部修订',{...options,timeoutMs:50,fetchImpl:async()=>{requests++;throw new DOMException('deadline exceeded','TimeoutError');}}),e=>{
+  assert.equal(e.retryable,false);assert.equal(e.providerOutcomeUnknown,true);return true;
+ });
+ assert.deepEqual(deadlines,[600000,50]);assert.equal(requests,2);
+});
 const selection={schema:'talkcraft-editorial-provider-v1',runId,provider:'acctoken',baseUrl:ACCTOKEN_BASE_URL,model:ACCTOKEN_MODEL,wireApi:'responses'};
 function fixture(t){
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'b-provider-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));

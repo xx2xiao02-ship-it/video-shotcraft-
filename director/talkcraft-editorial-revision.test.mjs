@@ -100,6 +100,16 @@ test('归档后发送前中断只恢复本次基稿和未消费授权；重复�
  assert.throws(()=>recoverUnsubmittedEditorialRevision(f.root,id),/输入变化/);
 });
 
+test('启动前免费检查失败可重复继续同一未消费授权，输入变化拒绝且不改提交',t=>{
+ const f=fixture(t),record=authorizeEditorialRevision(f.root,id,{approval:'本次未消费的修订授权'});
+ const before=fs.readFileSync(path.join(f.p,'qa/editorial-single-submission.json'));
+ assert.deepEqual(recoverUnsubmittedEditorialRevision(f.root,id),record);
+ assert.deepEqual(recoverUnsubmittedEditorialRevision(f.root,id),record);
+ assert.equal(f.read('qa/editorial-revision-authorization.json').startedAt,undefined);
+ assert.deepEqual(fs.readFileSync(path.join(f.p,'qa/editorial-single-submission.json')),before);
+ f.write('input.txt','改变内容');assert.throws(()=>recoverUnsubmittedEditorialRevision(f.root,id),/输入.*变化/);
+});
+
 test('正式免费恢复在原节点工作区运行；复检失败不发布，也不消费新的授权',async t=>{
  const f=fixture(t),before=fs.readFileSync(path.join(f.p,'SHOTBOOK.md'));
  await assert.rejects(()=>executeNodeRepair({root:f.root,runId:id,project:f.p,node:'storyboard-review',operation:work=>{

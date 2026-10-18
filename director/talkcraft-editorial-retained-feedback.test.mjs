@@ -2,6 +2,38 @@ import test from 'node:test';import assert from 'node:assert/strict';import fs f
 import{captureEditorialResponse}from'./talkcraft-editorial-response.mjs';
 import{currentEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback,saveEditorialRepairFeedback}from'./talkcraft-editorial-planning-contract.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex');
+
+test('本次超时无返回只保留已授权基稿与失败范围，不发布、不串旧回执、不续费',t=>{
+ const p=fs.mkdtempSync(path.join(os.tmpdir(),'transport-base-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));
+ const directory='qa/node-repairs/current',w=path.join(p,directory,'work');
+ const write=(root,n,v)=>{const file=path.join(root,n);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(v));};
+ const entries={'input.txt':'script','aligned-sentences.json':[],'audio/full.mp3':'paid','semantics.json':{sentences:[]},'remotion/shots.json':[{id:'s19',visual:'published'}],'qa/ark-editorial-response.json':{old:true},'material-research-plan.json':{},'material-binding-plan.json':{}};
+ for(const [n,v]of Object.entries(entries)){write(p,n,v);if(n!=='qa/ark-editorial-response.json')write(w,n,v);}
+ const initial=Object.fromEntries(Object.keys(entries).map(n=>[n,hash(fs.readFileSync(path.join(p,n)))]));
+ const base={sentences:[],shots:[{id:'s19',visual:'verified-success'}]},failedChecks=[{shotId:'s19',code:'TIMING',message:'真实锚点冲突'}];
+ const contract={schema:'talkcraft-editorial-selection-request-v2',baseProposal:base,failedChecks,editableShotIds:['s19']};
+ const request={...contract,requestId:hash(JSON.stringify(contract))},feedback={schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',passed:false,proposal:base,failedChecks};
+ const auth={schema:'talkcraft-editorial-revision-authorization-v1',runId:'current',node:'storyboard-review',startedAt:'now',inputs:initial,providerBinding:{provider:'acctoken',targetFingerprint:'fp'},repairScopeSha256:hash(JSON.stringify({proposal:base,failedChecks}))};
+ write(p,'qa/editorial-revision-authorization.json',auth);write(w,'qa/editorial-revision-authorization.json',auth);
+ const submission={submittedAt:'now',finishedAt:'later',outcome:'provider-outcome-unconfirmed',targetFingerprints:['fp'],attempts:[{targetFingerprint:'fp'}],inputs:Object.fromEntries(['input.txt','aligned-sentences.json'].map(n=>[n,initial[n]]))};
+ write(p,'qa/editorial-single-submission.json',submission);write(w,'qa/editorial-single-submission.json',submission);
+ write(w,'qa/editorial-selection-request.json',request);write(w,'qa/planning-editorial-repair.json',feedback);
+ write(p,'qa/node-repair.json',{schema:'talkcraft-node-repair-v1',status:'blocked',node:'storyboard-review',providerSubmitted:true,runId:'current',directory,initial:{...initial,'qa/editorial-revision-authorization.json':hash(fs.readFileSync(path.join(p,'qa/editorial-revision-authorization.json')))},error:'timeout'});
+ const published=fs.readFileSync(path.join(p,'remotion/shots.json')),reservation=fs.readFileSync(path.join(p,'qa/editorial-single-submission.json'));
+ const recovered=currentEditorialRepairFeedback(p);assert.deepEqual(recovered.proposal,base);assert.deepEqual(recovered.failedChecks,failedChecks);assert.equal(recovered.providerOutcomeUnknown,true);assert.equal(recovered.passed,false);
+ assert.deepEqual(fs.readFileSync(path.join(p,'remotion/shots.json')),published);assert.deepEqual(fs.readFileSync(path.join(p,'qa/editorial-single-submission.json')),reservation);
+ const authBytes=fs.readFileSync(path.join(p,'qa/editorial-revision-authorization.json'));
+ const archive='qa/editorial-revision-authorization-history/'+hash(authBytes)+'.json';
+ fs.mkdirSync(path.dirname(path.join(p,archive)),{recursive:true});fs.writeFileSync(path.join(p,archive),authBytes);
+ const renewed={...auth,maxTasks:1};delete renewed.startedAt;write(p,'qa/editorial-revision-authorization.json',renewed);
+ assert.deepEqual(currentEditorialRepairFeedback(p).proposal,base);
+ write(p,'qa/editorial-revision-authorization.json',{...renewed,repairScopeSha256:'other-scope'});assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
+ write(p,'qa/editorial-revision-authorization.json',renewed);fs.writeFileSync(path.join(p,archive),'changed');assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
+ fs.writeFileSync(path.join(p,archive),authBytes);fs.writeFileSync(path.join(p,'qa/editorial-revision-authorization.json'),authBytes);
+ write(w,'qa/planning-editorial-repair.json',{...feedback,proposal:{shots:[]}});assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);write(w,'qa/planning-editorial-repair.json',feedback);
+ write(p,'input.txt','changed');assert.throws(()=>currentEditorialRepairFeedback(p),/输入变化/);write(p,'input.txt',entries['input.txt']);
+ write(w,'qa/editorial-provider-receipt.json',{old:true});assert.equal(currentEditorialRepairFeedback(p),null);
+});
 test('本次已编译结果的两处失败覆盖旧五镜清单，归档后仍锁定其余设计；篡改拒绝且不发布',t=>{
  const p=fs.mkdtempSync(path.join(os.tmpdir(),'latest-repair-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));
  const directory='qa/node-repairs/transaction',w=path.join(p,directory,'work');fs.mkdirSync(w,{recursive:true});
