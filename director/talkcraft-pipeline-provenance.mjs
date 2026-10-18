@@ -39,9 +39,32 @@ export function pipelineProvenance(source) {
 export function assertPipelineProvenance(project,{requireVoice=false}={}) {
   const source=JSON.parse(fs.readFileSync(path.join(project,'source-run.json'),'utf8'));
   const result = pipelineProvenance(source);
-  if(requireVoice && !result.voiceEngine) throw new Error('未记录实际配音来源，不能进入制作或验收');
-  if(requireVoice) assertTalkcraftVoiceOutput(project,source);
   if (!result.verified) throw new Error(`B 模式工作链路未核验：${result.issues.join('、')}；已保留已有资产`);
+  if(requireVoice){
+    const voice=assertTalkcraftVoiceOutput(project,source);
+    if(!result.voiceEngine){
+      const id=/^[0-9a-f]{8}-[0-9a-f-]{27,}$/iu;
+      if(!id.test(source.sourceRunId||'')||source.sourceRunId===source.runId||
+        path.basename(path.dirname(path.resolve(project)))!==source.runId)
+        throw new Error('未记录实际配音来源，不能进入制作或验收');
+      const parent=path.resolve(project,'../..',source.sourceRunId,'talkcraft');
+      const previous=JSON.parse(fs.readFileSync(path.join(parent,'source-run.json'),'utf8'));
+      if(previous.runId!==source.sourceRunId||!previous.voiceEngine||!pipelineProvenance(previous).verified)
+        throw Error('复用配音源任务来源记录无效');
+      const previousVoice=assertTalkcraftVoiceOutput(parent,previous);
+      if(previousVoice.actual.engine!==voice.actual.engine||previousVoice.actual.id!==voice.actual.id||
+        previous.voiceEngine!==voice.actual.engine||Number(previous.speechRate??0)!==Number(source.speechRate??0))
+        throw Error('复用配音音色、引擎或语速不一致');
+      const inputs={};
+      for(const name of ['input.txt','audio/full.mp3','audio/voice-timing.json']){
+        inputs[name]=hash(path.join(project,name));
+        if(inputs[name]!==hash(path.join(parent,name)))throw Error(`复用配音与指定来源哈希不一致：${name}`);
+      }
+      const timing=JSON.parse(fs.readFileSync(path.join(project,'audio/voice-timing.json'),'utf8'));
+      return {...result,voiceEngine:voice.actual.engine,timingMethod:result.timingMethod||timing.timingMethod||null,
+        voiceReuse:{method:'verified-identical-source-assets',sourceRunId:source.sourceRunId,inputs}};
+    }
+  }
   return result;
 }
 
