@@ -13,3 +13,5 @@
 
 重编译的派生分镜和SHOTBOOK如与已保存版本不同，先在qa/editorial-free-replay-artifacts按内容哈希保留旧产物再更新；相同内容重复保存直接复用。原始模型响应始终保留。页面07阻断清单优先显示经过原始响应和当前输入指纹验证的补全事务问题，不把正式草稿的旧问题混入当前恢复结果；此状态展示不发布提案、不标记节点通过。
 
+qa/editorial-input-preflight下的发送前自检报告属于只读诊断，新增报告不得改变节点事务的制作输入指纹，也不随节点发布覆盖。真正的editorial-selection-request、ark-editorial-response、配音、字级时间轴和素材绑定仍保持原有指纹与回执检查。
+

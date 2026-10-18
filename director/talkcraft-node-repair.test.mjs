@@ -83,3 +83,33 @@ test('免费恢复拒绝跨任务目录和已变更正式输入，成功复检�
  assert.equal(fs.readFileSync(path.join(f.project,'SHOTBOOK.md'),'utf8'),'retained design');
  await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail()}),/本次/);
 });
+
+test('免费恢复不把新增或更新的发送前诊断当成输入；重复继续不覆盖诊断',async t=>{
+ const f=fixture(t),dir=path.join(f.project,'qa/editorial-input-preflight/current');fs.mkdirSync(dir,{recursive:true});
+ const diagnostic=path.join(dir,'request.json');fs.writeFileSync(diagnostic,'before-check');
+ await assert.rejects(()=>executeNodeRepair({...f,operation:work=>{
+  assert.equal(fs.existsSync(path.join(work,'qa/editorial-input-preflight')),false);
+  fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),'{"submittedAt":"new"}');throw Error('current rejection');
+ }}),/current rejection/);
+ // Simulate a journal written by the prior version, which included diagnostics.
+ const file=path.join(f.project,'qa/node-repair.json'),journal=JSON.parse(fs.readFileSync(file));
+ journal.initial['qa/editorial-input-preflight/current/request.json']=createHash('sha256').update('before-check').digest('hex');
+ fs.writeFileSync(file,JSON.stringify(journal));
+ fs.writeFileSync(diagnostic,'new-check');fs.writeFileSync(path.join(dir,'audit.json'),'new-audit');
+ for(let i=0;i<2;i++)await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>{throw Error('same creative rejection');}}),/same creative rejection/);
+ assert.equal(fs.readFileSync(diagnostic,'utf8'),'new-check');
+ assert.equal(fs.readFileSync(path.join(f.project,'SHOTBOOK.md'),'utf8'),'accepted');
+});
+
+test('发送前报告排除不豁免真实时间轴、素材绑定、请求和响应输入变化',async t=>{
+ const f=fixture(t),names=['aligned-sentences.json','material-binding-plan.json','qa/editorial-selection-request.json','qa/ark-editorial-response.json'];
+ for(const n of names)fs.writeFileSync(path.join(f.project,n),'original');
+ await assert.rejects(()=>executeNodeRepair({...f,operation:work=>{
+  fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),'{"submittedAt":"new"}');throw Error('rejected');
+ }}),/rejected/);
+ for(const n of names){
+  fs.writeFileSync(path.join(f.project,n),'changed');
+  await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail('输入变化时不能执行恢复')}),/正式输入已变化/);
+  fs.writeFileSync(path.join(f.project,n),'original');
+ }
+});

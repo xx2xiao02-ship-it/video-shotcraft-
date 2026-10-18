@@ -9,8 +9,11 @@ const read=f=>JSON.parse(fs.readFileSync(f));
 // Failure-report generation refreshes this derived diagnostic after a worker
 // exits. It is not creative input and must not resurrect its old worker copy.
 const derivedFailureReport=n=>n==='qa/audit-feedback.json'||n.startsWith('qa/failures/');
+// Sender preflight is an immutable diagnostic, not a production contract.
+// The actual request, raw response and authorization remain fingerprinted.
+const inputPreflightReport=n=>n==='qa/editorial-input-preflight'||n.startsWith('qa/editorial-input-preflight/');
 const excluded=n=>n==='workflow-automation.json'||n==='qa/node-repairs'||n==='qa/node-repair.json'||n==='qa/auto-advance.json'||n==='qa/executions'||n==='qa/storyboard-revisions'||
-  /(^|\/)(node_modules|out|\.cache)(\/|$)/u.test(n)||/\.lock$/u.test(n);
+  inputPreflightReport(n)||/(^|\/)(node_modules|out|\.cache)(\/|$)/u.test(n)||/\.lock$/u.test(n);
 function files(project){
   const result=[];
   const walk=dir=>{for(const entry of fs.readdirSync(path.join(project,dir),{withFileTypes:true})){
@@ -42,7 +45,7 @@ export async function executeNodeRepair({root,runId,project,node,operation,resum
   if(prior){
     if(fs.realpathSync(directory)!==directory||fs.realpathSync(work)!==work)throw Error('响应恢复目录不能是链接');
     const changed=Object.keys({...prior.initial,...Object.fromEntries(files(project).map(n=>[n,true]))})
-      .filter(n=>n!=='qa/editorial-single-submission.json'&&!derivedFailureReport(n)&&hash(path.join(project,n))!==(prior.initial[n]??null));
+      .filter(n=>n!=='qa/editorial-single-submission.json'&&!derivedFailureReport(n)&&!inputPreflightReport(n)&&hash(path.join(project,n))!==(prior.initial[n]??null));
     if(changed.length)throw Error('正式输入已变化，拒绝恢复旧请求：'+changed.join('、'));
     if(hash(path.join(project,'qa/editorial-single-submission.json'))!==hash(path.join(work,'qa/editorial-single-submission.json')))throw Error('当前与恢复工作区不是同一次提交');
     files(work); // reject links before entering the retained working directory
