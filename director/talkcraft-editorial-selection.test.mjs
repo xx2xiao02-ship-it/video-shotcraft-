@@ -21,6 +21,18 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
 
+test('图形比较失败时发送真实图形分类目录与理由合同，不把强调卡当图形替代',()=>{
+ const args=fixture(),request=buildEditorialSelectionRequest(args);
+ request.failedChecks=[{shotId:request.editableShotIds[0],code:'GRAPHIC_COMPARISON_REQUIRED'}];
+ const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+ const model=editorialSelectionModelInput(request,{promptCatalog});
+ const contract=model.materials.find(r=>r.shotId===request.editableShotIds[0]).graphicComparisonContract;
+ assert.deepEqual(contract.cards.map(c=>c.slug),promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug));
+ assert.ok(contract.cards.length>0);assert.equal(contract.minimumReasonCharacters,4);
+ assert.ok(!contract.cards.some(c=>c.slug==='soft-blur-in'));
+ assert.ok(model.materials.filter(r=>r.shotId!==request.editableShotIds[0]).every(r=>!r.graphicComparisonContract));
+});
+
 test('资料协议区分锁定换槽与创意重写，逐行明确数组和已有绑定归属',()=>{
   const args=fixture(),row=args.proposal.materialResearch.shots[1];
   row.research=[{kind:'identity',query:'官方出处',displayShotId:'s15',displayField:'srcBefore'}];

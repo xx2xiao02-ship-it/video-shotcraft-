@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {editorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 
 const local=v=>typeof v==='string'?v.replace(/^remotion\/public\//u,''):v;
 // Only source facts bound to this exact request may materialize an empty slot.
 // Card choice, target, labels, reasons and word clocks remain model-authored.
-export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot}){
+export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,slotRetargets=[],bindingSelections=[]}){
   const repairs=[],rejected=[];
   if(!projectRoot)return {repairs,rejected};
   for(const row of result.materialResearch?.shots||[])for(const binding of row.bindings||[]){
@@ -22,12 +23,19 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot})
     try{
       const oldNeed=original.research?.find(r=>r.kind===binding.kind&&r.query===binding.query);
       const oldTarget=source.displayShotId||oldNeed?.displayShotId||row.shotId;
-      if(targetId!==oldTarget||need.displayField&&need.displayField!==field||source.field!==field)
+      const explicitRetarget=slotRetargets.some(r=>r.shotId===row.shotId&&r.kind===binding.kind&&r.query===binding.query&&r.field===field)&&
+        binding.field===field&&need.displayField===field;
+      if(targetId!==oldTarget||need.displayField&&need.displayField!==field||source.field!==field&&!explicitRetarget)
         throw Error('来源记录与本次明确目标不一致，不能自动选槽');
       const media=catalog.cards.find(c=>c.cardId===target.shotCard)?.policy?.media||{};
       if(field==='hostSrc'||!['image','image-or-video'].includes(media[field]))throw Error('目标不是原卡公开图片槽');
       const query=target.templateParams.templateMaterialQueries?.[field];
-      if(query&&query!==source.query)throw Error('本次槽位检索身份与已核验文件不一致');
+      const selectedRef=bindingSelections.find(r=>r.shotId===row.shotId&&r.field===field&&
+        editorialMaterialRefs(request,row.shotId,'bindings').some(ref=>ref.ref===r.bindingRef&&
+          JSON.stringify(ref.item)===JSON.stringify(source)));
+      // A verified explicit source reference identifies the file. A discovery
+      // query alone never proves identity and cannot authorize this recovery.
+      if(query&&query!==source.query&&!selectedRef)throw Error('本次槽位检索身份与已核验文件不一致');
       if(source.localPath!==binding.localPath||source.sha256!==binding.sha256)throw Error('本次来源文件记录被改写');
       if(!source.localPath||path.isAbsolute(source.localPath)||/^(?:[a-z]+:|[/\\])/iu.test(source.localPath))throw Error('来源不是相对本地路径');
       const publicRoot=fs.realpathSync(path.join(projectRoot,'remotion/public'));
@@ -44,7 +52,8 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot})
         if(!display||props[display.labelField]!==display.labelText||!display.labelText)throw Error('人物标签与资料身份不一致');
       }
       props[field]='remotion/public/'+source.localPath;
-      repairs.push({shotId:row.shotId,displayShotId:targetId,field,localPath:source.localPath,sha256:source.sha256});
+      repairs.push({shotId:row.shotId,displayShotId:targetId,field,localPath:source.localPath,sha256:source.sha256,
+        ...(selectedRef?{bindingRef:selectedRef.bindingRef,discoveryQuery:query,sourceQuery:source.query}: {})});
     }catch(error){rejected.push({shotId:row.shotId,displayShotId:targetId,field,message:error.message});}
   }
   return {repairs,rejected};

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {createHash} from 'node:crypto';
 import {captureEditorialResponse} from './talkcraft-editorial-response.mjs';
-import {savePlanningEditorialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {savePlanningEditorialRepairFeedback,saveCandidateMaterialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {assertEditorialGenerationState,replayExistingEditorialProviderResult,saveEditorialDerivedArtifact} from './talkcraft-ark-editorial.mjs';
 const sha=x=>createHash('sha256').update(x).digest('hex');
 
@@ -70,6 +70,19 @@ test('局部编译成功后候选失败仍保留本次成功镜及完整补全�
   write(work,'remotion/shots.json',[{id:'s05',shotCard:'tampered'}]);
   assert.throws(()=>currentEditorialRepairFeedback(project),/反馈已过期|篡改/);
   fs.writeFileSync(path.join(work,'remotion/shots.json'),original);
+  const candidateChecks=[{shotId:'s05',code:'GRAPHIC_COMPARISON_REQUIRED',message:'缺少本次图形比较'}];
+  saveCandidateMaterialRepairFeedback(work,{passed:false,materialIssues:candidateChecks});
+  const journal=JSON.parse(fs.readFileSync(path.join(project,'qa/node-repair.json')));
+  journal.error='选卡前真实素材规划未完成：s05 GRAPHIC_COMPARISON_REQUIRED：缺少本次图形比较';
+  write(project,'qa/node-repair.json',journal);
+  const candidate=currentEditorialRepairFeedback(project);
+  assert.equal(candidate.stage,'planning-check');assert.equal(candidate.sourceGate,'candidates');assert.deepEqual(candidate.failedChecks,candidateChecks);
+  assert.deepEqual(candidate.proposal,proposal);
+  const savedCandidate=fs.readFileSync(path.join(work,'qa/candidate-editorial-repair.json'));
+  write(work,'remotion/shots.json',[{id:'s05',shotCard:'tampered'}]);
+  assert.throws(()=>currentEditorialRepairFeedback(project),/反馈已过期|篡改/);
+  fs.writeFileSync(path.join(work,'remotion/shots.json'),original);
+  assert.deepEqual(fs.readFileSync(path.join(work,'qa/candidate-editorial-repair.json')),savedCandidate);
   const envelope=JSON.parse(fs.readFileSync(path.join(work,'qa/editorial-provider-receipt.json')));
   fs.appendFileSync(path.join(work,envelope.file),' ');
   assert.throws(()=>currentEditorialRepairFeedback(project),/哈希/);

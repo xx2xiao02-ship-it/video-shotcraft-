@@ -126,8 +126,12 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
       anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
-    materials:request.materialShotIds.map(id=>materialInput(
-      request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request)),
+    materials:request.materialShotIds.map(id=>({...materialInput(
+      request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request),
+      ...(request.failedChecks.some(c=>c.shotId===id&&c.code==='GRAPHIC_COMPARISON_REQUIRED')?{
+        graphicComparisonContract:{path:'graphicAlternatives',minimumReasonCharacters:4,
+          cards:promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>pick(c,['slug','title','oneliner','usage'])),
+          instruction:'必须实际比较列出的图形卡并返回cardId和本镜具体不适配理由；强调标注、人物互动或纯文字卡不算图形替代。若改选图形卡仍须满足选卡、人物、真实数据、时长和全部参数合同；不得虚构数值。'}}:{})})),
     responseContract:editorialResponseContract(request),
     parameterContracts:editorialRequiredParameterContracts(request,{contracts:promptCatalog.contracts}),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
@@ -223,6 +227,10 @@ export function compileEditorialSelection(response,request,inputs){
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-structure-repair.json'),JSON.stringify(structure.report,null,2));
   if(!structure.report.passed)throw Object.assign(Error('局部修订结构冲突，不能自动修复'),{issues:structure.report.issues});
   response=structure.response;
+  // Keep the exact current-request source selection before reference expansion.
+  const bindingSelections=response.materialResearchUpdates.flatMap(row=>(row.bindings||[])
+    .filter(binding=>typeof binding.bindingRef==='string'&&typeof binding.field==='string')
+    .map(binding=>({shotId:row.shotId,field:binding.field,bindingRef:binding.bindingRef})));
   response=resolveEditorialMaterialRefs(response,request);
   const bindings=auditEditorialSelectionResponseBindings(response,request);
   const materials=prepareEditorialMaterialUpdates(response,request);
@@ -294,7 +302,10 @@ export function compileEditorialSelection(response,request,inputs){
        !row.research?.some(r=>r.entityType==='person'&&r.entityName===person))
       throw fail(`${window.shotId}不能删除或降级原核心人物资料需求`,window.shotId);
   }
-  const sourceSlots=restoreEditorialBoundSlots(result,request,inputs);
+  const slotRetargets=response.materialResearchUpdates.flatMap(row=>(row.bindings||[])
+    .filter(binding=>typeof binding.field==='string')
+    .map(binding=>({shotId:row.shotId,kind:binding.kind,query:binding.query,field:binding.field})));
+  const sourceSlots=restoreEditorialBoundSlots(result,request,{...inputs,slotRetargets,bindingSelections});
   if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json'))&&
     (sourceSlots.repairs.length||sourceSlots.rejected.length)){
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-transaction-binding-recovery.json'),JSON.stringify({

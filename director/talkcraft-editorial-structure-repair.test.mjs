@@ -37,3 +37,19 @@ test('空素材查询数组可无损转换为空映射，不补造任何查询',
   assert.deepEqual(original.repairs[0].templateMaterialQueries,[]);
   assert.ok(result.report.changes.some(c=>c.operation==='empty-map'));
 });
+
+test('逐槽列表仅按明确field和materialQuery转换，原始条目留存且重复字段原子拒绝',()=>{
+  const value=raw();delete value.repairs[0].templateMaterialQueries;
+  const entry={field:'src2',materialQuery:'官方原始检索词',queryZh:'中文发现词',materialRole:'identity',reason:'本次人物身份'};
+  value.repairs[0].templateParams.templateMaterialQueries=[entry];
+  const before=structuredClone(value),fixed=repairEditorialStructure(value,request);
+  assert.equal(fixed.report.passed,true);assert.deepEqual(value,before);
+  assert.deepEqual(fixed.response.repairs[0].templateParams.templateMaterialQueries,{src2:entry.materialQuery});
+  assert.deepEqual(fixed.report.changes[0].sourceValue,[entry]);
+  assert.deepEqual(repairEditorialStructure(fixed.response,request).report.changes,[]);
+  for(const invalid of [[entry,entry],[{field:'src2',queryZh:'只有中文提示'}],[{...entry,unknown:'未定义'}]]){
+    const broken=structuredClone(before);broken.repairs[0].templateParams.templateMaterialQueries=invalid;
+    const rejected=repairEditorialStructure(broken,request);
+    assert.equal(rejected.report.passed,false);assert.deepEqual(rejected.response,broken);
+  }
+});

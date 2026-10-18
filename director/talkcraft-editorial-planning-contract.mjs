@@ -154,13 +154,22 @@ function retainedNodeEditorialFeedback(project){
   // A free compile may succeed while the subsequent candidate/native gates
   // fail. Keep that exact compiled proposal and its hash-bound full feedback.
   let checks=r.issues;
+  let feedbackStage='planning-check',expectedError;
   if(r.passed===true){
-    const file=path.join(work,'qa/planning-editorial-repair.json');
-    if(!fs.existsSync(file))return null;
-    const planning=read(file);
-    if(planning.schema!=='talkcraft-candidate-editorial-repair-v1'||planning.stage!=='planning-check'||planning.passed!==false||
-      !isDeepStrictEqual(planning.inputs,candidateFeedbackHashes(work,'planning-check')))throw Error('本次候选复检反馈已过期或被篡改');
-    checks=planning.failedChecks;
+    // Candidates may stop before planning-check runs. Select only the report
+    // matching both current files and the exact current journal error.
+    let selected;
+    for(const [stage,name]of [['planning-check','planning-editorial-repair'],['candidates','candidate-editorial-repair']]){
+      const file=path.join(work,'qa/'+name+'.json');if(!fs.existsSync(file))continue;
+      const record=read(file);
+      if(record.schema!=='talkcraft-candidate-editorial-repair-v1'||record.stage!==stage||record.passed!==false||
+        !Array.isArray(record.failedChecks)||!isDeepStrictEqual(record.inputs,candidateFeedbackHashes(work,stage)))continue;
+      const message=stage==='candidates'?'选卡前真实素材规划未完成：'+record.failedChecks.map(i=>`${i.shotId||'全片'} ${i.code}${i.message?'：'+i.message:''}`).join('；'):
+        record.failedChecks.map(i=>i.message).join('；');
+      if(j.error===message){selected={record,stage,message};break;}
+    }
+    if(!selected)throw Error('本次候选复检反馈已过期或被篡改');
+    checks=selected.record.failedChecks;feedbackStage=selected.stage;expectedError=selected.message;
   }else if(r.passed!==false)return null;
   const hash=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).digest('hex'):null;
   for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json','qa/ark-editorial-response.json'])
@@ -171,13 +180,13 @@ function retainedNodeEditorialFeedback(project){
   if(fs.realpathSync(work)!==work||r.runId!==j.runId||r.requestId!==request.requestId||a.requestId!==request.requestId||
     r.externalRequests!==0||r.productionAdmitted!==false||a.productionAdmitted!==false||
     a.compiledSha256!==createHash('sha256').update(JSON.stringify(proposal)).digest('hex')||
-    !Array.isArray(checks)||!checks.length||j.error!==checks.map(i=>i.message).join('；')||
+    !Array.isArray(checks)||!checks.length||j.error!==(expectedError??checks.map(i=>i.message).join('；'))||
     checks.some(i=>!i.shotId||!proposal.shots?.some(s=>s.id===i.shotId)))throw Error('当前补全失败证据与编译基稿不一致');
   if(!/^qa\/editorial-provider-responses\/[\dTZ-]+\.json$/u.test(r.rawResponse||''))throw Error('补全原始结果路径不合法');
   const raw=path.join(work,r.rawResponse);
   if(fs.lstatSync(raw).isSymbolicLink()||!isDeepStrictEqual(recoverBoundEditorialSelectionResponse(work,{runId:j.runId,request}),read(raw)))
     throw Error('补全原始结果与当前回执不一致');
-  return {schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',passed:false,
+  return {schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',sourceGate:feedbackStage,passed:false,
     inputs:candidateFeedbackHashes(project,'planning-check'),proposal,failedChecks:checks,
     retainedTransaction:j.directory,requestId:request.requestId,paidCalls:0,userAcceptance:false};
 }
