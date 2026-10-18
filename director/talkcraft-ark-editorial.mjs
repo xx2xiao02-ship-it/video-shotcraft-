@@ -411,7 +411,7 @@ capabilities 是模板真实源码能力：nativeMedia=false 表示没有原生�
 输入：${JSON.stringify(semantics.sentences.map(({i,text}) => ({i,text})))}
 真实配音句边界（秒，供完整原卡时长规划）：${JSON.stringify(aligned.map((s,i)=>({i,start:s.start,end:s.end})))}
 后端确定性规划输入（必须逐项满足；仅作时长可行性比较，不替编导选卡）：${JSON.stringify(planningContract)}
-${previousFailures?`同一原稿和时间轴上次失败的机器反馈（必须修订，不得照交旧方案）：${JSON.stringify({...previousFailures,proposal:undefined,rejectedDraftReference:'完整旧响应已留档；真实旧范围的换卡时长比较见planningContract.windows，不是要求保留旧切镜。'})}`:''}
+${previousFailures?`同一原稿和时间轴上次失败的机器反馈及当前分镜数据（必须逐项修订；proposal中的已核验绑定、人物身份与已批准观点分类应按原句对应保留，失败安排不是默认骨架；不得把旧资料的许可标记当作新素材已验）：${JSON.stringify(previousFailures)}`:''}
 ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）：${adjustment}` : ''}
 主题：${JSON.stringify(sourceRun.themeSnapshot || {})}`;
       console.log('正在调用火山方舟生成语义和分镜');

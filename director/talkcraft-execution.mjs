@@ -5,7 +5,7 @@ import path from 'node:path';
 import {talkcraftWorkflowProgress} from './talkcraft-progress.mjs';
 
 const context=new AsyncLocalStorage();
-const labels={editorial:'生成分镜', 'editorial-check':'校验已有分镜',bootstrap:'配音与时间轴处理',
+const labels={editorial:'生成分镜', 'editorial-revision':'修订分镜', 'editorial-check':'校验已有分镜',bootstrap:'配音与时间轴处理',
   'word-timing':'字级对齐','semantic-check':'逐句语义校验','media-preflight':'素材体检',preflight:'分镜预检',candidates:'镜头候选',scaffold:'搭建渲染工程',
   sample:'首镜样板渲染','render-all':'整片渲染',qa:'机器质检',deliver:'交付导出'};
 export const executionLabel=stage=>labels[stage] || stage;

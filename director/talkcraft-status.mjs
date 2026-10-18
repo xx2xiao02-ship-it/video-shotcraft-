@@ -63,6 +63,18 @@ function storyboardInputs(project) {
   if(isNativePresentation(project))for(const name of ['remotion/native-presentation.json','remotion/word-reveal-plan.json'])if(existsSync(path.join(project,name)))names.push(name);
   return Object.fromEntries(names.map(name => [name, digest(path.join(project, name))]));
 }
+
+// Correction requests precede successful selection; this never approves a draft.
+function storyboardAdjustmentInputs(project) {
+  const completed=storyboardInputs(project);
+  if(completed)return completed;
+  const names=['semantics.json','SHOTBOOK.md','remotion/shots.json'];
+  if(names.some(name=>!existsSync(path.join(project,name))))return null;
+  for(const name of ['input.txt','aligned-sentences.json','audio/full.mp3',
+    'material-research-plan.json','material-binding-plan.json'])
+    if(existsSync(path.join(project,name)))names.push(name);
+  return Object.fromEntries(names.map(name=>[name,digest(path.join(project,name))]));
+}
 function latestPreflightIssues(project) {
   const directory = path.join(project, 'qa', 'failures');
   if (!existsSync(directory)) return [];
@@ -373,7 +385,7 @@ export function requestTalkcraftStoryboardAdjustment(root, runId, request) {
   const project = talkcraftProject(root, runId);
   const text = String(request || '').trim();
   if (!text) throw new Error('请填写需要调整的镜头和内容');
-  const inputs = storyboardInputs(project);
+  const inputs = storyboardAdjustmentInputs(project);
   if (!inputs) throw new Error('分镜脚本、语义或镜头数据不完整，暂不能提交调整');
   const file = path.join(project, 'qa', 'storyboard-adjustment-request.json');
   mkdirSync(path.dirname(file), {recursive:true});
