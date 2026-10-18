@@ -12,7 +12,7 @@ const sameShot=(a,b)=>a.firstSentence===b.firstSentence&&a.lastSentence===b.last
 // Restore verified data, never pick a card, invent a source or alter timing.
 export function restoreEditorialReviewedBindings(project,proposal,catalog){
   const result=structuredClone(proposal),repairs=[],rejected=[];
-  const feedback=currentEditorialRepairFeedback(project);
+  const feedback=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:true});
   if(!feedback?.snapshot)return {result,repairs,rejected};
   const snapshot=path.resolve(project,feedback.snapshot);
   if(!fs.existsSync(path.join(snapshot,'material-research-plan.json')))return {result,repairs,rejected};

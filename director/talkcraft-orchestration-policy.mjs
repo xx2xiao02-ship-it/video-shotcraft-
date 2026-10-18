@@ -8,7 +8,7 @@ export function selectTalkcraftContinuation(run, body = {}) {
   if(body.reviseStoryboard===true){
     if(body.approveModelCost!==true||typeof body.authorizationNote!=='string'||body.authorizationNote.trim().length<4)
       throw new Error('分镜修订需要本次明确费用授权');
-    if(!run.shotbook||!run.storyboardAdjustmentPending||!run.inputReady||run.activeTask)
+    if(!(run.shotbook||run.editorialRepairReady===true)||!run.storyboardAdjustmentPending||!run.inputReady||run.activeTask)
       throw new Error('当前任务不满足正式分镜修订条件');
     return 'editorial-revision';
   }

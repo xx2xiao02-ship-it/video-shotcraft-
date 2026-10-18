@@ -27,11 +27,15 @@ export function editorialRangeFeasibility({firstSentence,lastSentence,aligned,ca
   const cards=catalog.cards.flatMap(card=>{
     if(opening&&(end-start>OPENING_MAX_SHOT_SEC+1e-9||card.duration.originalFrames/card.duration.fps>OPENING_MAX_TEMPLATE_SEC||person&&end-start<MIN_DIGITAL_HUMAN_SEC))return [];
     if(!person&&hostContextForCard(card.cardId))return [];
-    try{
-      const timeline=nativeEditorialTimeline(frames,card.duration.frames,Math.min(1,card.duration.frames-2),'仅时长计算；正式驻留须编导按源码指定');
+    // Try the default first, then the already-approved slowest motion rate.
+    // These are feasibility examples, never changes to the proposed shot.
+    for(const requestedPlaybackRate of [undefined,NATIVE_MIN_RATE])try{
+      const timeline=nativeEditorialTimeline(frames,card.duration.frames,Math.min(1,card.duration.frames-2),'仅时长计算；正式驻留须编导按源码指定',requestedPlaybackRate);
       assertNativeMediaClock(timeline,card.policy?.media,{});
-      return [{slug:card.cardId,nativeFrames:card.duration.frames,rate:timeline.filter(s=>s.kind==='motion').map(s=>s.playbackRate),requiresHold:timeline.some(s=>s.kind==='hold')}];
-    }catch{return [];}
+      return [{slug:card.cardId,nativeFrames:card.duration.frames,rate:timeline.filter(s=>s.kind==='motion').map(s=>s.playbackRate),
+        ...(requestedPlaybackRate===undefined?{}:{requestedPlaybackRate}),requiresHold:timeline.some(s=>s.kind==='hold')}];
+    }catch{}
+    return [];
   });
   return {firstSentence,lastSentence,start,end,frames,requiredSubject:person?'person':'other',cards};
 }
@@ -84,12 +88,48 @@ const inputHashes=project=>Object.fromEntries(['input.txt','aligned-sentences.js
   [name,createHash('sha256').update(fs.readFileSync(path.join(project,name))).digest('hex')]));
 export function saveEditorialRepairFeedback(project,proposal,audit) {
   const record={schema:'talkcraft-editorial-repair-feedback-v1',inputs:inputHashes(project),
+    proposalInputs:proposalInputHashes(project),responseSha256:fileHash(project,'qa/ark-editorial-response.json'),
     failedChecks:audit.issues,proposal,createdAt:new Date().toISOString(),
     instruction:'修订必须逐项解决失败，不改变配音、字级时钟及已有人物窗口；不可放宽校验或自动挑第一名。只有新费用授权后才调用模型。'};
   fs.writeFileSync(path.join(project,'qa/editorial-repair-feedback.json'),JSON.stringify(record,null,2));
   return record;
 }
-export function currentEditorialRepairFeedback(project) {
+const fileHash=(project,name)=>fs.existsSync(path.join(project,name))?
+  createHash('sha256').update(fs.readFileSync(path.join(project,name))).digest('hex'):null;
+const proposalInputHashes=project=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json'].map(n=>[n,fileHash(project,n)]));
+export function currentRejectedEditorialFeedback(project){
+  if(fs.existsSync(path.join(project,'remotion/shots.json'))||fs.existsSync(path.join(project,'SHOTBOOK.md')))return null;
+  try{
+    const record=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-repair-feedback.json'),'utf8'));
+    return record.schema==='talkcraft-editorial-repair-feedback-v1'&&record.failedChecks?.length&&record.responseSha256&&
+      record.responseSha256===fileHash(project,'qa/ark-editorial-response.json')&&
+      JSON.stringify(record.proposalInputs)===JSON.stringify(proposalInputHashes(project))&&
+      JSON.stringify(record.proposal)===JSON.stringify(JSON.parse(fs.readFileSync(path.join(project,'qa/ark-editorial-response.json'),'utf8')))?record:null;
+  }catch{return null;}
+}
+export function preserveRejectedEditorialFeedback(project,revision){
+  const record=currentRejectedEditorialFeedback(project);if(!record)return null;
+  const base=path.resolve(project,'qa/storyboard-revisions'),relative=path.relative(base,path.resolve(revision));
+  if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('修订反馈快照必须位于本任务分镜修订目录');
+  for(const name of Object.keys(record.proposalInputs)){
+    const source=path.join(project,name);if(!fs.existsSync(source))continue;
+    const target=path.join(revision,name);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(source,target);
+  }
+  const saved={...record,snapshot:path.relative(project,revision)};
+  fs.writeFileSync(path.join(project,'qa/editorial-revision-feedback.json'),JSON.stringify(saved,null,2));return saved;
+}
+function archivedRejectedFeedback(project){
+  try{
+    const record=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-revision-feedback.json'),'utf8'));
+    const base=path.resolve(project,'qa/storyboard-revisions'),snapshot=path.resolve(project,record.snapshot||'.'),rel=path.relative(base,snapshot);
+    if(!rel||rel.startsWith('..')||path.isAbsolute(rel)||record.schema!=='talkcraft-editorial-repair-feedback-v1'||!record.failedChecks?.length)return null;
+    if(['input.txt','aligned-sentences.json','audio/full.mp3'].some(n=>record.proposalInputs?.[n]!==fileHash(project,n)))return null;
+    if(JSON.stringify(record.proposalInputs)!==JSON.stringify(proposalInputHashes(snapshot))||
+      record.responseSha256!==fileHash(snapshot,'qa/ark-editorial-response.json'))return null;
+    return record;
+  }catch{return null;}
+}
+export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=false}={}) {
   // Current node 06 evidence supersedes the earlier node 04 failure list.
   const candidateFile=path.join(project,'qa/candidate-editorial-repair.json');
   if(fs.existsSync(candidateFile)){
@@ -97,6 +137,12 @@ export function currentEditorialRepairFeedback(project) {
     if(candidate.schema==='talkcraft-candidate-editorial-repair-v1'&&
       JSON.stringify(candidate.inputs)===JSON.stringify(candidateFeedbackHashes(project)))
       return candidate.passed?null:candidate;
+  }
+  if(!candidateSnapshotOnly&&!fs.existsSync(path.join(project,'remotion/shots.json'))){
+    // A new rejected result must supersede the archived 06 list; stale or
+    // edited response evidence must not silently fall back to older failures.
+    if(fs.existsSync(path.join(project,'qa/ark-editorial-response.json')))return currentRejectedEditorialFeedback(project);
+    if(fs.existsSync(path.join(project,'qa/editorial-revision-feedback.json')))return archivedRejectedFeedback(project);
   }
   // The existing revision preparation archives shot-dependent inputs. Accept
   // its verified snapshot only before a new storyboard has been installed.
@@ -111,6 +157,7 @@ export function currentEditorialRepairFeedback(project) {
       JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot)))
       return record.passed?null:record;
   }
+  if(candidateSnapshotOnly)return null;
   // A changed 06 plan must never regress to the stale 04 list for the same text.
   if(fs.existsSync(candidateFile)||fs.existsSync(revisionFile))return null;
   const file=path.join(project,'qa/editorial-repair-feedback.json');
@@ -127,8 +174,9 @@ const candidateFeedbackHashes=project=>Object.fromEntries(candidateFeedbackFiles
   return [name,fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null];
 }));
 export function preserveCandidateMaterialRepairFeedback(project,revision){
-  const current=currentEditorialRepairFeedback(project);
+  const current=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:true});
   if(current?.schema!=='talkcraft-candidate-editorial-repair-v1')return null;
+  if(current.snapshot)return current; // Keep the original complete verified snapshot.
   const base=path.resolve(project,'qa/storyboard-revisions'),relative=path.relative(base,path.resolve(revision));
   if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('修订反馈快照必须位于本任务分镜修订目录');
   for(const name of candidateFeedbackFiles){

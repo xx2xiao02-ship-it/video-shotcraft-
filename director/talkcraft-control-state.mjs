@@ -60,6 +60,7 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
   if(run.workflowPath==='recorded-host'&&!run.mediaPreflightPassed)return state('media-preflight','检查真人视频素材与原声',['RECORDED_MEDIA_REQUIRED']);
   if(failure?.task?.name==='talkcraft-media-preflight')
     return state(null,'补齐当前素材输入后重新检查；RunningHub 口型按分镜生成',['MEDIA_PREFLIGHT_FAILED']);
+  if(!run.shotbook&&run.editorialRepairReady===true)return state(null,'当前分镜校验未通过，等待本次分镜修订费用授权',['EDITORIAL_REVISION_REQUIRED']);
   if(!run.shotbook&&run.editorialResponseSaved)return state('editorial-recover','复用已保存分镜恢复校验，不调用模型',['CACHED_EDITORIAL_RECOVERY']);
   if(failure&&run.editorialSubmission?.requiresAuthorization)return state(null,'核对火山接入点和已提交结果；再次调用需要新的单次授权',['EDITORIAL_AUTHORIZATION_USED']);
   if (!run.shotbook) return state('editorial', '生成分镜', ['SHOTBOOK_NOT_READY']);

@@ -6,6 +6,8 @@ import {loadTalkcraftGovernedCatalog,validateTalkcraftDesignProps} from './talkc
 import {buildEditorialPlanningContract,auditEditorialReuse,reusedEditorialWindows,saveEditorialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {auditEditorialProposal,compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
 import {normalizeEditorialParams} from './talkcraft-editorial-params.mjs';
+import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
+import {editorialRangeFeasibility} from './talkcraft-editorial-planning-contract.mjs';
 
 const catalog=loadTalkcraftGovernedCatalog(JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json')));
 const aligned=[{start:0,end:2.36},{start:2.36,end:3.84},{start:3.84,end:4.8},{start:4.8,end:7.07},{start:7.07,end:10.18}];
@@ -33,6 +35,19 @@ test('模板可行表严格区分纯动效15%适配与内嵌视频1倍',()=>{
  const result=buildEditorialPlanningContract({aligned:a,catalog:custom,personWindows:[{start:10,end:a[0].end,firstSentence:0,lastSentence:0}]});
  assert.deepEqual(result.windows[0].cards.map(c=>c.slug),['motion']);
  assert.equal(result.windows[0].cards[0].rate[0],102/94);
+});
+
+test('可行性比较包含15%内减速参考，但不改模型明确的一倍速或冻结上限',()=>{
+ const catalog={cards:[{cardId:'motion',duration:{frames:103,originalFrames:103,fps:30},policy:{media:{}}},
+  {cardId:'video',duration:{frames:103,originalFrames:103,fps:30},policy:{media:{src:'video'}}}]};
+ const aligned=[{start:10,end:15.5}];
+ const result=editorialRangeFeasibility({firstSentence:0,lastSentence:0,aligned,catalog});
+ assert.deepEqual(result.cards.map(c=>c.slug),['motion']);
+ assert.equal(result.cards[0].requestedPlaybackRate,.85);
+ assert.ok(result.cards[0].rate.every(r=>r>=.85&&r<=1.15));
+ assert.throws(()=>nativeEditorialTimeline(165,103,1,'内容驻留',1),/冻结|驻留/);
+ assert.deepEqual(editorialRangeFeasibility({firstSentence:0,lastSentence:0,
+  aligned:[{start:10,end:20}],catalog}).cards,[]);
 });
 
 test('复用口型的缺失、重复、前移都被正式提案校验发现，不是仅靠提示词',t=>{

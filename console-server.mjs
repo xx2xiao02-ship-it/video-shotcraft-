@@ -559,7 +559,7 @@ async function queueTalkcraftStage(body) {
   assertPipelineProvenance(project);
   if(stage==='editorial-revision'){
     if(body.approveModelCost!==true)throw new Error('修订分镜需要本次明确费用授权');
-    if(!status.inputReady||!status.shotbook||!status.storyboardAdjustmentPending||!aModeReadiness().configured)
+    if(!status.inputReady||!(status.shotbook||status.editorialRepairReady===true)||!status.storyboardAdjustmentPending||!aModeReadiness().configured)
       throw new Error('分镜修订输入、修改要求或模型配置尚未就绪');
     authorizeEditorialRevision(ROOT,runId,{approval:body.authorizationNote});
     const id=startTask('talkcraft-editorial-revision',`node director/talkcraft-editorial-revision.mjs ${runId}`,ROOT);

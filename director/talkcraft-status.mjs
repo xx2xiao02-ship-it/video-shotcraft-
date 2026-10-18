@@ -8,7 +8,7 @@ import {nativeSampleCurrent} from './talkcraft-sample-provenance.mjs';
 import {isNativePresentation,nativeGovernanceStatus} from './talkcraft-native-governance.mjs';
 import {factReviewStatus} from './talkcraft-fact-review.mjs';
 import {editorialSubmissionState} from './talkcraft-editorial-submission.mjs';
-import {preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {preserveCandidateMaterialRepairFeedback,currentRejectedEditorialFeedback,preserveRejectedEditorialFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {assertTextContrastProof,wordRevealSourceBinding} from './talkcraft-word-reveal.mjs';
 import {summarizeWordFailures} from './talkcraft-word-runtime-validation.mjs';
 import {createHash} from 'node:crypto';
@@ -68,6 +68,12 @@ function storyboardInputs(project) {
 function storyboardAdjustmentInputs(project) {
   const completed=storyboardInputs(project);
   if(completed)return completed;
+  if(currentRejectedEditorialFeedback(project)){
+    const names=['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json',
+      'qa/ark-editorial-response.json','qa/editorial-repair-feedback.json'];
+    if(names.some(name=>!existsSync(path.join(project,name))))return null;
+    return Object.fromEntries(names.map(name=>[name,digest(path.join(project,name))]));
+  }
   const names=['semantics.json','SHOTBOOK.md','remotion/shots.json'];
   if(names.some(name=>!existsSync(path.join(project,name))))return null;
   for(const name of ['input.txt','aligned-sentences.json','audio/full.mp3',
@@ -304,6 +310,7 @@ export function readTalkcraftStatus(root, runId) {
     semanticPassed, ...mediaStatus, parallelPreparation:readParallelPreparation(project), workflowPath:source.workflowPath||(mediaStatus.digitalHumanGenerationPlanned?'planned-runninghub':'legacy'),
     planningPassed,planningCompleted,planningIssues:planningCompleted?planningResult.issues:[],
     editorialResponseSaved:has('qa/ark-editorial-response.json'),
+    editorialRepairReady:!!currentRejectedEditorialFeedback(project),
     shotbook:has('SHOTBOOK.md'), preflight:preflightPassed, preflightPassed, preflightCompleted,
     nativeGovernance,factReview,wordRuntimeAudit,textContrastAudit,acceptance:acceptanceResponsibilities,editorialSubmission:editorialSubmissionState(project),
     preflightIssues:[...(preflightCompleted&&Array.isArray(preflightResult.issues)?preflightResult.issues:[]),...nativeGovernance.issues.map(i=>`${i.shotId||'全局'}：[${i.code}] ${i.message}`),...factReview.issues],
@@ -411,10 +418,11 @@ export function prepareTalkcraftStoryboardRevision(root, runId) {
   if (!existsSync(backupSemantics)) throw new Error('缺少原始语义备份，无法安全重新生成分镜');
   const revision = path.join(project, 'qa', 'storyboard-revisions', new Date().toISOString().replace(/[:.]/g, '-'));
   mkdirSync(revision, {recursive:true});
+  preserveRejectedEditorialFeedback(project,revision);
   preserveCandidateMaterialRepairFeedback(project,revision);
   const files = ['SHOTBOOK.md', 'remotion/shots.json', 'semantic-decisions.json',
     'material-research-plan.json','material-binding-plan.json',
-    'semantics.json', 'qa/ark-editorial-response.json', 'qa/preflight-result.json',
+    'semantics.json', 'qa/ark-editorial-response.json', 'qa/editorial-repair-feedback.json', 'qa/preflight-result.json',
     'qa/ark-editorial-response-before-repairs.json', 'qa/ark-design-repairs.json',
     'qa/ark-proposal-audit.json', 'qa/ark-template-design-validation.json',
     'qa/native-editorial-plan.json', 'remotion/native-presentation.json',
