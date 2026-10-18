@@ -2,9 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {withTalkcraftProject} from './talkcraft-project-context.mjs';
+import {responseFailureDetails} from './talkcraft-editorial-response.mjs';
 
 const hash=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).digest('hex'):null;
 const read=f=>JSON.parse(fs.readFileSync(f));
+// Failure-report generation refreshes this derived diagnostic after a worker
+// exits. It is not creative input and must not resurrect its old worker copy.
+const derivedFailureReport=n=>n==='qa/audit-feedback.json'||n.startsWith('qa/failures/');
 const excluded=n=>n==='workflow-automation.json'||n==='qa/node-repairs'||n==='qa/node-repair.json'||n==='qa/auto-advance.json'||n==='qa/executions'||n==='qa/storyboard-revisions'||
   /(^|\/)(node_modules|out|\.cache)(\/|$)/u.test(n)||/\.lock$/u.test(n);
 function files(project){
@@ -25,25 +29,38 @@ const publishedBytes=(work,project,n)=>{
 
 // Only the provider reservation/result journal is published on failure. The
 // accepted production data remains byte-for-byte intact until validation ends.
-export async function executeNodeRepair({root,runId,project,node,operation}){
+export async function executeNodeRepair({root,runId,project,node,operation,resumeProviderResponse=false}){
   if(!['storyboard-review','preflight'].includes(node))throw Error('补全只能属于07或09');
   recoverNodePublication(project);
-  const directory=path.join(project,'qa/node-repairs',randomUUID());
+  const journalFile=path.join(project,'qa/node-repair.json');
+  const prior=resumeProviderResponse?read(journalFile):null;
+  if(prior&&(prior.schema!=='talkcraft-node-repair-v1'||prior.runId!==runId||prior.node!==node||prior.status!=='blocked'||!prior.providerSubmitted))throw Error('只能免费恢复本次已提交且阻断的节点请求');
+  const directory=prior?path.resolve(project,prior.directory):path.join(project,'qa/node-repairs',randomUUID());
+  const relative=path.relative(path.join(project,'qa/node-repairs'),directory);
+  if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('响应恢复目录不属于当前任务');
   const work=path.join(directory,'work'),backup=path.join(directory,'before');
-  fs.mkdirSync(work,{recursive:true});
+  if(prior){
+    if(fs.realpathSync(directory)!==directory||fs.realpathSync(work)!==work)throw Error('响应恢复目录不能是链接');
+    const changed=Object.keys({...prior.initial,...Object.fromEntries(files(project).map(n=>[n,true]))})
+      .filter(n=>n!=='qa/editorial-single-submission.json'&&!derivedFailureReport(n)&&hash(path.join(project,n))!==(prior.initial[n]??null));
+    if(changed.length)throw Error('正式输入已变化，拒绝恢复旧请求：'+changed.join('、'));
+    if(hash(path.join(project,'qa/editorial-single-submission.json'))!==hash(path.join(work,'qa/editorial-single-submission.json')))throw Error('当前与恢复工作区不是同一次提交');
+    files(work); // reject links before entering the retained working directory
+    for(const n of files(project).filter(derivedFailureReport))put(work,n,fs.readFileSync(path.join(project,n)));
+  }else fs.mkdirSync(work,{recursive:true});
   const initial=Object.fromEntries(files(project).map(n=>[n,hash(path.join(project,n))]));
-  for(const n of Object.keys(initial)){
+  if(!prior)for(const n of Object.keys(initial)){
     fs.mkdirSync(path.dirname(path.join(work,n)),{recursive:true});fs.copyFileSync(path.join(project,n),path.join(work,n));
   }
   const registry=path.join(project,'qa/reviewed-material-recovery.json');
-  if(fs.existsSync(registry)){
+  if(!prior&&fs.existsSync(registry)){
     const snapshot=read(registry).snapshot;
     if(!/^qa\/storyboard-revisions\/[^/]+\/material-binding-plan\.json$/u.test(snapshot))throw Error('素材登记快照路径不合法');
     fs.cpSync(path.dirname(path.join(project,snapshot)),path.dirname(path.join(work,snapshot)),{recursive:true});
   }
-  const journalFile=path.join(project,'qa/node-repair.json');
   const journal={schema:'talkcraft-node-repair-v1',runId,node,directory:path.relative(project,directory),
-    status:'running',pid:process.pid,startedAt:new Date().toISOString(),initial,providerSubmitted:false};
+    status:'running',pid:process.pid,startedAt:prior?.startedAt||new Date().toISOString(),initial,providerSubmitted:!!prior,
+    ...(prior?{recoveryStartedAt:new Date().toISOString(),previousError:prior.error}: {})};
   const save=()=>fs.writeFileSync(journalFile,JSON.stringify(journal,null,2));save();
   try{
     const result=await withTalkcraftProject(root,runId,work,()=>operation(work));
@@ -73,7 +90,9 @@ export async function executeNodeRepair({root,runId,project,node,operation}){
       // Never turn a submitted/unknown request back into unused authorization.
       put(project,submission,fs.readFileSync(path.join(work,submission)));journal.providerSubmitted=true;
     }
-    journal.status='blocked';journal.error=String(error.message||error);save();throw error;
+    journal.status='blocked';journal.error=String(error.message||error);
+    if(error.code)journal.responseFailure={...responseFailureDetails(error),...(resumeProviderResponse?{paidCalls:0}: {})};
+    save();throw error;
   }
 }
 

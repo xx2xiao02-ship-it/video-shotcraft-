@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {talkcraftProject,prepareTalkcraftStoryboardRevision} from './talkcraft-status.mjs';
 import {currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
-import {generateEditorial,checkEditorial} from './talkcraft-ark-editorial.mjs';
+import {generateEditorial,checkEditorial,recoverProviderEditorial} from './talkcraft-ark-editorial.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
 import {executeNodeRepair} from './talkcraft-node-repair.mjs';
 
@@ -144,10 +144,26 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
   }finally{fs.closeSync(fd);fs.unlinkSync(lock);}
 }
 
+// Resume the retained transaction, without reserving authorization or invoking
+// a provider. Every original compiler/content/planning check still applies.
+export async function recoverNodeEditorialResponse(root,runId,{stage=runTalkcraftStage,recover=recoverProviderEditorial}={}){
+  const project=talkcraftProject(root,runId),journal=read(path.join(project,'qa/node-repair.json'));
+  const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
+  try{return await executeNodeRepair({root,runId,project,node:journal.node,resumeProviderResponse:true,operation:async()=>{
+    const result=await recover(root,runId);
+    if(result?.passed===false)throw Error('恢复结果未通过正式校验');
+    await stage('candidates',runId);
+    const checked=await stage('planning-check',runId);
+    if(checked?.passed===false)throw Error('恢复结果未通过本节点规划复检，不发布');
+    return result;
+  }});}finally{fs.closeSync(fd);fs.unlinkSync(lock);}
+}
+
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),runId=process.argv[2];
   try{
-    if(process.argv.includes('--recheck-base-only'))await trackTalkcraftExecution(talkcraftProject(root,runId),'planning-repair',()=>checkEditorial(root,runId));
+    if(process.argv.includes('--recover-provider-response-only'))await trackTalkcraftExecution(talkcraftProject(root,runId),'planning-repair',()=>recoverNodeEditorialResponse(root,runId));
+    else if(process.argv.includes('--recheck-base-only'))await trackTalkcraftExecution(talkcraftProject(root,runId),'planning-repair',()=>checkEditorial(root,runId));
     else if(process.argv.includes('--restore-unsubmitted-only'))console.log(JSON.stringify(recoverUnsubmittedEditorialRevision(root,runId)));
     else await trackTalkcraftExecution(talkcraftProject(root,runId),process.argv.includes('--node-local')?(read(authFile(talkcraftProject(root,runId))).node==='preflight'?'preflight-repair':'planning-repair'):'editorial-revision',
       ()=>executeEditorialRevision(root,runId,{resumeUnsubmitted:process.argv.includes('--resume-unsubmitted')}));

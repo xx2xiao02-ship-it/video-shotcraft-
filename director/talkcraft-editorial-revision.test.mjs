@@ -1,10 +1,12 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {createHash} from 'node:crypto';
-import {authorizeEditorialRevision,executeEditorialRevision,recoverUnsubmittedEditorialRevision} from './talkcraft-editorial-revision.mjs';
+import {authorizeEditorialRevision,executeEditorialRevision,recoverUnsubmittedEditorialRevision,recoverNodeEditorialResponse} from './talkcraft-editorial-revision.mjs';
 import {requestTalkcraftStoryboardAdjustment,prepareTalkcraftStoryboardRevision} from './talkcraft-status.mjs';
 import {saveCandidateMaterialRepairFeedback,savePlanningEditorialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {reserveEditorialSubmission} from './talkcraft-editorial-submission.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
+import {executeNodeRepair} from './talkcraft-node-repair.mjs';
+import {talkcraftProject} from './talkcraft-status.mjs';
 const id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 function fixture(t){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'formal-revision-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
@@ -27,6 +29,13 @@ test('正式继续意图只有明确修订费用授权才选后端修订任务�
  assert.equal(selectTalkcraftContinuation(run,body),'editorial-revision');
  for(const changes of [{approveModelCost:false},{authorizationNote:''},{stage:'editorial-revision'}])assert.throws(()=>selectTalkcraftContinuation(run,{...body,...changes}));
  assert.throws(()=>selectTalkcraftContinuation({...run,activeTask:{id:1}},body));
+});
+test('正式免费恢复意图绑定当前07阻断，不能混入费用、指定节点或旧任务状态',()=>{
+ const run={provenance:{verified:true},nodeRepair:{node:'storyboard-review',status:'blocked',providerSubmitted:true}};
+ const body={intent:'continue',recoverProviderResponse:true};
+ assert.equal(selectTalkcraftContinuation(run,body),'planning-repair');
+ for(const extra of [{approveModelCost:true},{stage:'editorial-revision'},{reviseStoryboard:true}])assert.throws(()=>selectTalkcraftContinuation(run,{...body,...extra}));
+ assert.throws(()=>selectTalkcraftContinuation({...run,nodeRepair:{...run.nodeRepair,node:'preflight'}},body));
 });
 test('缺授权、草案变化或执行锁不归档素材、不发起模型',t=>{
  const f=fixture(t);
@@ -68,4 +77,18 @@ test('归档后发送前中断只恢复本次基稿和未消费授权；重复�
  assert.deepEqual(recoverUnsubmittedEditorialRevision(f.root,id),restored);
  f.write('qa/editorial-single-submission.json',{submittedAt:'new',outcome:'unknown'});
  assert.throws(()=>recoverUnsubmittedEditorialRevision(f.root,id),/输入变化/);
+});
+
+test('正式免费恢复在原节点工作区运行；复检失败不发布，也不消费新的授权',async t=>{
+ const f=fixture(t),before=fs.readFileSync(path.join(f.p,'SHOTBOOK.md'));
+ await assert.rejects(()=>executeNodeRepair({root:f.root,runId:id,project:f.p,node:'storyboard-review',operation:work=>{
+  fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),JSON.stringify({...f.read('qa/editorial-single-submission.json'),submittedAt:'current'}));throw Error('format failure');
+ }}),/format failure/);
+ const stages=[];
+ await assert.rejects(()=>recoverNodeEditorialResponse(f.root,id,{
+   recover:()=>{assert.notEqual(talkcraftProject(f.root,id),f.p);return {passed:true};},
+   stage:s=>{stages.push(s);return {passed:s!=='planning-check'};}
+ }),/规划复检/);
+ assert.deepEqual(stages,['candidates','planning-check']);assert.deepEqual(fs.readFileSync(path.join(f.p,'SHOTBOOK.md')),before);
+ assert.equal(f.read('qa/editorial-single-submission.json').submittedAt,'current');
 });

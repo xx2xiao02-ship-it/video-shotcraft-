@@ -5,6 +5,25 @@ import {ARK_RESPONSES_URL, arkDirector, parseArkJsonResponse} from './a-mode-ark
 const config = {apiKey:'private-test-key', proEndpoint:'ep-pro-test', turboEndpoint:'ep-turbo-test',
   globalModel:'pro', shotModel:'turbo'};
 
+test('retains both HTTP and output JSON failures before parsing, never tries another paid endpoint',async()=>{
+  for(const [body,code] of [['{"status":"completed","output_text":"{broken"}','ARK_OUTPUT_JSON_INVALID'],['not http json','ARK_ENVELOPE_JSON_INVALID']]){
+    let calls=0,saved;
+    await assert.rejects(()=>arkDirector('prompt',{config:{...config,fallbackEndpoint:'ep-backup'},phase:'global',
+      fetchImpl:async()=>{calls++;return {ok:true,status:200,text:async()=>body};},
+      onResponse:async(raw,meta)=>{await Promise.resolve();saved={raw,meta};}}),error=>error.code===code);
+    assert.equal(calls,1);assert.equal(saved.raw,body);assert.equal(saved.meta.attempt,1);assert.equal(saved.meta.httpStatus,200);
+    assert.equal(Object.hasOwn(saved.meta,'apiKey'),false);
+  }
+});
+
+test('retention disk failure stops even when error contains HTTP, without retrying a paid endpoint',async()=>{
+  let calls=0;
+  await assert.rejects(()=>arkDirector('prompt',{config:{...config,fallbackEndpoint:'ep-backup'},phase:'global',
+    fetchImpl:async()=>{calls++;return {ok:true,json:async()=>({output_text:'{}'})};},
+    onResponse:()=>{throw Error('HTTP 500 storage secret');}}),error=>error.code==='ARK_RESPONSE_CAPTURE_FAILED'&&!error.message.includes('secret'));
+  assert.equal(calls,1);
+});
+
 test('routes global and shot director to distinct Ark Responses models', async () => {
   const requests = [];
   const fetchImpl = async (url, options) => {

@@ -566,6 +566,12 @@ async function queueTalkcraftStage(body) {
     return {ok:true,runId,stage,billable:false,approvalMethod:'delegated-after-checks'};
   }
   if(stage==='planning-repair'){
+    if(body.recoverProviderResponse===true){
+      if(body.approveModelCost||!status.nodeRepair?.providerSubmitted||status.nodeRepair.status!=='blocked'||status.nodeRepair.node!=='storyboard-review')
+        throw Error('免费响应恢复只允许处理当前07已提交的阻断，不接受费用授权');
+      const id=startTask('talkcraft-planning-repair',`node director/talkcraft-editorial-revision.mjs ${runId} --recover-provider-response-only`,ROOT);
+      tasks.get(id).runId=runId;return {ok:true,id,runId,stage,billable:false};
+    }
     if(body.recheckNodeBase===true){
       if(body.approveModelCost||status.activeTask||!status.shotbook)throw Error('本地基稿复检不接受费用授权或并发');
       const id=startTask('talkcraft-planning-repair',`node director/talkcraft-editorial-revision.mjs ${runId} --recheck-base-only`,ROOT);

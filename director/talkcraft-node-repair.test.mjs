@@ -47,3 +47,39 @@ test('事务不覆盖主目录并发新增文件',async t=>{
   fs.writeFileSync(path.join(work,'new.txt'),'worker');fs.writeFileSync(path.join(f.project,'new.txt'),'user');return {passed:true};
  }}),/新增文件/);assert.equal(fs.readFileSync(path.join(f.project,'new.txt'),'utf8'),'user');
 });
+
+test('同次已提交节点可免费恢复；失败与重复继续保留基稿、费用记录和当前诊断',async t=>{
+ const f=fixture(t),before=fs.readFileSync(path.join(f.project,'SHOTBOOK.md'));
+ await assert.rejects(()=>executeNodeRepair({...f,operation:work=>{
+   fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),'{"submittedAt":"new"}');throw Error('JSON failed');
+ }}),/JSON failed/);
+ const submission=fs.readFileSync(path.join(f.project,'qa/editorial-single-submission.json'));
+ // The production failure reporter may refresh its derived report after exit.
+ fs.writeFileSync(path.join(f.project,'qa/audit-feedback.json'),'new diagnostic');
+ fs.mkdirSync(path.join(f.project,'qa/failures'));fs.writeFileSync(path.join(f.project,'qa/failures/current.json'),'current failure log');
+ for(let i=0;i<2;i++)await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>{
+   throw Object.assign(Error('原文未留存'),{code:'EDITORIAL_RESPONSE_NOT_RETAINED'});
+ }}),/原文未留存/);
+ const record=JSON.parse(fs.readFileSync(path.join(f.project,'qa/node-repair.json')));
+ assert.equal(record.responseFailure.code,'EDITORIAL_RESPONSE_NOT_RETAINED');assert.equal(record.responseFailure.paidCalls,0);
+ assert.deepEqual(fs.readFileSync(path.join(f.project,'SHOTBOOK.md')),before);
+ assert.deepEqual(fs.readFileSync(path.join(f.project,'qa/editorial-single-submission.json')),submission);
+});
+
+test('免费恢复拒绝跨任务目录和已变更正式输入，成功复检才发布',async t=>{
+ const f=fixture(t);
+ await assert.rejects(()=>executeNodeRepair({...f,operation:work=>{
+  fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),'{"submittedAt":"new"}');
+  fs.writeFileSync(path.join(work,'SHOTBOOK.md'),'retained design');throw Error('interrupted');
+ }}),/interrupted/);
+ fs.writeFileSync(path.join(f.project,'SHOTBOOK.md'),'changed');
+ await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail()}),/正式输入已变化/);
+ fs.writeFileSync(path.join(f.project,'SHOTBOOK.md'),'accepted');
+ const journal=JSON.parse(fs.readFileSync(path.join(f.project,'qa/node-repair.json')));
+ fs.writeFileSync(path.join(f.project,'qa/node-repair.json'),JSON.stringify({...journal,runId:'another-run'}));
+ await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail()}),/本次/);
+ fs.writeFileSync(path.join(f.project,'qa/node-repair.json'),JSON.stringify(journal));
+ await executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>({passed:true})});
+ assert.equal(fs.readFileSync(path.join(f.project,'SHOTBOOK.md'),'utf8'),'retained design');
+ await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail()}),/本次/);
+});

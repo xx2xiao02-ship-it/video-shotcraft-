@@ -302,7 +302,7 @@ export function readTalkcraftStatus(root, runId) {
   const completionCurrent=completion?.schema==='talkcraft-preflight-completion-v1'&&completion.runId===runId&&completion.entryReviewed===true&&
     completion.afterInputs&&Object.entries(completion.afterInputs).every(([n,h])=>(has(n)?digest(path.join(project,n)):null)===h);
   return {runId,digitalHumanAutomation:readDigitalHumanAutomation(project),continuationPolicy:readTalkcraftContinuation(project),
-    nodeRepair:repair?{schema:repair.schema,node:repair.node,status:repair.status,directory:repair.directory,error:repair.error||null,providerSubmitted:repair.providerSubmitted===true}:null,
+    nodeRepair:repair?{schema:repair.schema,node:repair.node,status:repair.status,directory:repair.directory,error:repair.error||null,providerSubmitted:repair.providerSubmitted===true,responseFailure:repair.responseFailure||null}:null,
     nodeCompletion:completionCurrent?{node:'preflight',status:completion.status,phase:completion.phase,error:completion.error||null}:null,
     sourceRunId:source.sourceRunId || null, voice:source.voice || null,voiceMode:source.voiceMode||'standard',voiceEngine:source.voiceEngine||null,canRecoverAlignment,digitalHuman,
     ...timingHealth(timing), wordTimingReady:timingHealth(timing).wordTimingReady || (()=>{try{return !!readWordAlignment(project);}catch{return false;}})(), canRecoverTiming,

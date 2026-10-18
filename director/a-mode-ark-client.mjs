@@ -29,18 +29,20 @@ function transportError(error, config, phase) {
 }
 
 export function parseArkJsonResponse(response) {
+  if(!response||typeof response!=='object'||Array.isArray(response))
+    throw Object.assign(new Error('火山方舟响应包结构无效'),{code:'ARK_ENVELOPE_INVALID',retryable:false});
   if (response.status && response.status !== 'completed')
-    throw new Error(`火山方舟响应未完成: ${response.status}`);
+    throw Object.assign(new Error(`火山方舟响应未完成: ${response.status}`), {code:'ARK_RESPONSE_INCOMPLETE', retryable:false});
   const output = response.output_text || response.output?.flatMap(item => item.content || [])
     .filter(item => item.type === 'output_text' || item.type === 'text')
     .map(item => item.text || '').join('');
-  if (!output || typeof output !== 'string') throw new Error('火山方舟未返回可读取的文字结果');
+  if (!output || typeof output !== 'string') throw Object.assign(new Error('火山方舟未返回可读取的文字结果'), {code:'ARK_RESPONSE_TEXT_MISSING', retryable:false});
   const cleaned = output.trim().replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/, '');
   try { return JSON.parse(cleaned); }
-  catch { throw new Error('火山方舟未返回合法 JSON 分镜'); }
+  catch { throw Object.assign(new Error('火山方舟未返回合法 JSON 分镜'), {code:'ARK_OUTPUT_JSON_INVALID', retryable:false, outputLength:output.length}); }
 }
 
-async function arkDirectorAttempt(prompt, {config, phase, fetchImpl = globalThis.fetch, timeoutMs = 480000, maxOutputTokens}) {
+async function arkDirectorAttempt(prompt, {config, phase, fetchImpl = globalThis.fetch, timeoutMs = 480000, maxOutputTokens, onResponse}) {
   const choice = phase === 'global' ? config.globalModel : phase === 'shot' ? config.shotModel : null;
   if (!choice) throw new Error('A 模式编导阶段无效');
   const model = config[`${choice}Endpoint`];
@@ -66,9 +68,16 @@ async function arkDirectorAttempt(prompt, {config, phase, fetchImpl = globalThis
         {retryable:response.status === 429 || response.status >= 500 && response.status <= 599,
           accountUnavailable:response.status === 403 && /overdue balance/i.test(safeDetail), retryAfterMs});
     }
-    let payload;
-    try { payload = await response.json(); }
+    let rawBody;
+    try { rawBody = typeof response.text === 'function' ? await response.text() : JSON.stringify(await response.json()); }
     catch (error) { throw transportError(error, config, phase); }
+    // Persist successful HTTP bodies before either JSON layer is parsed. A
+    // storage error must stop here; another endpoint could incur another bill.
+    if(onResponse)try{await onResponse(rawBody,{httpStatus:response.status||200});}
+    catch{throw Object.assign(new Error('火山方舟响应留存失败，已停止；禁止自动再次请求'),{code:'ARK_RESPONSE_CAPTURE_FAILED',fatal:true,retryable:false});}
+    let payload;
+    try{payload=JSON.parse(rawBody);}
+    catch{throw Object.assign(new Error('火山方舟 HTTP 响应正文不是合法 JSON'),{code:'ARK_ENVELOPE_JSON_INVALID',retryable:false});}
     return parseArkJsonResponse(payload);
   } finally {
     await dispatcher.close();
@@ -76,7 +85,7 @@ async function arkDirectorAttempt(prompt, {config, phase, fetchImpl = globalThis
 }
 
 export async function arkDirector(prompt, {config, phase, fetchImpl = globalThis.fetch, timeoutMs = 480000,
-  maxOutputTokens, requestPlan=null, waitImpl = ms => new Promise(resolve => setTimeout(resolve, ms)), onAttempt = () => {}}) {
+  maxOutputTokens, requestPlan=null, waitImpl = ms => new Promise(resolve => setTimeout(resolve, ms)), onAttempt = () => {}, onResponse}) {
   const choice = phase === 'global' ? config.globalModel : config.shotModel;
   const fallbackEndpoint = config[choice === 'pro' ? 'fallbackProEndpoint' : 'fallbackTurboEndpoint'] ?? config.fallbackEndpoint;
   const hasGenericFallback = (config.genericFallbackEndpoints?.length || 0) > 0 || (config.auxiliaryGenericFallbackEndpoints?.length || 0) > 0;
@@ -91,10 +100,12 @@ export async function arkDirector(prompt, {config, phase, fetchImpl = globalThis
     onAttempt({phase, attempt, fallback:attempt > 1, source:target.source, endpoint:target.endpoint, totalAttempts:plan.length});
     // 开启跌落时限制单个接入点的等待时间，避免一个失联接入点阻塞整条候选链。
     const attemptTimeoutMs = Math.min(timeoutMs, 120000);
-    try { return await arkDirectorAttempt(prompt, {config:selected, phase, fetchImpl, timeoutMs:attemptTimeoutMs, maxOutputTokens}); }
+    try { return await arkDirectorAttempt(prompt, {config:selected, phase, fetchImpl, timeoutMs:attemptTimeoutMs, maxOutputTokens,
+      onResponse:onResponse?(body,meta)=>onResponse(body,{...meta,phase,attempt,source:target.source,endpoint:target.endpoint}):undefined}); }
     catch (error) {
       // Never expose either credential, even if the provider echoes it in an error.
       for (const key of [config.apiKey, config.fallbackApiKey].filter(Boolean)) error.message = error.message.replaceAll(key, '[REDACTED]');
+      if(error.fatal||String(error.code||'').startsWith('ARK_'))throw error;
       if (attempt === plan.length) throw error;
       if (!error.retryable && error.status === undefined && !error.accountUnavailable && !String(error.message || '').includes('HTTP ')) throw error;
       if (error.retryAfterMs > 120000) throw error;

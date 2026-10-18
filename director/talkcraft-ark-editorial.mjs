@@ -17,6 +17,7 @@ import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
 import {alignNativeShotBoundaries} from './talkcraft-native-preparation.mjs';
 import {reserveEditorialSubmission,recordEditorialSubmissionOutcome,recordEditorialAttempt} from './talkcraft-editorial-submission.mjs';
+import {captureEditorialResponse,recoverEditorialResponse} from './talkcraft-editorial-response.mjs';
 import {editorialFallbackPlan} from './talkcraft-editorial-fallback.mjs';
 import {trackTalkcraftExecution,updateTalkcraftExecution} from './talkcraft-execution.mjs';
 import {reusedEditorialWindows,auditEditorialReuse,buildEditorialPlanningContract,saveEditorialRepairFeedback,currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRuleInstructions,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
@@ -370,6 +371,10 @@ export function recoverCachedEditorial(root,runId,options={}) {
   return trackTalkcraftExecution(project,'editorial-recover',()=>generateEditorialInternal(root,runId,
     {config:{},...options,recoverExisting:true,call:async()=>{throw Error('本地分镜恢复禁止外部模型请求');}}));
 }
+export function recoverProviderEditorial(root,runId,options={}){
+  return generateEditorialInternal(root,runId,{...options,config:{},recoverProviderOnly:true,
+    call:async()=>{throw Error('免费响应恢复禁止外部模型请求');}});
+}
 
 // Both the paid path and the free input check use this exact producer. No
 // callback, provider configuration or authorization reservation lives here.
@@ -441,7 +446,7 @@ export function recoverCachedSemantics(root,runId,options={}) {
     finally{closeSync(fd);unlinkSync(lock);}
   });
 }
-async function generateEditorialInternal(root, runId, {call = arkDirector, config = aModeRuntimeConfig(), stage = runTalkcraftStage,revisionScopeSha256,recoverExisting=false} = {}) {
+async function generateEditorialInternal(root, runId, {call = arkDirector, config = aModeRuntimeConfig(), stage = runTalkcraftStage,revisionScopeSha256,recoverExisting=false,recoverProviderOnly=false} = {}) {
   const project = talkcraftProject(root, runId);
   const skill = resolveTalkcraftSkillRoot(root);
   const lock = path.join(project, 'editorial.lock');
@@ -465,6 +470,7 @@ async function generateEditorialInternal(root, runId, {call = arkDirector, confi
     const vocab = new Set(index.vocab.map(v => v.word));
     const qa = path.join(project,'qa'); mkdirSync(qa, {recursive:true});
     const responseFile = path.join(qa,'ark-editorial-response.json');
+    if(recoverProviderOnly&&existsSync(responseFile))throw Error('本次已有解析结果，不能用响应恢复替换缓存；请按原检查结果继续');
     if(recoverExisting){
       const recovered=restoreRejectedRevisionBase(project);
       if(recovered?.restoredArtifacts?.includes('remotion/shots.json'))
@@ -532,12 +538,18 @@ capabilities 是模板真实源码能力：nativeMedia=false 表示没有原生�
 ${previousFailures?`同一原稿和时间轴上次失败的机器反馈及当前分镜数据（必须逐项修订；proposal中的已核验绑定、人物身份与已批准观点分类应按原句对应保留，失败安排不是默认骨架；不得把旧资料的许可标记当作新素材已验）：${JSON.stringify(previousFailures)}`:''}
 ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）：${adjustment}` : ''}
 主题：${JSON.stringify(sourceRun.themeSnapshot || {})}`;
+      if(recoverProviderOnly){
+        console.log('正在免费恢复本次请求原文并严格复检，不调用模型');
+        result=recoverEditorialResponse(project,{runId,prompt,requestId:selectionRequest?.requestId||null});
+      }else{
       console.log('正在调用火山方舟生成语义和分镜');
       const plan=editorialFallbackPlan(config),submission=reserveEditorialSubmission(project,{requestPlan:plan,requireConfiguredFallback:true});
       const requestPlan=submission.requestPlan||plan;
       try{result = await call(prompt, {config:{...config,fallbackEnabled:true}, requestPlan,phase:'global', maxOutputTokens:32768,
+        onResponse:captureEditorialResponse(project,{runId,prompt,requestId:selectionRequest?.requestId||null}),
         onAttempt:({attempt,fallback,endpoint,totalAttempts})=>{if(requestPlan)recordEditorialAttempt(project,requestPlan[attempt-1]);console.log(`火山请求 ${attempt}/${totalAttempts||1}${fallback?'（跌落接入点）':''}：${endpoint||'当前接入点'}`);}});}
       catch(error){recordEditorialSubmissionOutcome(project,{error});throw error;}
+      }
       const rawDir=path.join(qa,'editorial-provider-responses');mkdirSync(rawDir,{recursive:true});
       // Immutable parsed provider payload for this submission, before repairs.
       const rawFile=path.join(rawDir,`${new Date().toISOString().replace(/[:.]/g,'-')}.json`);

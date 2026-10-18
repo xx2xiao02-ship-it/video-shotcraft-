@@ -37,4 +37,6 @@ export function recordEditorialSubmissionOutcome(project,{error=null,responseSav
  const httpStatus=Number(/HTTP (\d{3})/u.exec(String(error?.message||error||''))?.[1])||null;
  fs.writeFileSync(file,JSON.stringify({...record,finishedAt:new Date().toISOString(),httpStatus,
   outcome:responseSaved?'response-saved':httpStatus?'provider-http-error':'provider-outcome-unconfirmed'},null,2));
+ if(error?.code)fs.writeFileSync(file,JSON.stringify({...JSON.parse(fs.readFileSync(file,'utf8')),failureCode:error.code,
+   ...(String(error.code).startsWith('ARK_')?{outcome:error.code==='ARK_RESPONSE_CAPTURE_FAILED'?'response-retention-failed':'provider-response-invalid'}:{})},null,2));
 }

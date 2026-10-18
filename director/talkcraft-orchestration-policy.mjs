@@ -5,7 +5,9 @@ export function selectTalkcraftContinuation(run, body = {}) {
     throw new Error('前端只能提交继续意图，不能指定编导阶段');
   if (run.provenance?.verified !== true)
     throw new Error('B 模式管线来源未核验，请先由编导核对运行记录');
-  if(body.resumeRevision===true||body.recheckNodeBase===true){
+  if(body.recoverProviderResponse===true&&(!run.nodeRepair?.providerSubmitted||run.nodeRepair.status!=='blocked'||run.nodeRepair.node!=='storyboard-review'))
+    throw Error('没有当前07已提交的失败响应可恢复');
+  if(body.resumeRevision===true||body.recheckNodeBase===true||body.recoverProviderResponse===true){
     if(run.activeTask||body.approveModelCost||body.reviseStoryboard)throw Error('已有授权恢复不接受并发或追加费用授权');
     return 'planning-repair';
   }
