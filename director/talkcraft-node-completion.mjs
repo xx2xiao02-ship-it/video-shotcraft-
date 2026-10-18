@@ -1,6 +1,7 @@
 import fs from 'node:fs';import path from 'node:path';import {createHash} from 'node:crypto';
 import {prepareResearchBindings} from './talkcraft-research-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
+import {syncShotbookMaterials} from './talkcraft-shotbook-materials.mjs';
 const binding=p=>Object.fromEntries(['input.txt','audio/full.mp3','semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json'].map(n=>[n,fs.existsSync(path.join(p,n))?createHash('sha256').update(fs.readFileSync(path.join(p,n))).digest('hex'):null]));
 // Shared deterministic completion for 07/09. No model/provider transport is
 // available here. Source rights, actual slots and the original checks still own
@@ -11,6 +12,7 @@ export function completeTalkcraftNodeInputs(project,{node,catalog,index,deferGen
  try{
   const research=fs.existsSync(path.join(project,'material-research-plan.json'))?bind(project,catalog,{index}):{applied:[],issues:[]};
   const materials=allocate(project,{deferGeneratedHost});
+  if(!research.issues.length&&!materials.unresolved.length)record.shotbookMaterials=syncShotbookMaterials(project);
   Object.assign(record,{passed:!research.issues.length&&!materials.unresolved.length,issues:[...research.issues,...materials.unresolved],after:binding(project)});
  }catch(error){Object.assign(record,{passed:false,issues:[{code:'NODE_COMPLETION_BLOCKED',message:String(error.message||error)}],after:binding(project)});}
  fs.mkdirSync(path.join(project,'qa'),{recursive:true});fs.writeFileSync(path.join(project,`qa/${node}-completion.json`),JSON.stringify(record,null,2));
