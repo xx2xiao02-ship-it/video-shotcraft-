@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
-import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,auditEditorialSelectionContent} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots} from './talkcraft-editorial-selection.mjs';
+import {createHash} from 'node:crypto';
+import {prepareEditorialRepairInput} from './talkcraft-ark-editorial.mjs';
+import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
 import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
@@ -28,12 +31,13 @@ function response(request,slug='doc-park-left-pill-deal'){
   assert.ok(choice,slug);
   const card=catalog.cards.find(c=>c.cardId===slug);
   const queries=Object.fromEntries(Object.keys(card.policy.media).filter(k=>k!=='hostSrc').map(k=>[k,'央行官方资料图']));
-  return {schema:'talkcraft-editorial-selection-response-v1',requestId:request.requestId,
+  const anchors=request.windows[0].anchorScope.sentences[0].anchors;
+  return {schema:'talkcraft-editorial-selection-response-v2',requestId:request.requestId,
     repairs:[{shotId:'s15',choiceId:choice.choiceId,intent:'明确展示央行研究',visual:'使用原卡机构资料与标签',
       templateParams:{cardProps:{},templateMaterialQueries:queries},
       nativePresentation:{holdAtNativeFrame:100,holdReason:'资料可见时驻留',mobileMinTextPx:12,
         textFields:[{key:'docTitle',visibility:'visible'}],
-        wordEvents:[{field:'docTitle',text:'央行的预期管理',sentenceIndex:0,anchor:'预期管理',role:'spoken'}]}}],
+        wordEvents:[{field:'docTitle',text:'央行的预期管理',fromAnchorId:anchors[3].anchorId,throughAnchorId:anchors.at(-1).anchorId,role:'spoken'}]}}],
     materialResearchUpdates:[{shotId:'s15',research:[{kind:'identity',query:'央行官方资料',reason:'真实机构身份',displayField:choice.sourceDisplayFields[0]}]}]};
 }
 
@@ -51,12 +55,82 @@ test('有效编号由代码编译卡和速度，锁定其他分镜、原句、�
   const args=fixture(),request=buildEditorialSelectionRequest(args),before=structuredClone(args.proposal);
   const result=compileEditorialSelection(response(request),request,args);
   assert.equal(result.shots[0].shotCard,'doc-park-left-pill-deal');
+  assert.deepEqual(result.shots[0].nativePresentation.wordEvents,[{field:'docTitle',text:'央行的预期管理',role:'spoken',sentenceIndex:0,anchor:'预期管理'}]);
   assert.equal(Object.hasOwn(result.shots[0].nativePresentation,'playbackRate'),false);
   assert.deepEqual(result.shots[1],before.shots[1]);assert.deepEqual(result.sentences,before.sentences);
   assert.deepEqual(result.captionEmphasis,before.captionEmphasis);
   assert.deepEqual(result.materialResearch.shots[1],before.materialResearch.shots[1]);
   assert.equal(result.materialResearch.policyVersion,before.materialResearch.policyVersion);
   assert.deepEqual(args.proposal,before);
+});
+
+test('实际请求只含可编辑镜原句；全文、旧画面、失败说明、旧资料创意及调整原文不能进入发送投影',()=>{
+  const args=fixture(),foreign='后镜专有哨兵词不得传入';
+  args.proposal.sentences[1].text=foreign;
+  args.proposal.shots[0].visual=foreign;args.proposal.shots[0].intent=foreign;
+  args.proposal.shots[0].templateParams.cardProps={title:foreign};
+  Object.assign(args.proposal.materialResearch.shots[0],{backgroundReason:foreign,graphicIntent:foreign,graphicAlternatives:[{reason:foreign}],pureTextReason:foreign});
+  args.proposal.materialResearch.shots[0].research[0].reason=foreign;
+  args.failedChecks[0].message=foreign;
+  const request=buildEditorialSelectionRequest(args),promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+  const model=editorialSelectionModelInput(request,{promptCatalog});
+  const prompt=editorialSelectionPrompt(request,{promptCatalog,modelInput:model,input:foreign,adjustment:foreign});
+  assert.ok(JSON.stringify(request).includes(foreign));
+  assert.ok(!JSON.stringify(model).includes(foreign));assert.ok(!prompt.includes(foreign));
+  assert.deepEqual(model.windows[0].anchorScope.sentences.map(r=>r.text),['央行的预期管理']);
+  assert.equal(model.reviewedCount,108);assert.ok(!Object.hasOwn(model,'baseProposal'));
+  assert.ok(!model.catalog.contracts.some(c=>Object.hasOwn(c,'dslExamples')));
+  const r=response(request);r.materialResearchUpdates[0].research[0].reason='当前新资料理由';
+  for(const key of ['backgroundReason','graphicIntent','pureTextReason'])r.materialResearchUpdates[0][key]='按本镜原句重新设计';
+  r.materialResearchUpdates[0].graphicAlternatives=[];
+  const compiled=compileEditorialSelection(r,request,args);
+  assert.equal(compiled.materialResearch.shots[0].backgroundReason,'按本镜原句重新设计');
+  delete r.materialResearchUpdates[0].graphicIntent;
+  assert.throws(()=>compileEditorialSelection(r,request,args),/重新填写资料创意字段/);
+});
+
+test('发送前自检核对实际投影；缺锚点、夹带全文、串用旧输入在授权消费前失败',()=>{
+  const args=fixture(),promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+  args.aligned=[{start:0,end:2.5},{start:2.5,end:5},{start:5,end:7.5},{start:7.5,end:10},...args.aligned];
+  args.proposal.sentences=[...Array.from({length:4},(_,i)=>({i,text:`开场原句${i}`})),...args.proposal.sentences];
+  for(const shot of args.proposal.shots){shot.firstSentence+=4;shot.lastSentence+=4;}
+  // This is the same producer invoked before reserveEditorialSubmission.
+  const p=prepareEditorialRepairInput({previousFailures:{proposal:args.proposal,failedChecks:args.failedChecks},
+    ...args,promptCatalog});
+  const audit=selectionModelInput=>auditEditorialRequestContract({...p,selectionModelInput,promptCatalog,catalog});
+  assert.equal(audit(p.selectionModelInput).passed,true);
+  for(const mutate of [m=>delete m.windows[0].anchorScope,m=>m.fullInput='锁定后镜',
+    m=>m.windows[0].anchorScope.sentences.push({sentenceIndex:1,text:'后镜'}),m=>m.windows[0].anchorScope.scopeId='旧记录']){
+    const m=structuredClone(p.selectionModelInput);mutate(m);
+    assert.equal(audit(m).passed,false);
+    assert.throws(()=>editorialSelectionPrompt(p.selectionRequest,{promptCatalog,modelInput:m}),/投影不一致/);
+  }
+  assert.equal(audit(null).passed,false);
+  assert.equal(p.requestAudit.externalRequests,0);
+});
+
+test('新请求拒绝旧自由句序响应，不修改或迁移已编译历史事务',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
+  r.schema='talkcraft-editorial-selection-response-v1';
+  assert.throws(()=>compileEditorialSelection(r,request,args),/协议/);
+  // A historical compiled v1 transaction remains provable without rebuilding
+  // or silently upgrading the old request/hash.
+  const old=structuredClone(request);old.schema='talkcraft-editorial-selection-request-v1';
+  delete old.windows[0].anchorScope;delete old.requestId;
+  old.requestId=createHash('sha256').update(JSON.stringify(old)).digest('hex');
+  const before=structuredClone(old);
+  assert.deepEqual([...preservedEditorialSelectionShots(args.proposal,old)],['s19']);
+  assert.deepEqual(old,before);
+});
+
+test('免费回放193同类跨镜事件：context理由和carry不能变成合法本镜引用',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),before=structuredClone(args.proposal);
+  for(const event of [{field:'docTitle',text:'后镜',sentenceIndex:1,anchor:'生活选择',role:'context',reason:'本镜需要后镜内容'},
+    {...response(request).repairs[0].nativePresentation.wordEvents[0],carry:true}]){
+    const r=response(request);r.repairs[0].nativePresentation.wordEvents=[event];
+    assert.throws(()=>compileEditorialSelection(r,request,args),/不得自由填写/);
+    assert.deepEqual(args.proposal,before);
+  }
 });
 
 test('296帧卡放234帧的实际错误不能编码为合法编号，也不能伪造卡名或速度',()=>{
@@ -98,6 +172,8 @@ test('正式驻留点仍重新编译，不能凭参考方案、姓名旧字段�
   assert.throws(()=>compileEditorialSelection(invalidSlot,request,args),/真实媒体槽/);
   const missingQuery=response(request);missingQuery.repairs[0].templateParams.templateMaterialQueries={};
   assert.throws(()=>compileEditorialSelection(missingQuery,request,args),/采集计划/);
+  const missingResearch=response(request);delete missingResearch.materialResearchUpdates[0].research;
+  assert.throws(()=>compileEditorialSelection(missingResearch,request,args),/缺少完整资料规划/);
 });
 
 test('修订prompt与生成入口使用局部协议，缺少可行方案在付费前停止',()=>{

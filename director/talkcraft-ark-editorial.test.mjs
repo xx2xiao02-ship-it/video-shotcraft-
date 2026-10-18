@@ -3,7 +3,8 @@ import test from 'node:test';
 import {existsSync,mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,unlinkSync} from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {assertEditorialGenerationState,auditEditorialProposal,validateEditorial,bindEditorialTiming,checkEditorial,recoverCachedEditorial,compactTalkcraftEditorialCatalog,repairInvalidSemanticLabels,editorialShotSemantics,assertEditorialShotDeviationSemantics} from './talkcraft-ark-editorial.mjs';
+import {assertEditorialGenerationState,auditEditorialProposal,validateEditorial,bindEditorialTiming,checkEditorial,recoverCachedEditorial,checkEditorialSelectionInput,compactTalkcraftEditorialCatalog,repairInvalidSemanticLabels,editorialShotSemantics,assertEditorialShotDeviationSemantics} from './talkcraft-ark-editorial.mjs';
+import {saveEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {loadTalkcraftGovernedCatalog,talkcraftEditorialContract} from './talkcraft-governed-contract.mjs';
 
 test('精简火山提示词仍覆盖全部卡片和必填参数契约', () => {
@@ -195,6 +196,38 @@ function savedEditorial(t) {
     writeFileSync(path.join(project,name),JSON.stringify(data));
   return {root,runId};
 }
+test('正式免费输入检查复用发送器，重复检查不消耗授权、不改缓存或节点；过期反馈不回退',t=>{
+  const {root,runId}=savedEditorial(t),project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
+  unlinkSync(path.join(project,'remotion/shots.json'));
+  const texts=['你有没有发现，','很多国际大奖，','听着宏大，','其实距离普通人很远。'];
+  const a=[{start:0,end:2.36},{start:2.36,end:3.745},{start:3.745,end:4.805},{start:4.805,end:7.07}].map((r,i)=>({...r,text:texts[i]}));
+  const sentences=texts.map((text,i)=>({i,text,sem:['例证'],need:[],weight:i===2?'sub':'main'}));
+  const proposal={sentences,shots:[{id:'s01',firstSentence:0,lastSentence:0,subject:'other',shotCard:'impact-open-title'},
+    {id:'s02',firstSentence:1,lastSentence:2,subject:'person',shotCard:'motion-blur-slam-in'},
+    {id:'s03',firstSentence:3,lastSentence:3,subject:'other',shotCard:'per-character-rise'}],materialResearch:{shots:[{shotId:'s02',research:[]}]},
+    editorialSelectionRejection:{issues:[{code:'EDITORIAL_WORD_EVENT_SCOPE',shotId:'s02',message:'后句被借用'}]}};
+  const files={'input.txt':texts.join(''),'aligned-sentences.json':JSON.stringify(a),'semantics.json':JSON.stringify({sentences}),
+    'audio/timestamps.json':JSON.stringify({sentences:a.map(r=>({...r,ok:true,match:1}))}),
+    'qa/ark-editorial-response.json':JSON.stringify(proposal),'qa/rebuild-inputs.json':JSON.stringify({personWindows:[{start:2.36,end:4.805}]}),
+    'qa/editorial-submission-authorization.json':'保留已有费用授权记录','qa/editorial-completion.json':JSON.stringify({passed:false}),
+    'audio/full.mp3':'保留既有配音数据'};
+  for(const [name,value]of Object.entries(files))writeFileSync(path.join(project,name),value);
+  saveEditorialRepairFeedback(project,proposal,{issues:proposal.editorialSelectionRejection.issues});
+  for(let i=0;i<2;i++){
+    const receipt=checkEditorialSelectionInput(root,runId,{skillRoot:path.resolve('_audit/video-talkcraft')});
+    assert.equal(receipt.passed,true);assert.equal(receipt.externalRequests,0);assert.equal(receipt.authorizationConsumed,false);
+    assert.equal(receipt.productionAdmitted,false);assert.deepEqual(receipt.editableShotIds,['s02']);
+    const input=JSON.parse(readFileSync(path.join(project,receipt.output,'model-input.json')));
+    assert.deepEqual(input.windows[0].anchorScope.sentences.map(r=>r.text),texts.slice(1,3));
+    assert.ok(!readFileSync(path.join(project,receipt.output,'prompt.txt'),'utf8').includes(texts[3]));
+  }
+  for(const [name,value]of Object.entries(files))assert.equal(readFileSync(path.join(project,name),'utf8'),value,name);
+  assert.equal(existsSync(path.join(project,'remotion/shots.json')),false);
+  assert.equal(existsSync(path.join(project,'editorial.lock')),false);
+  writeFileSync(path.join(project,'qa/ark-editorial-response.json'),JSON.stringify({...proposal,other:'返回已换轮次'}));
+  assert.throws(()=>checkEditorialSelectionInput(root,runId,{skillRoot:path.resolve('_audit/video-talkcraft')}),/完全对应/);
+  assert.equal(existsSync(path.join(project,'editorial.lock')),false);
+});
 test('局部修订被拒绝后正式免费恢复仍阻断，不能套回旧底稿通过或修改语义',async t=>{
   const {root,runId}=savedEditorial(t),project=path.join(root,'director/b-mode-runs',runId,'talkcraft');
   unlinkSync(path.join(project,'remotion/shots.json'));
