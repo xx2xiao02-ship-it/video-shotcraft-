@@ -40,6 +40,16 @@ export function auditEditorialMaterialContract({shots=[],sentences=[],researchPl
     const row=Array.isArray(rows)?rows.find(r=>r?.shotId===shot.id):null;
     const sentenceRows=(Array.isArray(sentences)?sentences:[]).filter((s,i)=>s?.shot===shot.id||s&&!s.shot&&i>=shot.firstSentence&&i<=shot.lastSentence);
     const researchRows=Array.isArray(row?.research)?row.research:[];
+    // Core-person labels already belong to the original display contract.
+    // Check their plan before acquisition too: a changed card cannot retain
+    // an old label field that no longer exists in its public business props.
+    for(const display of Array.isArray(row?.personDisplays)?row.personDisplays:[]){
+      if(display.role!=='core')continue;
+      const field=card.fields?.find(f=>f.key===display.labelField&&f.writable&&f.role!=='media');
+      if(!field||!nonempty(display.labelText)||!String(props[display.labelField]??'').split('\n').includes(display.labelText))
+        add(shot.id,'MATERIAL_PERSON_LABEL_PLAN_INVALID','核心人物姓名必须对应当前原卡公开文字字段，换卡后不能沿用旧姓名字段',
+          {entityName:display.entityName,field:display.labelField});
+    }
     if(row&&row.research!==undefined&&!Array.isArray(row.research))add(shot.id,'MATERIAL_RESEARCH_PLAN_INVALID','research必须是逐项资料数组');
     const requiredKinds=[...new Set(sentenceRows.flatMap(s=>(s.need||[]).map(n=>needKind[n]).filter(Boolean)))];
     for(const kind of requiredKinds)if(!researchRows.some(r=>r?.kind===kind&&nonempty(r.query)&&nonempty(r.reason)))

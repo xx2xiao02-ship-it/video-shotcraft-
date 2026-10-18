@@ -3,7 +3,10 @@ import fs from 'node:fs';import path from 'node:path';import os from 'node:os';i
 import {restoreEditorialReviewedBindings} from './talkcraft-editorial-binding-recovery.mjs';
 import {saveCandidateMaterialRepairFeedback,preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
-const catalog={cards:[{cardId:'pair',policy:{media:{srcFront:'image',srcBack:'image'}}}]};
+const catalog={cards:[{cardId:'pair',fields:[
+ {key:'labelFront',writable:true,type:'string',role:'business'},
+ {key:'labelBack',writable:true,type:'string',role:'business'}],
+ policy:{media:{srcFront:'image',srcBack:'image'}}}]};
 function fixture(t,configure=()=>{}){
  const p=fs.mkdtempSync(path.join(os.tmpdir(),'reviewed-recovery-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));
  for(const d of ['qa','audio','remotion/public/pages'])fs.mkdirSync(path.join(p,d),{recursive:true});
