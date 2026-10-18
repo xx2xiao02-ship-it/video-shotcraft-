@@ -67,7 +67,16 @@ export function audioOnlyMain(source, ts) {
     if ((ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) && node.tagName.getText(file) === 'Audio') return true;
     return ts.forEachChild(node, containsAudio) === true;
   };
-  const audio = body.children.filter(containsAudio).map(node => node.getFullText(file));
+  // Approved paper backgrounds wrap both visuals and audio in a provider.
+  // Descend only through that known visual-only wrapper; retain the original
+  // Audio expressions verbatim, rather than capturing its video siblings.
+  const collect = element => element.children.flatMap(node => {
+    if (!containsAudio(node)) return [];
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(file) === 'FilmBackgroundProvider')
+      return collect(node);
+    return [node.getFullText(file)];
+  });
+  const audio = collect(body);
   if (!audio.length || !audio.some(text => /CUES\.map\s*\(/u.test(text)) || audio.some(text => /<(?:OffthreadVideo|Video)\b/u.test(text)))
     throw Error('无法独立提取正式入口的音效节点，禁止用空音轨替代');
   return source.slice(0, body.openingElement.end) + '\n' + audio.join('\n') + '\n' + source.slice(body.closingElement.getStart(file));

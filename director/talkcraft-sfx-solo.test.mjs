@@ -31,6 +31,22 @@ test('unsupported and missing sound graphs fail closed', () => {
   assert.throws(() => audioOnlyMain('export const Main = () => <div/>;', ts), /不支持/);
   assert.throws(() => audioOnlyMain(source.replace(cues,''), ts), /禁止用空音轨/);
 });
+
+test('纸背景Provider内音轨逐字保留，画面和顶层字幕不进入音轨工程',()=>{
+  const wrapped=source.replace('<AbsoluteFill>','<AbsoluteFill><FilmBackgroundProvider value={filmBackground}>')
+    .replace('</AbsoluteFill>','</FilmBackgroundProvider><AbsoluteFill data-final-caption-layer><Subtitles/></AbsoluteFill></AbsoluteFill>');
+  const result=audioOnlyMain(wrapped,ts);
+  assert.ok(result.includes(voice)&&result.includes(cues));
+  for(const token of ['<FilmBackgroundProvider','<OffthreadVideo','<Subtitles','<Environment'])assert.ok(!result.includes(token));
+  const exports={},React={createElement:(type,props,...children)=>({type,props,children})};
+  vm.runInNewContext(ts.transpileModule(result,{compilerOptions:{jsx:ts.JsxEmit.React,module:ts.ModuleKind.CommonJS}}).outputText,
+    {exports,React,AbsoluteFill:'root',Audio:'audio',Sequence:'sequence',staticFile:x=>x,CUES:[{t:2,file:'cue.wav',volume:.3,rate:1.2,clip:7}]});
+  const mix=exports.Main({});assert.equal(mix.children[0].props.src,'narration.mp3');
+  assert.equal(mix.children[1][0].props.from,60);
+  assert.equal(mix.children[1][0].children[0].props.playbackRate,1.2);
+  assert.throws(()=>audioOnlyMain(wrapped.replaceAll('FilmBackgroundProvider','UnknownProvider'),ts),/无法独立提取/);
+  assert.throws(()=>audioOnlyMain(wrapped.replace(cues,''),ts),/禁止用空音轨/);
+});
 test('visual decoder mixed into an audio expression is rejected', () => {
   assert.throws(() => audioOnlyMain(source.replace(cues,cues.replace('<Audio','<OffthreadVideo/><Audio')),ts), /无法独立提取/);
 });
