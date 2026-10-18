@@ -5,6 +5,7 @@ import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validatio
 import {editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
 import {auditEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {auditEditorialSelectionRequest,editorialSelectionModelInput} from './talkcraft-editorial-selection.mjs';
+import {auditEditorialConstraintInput} from './talkcraft-editorial-constraints.mjs';
 
 // Verify the actual serialized request data, not a second prose-only rule list.
 export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null,selectionRequest=null,selectionModelInput=null,theme}){
@@ -14,6 +15,7 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
  if(repairInputs)try{
    if(!selectionModelInput||!same(selectionModelInput,editorialSelectionModelInput(selectionRequest,{promptCatalog,theme})))
      issues.push('实际局部模型输入缺失、夹带跨镜内容或与本镜字符锚点投影不一致');
+   issues.push(...auditEditorialConstraintInput(selectionRequest,{catalog,modelInput:selectionModelInput}).issues);
  }catch(error){issues.push(error.message);}
  else if(planningContract.jointRepair)issues.push('联合修订契约缺少原始提案与当前输入，不能只信缓存');
  if(promptCatalog.crossFieldChecks!==crossFieldChecks.toString())issues.push('模型跨字段规则与正式校验源码不一致');

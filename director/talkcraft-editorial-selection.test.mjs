@@ -64,6 +64,36 @@ test('同卡资料绑定由基稿保留，错槽、文件篡改及非空research
   assert.throws(()=>compileEditorialSelection(r,request,args),/缺少完整资料规划/);
 });
 
+test('正式编译接受按kind/query换槽并保留服务端来源事实；模型伪造事实和删除资料仍拒绝',()=>{
+  const args=fixture(),row=args.proposal.materialResearch.shots[0];
+  row.bindings=[{kind:'identity',query:'央行官方资料',field:'srcBefore',
+    localPath:'sources/official.png',sha256:'a'.repeat(64),license:'已核验许可'}];
+  const request=buildEditorialSelectionRequest(args),r=response(request),update=r.materialResearchUpdates[0];
+  const field=update.research[0].displayField;
+  update.bindings=[{kind:'identity',query:'央行官方资料',field}];
+  r.repairs[0].templateParams.cardProps[field]='sources/official.png';
+  const before=structuredClone(r),result=compileEditorialSelection(r,request,args);
+  assert.deepEqual(result.materialResearch.shots[0].bindings,[{...row.bindings[0],field}]);
+  assert.deepEqual(r,before);
+  const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+  assert.deepEqual(model.materials[0].bindings,[{kind:'identity',query:'央行官方资料',field:'srcBefore'}]);
+  assert.equal(model.responseContract.materials[0].retainedBindings.length,1);
+  update.bindings[0].license='模型随意声明的许可';
+  assert.throws(()=>compileEditorialSelection(r,request,args),/不能改写真实素材的license/);
+  delete update.bindings[0].license;update.research=[];
+  assert.throws(()=>compileEditorialSelection(r,request,args),/遗漏或修改已登记/);
+});
+
+test('需补资料而基稿没有该镜资料行时，发送合同仍完整列出该镜，不依赖模型猜漏行',()=>{
+  const args=fixture();args.proposal.materialResearch.shots.shift();
+  const request=buildEditorialSelectionRequest(args),model=editorialSelectionModelInput(request,
+    {promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+  assert.ok(request.materialShotIds.includes('s15'));
+  assert.deepEqual(model.materials.map(r=>r.shotId),request.materialShotIds);
+  assert.deepEqual(model.materials.find(r=>r.shotId==='s15').research,[]);
+  assert.deepEqual(model.responseContract.materials.find(r=>r.shotId==='s15').requiredFields,['shotId','research']);
+});
+
 test('已拒绝的原始响应可反复免费重编译；当前请求、原文与基稿必须全部相符',t=>{
   const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
   const project=fs.mkdtempSync(path.join(os.tmpdir(),'selection-replay-'));

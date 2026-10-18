@@ -7,6 +7,8 @@ import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
 import {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
 import {buildEditorialAnchorScope,compileEditorialAnchorEvents} from './talkcraft-editorial-anchor-scope.mjs';
+import {MATERIAL_CREATIVE_KEYS,PERSON_DISPLAY_KEYS,SOURCE_FACT_KEYS,RESEARCH_IDENTITY_KEYS,
+  editorialResponseContract,auditEditorialMaterialOwnership} from './talkcraft-editorial-constraints.mjs';
 
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const object=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -93,18 +95,15 @@ export function auditEditorialSelectionContent(result,request,{catalog}){
 // Projection is allowlisted, not a blacklist of last week's bad phrase. The
 // full base and failure prose stay server-side for locking and audit only.
 const pick=(value,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(value||{},k)).map(k=>[k,structuredClone(value[k])]));
-const sourceKeys=['kind','query','entityType','entityName','displayShotId','displayField','field',
-  'url','sourceUrl','pageUrl','license','licenseUrl','attribution','localPath','sha256','sourceId','verified'];
-const creativeKeys=['background','backgroundQuery','backgroundDecision','backgroundConcepts','backgroundReason',
-  'graphicIntent','graphicAlternatives','pureTextReason'];
-const personDisplayKeys=['entityName','role','displayShotId','labelField','labelText','bindingQuery'];
+const sourceKeys=[...RESEARCH_IDENTITY_KEYS,'displayShotId','displayField','field',...SOURCE_FACT_KEYS];
+const creativeKeys=MATERIAL_CREATIVE_KEYS,personDisplayKeys=PERSON_DISPLAY_KEYS;
 function materialInput(row,editable){
   return {shotId:row.shotId,mode:editable?'replace-design':'retarget-only',
     rewriteFields:editable?creativeKeys.filter(k=>Object.hasOwn(row,k)):[],
     requiredArrays:['research',...(row.personDisplays?['personDisplays']:[])],
     preservedBindingCount:row.bindings?.length||0,
-    research:(row.research||[]).map(r=>pick(r,sourceKeys)),
-    ...(row.bindings?{bindings:row.bindings.map(r=>pick(r,sourceKeys))}:{}),
+    research:(row.research||[]).map(r=>pick(r,[...RESEARCH_IDENTITY_KEYS,'displayShotId','displayField'])),
+    ...(row.bindings?{bindings:row.bindings.map(r=>pick(r,['kind','query','displayShotId','field']))}:{}),
     ...(row.personDisplays?{personDisplays:row.personDisplays.map(r=>pick(r,personDisplayKeys))}:{})};
 }
 export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
@@ -113,8 +112,9 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:structuredClone(request.windows),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
-    materials:(request.baseProposal.materialResearch?.shots||[]).filter(r=>request.materialShotIds.includes(r.shotId))
-      .map(row=>materialInput(row,request.editableShotIds.includes(row.shotId))),
+    materials:request.materialShotIds.map(id=>materialInput(
+      request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id))),
+    responseContract:editorialResponseContract(request),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
       contracts:promptCatalog.contracts.filter(c=>slugs.has(c.slug)).map(c=>{const {dslExamples,...contract}=c;return contract;}),
       crossFieldChecks:promptCatalog.crossFieldChecks,materialDisplayRules:promptCatalog.materialDisplayRules},
@@ -133,7 +133,8 @@ repairs恰好覆盖editableShotIds一次；materialResearchUpdates恰好覆盖ma
 nativePresentation.textFields与wordEvents均不得为空。textFields逐项填写真实文字字段key、visibility（visible/hidden），隐藏写reason；wordEvents逐项填写field、text、fromAnchorId、throughAnchorId及role（spoken/context），背景说明写reason。所有可见文字必须登记，不能用空数组、颜色和位置参数冒充内容。capabilities中无内容替换和真实媒体入口的固定示意卡不能声称会显示本片标签或真实资料；无法实现就报告阻断，不编造字段。
 重写对应卡的全部业务参数、逐槽检索、资料目标字段、核心人物姓名标签及图形比较。资料行若属于锁定镜头，只能修正指向失败镜的既有research.displayField或bindings.field；其他内容及真实素材记录必须原样保留。保留已核验来源许可；新素材不可声称已采集。固定镜头不受本次修订影响；修订镜间仍检查30镜去重。真实字级、配音和既有数字人不变；保持原模板构图、图形优先、中文资料优先及原版语义偏离理由。不得伪造事实、资料或承接关系。
 ${rules}
-资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。research项须保留kind/query和身份，填写本次reason及实际displayShotId/displayField；不得用backgroundReason代替research。已有bindings由服务端按本次基稿保留，不要求模型回传文件、哈希或许可；需要改槽时按相同kind/query返回bindings中的field，不得改写来源事实。personDisplays须沿用已有核心人物身份，按当前原卡填写labelField/labelText及bindingQuery，不能用nameField/imageField另造协议。mode=replace-design的rewriteFields必须逐项重新设计并返回，不得沿用旧创意；mode=retarget-only的rewriteFields为空，只返回指向可编辑镜的research.displayField或bindings.field及其身份键，禁止改写backgroundQuery、背景理由或其他锁定创意。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
+responseContract由执行校验的同一代码生成，是本次逐镜字段合同。codeOwned字段由代码管理，模型不回填、不计算。choicesPath指向本镜的choices，合法choiceId和sourceDisplayFields均以该处为准，不借用其他镜方案；requiredFields和requiredResearch逐项核对，不能用其他镜资料代替。
+资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。research项须保留kind/query/entityType/entityName身份，填写本次reason及实际displayShotId/displayField；不得用backgroundReason代替research。已有bindings由服务端按本次基稿保留，不要求模型回传文件、哈希或许可；需要改槽时按相同kind/query返回bindings中的field，不得删除绑定或改写来源事实。新资料只填规划，不能声称已下载或自行填写localPath、sha256、license、verified。personDisplays须沿用已有核心人物身份，按当前原卡填写labelField/labelText及bindingQuery，不能用nameField/imageField另造协议。mode=replace-design的rewriteFields必须逐项重新设计并返回，不得沿用旧创意；mode=retarget-only的rewriteFields为空，只返回指向可编辑镜的research.displayField或bindings.field及其身份键，禁止改写backgroundQuery、背景理由或其他锁定创意。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
 受控本镜输入：${JSON.stringify(payload)}`;
 }
 
@@ -203,7 +204,7 @@ export function compileEditorialSelection(response,request,inputs){
   exact(response.materialResearchUpdates,'shotId',request.materialShotIds,'资料规划');
   const bindings=auditEditorialSelectionResponseBindings(response,request);
   const materials=prepareEditorialMaterialUpdates(response,request);
-  const initialIssues=[...bindings.issues,...materials.issues];
+  const initialIssues=[...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
   if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
@@ -236,7 +237,10 @@ export function compileEditorialSelection(response,request,inputs){
         row[key]=row[key].map(item=>{
           const old=original?.[key]?.find(r=>key==='personDisplays'?r.entityName===item.entityName:r.kind===item.kind&&r.query===item.query);
           const visible=key==='personDisplays'?personDisplayKeys:sourceKeys;
-          return {...pick(old,Object.keys(old||{}).filter(k=>!visible.includes(k))),...item};
+          // A model may retarget a slot by identity. Server-owned source facts
+          // are retained even when the response only carries kind/query/field.
+          return {...(key==='bindings'?structuredClone(old||{}):pick(old,Object.keys(old||{}).filter(k=>!visible.includes(k)))),
+            ...pick(old,SOURCE_FACT_KEYS),...item};
         });
       if(!Array.isArray(row.research))throw fail(`${row.shotId}缺少完整资料规划`,row.shotId);
       const i=result.materialResearch.shots.findIndex(r=>r.shotId===row.shotId);

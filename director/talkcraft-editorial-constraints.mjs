@@ -1,0 +1,108 @@
+import {isDeepStrictEqual} from 'node:util';
+
+// Model-facing rules and response enforcement share these field definitions.
+export const MATERIAL_CREATIVE_KEYS=['background','backgroundQuery','backgroundDecision','backgroundConcepts',
+  'backgroundReason','graphicIntent','graphicAlternatives','pureTextReason'];
+export const PERSON_DISPLAY_KEYS=['entityName','role','displayShotId','labelField','labelText','bindingQuery'];
+export const SOURCE_FACT_KEYS=['url','sourceUrl','pageUrl','license','licenseUrl','attribution','localPath','sha256','sourceId',
+  'verified','sourceVerified','licenseVerified','sourceCoordinates','contentLanguage','languageReason','identityReason'];
+export const RESEARCH_IDENTITY_KEYS=['kind','query','entityType','entityName'];
+const pick=(row,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(row||{},k)).map(k=>[k,structuredClone(row[k])]));
+const sameIdentity=(a,b)=>RESEARCH_IDENTITY_KEYS.every(k=>isDeepStrictEqual(a?.[k],b?.[k]));
+const sourceMatch=(a,b)=>a?.kind===b?.kind&&a?.query===b?.query;
+const nonempty=value=>typeof value==='string'&&!!value.trim();
+
+export function editorialResponseContract(request){
+  const rows=request.baseProposal.materialResearch?.shots||[];
+  return {schema:'talkcraft-editorial-response-contract-v1',requestId:request.requestId,
+    codeOwned:['shotCard','firstSentence','lastSentence','subject','playbackRate','timeline','sentenceIndex','anchor',
+      'audio','wordTiming','sourceFacts','lockedShots'],
+    sourceFactKeys:[...SOURCE_FACT_KEYS],
+    repairs:request.windows.map((w,i)=>({shotId:w.shotId,choicesPath:`windows[${i}].choices`,
+      requiredFields:['shotId','choiceId','intent','visual','templateParams','nativePresentation'],
+      anchorScopeId:w.anchorScope.scopeId,eventSentenceRule:'same-shot-same-sentence'})),
+    materials:request.materialShotIds.map(shotId=>{
+      const row=rows.find(r=>r.shotId===shotId),editable=request.editableShotIds.includes(shotId);
+      return {shotId,mode:editable?'replace-design':'retarget-only',
+        requiredFields:['shotId','research',...(editable?MATERIAL_CREATIVE_KEYS.filter(k=>Object.hasOwn(row||{},k)):[]),
+          ...(row?.personDisplays?['personDisplays']:[])],
+        writablePaths:editable?['research.reason','research.displayShotId','research.displayField','bindings.field',
+          'bindings.displayShotId','personDisplays.labelField','personDisplays.labelText','personDisplays.bindingQuery',
+          ...MATERIAL_CREATIVE_KEYS.filter(k=>Object.hasOwn(row||{},k))]:['research.displayField','bindings.field'],
+        requiredResearch:(row?.research||[]).map(r=>pick(r,RESEARCH_IDENTITY_KEYS)),
+        retainedBindings:(row?.bindings||[]).map(r=>pick(r,['kind','query','displayShotId','field'])),
+        corePeople:(row?.personDisplays||[]).filter(p=>p.role==='core').map(p=>p.entityName)};
+    })};
+}
+
+// Runs before cost reservation. Check independent scope/slot invariants too,
+// rather than trusting that two copies of the same projection agree.
+export function auditEditorialConstraintInput(request,{catalog,modelInput}){
+  const issues=[],add=message=>issues.push(message),contract=editorialResponseContract(request);
+  if(!isDeepStrictEqual(modelInput?.responseContract,contract))add('实际输入缺少或篡改了代码生成的响应字段合同');
+  const ids=(modelInput?.materials||[]).map(r=>r.shotId);
+  if(ids.length!==request.materialShotIds.length||new Set(ids).size!==ids.length||ids.some(id=>!request.materialShotIds.includes(id)))
+    add('实际输入的资料行没有精确覆盖本次修订范围');
+  for(const spec of contract.materials){
+    const row=modelInput?.materials?.find(r=>r.shotId===spec.shotId);
+    if(row?.mode!==spec.mode||spec.mode==='retarget-only'&&row?.rewriteFields?.length)
+      add(`${spec.shotId}锁定换槽与创意重写任务冲突`);
+    if(!isDeepStrictEqual(row?.requiredArrays,spec.requiredFields.filter(k=>['research','personDisplays'].includes(k)))||
+      !isDeepStrictEqual(row?.rewriteFields,spec.requiredFields.filter(k=>MATERIAL_CREATIVE_KEYS.includes(k))))
+      add(`${spec.shotId}输入必填数组或创意字段与执行合同不一致`);
+    if(!isDeepStrictEqual((row?.research||[]).map(r=>pick(r,RESEARCH_IDENTITY_KEYS)),spec.requiredResearch))
+      add(`${spec.shotId}发送投影遗漏了已登记的研究身份`);
+    for(const binding of row?.bindings||[])if(SOURCE_FACT_KEYS.some(k=>Object.hasOwn(binding,k)))
+      add(`${spec.shotId}来源事实应由代码保存，不能变成模型回抄任务`);
+  }
+  for(const window of request.windows)for(const choice of window.choices){
+    const card=catalog.cards.find(c=>c.cardId===choice.slug);
+    const fields=Object.entries(card?.policy?.media||{}).filter(([k,v])=>k!=='hostSrc'&&
+      ['image','image-list','image-or-video','video','portrait-video'].includes(v)).map(([k])=>k);
+    if(!card||!isDeepStrictEqual(fields,choice.sourceDisplayFields)||window.requiresSource&&!fields.length)
+      add(`${window.shotId}方案的真实资料槽与模板源码合同不一致`);
+  }
+  return {passed:!issues.length,issues};
+}
+
+// This gate checks ownership only. Existing material/identity/file/license,
+// semantic, text coverage and time validators still decide admission.
+export function auditEditorialMaterialOwnership(response,request){
+  const issues=[],rows=request.baseProposal.materialResearch?.shots||[];
+  for(const update of response.materialResearchUpdates||[]){
+    const original=rows.find(r=>r.shotId===update?.shotId),id=update?.shotId;
+    const editable=request.editableShotIds.includes(id),label=editable?'资料行':'锁定资料行';
+    const add=(code,message,extra={})=>issues.push({code,shotId:id,message:`${id}${label}${message}`,...extra});
+    const managed=['shotId','research','bindings','personDisplays',...MATERIAL_CREATIVE_KEYS];
+    for(const key of Object.keys(update||{}).filter(k=>!managed.includes(k)))
+      if(!Object.hasOwn(original||{},key)||!isDeepStrictEqual(update[key],original[key]))
+        add('EDITORIAL_MATERIAL_FIELD_NOT_WRITABLE',`不能新增或改写未授权字段${key}`,{field:key});
+    if(Array.isArray(update?.research)){
+      for(const old of original?.research||[])if(!update.research.some(r=>sameIdentity(r,old)))
+        add('EDITORIAL_RESEARCH_IDENTITY_MISSING','遗漏或修改已登记的资料身份与检索对应关系',{kind:old.kind,query:old.query});
+      for(const item of update.research){
+        if(!item||typeof item!=='object'||Array.isArray(item))continue; // Original structural gate reports this.
+        if(editable&&!nonempty(item.reason))add('EDITORIAL_RESEARCH_REASON_REQUIRED','须明确填写本次资料理由，不能自动沿用旧卡理由');
+        const old=original?.research?.find(r=>sourceMatch(r,item));
+        const planned=[...RESEARCH_IDENTITY_KEYS,'reason','displayShotId','displayField','displayReason','queryZh'];
+        for(const key of Object.keys(item).filter(k=>!planned.includes(k)))if(!isDeepStrictEqual(item[key],old?.[key]))
+          add('EDITORIAL_SOURCE_FACT_LOCKED',`不能编造或改写来源事实${key}`,{field:key});
+      }
+    }
+    if(Object.hasOwn(update||{},'bindings')){
+      if(!Array.isArray(update.bindings)){add('EDITORIAL_BINDING_INVALID','bindings必须是数组');continue;}
+      for(const old of original?.bindings||[])if(!update.bindings.some(r=>sourceMatch(r,old)))
+        add('EDITORIAL_BINDING_REMOVAL','不能删除本次已登记的真实素材绑定',{kind:old.kind,query:old.query});
+      for(const item of update.bindings){
+        const old=original?.bindings?.find(r=>sourceMatch(r,item));
+        if(!old){add('EDITORIAL_BINDING_NOT_OWNED','不能新增已采集绑定；新资料先返回research规划并由06核验');continue;}
+        // New metadata keys default to server-owned too. Only explicit target
+        // fields may change, so a new verification flag cannot bypass this gate.
+        for(const key of Object.keys(item||{}).filter(k=>!['kind','query','field','displayShotId','displayReason'].includes(k)))
+          if(!isDeepStrictEqual(item[key],old[key]))
+          add('EDITORIAL_SOURCE_FACT_LOCKED',`不能改写真实素材的${key}`,{field:key});
+      }
+    }
+  }
+  return {passed:!issues.length,issues};
+}
