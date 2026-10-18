@@ -213,6 +213,21 @@ function response(request,slug='doc-park-left-pill-deal'){
     materialResearchUpdates:[{shotId:'s15',research:[{kind:'identity',query:'央行官方资料',reason:'真实机构身份',displayField:choice.sourceDisplayFields[0]}]}]};
 }
 
+test('正式编译自动修复错层资料查询且原校验仍拒绝未知字段和冲突',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),correct=response(request);
+  const misplaced=structuredClone(correct);
+  misplaced.repairs[0].templateMaterialQueries=misplaced.repairs[0].templateParams.templateMaterialQueries;
+  delete misplaced.repairs[0].templateParams.templateMaterialQueries;
+  const before=structuredClone(misplaced);
+  assert.deepEqual(compileEditorialSelection(misplaced,request,args),compileEditorialSelection(correct,request,args));
+  assert.deepEqual(misplaced,before);
+  misplaced.repairs[0].unexpected='不能悄悄删除';
+  assert.throws(()=>compileEditorialSelection(misplaced,request,args),/未授权/);
+  delete misplaced.repairs[0].unexpected;
+  misplaced.repairs[0].templateParams.templateMaterialQueries={src:'不同内容'};
+  assert.throws(()=>compileEditorialSelection(misplaced,request,args),e=>e.issues[0].code==='EDITORIAL_STRUCTURE_CONFLICT');
+});
+
 test('第15镜时长失败与第19镜重复只解锁第15镜，全部108卡仍参与联合比较',()=>{
   const args=fixture(),before=structuredClone(args),joint=buildEditorialJointRepairContract(args),request=buildEditorialSelectionRequest(args);
   assert.equal(joint.reviewedCount,108);assert.deepEqual(request.editableShotIds,['s15']);
