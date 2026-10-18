@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {restoreEditorialBoundSlots} from './talkcraft-editorial-bound-slots.mjs';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {buildEditorialJointRepairContract,editorialQuantitativeInput,editorialRequiredNumericFields} from './talkcraft-editorial-joint-repair.mjs';
@@ -267,6 +270,13 @@ export function compileEditorialSelection(response,request,inputs){
     if(!row?.personDisplays?.some(d=>d.entityName===person&&d.role==='core')||
        !row.research?.some(r=>r.entityType==='person'&&r.entityName===person))
       throw fail(`${window.shotId}不能删除或降级原核心人物资料需求`,window.shotId);
+  }
+  const sourceSlots=restoreEditorialBoundSlots(result,request,inputs);
+  if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json'))&&
+    (sourceSlots.repairs.length||sourceSlots.rejected.length)){
+    fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-transaction-binding-recovery.json'),JSON.stringify({
+      schema:'talkcraft-editorial-transaction-binding-recovery-v1',requestId:request.requestId,
+      ...sourceSlots,externalRequests:0,productionAdmitted:false},null,2));
   }
   const issues=[...auditEditorialSelectionContent(result,request,inputs).issues,...auditTemplateReuse(result.shots),...auditEditorialMaterialContract({shots:result.shots,
     sentences:result.sentences,researchPlan:result.materialResearch,catalog:inputs.catalog,projectRoot:inputs.projectRoot}).issues];
