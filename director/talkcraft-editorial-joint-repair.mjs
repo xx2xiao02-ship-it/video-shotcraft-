@@ -48,7 +48,9 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     // cross-shot plan. The unchanged material gate still checks approval.
     const corePeople=(row?.research||[]).filter(r=>r.entityType==='person'&&
       row?.personDisplays?.find(d=>d.entityName===r.entityName)?.role!=='mention').map(r=>r.entityName);
-    const retainedInternalSlots=(row?.materialBindings||[]).map(b=>({field:b.field,localPath:b.localPath}));
+    const retainedInternalSlots=(row?.materialBindings||[]).map(b=>({field:b.field,localPath:b.localPath,
+      sourceUrl:b.sourceUrl||b.url,identityReason:b.identityReason||b.reason||b.matchReason,
+      matchReason:b.matchReason,contentLanguage:b.contentLanguage}));
     const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length||retainedInternalSlots.length);
     const rejected={},candidates=[];
     const reject=(code,slug)=>(rejected[code]??=[]).push(slug);

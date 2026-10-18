@@ -90,12 +90,14 @@ test('无research的内部资料按本请求固定槽和核验文件恢复，重
  for(const row of [f.request.baseProposal.materialResearch.shots[0],f.result.materialResearch.shots[0]]){
    row.research=[];delete row.bindings;row.materialBindings=[structuredClone(b)];
  }
+ f.result.shots[0].templateParams.templateMaterialQueries={};
  const before=structuredClone(f.request),r=restoreEditorialBoundSlots(f.result,f.request,f.options);
  assert.equal(r.repairs.length,1);assert.equal(r.repairs[0].internal,true);assert.deepEqual(r.rejected,[]);
  assert.equal(f.result.shots[0].templateParams.cardProps.src,'remotion/public/pages/source.png');
  assert.equal(restoreEditorialBoundSlots(f.result,f.request,f.options).repairs.length,0);assert.deepEqual(f.request,before);
  for(const mutate of [g=>g.result.materialResearch.shots[0].materialBindings[0].sha256='changed',
    g=>g.options.catalog.cards[0].policy.media={},g=>g.result.shots[0].templateParams.cardProps.src='different.png',
+   g=>g.result.shots[0].templateParams.templateMaterialQueries.src='改成会议照片',
    g=>g.request.baseProposal.materialResearch.shots[0].materialBindings[0].licenseVerified=false]){
    const g=structuredClone({...f,options:{catalog:f.options.catalog,projectRoot:f.options.projectRoot}});
    delete g.result.shots[0].templateParams.cardProps.src;mutate(g);

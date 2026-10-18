@@ -22,6 +22,7 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,s
         const media=catalog.cards.find(c=>c.cardId===target.shotCard)?.policy?.media||{};
         if(!field||/host/iu.test(field)||!['image','image-or-video'].includes(media[field]))throw Error('目标缺少已绑定内部资料的原卡固定图片槽');
         if(props[field]&&local(props[field])!==source.localPath)throw Error('固定内部资料槽已有不同内容，不能覆盖');
+        if(target.templateParams.templateMaterialQueries?.[field])throw Error('固定内部资料槽不能改为新检索需求，须保留当前已核验来源身份');
         if(!source.localPath||path.isAbsolute(source.localPath)||/^(?:[a-z]+:|[/\\])/iu.test(source.localPath))throw Error('内部资料不是相对本地路径');
         const root=fs.realpathSync(path.join(projectRoot,'remotion/public'));
         const file=fs.realpathSync(path.resolve(root,source.localPath)),relative=path.relative(root,file);
@@ -33,7 +34,7 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,s
           !/^(zh(?:-[a-z]+)*|zxx)$/iu.test(source.contentLanguage)&&!source.languageReason)throw Error('内部资料来源、授权或语言核验不完整');
         if(!props[field]){props[field]='remotion/public/'+source.localPath;
           repairs.push({shotId:row.shotId,displayShotId:row.shotId,field,localPath:source.localPath,sha256:source.sha256,internal:true});}
-      }catch(error){rejected.push({shotId:row.shotId,displayShotId:row.shotId,field,message:error.message});}
+      }catch(error){rejected.push({shotId:row.shotId,displayShotId:row.shotId,field,internal:true,message:error.message});}
     }
   }
   for(const row of result.materialResearch?.shots||[])for(const binding of row.bindings||[]){

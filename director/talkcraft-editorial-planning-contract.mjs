@@ -140,6 +140,28 @@ function archivedRejectedFeedback(project){
 }
 // Prefer the latest rejected transaction, not the older installed storyboard.
 // This selects evidence only; it does not publish the retained proposal.
+function retainedRejectedNodeFeedback(project,work,j,a){
+  if(a.schema!=='talkcraft-editorial-selection-audit-v1'||a.compiled!==false||a.passed!==false||a.productionAdmitted!==false)return null;
+  const read=n=>JSON.parse(fs.readFileSync(path.join(work,n),'utf8'));
+  const request=read('qa/editorial-selection-request.json'),cache=read('qa/ark-editorial-response.json');
+  const {editorialSelectionRejection,...base}=cache,verified=verifiedEditorialFeedback(work);
+  const expected='分镜提案预检未通过：'+(a.issues||[]).map(i=>`[${i.code}] ${i.message}`).join('；');
+  if(!verified||a.requestId!==request.requestId||!isDeepStrictEqual(editorialSelectionRejection,a)||
+    !isDeepStrictEqual(base,request.baseProposal)||!isDeepStrictEqual(verified.failedChecks,a.issues)||j.error!==expected||
+    !a.issues?.length||a.issues.some(i=>!i.shotId||!base.shots?.some(s=>s.id===i.shotId)))
+    throw Error('本次未编译补全失败证据与请求不一致');
+  for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json','qa/ark-editorial-response.json'])
+    if(fileHash(project,n)!==(j.initial?.[n]??null))throw Error('正式输入变化，不能沿用当前拒绝结果：'+n);
+  if(fileHash(project,'qa/editorial-single-submission.json')!==fileHash(work,'qa/editorial-single-submission.json'))throw Error('拒绝结果不是当前提交');
+  const relative=String(a.rawResponse||'').replaceAll('\\','/');
+  if(!/^qa\/editorial-provider-responses\/[\dTZ-]+\.json$/u.test(relative))throw Error('本次拒绝原始结果路径不合法');
+  const raw=path.join(work,relative);
+  if(fs.lstatSync(raw).isSymbolicLink()||!isDeepStrictEqual(recoverBoundEditorialSelectionResponse(work,{runId:j.runId,request}),read(relative)))
+    throw Error('本次拒绝原始结果与回执不一致');
+  return {schema:'talkcraft-candidate-editorial-repair-v1',stage:'planning-check',sourceGate:'selection-compile',passed:false,
+    inputs:candidateFeedbackHashes(project,'planning-check'),proposal:base,failedChecks:structuredClone(a.issues),
+    retainedTransaction:j.directory,requestId:request.requestId,paidCalls:0,userAcceptance:false};
+}
 function retainedNodeEditorialFeedback(project){
   const journalFile=path.join(project,'qa/node-repair.json');
   if(!fs.existsSync(journalFile))return null;
@@ -148,8 +170,12 @@ function retainedNodeEditorialFeedback(project){
   const directory=path.resolve(project,j.directory),base=path.resolve(project,'qa/node-repairs'),rel=path.relative(base,directory);
   if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw Error('当前补全事务目录越界');
   const work=path.join(directory,'work'),reportFile=path.join(work,'qa/editorial-free-selection-replay.json');
+  const auditFile=path.join(work,'qa/editorial-selection-audit.json');
+  if(!fs.existsSync(auditFile))return null;
+  const a=read(auditFile);
+  if(a.compiled===false)return retainedRejectedNodeFeedback(project,work,j,a);
   if(!fs.existsSync(reportFile))return null;
-  const r=read(reportFile),a=read(path.join(work,'qa/editorial-selection-audit.json'));
+  const r=read(reportFile);
   if(a.compiled!==true)return null;
   // A free compile may succeed while the subsequent candidate/native gates
   // fail. Keep that exact compiled proposal and its hash-bound full feedback.

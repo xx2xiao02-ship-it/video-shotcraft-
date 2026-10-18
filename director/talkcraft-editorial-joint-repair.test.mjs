@@ -132,9 +132,11 @@ test('固定示意卡没有本片内容与媒体入口时不能作为可执行�
 test('内部已核验资料即使没有research需求也约束全部固定槽，不能降级到无媒体图形卡',()=>{
  const args=fixture();args.failedChecks=[{shotId:'s21',code:'CONTENT_ONSET_GAP'}];
  const row=args.proposal.materialResearch.shots.find(r=>r.shotId==='s21');
- row.materialBindings=[{field:'srcBefore',localPath:'pages/a.png'},{field:'srcAfter',localPath:'pages/b.png'}];
+ row.materialBindings=[{field:'srcBefore',localPath:'pages/a.png',sourceUrl:'https://official.example/page',identityReason:'官方文字文件',contentLanguage:'zh'},{field:'srcAfter',localPath:'pages/b.png'}];
  const before=structuredClone(args),w=buildEditorialJointRepairContract(args).windows[0];
- assert.equal(w.requiresSource,true);assert.deepEqual(w.retainedInternalSlots,row.materialBindings);
+ assert.equal(w.requiresSource,true);assert.deepEqual(w.retainedInternalSlots.map(b=>b.field),row.materialBindings.map(b=>b.field));
+ assert.equal(w.retainedInternalSlots[0].identityReason,'官方文字文件');
+ assert.equal(w.retainedInternalSlots[0].sourceUrl,'https://official.example/page');
  assert.ok(w.rejected.RETAINED_INTERNAL_SOURCE_SLOT_REQUIRED.includes('source-converge'));
  assert.ok(w.candidates.every(c=>['srcBefore','srcAfter'].every(f=>c.sourceDisplayFields.includes(f))));
  assert.deepEqual(args,before);
