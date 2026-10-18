@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import{createHash}from'node:crypto';
 import{captureEditorialResponse}from'./talkcraft-editorial-response.mjs';
-import{currentEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback,saveEditorialRepairFeedback}from'./talkcraft-editorial-planning-contract.mjs';
+import{currentEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback,saveEditorialRepairFeedback,savePlanningEditorialRepairFeedback}from'./talkcraft-editorial-planning-contract.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 
 test('本次超时无返回只保留已授权基稿与失败范围，不发布、不串旧回执、不续费',t=>{
@@ -66,6 +66,16 @@ test('本次已编译结果的两处失败覆盖旧五镜清单，归档后仍�
  write(p,'qa/node-repair.json',{schema:'talkcraft-node-repair-v1',status:'blocked',node:'storyboard-review',providerSubmitted:true,runId:'current',directory,initial,error:'step；budget'});
  const before=fs.readFileSync(path.join(p,'remotion/shots.json'));
  const f=currentEditorialRepairFeedback(p);assert.deepEqual(f.failedChecks,issues);assert.equal(f.proposal.shots[2].visual,'latest-design');
+ const journal=JSON.parse(fs.readFileSync(path.join(p,'qa/node-repair.json'))),audit=JSON.parse(fs.readFileSync(path.join(w,'qa/editorial-selection-audit.json')));
+ fs.unlinkSync(path.join(w,'qa/editorial-free-selection-replay.json'));
+ write(w,'qa/editorial-selection-audit.json',{...audit,passed:true,rawResponse:rawResponse.replaceAll('/','\\')});
+ savePlanningEditorialRepairFeedback(w,{passed:false,issues});
+ write(p,'qa/node-repair.json',{...journal,error:'当前节点文字和素材补全复检未通过；已保留结果，不自动追加模型调用'});
+ assert.deepEqual(currentEditorialRepairFeedback(p).proposal,proposal);
+ assert.deepEqual(currentEditorialRepairFeedback(p).failedChecks,issues);
+ assert.equal(fs.existsSync(path.join(w,'qa/editorial-free-selection-replay.json')),false);
+ write(w,'qa/editorial-selection-audit.json',audit);write(p,'qa/node-repair.json',journal);
+ write(w,'qa/editorial-free-selection-replay.json',{requestId:request.requestId,runId:'current',passed:false,productionAdmitted:false,externalRequests:0,rawResponse,issues});
  write(w,'qa/ark-editorial-response.json',{...proposal,tampered:true});
  assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);write(w,'qa/ark-editorial-response.json',proposal);
  const revision=path.join(p,'qa/storyboard-revisions/current');preserveCandidateMaterialRepairFeedback(p,revision);

@@ -229,8 +229,13 @@ function retainedNodeEditorialFeedback(project){
   if(!fs.existsSync(auditFile))return retainedTransportBaseFeedback(project,work,j);
   const a=read(auditFile);
   if(a.compiled===false)return retainedRejectedNodeFeedback(project,work,j,a);
-  if(!fs.existsSync(reportFile))return null;
-  const r=read(reportFile);
+  // A paid response already has the same hash-bound successful compiler audit.
+  // It need not run a second, nominally free replay just to retain its design.
+  // This is a read-only evidence projection, not a fabricated replay artifact.
+  const directCompiled=!fs.existsSync(reportFile)&&a.passed===true&&a.compiled===true&&typeof a.rawResponse==='string';
+  if(!fs.existsSync(reportFile)&&!directCompiled)return null;
+  const r=directCompiled?{runId:j.runId,requestId:a.requestId,passed:true,externalRequests:0,
+    productionAdmitted:false,rawResponse:a.rawResponse.replaceAll('\\','/')}:read(reportFile);
   if(a.compiled!==true)return null;
   // A free compile may succeed while the subsequent candidate/native gates
   // fail. Keep that exact compiled proposal and its hash-bound full feedback.
