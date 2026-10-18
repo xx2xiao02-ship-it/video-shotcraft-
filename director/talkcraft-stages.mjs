@@ -534,10 +534,11 @@ function runTalkcraftStageInternal(stage, runId) {
     mkdirSync(path.join(project, 'qa'), {recursive:true});
     const state=readTalkcraftStatus(ROOT,runId),adjustments=[];
     adjustments.push(...autoAdjustShotbook(project));
+    // Apply an input-bound reviewed plan before checking its source metadata.
+    const researchBindings=prepareResearchBindings(project,loadTalkcraftGovernedCatalog(JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8'))));
     const backgrounds=allocateUniqueBackgrounds(ROOT,project);
     if(backgrounds.unresolved.length)throw new Error(`待补充独立背景素材：${backgrounds.unresolved.map(s=>s.shotId).join('、')}`);
     assertExclusiveBackgrounds(project,JSON.parse(readFileSync(path.join(project,'remotion/shots.json'),'utf8')));
-    const researchBindings=prepareResearchBindings(project,loadTalkcraftGovernedCatalog(JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8'))));
     const researchFile=path.join(project,'material-research-plan.json');
     const materialContract=auditEditorialMaterialContract({
       shots:JSON.parse(readFileSync(path.join(project,'remotion/shots.json'),'utf8')),

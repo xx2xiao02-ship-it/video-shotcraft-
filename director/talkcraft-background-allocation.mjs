@@ -3,6 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {loadMaterialIndex,matchSceneVideos} from './b-mode-material-match.mjs';
 import {fitVideoPlayback} from './video-material-policy.mjs';
+import {recoverBackgroundSourceIdentities} from './talkcraft-background-source-recovery.mjs';
 
 function materialLibraryRoot(root) {
  const primary=path.join(root,'materials','_scenes');
@@ -26,12 +27,14 @@ export function allocateUniqueBackgrounds(root,project){
  const genericQuery = value => /按已有口播语义绑定|城市素材仅作背景底床|人物输入保持既有时间轴/u.test(String(value || ''));
  const queryFor = shot => [shot.intent, shot.visual, shot.templateParams?.materialQuery]
    .filter(value => value && !genericQuery(value)).join('；');
- const pending=shots.filter(s=>isBackgroundRole(s.templateParams?.materialRole) &&
-   (!s.templateParams.materialSrc || !s.templateParams.materialMatchReason || genericQuery(s.templateParams.materialQuery)));
  const libraryRoot=materialLibraryRoot(root);
  const library=loadMaterialIndex(root).filter(v=>v.path&&fs.existsSync(path.join(libraryRoot,'_scenes',v.path)));
+ const recovery=recoverBackgroundSourceIdentities(project,shots,{libraryRoot,library});
+ const recoveryIds=new Set([...recovery.recovered,...recovery.issues].map(row=>row.shotId));
+ const pending=shots.filter(s=>!recoveryIds.has(s.id)&&isBackgroundRole(s.templateParams?.materialRole) &&
+   (!s.templateParams.materialSrc || !s.templateParams.materialMatchReason || genericQuery(s.templateParams.materialQuery)));
  const pendingIds=new Set(pending.map(s=>s.id));
- const used=new Set(shots.filter(s=>!pendingIds.has(s.id)).map(s=>s.templateParams?.materialSourceId).filter(Boolean)),hashes=new Set(),unresolved=[];
+ const used=new Set(shots.filter(s=>!pendingIds.has(s.id)).map(s=>s.templateParams?.materialSourceId).filter(Boolean)),hashes=new Set(),unresolved=[...recovery.issues];
  for(const shot of shots){const p=shot.templateParams||{};if(!pendingIds.has(shot.id)&&isBackgroundRole(p.materialRole)&&p.materialSrc){const src=path.resolve(project,'remotion/public',p.materialSrc);if(fs.existsSync(src))hashes.add(createHash('sha256').update(fs.readFileSync(src)).digest('hex'));}}
  let assigned=0;
  for(const shot of pending){
@@ -74,5 +77,6 @@ export function allocateUniqueBackgrounds(root,project){
  }
  fs.writeFileSync(file,JSON.stringify(shots,null,2));fs.mkdirSync(path.join(project,'qa'),{recursive:true});
  fs.writeFileSync(path.join(project,'qa/background-allocation.json'),JSON.stringify({assigned,unresolved},null,2));
+ fs.writeFileSync(path.join(project,'qa/background-source-recovery.json'),JSON.stringify(recovery,null,2));
  return {assigned,unresolved};
 }
