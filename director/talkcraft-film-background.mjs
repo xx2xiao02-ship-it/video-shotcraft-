@@ -68,3 +68,20 @@ export function assertFilmBackgroundSnapshot(project,snapshot){
   if(!existsSync(file)||sha(readFileSync(file))!==snapshot.sha256)throw Error('任务背景快照缺失或已改变');
   return snapshot;
 }
+
+// Material preparation seals the same task-local background consumed by scaffold.
+// Never add a new public media file after the media inventory has been approved.
+export function prepareFilmBackground(root,project){
+  const sourceFile=path.join(project,'source-run.json'),bytes=readFileSync(sourceFile);
+  const sourceSha256=sha(bytes),source=JSON.parse(bytes),recordFile=path.join(project,'qa/film-background-preparation.json');
+  if(existsSync(recordFile)){
+    const record=JSON.parse(readFileSync(recordFile,'utf8'));
+    if(record.schema!=='talkcraft-film-background-preparation-v1'||record.sourceSha256!==sourceSha256)
+      throw Error('任务背景准备与当前输入不一致，不能串用旧记录');
+    return assertFilmBackgroundSnapshot(project,record.snapshot);
+  }
+  const snapshot=source.backgroundSnapshot?assertFilmBackgroundSnapshot(project,source.backgroundSnapshot):snapshotFilmBackground(root,project);
+  mkdirSync(path.dirname(recordFile),{recursive:true});
+  writeFileSync(recordFile,JSON.stringify({schema:'talkcraft-film-background-preparation-v1',sourceSha256,snapshot},null,2),{flag:'wx'});
+  return snapshot;
+}

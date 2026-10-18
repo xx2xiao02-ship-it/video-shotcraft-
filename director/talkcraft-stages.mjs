@@ -514,9 +514,9 @@ function runTalkcraftStageInternal(stage, runId) {
     return {project, audioSeconds:timing.durationSeconds, timingMethod:timing.timingMethod};
   }
   if (stage === 'media-preflight') {
-    return runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'}});
+    return runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'}});
   }
-  if(stage==='host-preflight')return runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
+  if(stage==='host-preflight')return runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
   if (stage === 'semantic-init') {
     run(PYTHON, [script('semantic_annotate.py'), '--project', project, '--init',
       '--shots', 'remotion/not-yet-planned.json'], project);
@@ -635,7 +635,7 @@ function runTalkcraftStageInternal(stage, runId) {
       if(materialCheck.unresolved.length)throw Error('全量预检素材绑定未通过：'+materialCheck.unresolved.map(x=>x.message).join('；'));
       if(!readTalkcraftStatus(ROOT,runId).storyboardApproved)throw Error('素材绑定改变了分镜，必须重新规划校验和审核');
     }
-    if(source.workflowPath==='recorded-host')runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'}});
+    if(source.workflowPath==='recorded-host')runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'}});
     runTalkcraftStage('semantic-check',runId);
     runTalkcraftStage('semantic-shot-check',runId);
     if(planning){
@@ -741,7 +741,7 @@ function runTalkcraftStageInternal(stage, runId) {
   }
   if (stage === 'sample') {
     if(readTalkcraftStatus(ROOT,runId).digitalHumanGenerationPlanned)
-      runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
+      runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
     runTalkcraftStage('semantic-check', runId);
     runTalkcraftStage('semantic-shot-check', runId);
     requirePreflight(runId);
@@ -768,7 +768,7 @@ function runTalkcraftStageInternal(stage, runId) {
   }
   if (stage === 'sample-2m') {
     if(readTalkcraftStatus(ROOT,runId).digitalHumanGenerationPlanned)
-      runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
+      runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
     const output = path.join(project, 'remotion', 'out', 'sample-2m.mp4');
     if (existsSync(output)) throw new Error('Existing 2-minute sample was preserved');
     runTalkcraftStage('semantic-check', runId);
@@ -799,7 +799,7 @@ function runTalkcraftStageInternal(stage, runId) {
   }
   if (stage === 'render-all') {
     if(readTalkcraftStatus(ROOT,runId).digitalHumanGenerationPlanned)
-      runMediaPreflight(project,SKILL,{python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
+      runMediaPreflight(project,SKILL,{backgroundRoot:ROOT,python:PYTHON,env:{...pythonEnvironment(),PYTHONIOENCODING:'utf-8',PYTHONUTF8:'1'},scope:'generated'});
     assertPipelineProvenance(project);
     preserveStaleFinalArtifacts(project);
     const renderStatus = readTalkcraftStatus(ROOT, runId);

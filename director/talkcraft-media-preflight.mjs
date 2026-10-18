@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import {existsSync,mkdirSync,readFileSync,readdirSync,statSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.mjs';
+import {prepareFilmBackground} from './talkcraft-film-background.mjs';
 
 const adapter=fileURLToPath(new URL('./talkcraft-code-preflight.py',import.meta.url));
 const hashes=new Map();
@@ -62,7 +63,8 @@ export function readMediaPreflightStatus(project) {
     digitalHumanGenerationPlanned:managed,digitalHumanGenerationPending:managed&&full?.exitCode!==0};
 }
 
-export function runMediaPreflight(project,skill,{python,env,scope='preparation'}) {
+export function runMediaPreflight(project,skill,{python,env,scope='preparation',backgroundRoot}) {
+  if(backgroundRoot)prepareFilmBackground(backgroundRoot,project);
   const source=JSON.parse(readFileSync(path.join(project,'source-run.json'),'utf8'));
   const managed=plannedGeneration(source);
   const script=path.join(skill,'scripts/preflight.py');

@@ -9,7 +9,7 @@ import {normalizeTheme, readCurrentTheme, themeAdapter, videoDimensions} from '.
 import {ensureTalkcraftRenderRuntime} from './talkcraft-render-runtime.mjs';
 import {installBundledFonts} from './bundled-fonts.mjs';
 import {assertParallelPreparationJoined,createPreparedTalkcraftResolver} from './talkcraft-parallel-preparation.mjs';
-import {snapshotFilmBackground,assertFilmBackgroundSnapshot} from './talkcraft-film-background.mjs';
+import {prepareFilmBackground} from './talkcraft-film-background.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SKILL = resolveTalkcraftSkillRoot(ROOT);
@@ -83,8 +83,7 @@ export function scaffoldTalkcraftProject(root, skillRoot, runId, {sampleOnly=tru
   writeFileSync(path.join(src,'card-contracts.ts'),`export const CARD_CONTRACTS: Record<string,{fields:string[];locked:string[];required:string[];blankAllowed:string[];media:Record<string,string>}> = ${JSON.stringify(runtimeContracts,null,2)};\n`);
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-scene-shared.tsx'), path.join(src, 'scenes', 'scene-shared.tsx'));
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-template-adapter.tsx'), path.join(src, 'talkcraft-template-adapter.tsx'));
-  const filmBackground=source.backgroundSnapshot
-    ? assertFilmBackgroundSnapshot(project,source.backgroundSnapshot) : snapshotFilmBackground(root,project);
+  const filmBackground=prepareFilmBackground(root,project);
   copyFileSync(path.join(ROOT,'director','talkcraft-film-background.tsx'),path.join(src,'film-background.tsx'));
   writeFileSync(path.join(src,'film-background-config.ts'),`export const FILM_BACKGROUND = ${JSON.stringify(filmBackground)} as const;\n`);
   copyFileSync(path.join(ROOT, 'director', 'talkcraft-host-context.mjs'), path.join(src, 'talkcraft-host-context.mjs'));
