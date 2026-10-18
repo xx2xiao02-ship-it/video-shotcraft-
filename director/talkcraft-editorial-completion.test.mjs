@@ -10,6 +10,20 @@ import {talkcraftWorkflowProgress} from './talkcraft-progress.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
 import {automaticTalkcraftStage} from './talkcraft-auto-advance.mjs';
 
+test('当前规划复检通过后允许已授权审核关闭修改要求，其他失败仍保持阻断',()=>{
+  const run={provenance:{verified:true},nextStage:'approve-storyboard',storyboardAdjustmentPending:true,
+    planningPassed:true,continuationPolicy:{enabled:true,stopAt:'review'}};
+  assert.equal(selectTalkcraftContinuation(run,{intent:'continue'}),'approve-storyboard');
+  assert.equal(automaticTalkcraftStage(run),'approve-storyboard');
+  for(const patch of [{planningPassed:false},{continuationPolicy:{enabled:false}},{activeTask:{id:1}},
+    {lastFailure:{code:'FAILED'}},{failureReport:{}},{factReview:{revisionPending:true}}]){
+    assert.throws(()=>selectTalkcraftContinuation({...run,...patch},{intent:'continue'}),/等待编导/);
+    assert.equal(automaticTalkcraftStage({...run,...patch}),null);
+  }
+  assert.equal(automaticTalkcraftStage({...run,nextStage:'approve-final',storyboardAdjustmentPending:false}),null);
+  assert.equal(automaticTalkcraftStage({...run,nextStage:'deliver',storyboardAdjustmentPending:false}),null);
+});
+
 function fixture(t){
   const p=fs.mkdtempSync(path.join(os.tmpdir(),'editorial-completion-'));
   t.after(()=>fs.rmSync(p,{recursive:true,force:true}));

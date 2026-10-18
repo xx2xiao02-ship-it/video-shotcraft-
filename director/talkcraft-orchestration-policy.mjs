@@ -24,7 +24,9 @@ export function selectTalkcraftContinuation(run, body = {}) {
     return 'editorial-revision';
   }
   const revisionPreparation=run.editorialChecked===true&&['media-preflight','candidates','planning-check'].includes(run.nextStage);
-  if (run.storyboardAdjustmentPending && !['editorial-recover','editorial-check','semantic-check'].includes(run.nextStage) && !revisionPreparation &&
+  const delegatedApproval=run.nextStage==='approve-storyboard'&&run.continuationPolicy?.enabled===true&&
+    run.planningPassed===true&&!run.activeTask&&!run.lastFailure&&!run.failureReport&&!run.factReview?.revisionPending;
+  if (run.storyboardAdjustmentPending && !['editorial-recover','editorial-check','semantic-check'].includes(run.nextStage) && !revisionPreparation && !delegatedApproval &&
       !(run.nextStage==='editorial' && body.approveModelCost===true))
     throw new Error('分镜修改要求已记录，等待编导处理并重新预检');
   const stage = run.nextStage;
