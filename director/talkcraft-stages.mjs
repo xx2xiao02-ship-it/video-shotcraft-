@@ -454,7 +454,10 @@ function runTalkcraftStageInternal(stage, runId) {
     if(!result.passed)throw Error(result.checks.filter(c=>!c.passed).map(c=>c.reason+'；治理：'+c.remedy).join('\n'));
     return result;
   }
-  enforceReviewedTemplateStage(stage,project,{skillRoot:SKILL});
+  // Remaining native scenes are built after sample approval. Before building,
+  // verify selection, runtime and every existing scene; require full coverage
+  // immediately after implementation, before any segment encoding.
+  enforceReviewedTemplateStage(stage==='render-all'?'render-prepare':stage,project,{skillRoot:SKILL});
   if (stage === 'bootstrap') {
     const source=JSON.parse(readFileSync(path.join(project,'source-run.json'),'utf8'));
     if(source.workflowPath==='recorded-host')prepareRecordedHost(project);
@@ -813,6 +816,7 @@ function runTalkcraftStageInternal(stage, runId) {
       // expensive segment encoding; a first-shot proof cannot satisfy this.
       runTalkcraftStage('text-binding',runId);
     }
+    enforceReviewedTemplateStage('render-all',project,{skillRoot:SKILL});
     const status = readTalkcraftStatus(ROOT, runId);
     if (!status.scenesReady) {
       throw new Error(`Remaining shots are not implemented: ${status.scenesMissing.join(', ')}`);

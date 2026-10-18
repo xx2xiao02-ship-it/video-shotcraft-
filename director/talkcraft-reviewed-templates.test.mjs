@@ -8,6 +8,21 @@ import {loadReviewedTemplates,reviewedTemplateIndex,recordReviewedCandidates,ass
   assertNoCustomDrawing,assertReviewedRuntimeSources,enforceReviewedTemplateStage,auditReviewedTemplates,assertTemplateOnlyEditorialProposal,
   reconcileReviewedSelectionCandidates,recordCandidateComparison} from './talkcraft-reviewed-templates.mjs';
 const hash=x=>createHash('sha256').update(x).digest('hex');
+test('整片先核验已有场景再生成其余场景，编码前仍要求全部齐全',t=>{
+  const f=fixture(t);
+  f.registry.cards.push({...f.registry.cards[0],cardId:'another'});f.save();
+  f.write('remotion/shots.json',[{id:'s01',shotCard:'approved'},{id:'s02',shotCard:'another'}]);
+  f.write('SHOTBOOK.md','## s01\n- 选卡行：论点 → approved\n## s02\n- 选卡行：论点 → another\n');
+  f.write('qa/card-candidates.json',{s01:{candidates:{论点:[{slug:'approved'}]}},s02:{candidates:{论点:[{slug:'another'}]}}});
+  recordReviewedCandidates(f.project,f.options);
+  assert.doesNotThrow(()=>enforceReviewedTemplateStage('render-prepare',f.project,f.options));
+  assert.throws(()=>enforceReviewedTemplateStage('render-all',f.project,f.options),/场景缺失.*s02/);
+  f.write('remotion/src/scenes/s01.tsx','export const S=()=> <div/>;');
+  assert.throws(()=>enforceReviewedTemplateStage('render-prepare',f.project,f.options),/禁止自行补画/);
+  f.write('remotion/src/scenes/s01.tsx','export const S=()=> <TemplateScene/>;');
+  f.write('remotion/src/scenes/s02.tsx','export const S=()=> <TemplateScene/>;');
+  assert.doesNotThrow(()=>enforceReviewedTemplateStage('render-all',f.project,f.options));
+});
 function fixture(t){
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'reviewed-cards-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
   const project=path.join(dir,'project'),skillRoot=path.join(dir,'skill'),registryFile=path.join(dir,'reviewed.json');
@@ -76,7 +91,7 @@ test('opening short pool cannot manufacture semantic fit',t=>{const f=fixture(t)
 test('changed book invalidates candidates even if cards still match',t=>{const f=fixture(t);f.write('SHOTBOOK.md','changed');assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
 test('candidate JSON cannot be changed after binding',t=>{const f=fixture(t);f.write('qa/card-candidates.json',{});assert.throws(()=>assertReviewedSelection(f.project,f.options),/候选依据已变化/);});
 test('changed registry invalidates saved selection',t=>{const f=fixture(t);f.registry.note='revised';f.save();assert.throws(()=>assertReviewedSelection(f.project,f.options),/当前已审模板/);});
-test('30 shot window duplicate is blocking',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'approved'},{id:'s02',shotCard:'approved'}]);f.write('qa/card-candidates.json',{s01:{candidates:{论点:[{slug:'approved'}]}},s02:{candidates:{论点:[{slug:'approved'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/连续30镜/);});
+test('30 shot window duplicate is blocking',t=>{const f=fixture(t);f.write('remotion/shots.json',[{id:'s01',shotCard:'approved'},{id:'s02',shotCard:'approved'}]);f.write('qa/card-candidates.json',{s01:{candidates:{论点:[{slug:'approved'}]}},s02:{candidates:{论点:[{slug:'another'}]}}});recordReviewedCandidates(f.project,f.options);assert.throws(()=>assertReviewedSelection(f.project,f.options),/连续30镜/);});
 test('renamed custom composition import is blocking',t=>{const f=fixture(t);f.write('remotion/src/Main.tsx',"import {Extra} from './MyDiagram'; export const Main=()=> <Extra/>;");assert.throws(()=>assertNoCustomDrawing(f.project),/未经登记的扩展/);});
 test('inline SVG in renderer cannot inherit template review',t=>{const f=fixture(t);f.write('remotion/src/Main.tsx','export const Main=()=> <svg/>;');assert.throws(()=>assertNoCustomDrawing(f.project),/补画/);});
 test('a scene must use TemplateScene without added drawings',t=>{const f=fixture(t);f.write('remotion/src/scenes/s01.tsx','export const S=()=> <div/>;');assert.throws(()=>assertNoCustomDrawing(f.project),/必须调用已审模板/);});

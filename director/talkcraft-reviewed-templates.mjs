@@ -277,12 +277,12 @@ export function assertReviewedRuntimeSources(project,{skillRoot,...options}={}) 
 }
 
 export function enforceReviewedTemplateStage(stage,project,options={}) {
-  if(['scaffold','implement','implement-scenes','sample','sample-2m','render-all','render-qa','sample-qa','word-reveal-qa','text-contrast','qa','deliver'].includes(stage)){
+  if(['scaffold','implement','implement-scenes','render-prepare','sample','sample-2m','render-all','render-qa','sample-qa','word-reveal-qa','text-contrast','qa','deliver'].includes(stage)){
     const selection=assertReviewedSelection(project,options);
     if(!['scaffold','implement','implement-scenes'].includes(stage)){
       // Upstream requires only the sample scene to be implemented before its
       // approval. Other scenes may be absent, but may never draw a fallback.
-      assertNoCustomDrawing(project,{requiredShotIds:['sample','sample-qa'].includes(stage)?['s01']:null});
+      assertNoCustomDrawing(project,{requiredShotIds:stage==='render-prepare'?[]:['sample','sample-qa'].includes(stage)?['s01']:null});
       assertReviewedRuntimeSources(project,options);
     }
     return selection;
