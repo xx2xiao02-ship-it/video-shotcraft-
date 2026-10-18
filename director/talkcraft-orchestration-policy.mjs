@@ -5,6 +5,10 @@ export function selectTalkcraftContinuation(run, body = {}) {
     throw new Error('前端只能提交继续意图，不能指定编导阶段');
   if (run.provenance?.verified !== true)
     throw new Error('B 模式管线来源未核验，请先由编导核对运行记录');
+  if(body.resumeRevision===true||body.recheckNodeBase===true){
+    if(run.activeTask||body.approveModelCost||body.reviseStoryboard)throw Error('已有授权恢复不接受并发或追加费用授权');
+    return 'planning-repair';
+  }
   if(body.recoverExisting===true){
     if(body.reviseStoryboard||body.approveModelCost||!run.editorialResponseSaved||run.shotbook||run.activeTask)
       throw new Error('本地恢复只允许无并发的已保存未落地结果，不接受费用授权');
@@ -23,11 +27,11 @@ export function selectTalkcraftContinuation(run, body = {}) {
     throw new Error('分镜修改要求已记录，等待编导处理并重新预检');
   const stage = run.nextStage;
   const supported = new Set(['recover-timing','recover-alignment','word-timing','semantic-check','editorial','editorial-check','editorial-recover',
-    'candidates','planning-check','media-preflight','host-preflight','preflight','scaffold','digital-human','sample','render-all','qa','deliver']);
+    'candidates','planning-check','media-preflight','host-preflight','preflight','scaffold','digital-human','sample','render-all','qa','deliver',...(run.continuationPolicy?.enabled===true?['approve-storyboard']:[])]);
   if (!supported.has(stage)) throw new Error(run.waitingFor || '当前阶段需要审核或修复，不能启动任务');
   if (stage === 'editorial' && body.approveModelCost !== true)
     throw new Error('当前下一步为付费分镜生成，需要本次明确授权');
-  if (stage === 'digital-human' && body.approveDigitalHumanCost !== true)
+  if (stage === 'digital-human' && body.approveDigitalHumanCost !== true&&run.digitalHumanAutomation?.enabled!==true)
     throw new Error('当前下一步为付费数字人生成，需要本次明确授权');
   return stage;
 }

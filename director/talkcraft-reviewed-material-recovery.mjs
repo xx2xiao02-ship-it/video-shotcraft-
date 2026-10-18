@@ -21,7 +21,7 @@ function context(shot,card){
 }
 // Only facts from an explicitly selected, hash-bound same-run acquisition are
 // reusable. A previous creative plan or a successful video is never a fallback.
-export function loadReviewedMaterialRecovery(project,catalog,shots,research,record){
+export function loadReviewedMaterialRecovery(project,catalog,shots,research,record,{allowChangedDesign=false}={}){
   if(!record){const file=path.join(project,registry);if(!fs.existsSync(file))return null;record=read(file);}
   const source=read(path.join(project,'source-run.json'));
   if(record.schema!=='talkcraft-reviewed-material-recovery-v1'||!source.runId||record.runId!==source.runId||
@@ -32,13 +32,16 @@ export function loadReviewedMaterialRecovery(project,catalog,shots,research,reco
   if(plan.schema!=='talkcraft-material-binding-plan-v1'||plan.inputSha256!==record.inputSha256||!Array.isArray(plan.bindings))
     throw Error('素材快照未绑定当前原稿');
   const oldShots=read(path.join(snapshot,'remotion/shots.json')),oldResearch=read(path.join(snapshot,'material-research-plan.json'));
-  const restored=[];
+  const restored=[],eligible=[],skipped=[];
   for(const entry of plan.bindings){
     const shot=shots.find(s=>s.id===entry.shotId),oldShot=oldShots.find(s=>s.id===entry.shotId);
     const card=catalog.cards.find(c=>c.cardId===shot?.shotCard),row=research.shots.find(r=>r.shotId===entry.shotId);
     const oldRow=oldResearch.shots.find(r=>r.shotId===entry.shotId);
     if(!shot||!oldShot||!row||!oldRow||!card?.policy?.media?.[entry.field]||
-      !isDeepStrictEqual(context(shot,card),context(oldShot,card)))throw Error(`${entry.shotId}镜头设计或槽位已改变，不能恢复旧绑定`);
+      !isDeepStrictEqual(context(shot,card),context(oldShot,card))){
+        if(allowChangedDesign){skipped.push({shotId:entry.shotId,field:entry.field,reason:'本镜设计改变，旧绑定未复用，须由当前槽位及来源校验重新绑定'});continue;}
+        throw Error(`${entry.shotId}镜头设计或槽位已改变，不能恢复旧绑定`);
+      }
     const oldPath=oldShot.templateParams?.cardProps?.[entry.field]?.replace(/^remotion\/public\//u,'');
     const currentPath=shot.templateParams?.cardProps?.[entry.field]?.replace(/^remotion\/public\//u,'');
     if(oldPath!==entry.localPath||currentPath&&currentPath!==entry.localPath)throw Error(`${entry.shotId}.${entry.field}文件与已核验快照冲突`);
@@ -54,8 +57,9 @@ export function loadReviewedMaterialRecovery(project,catalog,shots,research,reco
         (existing.sourceUrl||existing.url)!==(declaration.sourceUrl||declaration.url)))throw Error(`${entry.shotId}.${entry.field}当前声明与快照冲突`);
       if(!existing){row.materialBindings??=[];row.materialBindings.push(structuredClone(declaration));restored.push({shotId:entry.shotId,field:entry.field});}
     }
+    eligible.push(entry);
   }
-  return {plan,restored,snapshot:record.snapshot,planSha256:record.planSha256};
+  return {plan:{...plan,bindings:eligible},restored,skipped,snapshot:record.snapshot,planSha256:record.planSha256};
 }
 export function registerReviewedMaterialRecovery(project,catalog,{snapshot,planSha256}){
   const source=read(path.join(project,'source-run.json'));

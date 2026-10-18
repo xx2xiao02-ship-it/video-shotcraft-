@@ -62,3 +62,12 @@ test('非本任务快照路径、未核验素材和缺少声明不能通过正�
   registerReviewedMaterialRecovery(p,catalog,{...options,planSha256:sha(fs.readFileSync(path.join(p,options.snapshot)))});
   assert.equal(prepareResearchBindings(p,catalog).issues[0].code,'REVIEWED_SOURCE_BINDING_REJECTED');
 });
+
+test('节点补全可跳过设计已变的旧绑定，但不能挪用；来源校验与严格登记保持原样',t=>{
+ const {p,options,write}=fixture(t);registerReviewedMaterialRecovery(p,catalog,options);
+ const shots=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')));shots[0].intent='重新设计';
+ const research=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json')));
+ assert.throws(()=>loadReviewedMaterialRecovery(p,catalog,shots,research),/改变/);
+ const result=loadReviewedMaterialRecovery(p,catalog,shots,research,undefined,{allowChangedDesign:true});
+ assert.equal(result.plan.bindings.length,0);assert.equal(result.skipped.length,1);assert.equal(research.shots[0].materialBindings,undefined);
+});

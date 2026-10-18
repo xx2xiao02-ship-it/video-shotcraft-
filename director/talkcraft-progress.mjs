@@ -58,7 +58,9 @@ export function talkcraftWorkflowProgress(run) {
   const requested=workflowNodeForTask(active?.name||failure?.task?.name||run.nextStage);
   let current=nodes.find(node=>!['done','skipped'].includes(node.status));
   const requestedNode=nodes.find(node=>node.id===requested);
-  const separate=requestedNode&&current&&requestedNode.id!==current.id&&(active||failure);
+  const internalPreflight=run.nodeCompletion?.node==='preflight'&&['running','blocked'].includes(run.nodeCompletion.status)&&requested==='preflight';
+  if(internalPreflight&&requestedNode)current=requestedNode;
+  const separate=!internalPreflight&&requestedNode&&current&&requestedNode.id!==current.id&&(active||failure);
   const outOfOrderActivity=separate?{node:requestedNode.id,label:requestedNode.label,
     status:active?(active.status==='stopping'?'stopping':'running'):'blocked',
     detail:active?.message||failure?.cause||failure?.title||run.waitingFor}:null;

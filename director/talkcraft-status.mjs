@@ -1,4 +1,7 @@
 import {acceptanceResponsibilities,assertMachineVideo,humanVisualApprovalCurrent} from './talkcraft-acceptance-policy.mjs';
+import {contextualTalkcraftProject} from './talkcraft-project-context.mjs';
+import {readDigitalHumanAutomation} from './talkcraft-digital-human-policy.mjs';
+import {readTalkcraftContinuation} from './talkcraft-continuation-policy.mjs';
 import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 import {readScaffoldReady} from './talkcraft-scaffold-state.mjs';
 import {readMediaPreflightStatus} from './talkcraft-media-preflight.mjs';
@@ -26,7 +29,7 @@ const json = file => JSON.parse(readFileSync(file, 'utf8'));
 
 export function talkcraftProject(root, runId) {
   if (!RUN_ID.test(runId)) throw new Error('Invalid TalkCraft run ID');
-  const project = path.join(root, 'director', 'b-mode-runs', runId, 'talkcraft');
+  const project = contextualTalkcraftProject(root,runId)||path.join(root, 'director', 'b-mode-runs', runId, 'talkcraft');
   if (!existsSync(path.join(project, 'source-run.json'))) throw new Error('TalkCraft run was not found');
   return project;
 }
@@ -294,7 +297,14 @@ export function readTalkcraftStatus(root, runId) {
     const proof=assertTextContrastProof(project);
     textContrastAudit={passed:true,currentSource:true,blocking:false,scope:'full',completedAt:statSync(path.join(project,'qa/text-contrast-runtime.json')).mtimeMs};
   } catch {} // Partial, failed or stale evidence never resolves a full-film failure.
-  return {runId, sourceRunId:source.sourceRunId || null, voice:source.voice || null,voiceMode:source.voiceMode||'standard',voiceEngine:source.voiceEngine||null,canRecoverAlignment,digitalHuman,
+  const repair=has('qa/node-repair.json')?json(path.join(project,'qa/node-repair.json')):null;
+  const completion=has('qa/preflight-node-completion.json')?json(path.join(project,'qa/preflight-node-completion.json')):null;
+  const completionCurrent=completion?.schema==='talkcraft-preflight-completion-v1'&&completion.runId===runId&&completion.entryReviewed===true&&
+    completion.afterInputs&&Object.entries(completion.afterInputs).every(([n,h])=>(has(n)?digest(path.join(project,n)):null)===h);
+  return {runId,digitalHumanAutomation:readDigitalHumanAutomation(project),continuationPolicy:readTalkcraftContinuation(project),
+    nodeRepair:repair?{schema:repair.schema,node:repair.node,status:repair.status,directory:repair.directory,error:repair.error||null,providerSubmitted:repair.providerSubmitted===true}:null,
+    nodeCompletion:completionCurrent?{node:'preflight',status:completion.status,phase:completion.phase,error:completion.error||null}:null,
+    sourceRunId:source.sourceRunId || null, voice:source.voice || null,voiceMode:source.voiceMode||'standard',voiceEngine:source.voiceEngine||null,canRecoverAlignment,digitalHuman,
     ...timingHealth(timing), wordTimingReady:timingHealth(timing).wordTimingReady || (()=>{try{return !!readWordAlignment(project);}catch{return false;}})(), canRecoverTiming,
     inputReady:timingHealth(timing).sentenceTimingReady && has('aligned-sentences.json') && !!semantics?.sentences?.length,
     aspectRatio:source.aspectRatio || source.themeSnapshot?.aspectRatio || '16:9',

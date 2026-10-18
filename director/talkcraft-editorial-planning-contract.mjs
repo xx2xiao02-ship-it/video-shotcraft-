@@ -148,7 +148,28 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
       }
     }catch{}
   }
+  // After preparation, the explicit active authorization identifies which
+  // archive owns this revision. A current 04 rejection must not pick an older
+  // 06 snapshot; a current 07 repair must not pick an older 04 archive either.
+  if(!candidateSnapshotOnly&&!fs.existsSync(path.join(project,'remotion/shots.json'))&&
+    !fs.existsSync(path.join(project,'qa/ark-editorial-response.json'))){
+    try{
+      const authorization=JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-revision-authorization.json'),'utf8'));
+      if(authorization.schema==='talkcraft-editorial-revision-authorization-v1'&&authorization.node==='editorial'&&authorization.startedAt&&
+        (authorization.feedbackStage==='editorial'||!authorization.feedbackStage&&fs.existsSync(path.join(project,'qa/editorial-revision-feedback.json')))){
+        const archived=archivedRejectedFeedback(project);
+        return archived&&editorialRepairScopeSha256(archived)===authorization.repairScopeSha256?archived:null;
+      }
+    }catch{}
+  }
   // Current node 06 evidence supersedes the earlier node 04 failure list.
+  const preflightFile=path.join(project,'qa/preflight-editorial-repair.json');
+  if(fs.existsSync(preflightFile)){
+    const latest=JSON.parse(fs.readFileSync(preflightFile,'utf8'));
+    if(latest.schema==='talkcraft-candidate-editorial-repair-v1'&&latest.stage==='preflight'&&
+      JSON.stringify(latest.inputs)===JSON.stringify(candidateFeedbackHashes(project,'preflight')))
+      return latest.passed?null:latest;
+  }
   const planningFile=path.join(project,'qa/planning-editorial-repair.json');
   if(fs.existsSync(planningFile)){
     const planning=JSON.parse(fs.readFileSync(planningFile,'utf8'));
@@ -167,7 +188,6 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
     // A new rejected result must supersede the archived 06 list; stale or
     // edited response evidence must not silently fall back to older failures.
     if(fs.existsSync(path.join(project,'qa/ark-editorial-response.json')))return currentRejectedEditorialFeedback(project);
-    if(fs.existsSync(path.join(project,'qa/editorial-revision-feedback.json')))return archivedRejectedFeedback(project);
   }
   // The existing revision preparation archives shot-dependent inputs. Accept
   // its verified snapshot only before a new storyboard has been installed.
@@ -184,7 +204,9 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
   }
   if(candidateSnapshotOnly)return null;
   // A changed 06 plan must never regress to the stale 04 list for the same text.
-  if(fs.existsSync(candidateFile)||fs.existsSync(revisionFile))return null;
+  if(fs.existsSync(preflightFile)||fs.existsSync(planningFile)||fs.existsSync(candidateFile)||fs.existsSync(revisionFile))return null;
+  if(!fs.existsSync(path.join(project,'remotion/shots.json'))&&
+    fs.existsSync(path.join(project,'qa/editorial-revision-feedback.json')))return archivedRejectedFeedback(project);
   const file=path.join(project,'qa/editorial-repair-feedback.json');
   if(!fs.existsSync(file))return null;
   const record=JSON.parse(fs.readFileSync(file,'utf8'));
@@ -195,7 +217,7 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
 const candidateFeedbackFiles=['input.txt','aligned-sentences.json','audio/full.mp3',
   'semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json'];
 const planningFeedbackFiles=['remotion/native-presentation.json','remotion/word-reveal-plan.json','qa/ark-editorial-response.json'];
-const candidateFeedbackHashes=(project,stage)=>Object.fromEntries([...candidateFeedbackFiles,...(stage==='planning-check'?planningFeedbackFiles:[])].map(name=>{
+const candidateFeedbackHashes=(project,stage)=>Object.fromEntries([...candidateFeedbackFiles,...(['planning-check','preflight'].includes(stage)?planningFeedbackFiles:[])].map(name=>{
   const file=path.join(project,name);
   return [name,fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null];
 }));
@@ -214,14 +236,15 @@ export function preserveCandidateMaterialRepairFeedback(project,revision){
   return record;
 }
 export function saveCandidateMaterialRepairFeedback(project,readiness){return saveStageRepairFeedback(project,readiness,'candidates');}
-export function savePlanningEditorialRepairFeedback(project,{passed,issues}){
-  return saveStageRepairFeedback(project,{passed,materialIssues:issues},'planning-check');
+export function savePlanningEditorialRepairFeedback(project,{passed,issues,stage='planning-check'}){
+  if(!['planning-check','preflight'].includes(stage))throw Error('非法节点复检反馈');
+  return saveStageRepairFeedback(project,{passed,materialIssues:issues},stage);
 }
 function saveStageRepairFeedback(project,readiness,stage){
   const read=name=>JSON.parse(fs.readFileSync(path.join(project,name),'utf8'));
   const shots=read('remotion/shots.json');
   const responseFile=path.join(project,'qa/ark-editorial-response.json');
-  const response=stage==='planning-check'&&fs.existsSync(responseFile)?read('qa/ark-editorial-response.json'):null;
+  const response=['planning-check','preflight'].includes(stage)&&fs.existsSync(responseFile)?read('qa/ark-editorial-response.json'):null;
   if(response)for(const shot of shots){
     const native=response.shots?.find(s=>s.id===shot.id)?.nativePresentation;
     if(native)shot.nativePresentation=structuredClone(native);
@@ -237,10 +260,10 @@ function saveStageRepairFeedback(project,readiness,stage){
       return {shotId,shotCard:shot?.shotCard,firstSentence:shot?.firstSentence,lastSentence:shot?.lastSentence,
         checks:failedChecks.filter(i=>i.shotId===shotId)};
     }),
-    instruction:`这是当前${stage==='planning-check'?'07分镜规划':'06素材准备'}后的真实失败，替代同输入的旧阶段失败清单。逐项核对全部108张已审卡的真实资料槽、语义及真实句边界时长，不自动选首名。保留已核验素材、真实字级时间和原口型窗口；不得把缺证据事实改为作者观点，不以搜索候选或背景代替资料。结构通过不代表素材或人审通过。新模型调用仍需单次费用授权。`,
+    instruction:`这是当前${stage==='preflight'?'09全量复检':stage==='planning-check'?'07分镜规划':'06素材准备'}后的真实失败，替代同输入的旧阶段失败清单。逐项核对全部108张已审卡的真实资料槽、语义及真实句边界时长，不自动选首名。保留已核验素材、真实字级时间和原口型窗口；不得把缺证据事实改为作者观点，不以搜索候选或背景代替资料。结构通过不代表素材或人审通过。新模型调用仍需单次费用授权。`,
     paidCalls:0,userAcceptance:false,createdAt:new Date().toISOString()};
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
-  fs.writeFileSync(path.join(project,stage==='planning-check'?'qa/planning-editorial-repair.json':'qa/candidate-editorial-repair.json'),JSON.stringify(record,null,2));
+  fs.writeFileSync(path.join(project,stage==='preflight'?'qa/preflight-editorial-repair.json':stage==='planning-check'?'qa/planning-editorial-repair.json':'qa/candidate-editorial-repair.json'),JSON.stringify(record,null,2));
   return record;
 }
 

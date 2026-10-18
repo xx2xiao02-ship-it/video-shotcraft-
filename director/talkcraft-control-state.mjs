@@ -15,6 +15,8 @@ const completed = (run, name) => ({
   'talkcraft-candidates':run.candidatesReady,
   'talkcraft-preflight':run.preflightPassed,
   'talkcraft-planning-check':run.planningPassed,
+  'talkcraft-planning-repair':run.nodeRepair?.status==='completed'&&run.planningPassed,
+  'talkcraft-preflight-repair':run.nodeRepair?.status==='completed'&&run.preflightPassed,
   'talkcraft-host-preflight':run.mediaPreflightPassed,
   'talkcraft-digital-human':run.digitalHuman?.ready,
   'talkcraft-scaffold':run.scaffoldReady??run.workbenchReady,
@@ -57,6 +59,8 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
   if(run.canRecoverAlignment)return state('recover-alignment','复用配音重对齐失败句',['SENTENCE_ALIGNMENT_FAILED']);
   if (!run.inputReady) return state(run.canRecoverTiming ? 'recover-timing' : null, '配音与时间轴', ['INPUT_NOT_READY']);
   if (!run.wordTimingReady) return state('word-timing', '补齐真实字级时间轴', ['WORD_TIMING_REQUIRED']);
+  if(run.nodeCompletion?.node==='preflight'&&run.nodeCompletion.status==='blocked'&&failure?.task?.name==='talkcraft-preflight')
+    return state('preflight','09内部补全复检：'+(run.nodeCompletion.error||'检查未通过'),['PREFLIGHT_INTERNAL_COMPLETION']);
   // Ready sentence annotations must be checked at node 03 before any later
   // editorial recovery or paid request. A failed check requires intervention.
   if (!run.shotbook && !run.semanticPassed && run.semanticReady &&

@@ -3,7 +3,10 @@ import {createTalkcraftStatusReader} from './director/talkcraft-status-reader.mj
 import http from "node:http";
 import {readShotPreview,shotPreviewVersion} from './director/talkcraft-shot-preview.mjs';
 import {selectTalkcraftContinuation} from './director/talkcraft-orchestration-policy.mjs';
-import {authorizeEditorialRevision} from './director/talkcraft-editorial-revision.mjs';
+import {authorizeEditorialRevision,recoverUnsubmittedEditorialRevision} from './director/talkcraft-editorial-revision.mjs';
+import {authorizeDigitalHumanAutomation} from './director/talkcraft-digital-human-policy.mjs';
+import {authorizeTalkcraftContinuation,approveDelegatedTalkcraftStoryboard} from './director/talkcraft-continuation-policy.mjs';
+import {recoverNodePublication} from './director/talkcraft-node-repair.mjs';
 import {createTalkcraftAutoAdvance} from './director/talkcraft-auto-advance.mjs';
 import {createSampleReviewGate} from './director/talkcraft-sample-review.mjs';
 import {prepareTalkcraftParallel} from './director/talkcraft-parallel-preparation.mjs';
@@ -496,7 +499,7 @@ async function createModeCRun(fields, avatars) {
 }
 
 const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
-for(const stage of ['planning-check','media-preflight','host-preflight','editorial-recover','editorial-revision'])TALKCRAFT_STAGE_NAMES.add(stage);
+for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','editorial-revision','approve-storyboard'])TALKCRAFT_STAGE_NAMES.add(stage);
 
 function readTalkcraftAutoRecord(runId) {
   try { return JSON.parse(fs.readFileSync(path.join(talkcraftProject(ROOT, runId), 'workflow-automation.json'), 'utf8')); }
@@ -553,16 +556,35 @@ async function queueTalkcraftStage(body) {
   const project = talkcraftProject(ROOT, runId);
   const active = [...tasks.values()].find(task => task.runId === runId && ['starting','running'].includes(task.status));
   if (active || readTalkcraftExecutions(project,{alive:processAlive}).some(item=>item.status==='running')) throw new Error('本片已有任务运行中');
+  recoverNodePublication(project);
   const status = readTalkcraftStatus(ROOT, runId);
   const sourceFile = path.join(project, 'source-run.json');
   const source = fs.existsSync(sourceFile) ? JSON.parse(fs.readFileSync(sourceFile, 'utf8')) : {};
   assertPipelineProvenance(project);
+  if(stage==='approve-storyboard'){
+    approveDelegatedTalkcraftStoryboard(ROOT,runId);
+    return {ok:true,runId,stage,billable:false,approvalMethod:'delegated-after-checks'};
+  }
+  if(stage==='planning-repair'){
+    if(body.recheckNodeBase===true){
+      if(body.approveModelCost||status.activeTask||!status.shotbook)throw Error('本地基稿复检不接受费用授权或并发');
+      const id=startTask('talkcraft-planning-repair',`node director/talkcraft-editorial-revision.mjs ${runId} --recheck-base-only`,ROOT);
+      tasks.get(id).runId=runId;return {ok:true,id,runId,stage,billable:false};
+    }
+    if(body.resumeRevision!==true||body.approveModelCost===true)throw Error('仅允许恢复本次已授权、未提交的节点修订');
+    const recovered=recoverUnsubmittedEditorialRevision(ROOT,runId);
+    if(recovered.node!=='storyboard-review')throw Error('恢复记录不属于07节点');
+    const id=startTask('talkcraft-planning-repair',`node director/talkcraft-editorial-revision.mjs ${runId} --node-local --resume-unsubmitted`,ROOT);
+    tasks.get(id).runId=runId;return {ok:true,id,runId,stage,usesExistingAuthorization:true};
+  }
   if(stage==='editorial-revision'){
     if(body.approveModelCost!==true)throw new Error('修订分镜需要本次明确费用授权');
     if(!status.inputReady||!(status.shotbook||status.editorialRepairReady===true)||!status.storyboardAdjustmentPending||!aModeReadiness().configured)
       throw new Error('分镜修订输入、修改要求或模型配置尚未就绪');
-    authorizeEditorialRevision(ROOT,runId,{approval:body.authorizationNote});
-    const id=startTask('talkcraft-editorial-revision',`node director/talkcraft-editorial-revision.mjs ${runId}`,ROOT);
+    const authorization=authorizeEditorialRevision(ROOT,runId,{approval:body.authorizationNote});
+    const local=authorization.node==='storyboard-review'||authorization.node==='preflight';
+    const taskStage=local?(authorization.node==='preflight'?'preflight-repair':'planning-repair'):'editorial-revision';
+    const id=startTask('talkcraft-'+taskStage,`node director/talkcraft-editorial-revision.mjs ${runId}${local?' --node-local':''}`,ROOT);
     tasks.get(id).runId=runId;
     return {ok:true,id,runId,stage,billable:true};
   }
@@ -574,7 +596,8 @@ async function queueTalkcraftStage(body) {
   }
   if (stage === 'digital-human') {
     assertTalkcraftDigitalHumanAdmission(ROOT, runId);
-    if (body.approveDigitalHumanCost !== true) throw new Error('当前下一步为付费数字人生成，需要本次明确授权');
+    if(body.approveDigitalHumanCost===true)authorizeDigitalHumanAutomation(project,{approval:body.digitalHumanAuthorizationNote||'用户通过正式入口授权本次任务数字人缺失区间生成，优先复用'});
+    if (body.approveDigitalHumanCost !== true&&status.digitalHumanAutomation?.enabled!==true) throw new Error('当前任务尚未授权数字人自动补足');
   }
   if (stage === 'editorial-check') {
     const id = startTask('talkcraft-editorial-check', `node director/talkcraft-ark-editorial.mjs ${runId} --validate-existing`, ROOT);
@@ -946,6 +969,14 @@ const apis = {
   "POST /api/talkcraft/intent": async (req, res) => {
     try {
       const body = await readBody(req);
+      if(body.allowDigitalHumanGeneration===true){
+        if(body.intent!=='continue'||Object.hasOwn(body,'stage'))throw Error('自动补足授权必须绑定当前任务的继续意图');
+        authorizeDigitalHumanAutomation(talkcraftProject(ROOT,body.runId),{approval:body.digitalHumanAuthorizationNote});
+      }
+      if(body.continueUntil==='review'){
+        if(body.intent!=='continue'||Object.hasOwn(body,'stage'))throw Error('通路授权必须绑定当前任务继续意图');
+        authorizeTalkcraftContinuation(talkcraftProject(ROOT,body.runId),{approval:body.continuationAuthorizationNote});
+      }
       const status = withTalkcraftWorkbench(readTalkcraftStatus(ROOT, body.runId));
       const stage = selectTalkcraftContinuation(status,body);
       const result = await queueTalkcraftStage({...body, stage});

@@ -35,6 +35,14 @@ test('07完整文字失败替代06通过记录，保留原展示设计和独立�
   write('remotion/word-reveal-plan.json',{events:['changed']});assert.equal(currentEditorialRepairFeedback(project),null);
 });
 
+test('09完整失败保持当前节点范围；字级输入变化不能借用旧反馈',t=>{
+ const {project,write}=fixture(t);
+ savePlanningEditorialRepairFeedback(project,{passed:false,issues:[{code:'OLD_07',shotId:'s01'}]});
+ savePlanningEditorialRepairFeedback(project,{stage:'preflight',passed:false,issues:[{code:'NATIVE_WORD_COVERAGE',shotId:'s01'}]});
+ assert.equal(currentEditorialRepairFeedback(project).stage,'preflight');
+ write('remotion/word-reveal-plan.json',{events:['changed']});assert.equal(currentEditorialRepairFeedback(project),null);
+});
+
 test('07修订快照保存当前原生展示和文字计划指纹，恢复不读取另一次运行',t=>{
   const {project,write}=fixture(t);
   write('remotion/native-presentation.json',{shots:['bound']});write('remotion/word-reveal-plan.json',{events:['bound']});
@@ -52,6 +60,18 @@ test('06当前完整失败替代旧04反馈，同镜问题保留并集中到一�
   assert.deepEqual(currentEditorialRepairFeedback(project).failedChecks,readiness.materialIssues);
   assert.equal(record.repairTargets.length,1);assert.equal(record.repairTargets[0].checks.length,2);
   assert.equal(record.proposal.shots[0].shotCard,'tracking-in');assert.equal(record.paidCalls,0);
+});
+
+test('当前07快照优先于共存的旧04归档；当前快照失效也不回退旧04',t=>{
+  const {project,write}=fixture(t);
+  write('qa/editorial-revision-feedback.json',{schema:'talkcraft-editorial-repair-feedback-v1',failedChecks:[{code:'OLD_04'}],snapshot:'qa/storyboard-revisions/old'});
+  savePlanningEditorialRepairFeedback(project,{passed:false,issues:[{code:'NATIVE_WORD_COVERAGE',shotId:'s01'}]});
+  const snapshot=path.join(project,'qa/storyboard-revisions/current');
+  preserveCandidateMaterialRepairFeedback(project,snapshot);
+  fs.unlinkSync(path.join(project,'remotion/shots.json'));
+  assert.equal(currentEditorialRepairFeedback(project).stage,'planning-check');
+  fs.writeFileSync(path.join(snapshot,'semantics.json'),'tampered');
+  assert.equal(currentEditorialRepairFeedback(project),null);
 });
 test('原稿、音频、时钟、语义、分镜、来源或绑定计划变化后旧06反馈不沿用',t=>{
   const {project,write,readiness}=fixture(t);

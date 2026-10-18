@@ -3,9 +3,13 @@ export const LOCAL_AUTO_STAGES = new Set(['word-timing', 'semantic-check', 'edit
   'planning-check','media-preflight','host-preflight','preflight', 'scaffold', 'sample', 'render-all', 'qa', 'deliver']);
 
 export function automaticTalkcraftStage(run) {
+  if(run?.continuationPolicy?.enabled===true&&['approve-final','deliver'].includes(run.nextStage))return null;
   const revisionPreparation=run?.editorialChecked===true&&['media-preflight','candidates','planning-check'].includes(run.nextStage);
   if (!run?.provenance?.verified || run.activeTask || run.lastFailure || run.failureReport ||
       run.storyboardAdjustmentPending&&!revisionPreparation || run.factReview?.revisionPending) return null;
+  if(run.nextStage==='digital-human'&&run.digitalHumanAutomation?.enabled===true&&
+    run.planningPassed===true&&run.storyboardApproved===true)return 'digital-human';
+  if(run.nextStage==='approve-storyboard'&&run.continuationPolicy?.enabled===true&&run.planningPassed===true)return 'approve-storyboard';
   return LOCAL_AUTO_STAGES.has(run.nextStage) ? run.nextStage : null;
 }
 

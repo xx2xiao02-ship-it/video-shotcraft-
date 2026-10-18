@@ -24,7 +24,7 @@ function prepareBindings(project,catalog,transaction,{index}={}) {
   const shotsFile = path.join(project, 'remotion/shots.json');
   const researchFile = path.join(project, 'material-research-plan.json');
   const shots = read(shotsFile), research = read(researchFile), applied = [], issues = [];
-  const recovery=loadReviewedMaterialRecovery(project,catalog,shots,research);
+  const recovery=loadReviewedMaterialRecovery(project,catalog,shots,research,undefined,{allowChangedDesign:true});
   if(recovery&&pendingPlan)plan=recovery.plan;
   const comparisons=index?prepareTechnicalGraphicComparisons({shots,research,sentences:read(path.join(project,'semantics.json')).sentences,
     aligned:read(path.join(project,'aligned-sentences.json')),catalog,graphicCardIds:index.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug),

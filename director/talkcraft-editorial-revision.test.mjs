@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {createHash} from 'node:crypto';
-import {authorizeEditorialRevision,executeEditorialRevision} from './talkcraft-editorial-revision.mjs';
-import {requestTalkcraftStoryboardAdjustment} from './talkcraft-status.mjs';
-import {saveCandidateMaterialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {authorizeEditorialRevision,executeEditorialRevision,recoverUnsubmittedEditorialRevision} from './talkcraft-editorial-revision.mjs';
+import {requestTalkcraftStoryboardAdjustment,prepareTalkcraftStoryboardRevision} from './talkcraft-status.mjs';
+import {saveCandidateMaterialRepairFeedback,savePlanningEditorialRepairFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {reserveEditorialSubmission} from './talkcraft-editorial-submission.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
 const id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
@@ -54,4 +54,18 @@ test('修订授权后输入变化或语义失败不调用模型、不增加付�
  f.write('input.txt','原稿');let calls=0;
  await assert.rejects(()=>executeEditorialRevision(f.root,id,{stage:()=>({passed:false}),generate:()=>{calls++;}}),/语义校验未通过/);
  assert.equal(calls,0);assert.equal(f.read('qa/editorial-single-submission.json').submittedAt,'old');
+});
+
+test('归档后发送前中断只恢复本次基稿和未消费授权；重复恢复幂等，未知提交不重试',t=>{
+ const f=fixture(t);savePlanningEditorialRepairFeedback(f.p,{passed:false,issues:[{code:'NATIVE_WORD_COVERAGE',shotId:'s07'}]});
+ const record=authorizeEditorialRevision(f.root,id,{approval:'用户授权本次07五镜修订'});
+ f.write('qa/editorial-revision-authorization.json',{...record,startedAt:new Date().toISOString()});
+ prepareTalkcraftStoryboardRevision(f.root,id);
+ const restored=recoverUnsubmittedEditorialRevision(f.root,id);
+ assert.equal(restored.node,'storyboard-review');assert.equal(restored.providerSubmitted,false);
+ assert.equal(f.read('qa/editorial-single-submission.json').submittedAt,'old');
+ assert.ok(fs.existsSync(path.join(f.p,'remotion/shots.json')));
+ assert.deepEqual(recoverUnsubmittedEditorialRevision(f.root,id),restored);
+ f.write('qa/editorial-single-submission.json',{submittedAt:'new',outcome:'unknown'});
+ assert.throws(()=>recoverUnsubmittedEditorialRevision(f.root,id),/输入变化/);
 });

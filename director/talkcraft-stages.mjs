@@ -26,7 +26,7 @@ import {runTalkcraftSemanticCheck} from './talkcraft-semantic-check.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
 import {saveCandidateMaterialRepairFeedback,savePlanningEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {scaffoldTalkcraftProject,implementNativeScenes} from './talkcraft-scaffold.mjs';
-import {recordPreflightPass, recordPreflightResult, recordPlanningResult, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
+import {talkcraftProject,recordPreflightPass, recordPreflightResult, recordPlanningResult, recordSemanticPass, readTalkcraftStatus} from './talkcraft-status.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {writeTalkcraftQaManifests} from './talkcraft-qa-manifests.mjs';
 import {completeVolcengineTiming} from './volcengine-voice.mjs';
@@ -50,6 +50,9 @@ import {prepareResearchBindings} from './talkcraft-research-binding.mjs';
 import {assertBModeGoverned} from './talkcraft-b-mode-governance.mjs';
 import {normalizeTalkcraftBindings, syncTalkcraftShotSource} from './talkcraft-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
+import {completeTalkcraftNodeInputs,completeTalkcraftPreflightNode} from './talkcraft-node-completion.mjs';
+import {prepareTalkcraftParallel} from './talkcraft-parallel-preparation.mjs';
+import {approveDelegatedTalkcraftStoryboard} from './talkcraft-continuation-policy.mjs';
 
 export function preserveStaleFinalArtifacts(project,{isCurrent=officialRenderCurrent,now=Date.now}={}) {
   const finalFile=path.join(project,'remotion','out','final.mp4');
@@ -169,7 +172,9 @@ export function assertTalkcraftPreflightResult(result) {
 }
 
 function requirePreflight(runId) {
-  return assertTalkcraftPreflightResult(runTalkcraftStage('preflight', runId));
+  // Render stages synchronously re-run the original complete gate. Only the
+  // top-level 09 entry owns asynchronous binding completion and join recovery.
+  return assertTalkcraftPreflightResult(runTrackedTalkcraftStage('preflight', runId));
 }
 
 export function runTalkcraftBeatLint(project, {skillRoot = SKILL, python = PYTHON} = {}) {
@@ -440,7 +445,7 @@ function runTalkcraftStageInternal(stage, runId) {
   if (!runIdPattern.test(runId)) throw new Error('Invalid B run ID');
   if (!existsSync(path.join(SKILL, 'SKILL.md'))) throw new Error('TalkCraft skill is not installed');
   if (stage === 'prepare') throw new Error('旧 prepare 阶段已移除；请从 /api/talkcraft/create 启动 GitHub TalkCraft 管线');
-  const project = path.join(ROOT, 'director', 'b-mode-runs', runId, 'talkcraft');
+  const project = talkcraftProject(ROOT,runId);
   if (!existsSync(path.join(project, 'source-run.json'))) throw new Error('Run prepare first');
   if(stage==='reviewed-template-check'){
     const result=auditReviewedTemplates(project,{skillRoot:SKILL});
@@ -604,6 +609,10 @@ function runTalkcraftStageInternal(stage, runId) {
     if(finalized)assertParallelPreparationJoined(project);
     const recordResult=planning?recordPlanningResult:recordPreflightResult;
     if(finalized&&(!state.planningPassed||!state.storyboardApproved||!state.mediaPreflightPassed))throw Error('先完成分镜规划审核、RunningHub 生成及人物素材体检，再执行原版全量预检');
+    const completionIndex=JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8'));
+    const completion=completeTalkcraftNodeInputs(project,{node:planning?'storyboard-review':'preflight',
+      catalog:loadTalkcraftGovernedCatalog(completionIndex),index:completionIndex,deferGeneratedHost:planning&&state.digitalHumanGenerationPlanned});
+    if(!completion.passed)throw Error('当前节点素材补全未通过：'+completion.issues.map(i=>i.message||i.code).join('；'));
     if(source.workflowPath==='recorded-host'){
       if(!state.mediaPreflightPassed)throw Error('先完成真人视频素材体检，再进入原版全量预检');
       bindRecordedHostShots(project);
@@ -650,7 +659,7 @@ function runTalkcraftStageInternal(stage, runId) {
       ? recordPlanningWordCheck(project,{required:nativeGovernance.required}) : {passed:true,issues:[]};
     issues.push(...wordWindows.issues.map(issue=>`[${issue.code}] ${issue.message}`));
     const passed = (runtime ? runtime.passed === true : check.status === 0)&&nativeGovernance.passed&&factReview.passed&&wordWindows.passed;
-    if(planning)savePlanningEditorialRepairFeedback(project,{passed,issues:[...nativeGovernance.issues,...wordWindows.issues,
+    savePlanningEditorialRepairFeedback(project,{passed,stage:planning?'planning-check':'preflight',issues:[...nativeGovernance.issues,...wordWindows.issues,
       ...factReview.issues.map(message=>({code:'FACT_REVIEW_REQUIRED',message}))]});
     recordResult(ROOT, runId, {passed, issues, adjustments});
     return {project, status:'automatic_adjustment_complete', passed, issues, adjustments, bindings:binding.bindings};
@@ -719,7 +728,7 @@ function runTalkcraftStageInternal(stage, runId) {
   if (stage === 'digital-human') {
     assertTalkcraftDigitalHumanAdmission(ROOT, runId);
     run(process.execPath, [path.join(ROOT, 'director', 'talkcraft-digital-human.mjs'), runId,
-      ...(process.argv.includes('--resume-authorized')?['--resume-authorized']:[])], ROOT);
+      '--reuse-first',...(process.argv.includes('--resume-authorized')?['--resume-authorized']:[])], ROOT);
     return {project, status:'digital_human_generated_awaiting_media_preflight'};
   }
   if (stage === 'sample') {
@@ -960,13 +969,23 @@ function runTalkcraftStageInternal(stage, runId) {
 // 嵌套阶段共享外层临时目录，避免阶段之间互相删除正在使用的文件。
 export function runTalkcraftStage(stage, runId) {
   if (!runIdPattern.test(runId)) throw new Error('Invalid B run ID');
-  const project=path.join(ROOT,'director/b-mode-runs',runId,'talkcraft');
-  return trackTalkcraftExecution(project,stage,()=>runTrackedTalkcraftStage(stage,runId));
+  const project=talkcraftProject(ROOT,runId);
+  return trackTalkcraftExecution(project,stage,()=>{
+    if(stage==='preflight')
+      return completeTalkcraftPreflightNode({project,runId,
+        read:()=>readTalkcraftStatus(ROOT,runId),stage:local=>runTrackedTalkcraftStage(local,runId),
+        approve:()=>approveDelegatedTalkcraftStoryboard(ROOT,runId),prepare:()=>prepareTalkcraftParallel(ROOT,runId),
+        complete:()=>{
+        const sourceIndex=JSON.parse(readFileSync(path.join(SKILL,'references/cards-index.json'),'utf8'));
+        return completeTalkcraftNodeInputs(project,{node:'preflight',catalog:loadTalkcraftGovernedCatalog(sourceIndex),index:sourceIndex});
+      }});
+    return runTrackedTalkcraftStage(stage,runId);
+  });
 }
 function runTrackedTalkcraftStage(stage, runId) {
   const managed = RENDER_STAGES.has(stage);
   const project = runIdPattern.test(runId)
-    ? path.join(ROOT, 'director', 'b-mode-runs', runId, 'talkcraft')
+    ? talkcraftProject(ROOT,runId)
     : null;
   const outer = managed && renderStageDepth === 0;
   if (managed && outer) {
@@ -1004,7 +1023,7 @@ function runTrackedTalkcraftStage(stage, runId) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const result=runTalkcraftStage(process.argv[2] || '', process.argv[3] || '');
+  const result=await runTalkcraftStage(process.argv[2] || '', process.argv[3] || '');
   console.log(JSON.stringify(result,null,2));
   if (result?.passed === false) process.exitCode=1;
 }
