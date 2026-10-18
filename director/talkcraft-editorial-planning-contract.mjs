@@ -149,6 +149,13 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
     }catch{}
   }
   // Current node 06 evidence supersedes the earlier node 04 failure list.
+  const planningFile=path.join(project,'qa/planning-editorial-repair.json');
+  if(fs.existsSync(planningFile)){
+    const planning=JSON.parse(fs.readFileSync(planningFile,'utf8'));
+    if(planning.schema==='talkcraft-candidate-editorial-repair-v1'&&planning.stage==='planning-check'&&
+      JSON.stringify(planning.inputs)===JSON.stringify(candidateFeedbackHashes(project,'planning-check')))
+      return planning.passed?null:planning;
+  }
   const candidateFile=path.join(project,'qa/candidate-editorial-repair.json');
   if(fs.existsSync(candidateFile)){
     const candidate=JSON.parse(fs.readFileSync(candidateFile,'utf8'));
@@ -172,7 +179,7 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
     if(relative&&!relative.startsWith('..')&&!path.isAbsolute(relative)&&
       record.schema==='talkcraft-candidate-editorial-repair-v1'&&
       ['input.txt','aligned-sentences.json','audio/full.mp3'].every(name=>record.inputs?.[name]===candidateFeedbackHashes(project)[name])&&
-      JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot)))
+      JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot,record.stage)))
       return record.passed?null:record;
   }
   if(candidateSnapshotOnly)return null;
@@ -187,7 +194,8 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
 
 const candidateFeedbackFiles=['input.txt','aligned-sentences.json','audio/full.mp3',
   'semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json'];
-const candidateFeedbackHashes=project=>Object.fromEntries(candidateFeedbackFiles.map(name=>{
+const planningFeedbackFiles=['remotion/native-presentation.json','remotion/word-reveal-plan.json','qa/ark-editorial-response.json'];
+const candidateFeedbackHashes=(project,stage)=>Object.fromEntries([...candidateFeedbackFiles,...(stage==='planning-check'?planningFeedbackFiles:[])].map(name=>{
   const file=path.join(project,name);
   return [name,fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null];
 }));
@@ -197,7 +205,7 @@ export function preserveCandidateMaterialRepairFeedback(project,revision){
   if(current.snapshot)return current; // Keep the original complete verified snapshot.
   const base=path.resolve(project,'qa/storyboard-revisions'),relative=path.relative(base,path.resolve(revision));
   if(!relative||relative.startsWith('..')||path.isAbsolute(relative))throw Error('修订反馈快照必须位于本任务分镜修订目录');
-  for(const name of candidateFeedbackFiles){
+  for(const name of Object.keys(current.inputs)){
     const source=path.join(project,name);if(!fs.existsSync(source))continue;
     const target=path.join(revision,name);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(source,target);
   }
@@ -205,23 +213,34 @@ export function preserveCandidateMaterialRepairFeedback(project,revision){
   fs.writeFileSync(path.join(project,'qa/candidate-editorial-revision-feedback.json'),JSON.stringify(record,null,2));
   return record;
 }
-export function saveCandidateMaterialRepairFeedback(project,readiness){
+export function saveCandidateMaterialRepairFeedback(project,readiness){return saveStageRepairFeedback(project,readiness,'candidates');}
+export function savePlanningEditorialRepairFeedback(project,{passed,issues}){
+  return saveStageRepairFeedback(project,{passed,materialIssues:issues},'planning-check');
+}
+function saveStageRepairFeedback(project,readiness,stage){
   const read=name=>JSON.parse(fs.readFileSync(path.join(project,name),'utf8'));
   const shots=read('remotion/shots.json');
+  const responseFile=path.join(project,'qa/ark-editorial-response.json');
+  const response=stage==='planning-check'&&fs.existsSync(responseFile)?read('qa/ark-editorial-response.json'):null;
+  if(response)for(const shot of shots){
+    const native=response.shots?.find(s=>s.id===shot.id)?.nativePresentation;
+    if(native)shot.nativePresentation=structuredClone(native);
+  }
   const failedChecks=readiness.materialIssues||[];
-  const record={schema:'talkcraft-candidate-editorial-repair-v1',stage:'candidates',
-    inputs:candidateFeedbackHashes(project),passed:readiness.passed===true&&failedChecks.length===0,
+  const record={schema:'talkcraft-candidate-editorial-repair-v1',stage,
+    inputs:candidateFeedbackHashes(project,stage),passed:readiness.passed===true&&failedChecks.length===0,
     failedChecks,proposal:{shots,sentences:read('semantics.json').sentences,
+      ...(response?.captionEmphasis?{captionEmphasis:response.captionEmphasis}:{}),
       materialResearch:fs.existsSync(path.join(project,'material-research-plan.json'))?read('material-research-plan.json'):null},
     repairTargets:[...new Set(failedChecks.map(i=>i.shotId).filter(Boolean))].map(shotId=>{
       const shot=shots.find(s=>s.id===shotId);
       return {shotId,shotCard:shot?.shotCard,firstSentence:shot?.firstSentence,lastSentence:shot?.lastSentence,
         checks:failedChecks.filter(i=>i.shotId===shotId)};
     }),
-    instruction:'这是当前06素材准备后的真实失败，替代同输入的旧04失败清单。逐项核对全部108张已审卡的真实资料槽、语义及真实句边界时长，不自动选首名。保留已核验素材、真实字级时间和原口型窗口；不得把缺证据事实改为作者观点，不以搜索候选或背景代替资料。结构通过不代表素材或人审通过。新模型调用仍需单次费用授权。',
+    instruction:`这是当前${stage==='planning-check'?'07分镜规划':'06素材准备'}后的真实失败，替代同输入的旧阶段失败清单。逐项核对全部108张已审卡的真实资料槽、语义及真实句边界时长，不自动选首名。保留已核验素材、真实字级时间和原口型窗口；不得把缺证据事实改为作者观点，不以搜索候选或背景代替资料。结构通过不代表素材或人审通过。新模型调用仍需单次费用授权。`,
     paidCalls:0,userAcceptance:false,createdAt:new Date().toISOString()};
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
-  fs.writeFileSync(path.join(project,'qa/candidate-editorial-repair.json'),JSON.stringify(record,null,2));
+  fs.writeFileSync(path.join(project,stage==='planning-check'?'qa/planning-editorial-repair.json':'qa/candidate-editorial-repair.json'),JSON.stringify(record,null,2));
   return record;
 }
 

@@ -3,6 +3,10 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {assertTextVideoColors, TEXT_VIDEO_CARDS} from './talkcraft-text-video.mjs';
 import {withMaterialBindingTransaction} from './talkcraft-material-binding-transaction.mjs';
+import {loadReviewedMaterialRecovery} from './talkcraft-reviewed-material-recovery.mjs';
+import {prepareTechnicalGraphicComparisons} from './talkcraft-technical-graphic-comparison.mjs';
+import {materialDemand} from './talkcraft-material-research.mjs';
+import {reusedEditorialWindows} from './talkcraft-editorial-planning-contract.mjs';
 
 const read = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const hash = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -10,18 +14,26 @@ const write = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null
 
 // This is an execution plan for explicitly reviewed sources, not a search-result
 // admission path. It cannot choose a template, infer a licence, or mark QA passed.
-export function prepareResearchBindings(project, catalog) {
-  return withMaterialBindingTransaction(project,transaction=>prepareBindings(project,catalog,transaction));
+export function prepareResearchBindings(project, catalog, options={}) {
+  return withMaterialBindingTransaction(project,transaction=>prepareBindings(project,catalog,transaction,options));
 }
-function prepareBindings(project,catalog,transaction) {
+function prepareBindings(project,catalog,transaction,{index}={}) {
   const file = path.join(project, 'material-binding-plan.json');
   const pendingPlan=!fs.existsSync(file);
-  const plan = pendingPlan?{bindings:[],backgrounds:[]}:read(file), shotsFile = path.join(project, 'remotion/shots.json');
+  let plan = pendingPlan?{bindings:[],backgrounds:[]}:read(file);
+  const shotsFile = path.join(project, 'remotion/shots.json');
   const researchFile = path.join(project, 'material-research-plan.json');
   const shots = read(shotsFile), research = read(researchFile), applied = [], issues = [];
+  const recovery=loadReviewedMaterialRecovery(project,catalog,shots,research);
+  if(recovery&&pendingPlan)plan=recovery.plan;
+  const comparisons=index?prepareTechnicalGraphicComparisons({shots,research,sentences:read(path.join(project,'semantics.json')).sentences,
+    aligned:read(path.join(project,'aligned-sentences.json')),catalog,graphicCardIds:index.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug),
+    eligibleShotIds:materialDemand({shots,semantics:read(path.join(project,'semantics.json')),index}).filter(d=>d.considerBackground).map(d=>d.shotId),
+    personWindows:reusedEditorialWindows(project,read(path.join(project,'aligned-sentences.json'))),
+    projectRoot:project}):[];
   const publicRoot = fs.realpathSync(path.join(project, 'remotion/public'));
   const inputFile = path.join(project, 'input.txt');
-  if (!pendingPlan&&(plan.schema !== 'talkcraft-material-binding-plan-v1' || !Array.isArray(plan.bindings) ||
+  if ((!pendingPlan||recovery)&&(plan.schema !== 'talkcraft-material-binding-plan-v1' || !Array.isArray(plan.bindings) ||
       !fs.existsSync(inputFile) || plan.inputSha256 !== hash(inputFile))) {
     return {applied, issues: [{code: 'MATERIAL_BINDING_PLAN_STALE', message: '素材绑定计划未绑定当前原稿'}]};
   }
@@ -134,7 +146,7 @@ function prepareBindings(project,catalog,transaction) {
   }
   // Preserve successful units, report each rejected unit, and always run the
   // original material/file/source/identity audit afterwards in candidates.
-  if (applied.length) {
+  if (applied.length||comparisons.length) {
     const backup=path.join(project,'qa/material-binding-inputs',pendingPlan?'current-explicit-records':hash(file));
     fs.mkdirSync(backup,{recursive:true});
     for(const source of [shotsFile,researchFile]) {
@@ -144,7 +156,9 @@ function prepareBindings(project,catalog,transaction) {
     transaction.commit({'remotion/shots.json':shots,'material-research-plan.json':research});
   }
   fs.mkdirSync(path.join(project, 'qa'), {recursive: true});
-  const result = {schema: 'talkcraft-research-binding-v1', applied, issues,pendingPlan,recovered:transaction.recovered, paidCalls: 0, userAcceptance: false};
+  const result = {schema: 'talkcraft-research-binding-v1', applied, issues,pendingPlan,recovered:transaction.recovered,
+    reviewedRecovery:recovery?{snapshot:recovery.snapshot,planSha256:recovery.planSha256}:null,
+    technicalGraphicComparisons:comparisons,paidCalls: 0, userAcceptance: false};
   write(path.join(project, 'qa/research-binding-result.json'), result);
   return result;
 }

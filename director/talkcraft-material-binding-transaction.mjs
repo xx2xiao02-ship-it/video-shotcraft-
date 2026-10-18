@@ -4,7 +4,7 @@ import {createHash,randomUUID} from 'node:crypto';
 
 const sha=value=>createHash('sha256').update(value).digest('hex');
 const targets=new Set(['remotion/shots.json','material-research-plan.json']);
-const guards=['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','source-run.json','material-binding-plan.json','qa/ark-editorial-response.json'];
+const guards=['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','source-run.json','material-binding-plan.json','qa/ark-editorial-response.json','qa/reviewed-material-recovery.json'];
 const fingerprints=p=>Object.fromEntries(guards.map(n=>[n,fs.existsSync(path.join(p,n))?sha(fs.readFileSync(path.join(p,n))):null]));
 const alive=pid=>{try{process.kill(pid,0);return true;}catch(e){return e.code!=='ESRCH';}};
 function atomic(file,text){

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {saveCandidateMaterialRepairFeedback,currentEditorialRepairFeedback,saveEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {saveCandidateMaterialRepairFeedback,savePlanningEditorialRepairFeedback,currentEditorialRepairFeedback,saveEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {prepareTalkcraftStoryboardRevision} from './talkcraft-status.mjs';
 
 function fixture(t){
@@ -18,6 +18,33 @@ function fixture(t){
   const issues=[{shotId:'s01',code:'MATERIAL_DISPLAY_SLOT_UNAVAILABLE'},{shotId:'s01',code:'REAL_SOURCE_NOT_BOUND'}];
   return {project,write,readiness:{passed:false,materialIssues:issues}};
 }
+
+test('07完整文字失败替代06通过记录，保留原展示设计和独立字幕，不串用旧问题',t=>{
+  const {project,write}=fixture(t);
+  saveCandidateMaterialRepairFeedback(project,{passed:true,materialIssues:[]});
+  const native={textFields:[{key:'text',visibility:'visible'}],wordEvents:[{field:'text',sentenceIndex:0,anchor:'原稿',text:'原稿'}]};
+  write('qa/ark-editorial-response.json',{shots:[{id:'s01',nativePresentation:native}],captionEmphasis:{sentences:[{i:0,keywords:['原稿']}]}});
+  write('remotion/native-presentation.json',{shots:[]});write('remotion/word-reveal-plan.json',{events:[]});
+  const checks=[{code:'NATIVE_WORD_COVERAGE',shotId:'s01',message:'缺少字段落点'}];
+  const before=fs.readFileSync(path.join(project,'remotion/shots.json'),'utf8');
+  savePlanningEditorialRepairFeedback(project,{passed:false,issues:checks});
+  const feedback=currentEditorialRepairFeedback(project);
+  assert.equal(feedback.stage,'planning-check');assert.deepEqual(feedback.failedChecks,checks);
+  assert.deepEqual(feedback.proposal.shots[0].nativePresentation,native);
+  assert.ok(feedback.proposal.captionEmphasis);assert.equal(fs.readFileSync(path.join(project,'remotion/shots.json'),'utf8'),before);
+  write('remotion/word-reveal-plan.json',{events:['changed']});assert.equal(currentEditorialRepairFeedback(project),null);
+});
+
+test('07修订快照保存当前原生展示和文字计划指纹，恢复不读取另一次运行',t=>{
+  const {project,write}=fixture(t);
+  write('remotion/native-presentation.json',{shots:['bound']});write('remotion/word-reveal-plan.json',{events:['bound']});
+  savePlanningEditorialRepairFeedback(project,{passed:false,issues:[{code:'NATIVE_WORD_COVERAGE',shotId:'s01'}]});
+  const revision=path.join(project,'qa/storyboard-revisions/exact');fs.mkdirSync(revision,{recursive:true});
+  const record=preserveCandidateMaterialRepairFeedback(project,revision);
+  assert.equal(record.stage,'planning-check');assert.ok(fs.existsSync(path.join(revision,'remotion/word-reveal-plan.json')));
+  fs.unlinkSync(path.join(project,'remotion/shots.json'));fs.unlinkSync(path.join(project,'remotion/native-presentation.json'));
+  assert.equal(currentEditorialRepairFeedback(project).stage,'planning-check');
+});
 test('06当前完整失败替代旧04反馈，同镜问题保留并集中到一个修订目标',t=>{
   const {project,readiness}=fixture(t);
   saveEditorialRepairFeedback(project,{shots:[]},{issues:[{code:'OLD_MOTION_ERROR'}]});
