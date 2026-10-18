@@ -1,3 +1,4 @@
+import {auditEditorialParameterBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {restoreEditorialBoundSlots} from './talkcraft-editorial-bound-slots.mjs';
@@ -139,7 +140,7 @@ nativePresentation.textFields与wordEvents均不得为空。textFields逐项填�
 ${rules}
 responseContract由执行校验的同一代码生成，是本次逐镜字段合同。codeOwned字段由代码管理，模型不回填、不计算。choicesPath指向本镜的choices，合法choiceId和sourceDisplayFields均以该处为准，不借用其他镜方案；requiredFields和requiredResearch逐项核对，不能用其他镜资料代替。
 资料输入仅含只读检索身份，不是可借用的口播句。每个materialResearchUpdates行必须包含shotId和research数组，无资料时明确research:[]；requiredArrays列出的数组必须完整返回。已有research每项必须按本镜researchRef恰好引用一次：可编辑镜仅填researchRef、reason、displayShotId/displayField/displayReason；锁定镜仅填researchRef及需要修改的displayField。kind/query/entityType/entityName及来源事实由代码按引用还原，不回抄、不翻译检索词、不自行填identityContext。可编辑镜reason仍必须是本次设计理由，不得用backgroundReason替代；不能以research:[]或漏填数组删除已登记需求。
-已有bindings由服务端保留；需要改槽时仅填bindingRef及field等bindingResponseKeys字段，不回传文件、哈希或许可。新增资料无researchRef时仍需完整规划，不能声称已采集。personDisplays须沿用核心人物entityName/role，按原卡填写labelField/labelText，使用bindingResearchRef引用同一人物的本镜researchRef，由代码还原bindingQuery，禁止自行编写检索词。mode=replace-design的rewriteFields必须逐项重新设计，并在该materialResearchUpdates行顶层返回，不能只填research或把这些字段放到repairs/templateParams/research项里。designFields给出每项类型、枚举及填写说明，所有列出的键均必填；即使research为空也不能省略背景和图形决定。允许空字符串或空数组不等于允许省略，不得把说明文字当业务答案。mode=replace-design返回形状示意：{"shotId":"本镜ID","research":[],"backgroundQuery":"本镜检索词或空字符串","backgroundDecision":"compare或use或omit中的一个","backgroundConcepts":[],"backgroundReason":"本次决定理由","graphicIntent":"本镜图形表达意图","graphicAlternatives":[],"pureTextReason":"纯文字依据或空字符串"}；实际键以本镜requiredFields为准，人物和绑定按各自合同另行填写。mode=retarget-only的rewriteFields为空，禁止改写背景或其他锁定创意。模板DSL只按字段格式填写，不借用演示内容。
+已有bindings由服务端保留；需要改槽时仅填bindingRef及field等bindingResponseKeys字段，不回传文件、哈希或许可。新增资料无researchRef时仍需完整规划，不能声称已采集。personDisplays须沿用核心人物entityName/role，按原卡填写labelField/labelText，使用bindingResearchRef引用同一人物的本镜researchRef，由代码还原bindingQuery，禁止自行编写检索词。mode=replace-design的rewriteFields必须逐项重新设计，并在该materialResearchUpdates行顶层返回，不能只填research或把这些字段放到repairs/templateParams/research项里。designFields给出每项类型、枚举及填写说明，所有列出的键均必填；即使research为空也不能省略背景和图形决定。允许空字符串或空数组不等于允许省略，不得把说明文字当业务答案。mode=replace-design返回形状示意：{"shotId":"本镜ID","research":[],"backgroundQuery":"本镜检索词或空字符串","backgroundDecision":"compare或use或omit中的一个","backgroundConcepts":[],"backgroundReason":"本次决定理由","graphicIntent":"本镜图形表达意图","graphicAlternatives":[],"pureTextReason":"纯文字依据或空字符串"}；实际键以本镜requiredFields为准，人物和绑定按各自合同另行填写。mode=retarget-only的rewriteFields为空，禁止改写背景或其他锁定创意。模板DSL只按字段格式填写，不借用演示内容。数字必须满足numericGrid的基点与步长格点，禁止任意小数；replacementBudget提供按源码计算的替换内容预算及函数定义，必须用最终文本重算，不能把默认内容时长当作新内容时长。超过nativeFrames应由编导重选可行卡或重新设计，不自动改速、截断或删减，不改真实口播。
 受控本镜输入：${JSON.stringify(payload)}`;
 }
 
@@ -212,6 +213,12 @@ export function compileEditorialSelection(response,request,inputs){
   const materials=prepareEditorialMaterialUpdates(response,request);
   const initialIssues=[...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
   if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});
+  const parameterIssues=response.repairs.flatMap(repair=>{
+    const choice=request.windows.find(w=>w.shotId===repair.shotId)?.choices.find(c=>c.choiceId===repair.choiceId);
+    const card=inputs.catalog.cards.find(c=>c.cardId===choice?.slug);
+    return card&&object(repair.templateParams?.cardProps)?auditEditorialParameterBudget(card,repair.templateParams.cardProps,repair.shotId).issues:[];
+  });
+  if(parameterIssues.length)throw Object.assign(Error(parameterIssues.map(i=>i.message).join('；')),{issues:parameterIssues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
     const id=repair.shotId,w=request.windows.find(w=>w.shotId===id);

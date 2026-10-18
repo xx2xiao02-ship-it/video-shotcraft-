@@ -146,6 +146,15 @@ test('已拒绝的原始响应可反复免费重编译；当前请求、原文�
     assert.equal(replay.result.shots[0].shotCard,'doc-park-left-pill-deal');
     assert.equal(JSON.parse(fs.readFileSync(path.join(project,'qa/editorial-free-selection-replay.json'))).externalRequests,0);
   }
+  const compiled=recompileRetainedEditorialSelection(project,{runId:'current-run',...args}).result;
+  write('qa/ark-editorial-response.json',compiled);
+  write('qa/editorial-selection-audit.json',{requestId:request.requestId,passed:true,compiled:true,
+    recoveredWithoutProvider:true,productionAdmitted:false,compiledSha256:hash(JSON.stringify(compiled))});
+  for(let i=0;i<2;i++)assert.deepEqual(recompileRetainedEditorialSelection(project,{runId:'current-run',...args}).result,compiled);
+  write('qa/ark-editorial-response.json',{...compiled,intent:'tampered'});
+  assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'current-run',...args}),/哈希核验/);
+  write('qa/editorial-selection-audit.json',audit);
+  fs.writeFileSync(path.join(project,'qa/ark-editorial-response.json'),before);
   assert.deepEqual(fs.readFileSync(path.join(project,'qa/ark-editorial-response.json')),before);
   assert.throws(()=>recompileRetainedEditorialSelection(project,{runId:'another-run',...args}),/当前任务|本次提交/);
   write(audit.rawResponse,{...r,repairs:[]});

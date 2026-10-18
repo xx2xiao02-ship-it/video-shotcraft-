@@ -1,3 +1,4 @@
+import {editorialNumericGrid,editorialReplacementBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import {openingChoiceEvidence,OPENING_CHOICE_RULES} from './talkcraft-opening-choice.mjs';
 import {loadReviewedTemplates,assertTemplateOnlyEditorialProposal} from './talkcraft-reviewed-templates.mjs';
 import {existsSync, readFileSync, writeFileSync, mkdirSync, openSync, closeSync, unlinkSync} from 'node:fs';
@@ -89,14 +90,17 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
   }));
   const contracts = talkcraftEditorialContract(catalog).cards.map(card => {
     const required = new Set(card.required || []);
+    const sourceCard=catalog.cards.find(c=>c.cardId===card.slug);
     return {
       slug:card.slug, originalFrames:card.duration?.originalFrames,
       nativeFrames:card.duration?.frames, fps:card.duration?.fps,
       required:card.required,
       allowedBusinessKeys:card.fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key),
       frozenKeys:card.fields.filter(f=>!f.writable).map(f=>f.key),
+      replacementBudget:editorialReplacementBudget(catalog.cards.find(c=>c.cardId===card.slug)),
       fields:card.fields.filter(field => required.has(field.key)||field.writable&&field.role!=='media').map(field => ({
         key:field.key, type:field.type,
+        ...(editorialNumericGrid(sourceCard.fields.find(f=>f.key===field.key))?{numericGrid:editorialNumericGrid(sourceCard.fields.find(f=>f.key===field.key))}:{}),
         label:catalog.cards.find(c=>c.cardId===card.slug)?.fields.find(f=>f.key===field.key)?.label,
         ...(field.blankAllowed !== undefined ? {blankAllowed:field.blankAllowed} : {}),
         ...(field.options !== undefined ? {options:field.options} : {}),

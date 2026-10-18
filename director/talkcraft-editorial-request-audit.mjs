@@ -1,3 +1,4 @@
+import {editorialNumericGrid,editorialReplacementBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import {createHash} from 'node:crypto';
 import {editorialPlanningLimits} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialDslLocks} from './talkcraft-editorial-params.mjs';
@@ -37,8 +38,10 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
      sent.nativeFrames!==card.duration.frames||sent.originalFrames!==card.duration.originalFrames)issues.push(`${card.cardId} 必填、媒体或时长信息不一致`);
   if(!same(sent.allowedBusinessKeys,card.fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key))||
      !same(sent.frozenKeys,card.fields.filter(f=>!f.writable).map(f=>f.key))||!same(sent.lockedDsl,editorialDslLocks(card)))issues.push(`${card.cardId} 可写字段或冻结时序不一致`);
+  if(!same(sent.replacementBudget,editorialReplacementBudget(card)))issues.push(`${card.cardId}替换内容预算或源码计算规则缺失/不一致`);
   for(const field of card.fields.filter(f=>f.writable&&f.role!=='media'||card.policy.required.includes(f.key))){
    const actual=sent.fields.find(f=>f.key===field.key);
+   if(!same(actual?.numericGrid??null,editorialNumericGrid(field)))issues.push(`${card.cardId}.${field.key}步进基点或整数格点公式缺失/不一致`);
    if(!actual||['type','label','blankAllowed','min','max','step','options','valueConstraint'].some(key=>!same(actual[key],field[key])))issues.push(`${card.cardId}.${field.key} 字段类型、用途或限制缺失/不一致`);
   }
   for(const [key,rule]of Object.entries(card.policy.dsl||{})){

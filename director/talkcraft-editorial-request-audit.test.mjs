@@ -20,6 +20,9 @@ test('108卡的实际模型契约和后端逐字段一致，文本用途说明�
 
 test('模型输入漏用途、空值政策、容量或伪造时长时，自检失败而不是发出请求碰运气',()=>{
  for(const mutate of [
+  a=>{a.promptCatalog.contracts.find(c=>c.slug==='highlighter-sweep').fields.find(f=>f.key==='dimTo').numericGrid.base=0;},
+  a=>{delete a.promptCatalog.contracts.find(c=>c.slug==='chat-message-flow').replacementBudget;},
+  a=>{a.promptCatalog.contracts.find(c=>c.slug==='chat-message-flow').replacementBudget.sourceDefinitions=[];},
   a=>{a.promptCatalog.contracts.find(c=>c.slug==='info-card-assemble').fields.find(f=>f.key==='price').blankAllowed=false;},
   a=>{delete a.promptCatalog.contracts[0].fields[0].label;},
   a=>{a.promptCatalog.contracts.find(c=>c.slug==='word-slot-cycle').dsl.words.minRows=3;},
