@@ -4,6 +4,8 @@ import {auditEditorialParameterBudget} from './talkcraft-editorial-parameter-bud
 import fs from 'node:fs';
 import path from 'node:path';
 import {restoreEditorialBoundSlots} from './talkcraft-editorial-bound-slots.mjs';
+import {materialDemand} from './talkcraft-material-research.mjs';
+import {checkTextVideoCycle} from './talkcraft-text-video.mjs';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {buildEditorialJointRepairContract,editorialQuantitativeInput,editorialRequiredNumericFields} from './talkcraft-editorial-joint-repair.mjs';
@@ -116,6 +118,15 @@ function materialInput(row,editable,request){
 export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   if(request.schema!=='talkcraft-editorial-selection-request-v2')throw fail('新局部请求必须使用本镜字符锚点协议');
   const slugs=new Set(request.windows.flatMap(w=>w.choices.map(c=>c.slug)));
+  const cycleContract=w=>({openingShotCount:3,
+    instruction:'所列选项在当前锁定相邻镜头与已有真实视频绑定下会形成违规纯文字三连；本协议不允许凭空回传背景文件，不能选择这些choiceId。不得通过省略理由、图片或检索候选豁免；其余选项仍须满足全部合同。',
+    incompatibleChoices:w.choices.flatMap(choice=>{
+      const shots=request.baseProposal.shots.map(s=>s.id===w.shotId?{...s,shotCard:choice.slug,templateParams:{}}:s);
+      const demands=materialDemand({shots,semantics:{sentences:request.baseProposal.sentences},index:promptCatalog});
+      const issues=checkTextVideoCycle(shots,demands).issues.filter(i=>i.shotIds.includes(w.shotId)&&
+        i.shotIds.every(id=>id===w.shotId||!request.editableShotIds.includes(id)));
+      return issues.length?[{choiceId:choice.choiceId,shotIds:issues.map(i=>i.shotIds),code:'TEXT_VIDEO_CYCLE_REQUIRED'}]:[];
+    })});
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
       selectionReasonContract:{path:'templateParams.semanticDeviations',requiredWhen:'outside-upstream-recommendations',
@@ -124,7 +135,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           indexedSemantics:[...(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[])],
           directSemanticMatch:(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[]).some(s=>w.actualCandidateSemantics.includes(s)),
           instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
-      anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
+      backgroundCycleContract:cycleContract(w),anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
     materials:request.materialShotIds.map(id=>({...materialInput(
       request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request),

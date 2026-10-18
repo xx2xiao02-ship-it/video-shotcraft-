@@ -83,6 +83,13 @@ test('局部编译成功后候选失败仍保留本次成功镜及完整补全�
   assert.throws(()=>currentEditorialRepairFeedback(project),/反馈已过期|篡改/);
   fs.writeFileSync(path.join(work,'remotion/shots.json'),original);
   assert.deepEqual(fs.readFileSync(path.join(work,'qa/candidate-editorial-repair.json')),savedCandidate);
+  savePlanningEditorialRepairFeedback(work,{passed:false,issues:checks});
+  journal.error='当前节点文字和素材补全复检未通过；已保留结果，不自动追加模型调用';
+  write(project,'qa/node-repair.json',journal);
+  assert.deepEqual(currentEditorialRepairFeedback(project).failedChecks,checks);
+  journal.error='其他任务的失败';write(project,'qa/node-repair.json',journal);
+  assert.throws(()=>currentEditorialRepairFeedback(project),/反馈已过期|篡改/);
+  journal.error='当前节点文字和素材补全复检未通过；已保留结果，不自动追加模型调用';write(project,'qa/node-repair.json',journal);
   const envelope=JSON.parse(fs.readFileSync(path.join(work,'qa/editorial-provider-receipt.json')));
   fs.appendFileSync(path.join(work,envelope.file),' ');
   assert.throws(()=>currentEditorialRepairFeedback(project),/哈希/);

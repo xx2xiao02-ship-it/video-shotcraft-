@@ -166,7 +166,10 @@ function retainedNodeEditorialFeedback(project){
         !Array.isArray(record.failedChecks)||!isDeepStrictEqual(record.inputs,candidateFeedbackHashes(work,stage)))continue;
       const message=stage==='candidates'?'选卡前真实素材规划未完成：'+record.failedChecks.map(i=>`${i.shotId||'全片'} ${i.code}${i.message?'：'+i.message:''}`).join('；'):
         record.failedChecks.map(i=>i.message).join('；');
-      if(j.error===message){selected={record,stage,message};break;}
+      const wrapper=stage==='planning-check'&&[
+        '当前节点文字和素材补全复检未通过；已保留结果，不自动追加模型调用',
+        '恢复结果未通过本节点规划复检，不发布'].includes(j.error);
+      if(j.error===message||wrapper){selected={record,stage,message:j.error};break;}
     }
     if(!selected)throw Error('本次候选复检反馈已过期或被篡改');
     checks=selected.record.failedChecks;feedbackStage=selected.stage;expectedError=selected.message;

@@ -110,14 +110,18 @@ export function compileWordReveals(project,{write=true}={}) {
       if(!actual.words.some(w=>normalizeText(w.text).includes(normalizeText(ch.ch))&&ch.t>=w.start-.001&&ch.e<=w.end+.001))
         throw Error('渲染字符缺少真实配音时间证据:'+i+'/'+ch.ch);
   }
-  const events=plan.events.map(e=>{
+  const eventIssues=[];
+  const events=plan.events.map(e=>{try{
     if(ids.has(e.id))throw Error('文字落点 id 重复:'+e.id);ids.add(e.id);
     const b=beats.find(x=>x.id===e.beatId);if(!b)throw Error('不存在的拍:'+e.beatId);
     const result=resolveReveal(timing,b,e,plan.fps??30);
     const business=normalizeCardText(Object.values(b.props).filter(v=>typeof v==='string').join(''));
     if(!business.includes(normalizeCardText(e.text)))throw Error('文字与当前卡片参数不符:'+e.id+'/'+e.text);
     return result;
+  }catch(error){eventIssues.push({code:'NATIVE_WORD_ANCHOR_INVALID',shotId:e.beatId,eventId:e.id,field:e.field,
+    sentence:e.sentence,message:error.message});return null;}
   });
+  if(eventIssues.length)throw Object.assign(Error(eventIssues.map(i=>i.message).join('；')),{issues:eventIssues});
   for(const b of beats)if(!events.some(e=>e.beatId===b.id))throw Error('本拍没有文字落点计划:'+b.id);
   for(const e of events.filter(e=>e.deferredTo)){
     const follow=events.find(x=>x.id===e.deferredTo);

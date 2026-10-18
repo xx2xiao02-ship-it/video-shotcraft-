@@ -21,6 +21,21 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
 
+test('单镜修订发送前逐选项核对锁定相邻镜头的纯文字三连，前三镜豁免不扩散',()=>{
+ const request=buildEditorialSelectionRequest(fixture()),w=request.windows[0];
+ const shot=request.baseProposal.shots.find(s=>s.id===w.shotId);
+ const text=(id,start)=>({id,start,end:start+1,shotCard:'soft-blur-in',templateParams:{cardProps:{text:'保留相邻镜'}}});
+ request.baseProposal.shots=[text('open1',0),text('open2',1),text('open3',2),text('locked1',3),text('locked2',4),{...shot,start:5,end:6}];
+ request.windows=[{...w,choices:[{slug:'line-by-line-slide',choiceId:'text-choice'},{slug:'logo-enter',choiceId:'title-choice'}]}];
+ request.editableShotIds=[w.shotId];
+ const args={promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)};
+ const model=editorialSelectionModelInput(request,args);
+ assert.deepEqual(model.windows[0].backgroundCycleContract.incompatibleChoices.map(c=>c.choiceId),['text-choice']);
+ assert.deepEqual(model.windows[0].backgroundCycleContract.incompatibleChoices[0].shotIds,[['locked1','locked2',w.shotId]]);
+ request.baseProposal.shots=request.baseProposal.shots.slice(3);
+ assert.deepEqual(editorialSelectionModelInput(request,args).windows[0].backgroundCycleContract.incompatibleChoices,[]);
+});
+
 test('图形比较失败时发送真实图形分类目录与理由合同，不把强调卡当图形替代',()=>{
  const args=fixture(),request=buildEditorialSelectionRequest(args);
  request.failedChecks=[{shotId:request.editableShotIds[0],code:'GRAPHIC_COMPARISON_REQUIRED'}];

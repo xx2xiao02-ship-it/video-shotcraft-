@@ -46,6 +46,11 @@ test('供应商路径缺失锚词必须在规划阶段失败，不能因无 ASR 
   const f=fixture(t);f.plan.events[0].anchor='不存在的词';f.put('remotion/word-reveal-plan.json',f.plan);
   const report=recordPlanningWordCheck(f.project);assert.equal(report.passed,false);
   assert.equal(report.issues[0].code,'NATIVE_WORD_ANCHOR_INVALID');assert.match(report.issues[0].message,/找不到锚词/);
+  assert.equal(report.issues[0].shotId,'s01');assert.equal(report.issues[0].eventId,'word');
+  f.plan.events[0].text='想';
+  f.plan.events.push({...f.plan.events[0],id:'word-second',text:'清楚',anchor:'另一个缺失词'});f.put('remotion/word-reveal-plan.json',f.plan);
+  const aggregate=recordPlanningWordCheck(f.project);assert.equal(aggregate.passed,false);
+  assert.deepEqual(aggregate.issues.map(i=>i.eventId),['word','word-second']);
   assert.equal(JSON.parse(fs.readFileSync(path.join(f.project,'qa/native-word-window-check.json'))).passed,false);
 });
 
