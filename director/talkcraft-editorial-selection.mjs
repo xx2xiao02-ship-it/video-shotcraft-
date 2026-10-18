@@ -123,11 +123,35 @@ export function editorialSelectionPrompt(request,{promptCatalog,rules,theme,mode
 只返回JSON：{"schema":"talkcraft-editorial-selection-response-v2","requestId":"${request.requestId}","repairs":[{"shotId":"失败镜ID","choiceId":"该镜提供的方案编号","intent":"修订意图","visual":"修订画面","templateParams":{"cardProps":{},"templateMaterialQueries":{},"semanticDeviations":{}},"nativePresentation":{"holdAtNativeFrame":整数,"holdReason":"源码中内容完整可见的依据","mobileMinTextPx":12,"textFields":[{"key":"原卡实际文字字段","visibility":"visible"}],"wordEvents":[{"field":"同一真实字段","text":"该字段本片展示文字","fromAnchorId":"该镜原句首字符编号","throughAnchorId":"同句末字符编号","role":"spoken"}]}}],"materialResearchUpdates":[对应materialShotIds资料规划行更新]}。
 repairs恰好覆盖editableShotIds一次；materialResearchUpdates恰好覆盖materialShotIds一次，其余分镜、语义、字幕强调和研究行由代码原样保留。不要返回shots/sentences或自行填写shotCard、句序、主体、playbackRate、timeline。卡名与速度由choiceId编译：null表示正式字段省略，不得填1。参考驻留点只算容量，不证明文字可见；必须依原卡设计实际驻留点和逐字段真实字级锚点，再经原编译器与全部校验。
 新semanticDeviations的每个键只能使用该镜actualCandidateSemantics，旧卡理由不能沿用。唯一口播内容输入是该镜anchorScope.sentences；不得猜补后句或从材料检索词引入口播。事件仅从该镜同一句选择首尾字符编号；句序及锚词由代码还原。禁止自由填写sentenceIndex、anchor、carry或秒数；context也只能锚定本镜本句，说明不能豁免。原句重复短词须选更长的唯一原文片段。quantitativeInput=false时不能引入数值图表、借源码演示值或用后续补来源承诺代替真实量化输入。
+一个可见字段承载多句时，必须逐句拆成多条wordEvents，同一field允许且需要重复；每条事件的text只写该句对应的展示片段，首尾字符编号必须来自同一个anchorScope.sentences条目。禁止把两句或多句的首尾编号拼成一条事件。逐镜核对choiceId必须来自该镜choices，其他镜有同名卡也不能借编号。
 nativePresentation.textFields与wordEvents均不得为空。textFields逐项填写真实文字字段key、visibility（visible/hidden），隐藏写reason；wordEvents逐项填写field、text、fromAnchorId、throughAnchorId及role（spoken/context），背景说明写reason。所有可见文字必须登记，不能用空数组、颜色和位置参数冒充内容。capabilities中无内容替换和真实媒体入口的固定示意卡不能声称会显示本片标签或真实资料；无法实现就报告阻断，不编造字段。
 重写对应卡的全部业务参数、逐槽检索、资料目标字段、核心人物姓名标签及图形比较。资料行若属于锁定镜头，只能修正指向失败镜的既有research.displayField或bindings.field；其他内容及真实素材记录必须原样保留。保留已核验来源许可；新素材不可声称已采集。固定镜头不受本次修订影响；修订镜间仍检查30镜去重。真实字级、配音和既有数字人不变；保持原模板构图、图形优先、中文资料优先及原版语义偏离理由。不得伪造事实、资料或承接关系。
 ${rules}
 资料输入仅含必要检索、身份和绑定事实，不是可借用的口播句。服务端保留来源元数据；可编辑镜资料的rewriteFields必须逐项重新设计并返回，不得沿用旧创意。锁定资料行只返回允许修改的指向失败镜槽位及其身份键，其余由代码原样保留。不能伪造新许可或已采集状态。模板DSL只按字段格式填写，不借用演示内容。
 受控本镜输入：${JSON.stringify(payload)}`;
+}
+
+// Collect binding failures for every editable shot before any creative patch
+// is compiled. Reuse the strict anchor compiler; never repair provider output.
+export function auditEditorialSelectionResponseBindings(response,request){
+  const issues=[];
+  for(const repair of response.repairs||[]){
+    const id=repair?.shotId,w=request.windows.find(window=>window.shotId===id);
+    if(!w)continue; // The exact transaction scope is checked by the caller.
+    if(!w.choices.some(choice=>choice.choiceId===repair.choiceId))
+      issues.push({code:'EDITORIAL_REPAIR_SELECTION_INVALID',shotId:id,message:`${id}选择了本镜不存在或不兼容的方案编号`});
+    const events=repair.nativePresentation?.wordEvents;
+    if(!Array.isArray(events)||!events.length){
+      issues.push({code:'EDITORIAL_WORD_EVENT_SCOPE',shotId:id,message:`${id}缺少可见字段和真实锚词事件`});continue;
+    }
+    for(const [eventIndex,event]of events.entries())try{
+      compileEditorialAnchorEvents([event],w.anchorScope,id);
+    }catch(error){
+      issues.push({code:'EDITORIAL_WORD_EVENT_SCOPE',shotId:id,eventIndex,
+        ...(typeof event?.field==='string'?{field:event.field}:{}),message:error.message});
+    }
+  }
+  return {passed:!issues.length,issues};
 }
 
 export function compileEditorialSelection(response,request,inputs){
@@ -144,6 +168,8 @@ export function compileEditorialSelection(response,request,inputs){
   };
   exact(response.repairs,'shotId',request.editableShotIds,'修订镜头');
   exact(response.materialResearchUpdates,'shotId',request.materialShotIds,'资料规划');
+  const bindings=auditEditorialSelectionResponseBindings(response,request);
+  if(!bindings.passed)throw Object.assign(new Error(bindings.issues.map(issue=>issue.message).join('；')),{issues:bindings.issues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
     const id=repair.shotId,w=request.windows.find(w=>w.shotId===id);

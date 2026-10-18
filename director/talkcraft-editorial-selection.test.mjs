@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
-import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings} from './talkcraft-editorial-selection.mjs';
+import {buildEditorialAnchorScope} from './talkcraft-editorial-anchor-scope.mjs';
 import {createHash} from 'node:crypto';
 import {prepareEditorialRepairInput} from './talkcraft-ark-editorial.mjs';
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
@@ -235,4 +236,35 @@ test('空文字计划在局部编译阶段拒绝，不改锁定原稿或等待�
     assert.throws(()=>compileEditorialSelection(r,request,args),/缺少可见字段和真实锚词事件/);
     assert.deepEqual(args.proposal,before);
   }
+});
+
+test('多句同一字段逐句重复事件可用，跨句与其他镜编号一次完整报告且不改返回',()=>{
+  const sentences=[{text:'口袋里的钱，'},{text:'关联度最高。'},{text:'经济冷了，'},{text:'央行降息。'}];
+  const window=(shotId,firstSentence,lastSentence)=>({shotId,choices:[{choiceId:`${shotId}-合法编号`}],
+    anchorScope:buildEditorialAnchorScope({shotId,firstSentence,lastSentence,sentences,inputSha256:'当前输入'})});
+  const request={windows:[window('s05',0,1),window('s07',2,3)]};
+  const event=row=>({field:'rows',text:row.text,role:'spoken',fromAnchorId:row.anchors[0].anchorId,throughAnchorId:row.anchors.at(-1).anchorId});
+  const response={repairs:request.windows.map(w=>({shotId:w.shotId,choiceId:w.choices[0].choiceId,
+    nativePresentation:{wordEvents:w.anchorScope.sentences.map(event)}}))};
+  assert.deepEqual(auditEditorialSelectionResponseBindings(response,request),{passed:true,issues:[]});
+  for(const [i,w]of request.windows.entries())response.repairs[i].nativePresentation.wordEvents=[{
+    ...event(w.anchorScope.sentences[0]),throughAnchorId:w.anchorScope.sentences[1].anchors.at(-1).anchorId}];
+  response.repairs[1].choiceId=request.windows[0].choices[0].choiceId;
+  const before=structuredClone(response),audit=auditEditorialSelectionResponseBindings(response,request);
+  assert.equal(audit.passed,false);
+  assert.deepEqual(audit.issues.map(i=>[i.shotId,i.code]),[['s05','EDITORIAL_WORD_EVENT_SCOPE'],
+    ['s07','EDITORIAL_REPAIR_SELECTION_INVALID'],['s07','EDITORIAL_WORD_EVENT_SCOPE']]);
+  assert.deepEqual(response,before);
+});
+
+test('正式局部请求明确同字段多句拆事件，事务编译保留完整错误定位',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args);
+  const prompt=editorialSelectionPrompt(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+  assert.match(prompt,/同一field允许且需要重复/);assert.match(prompt,/禁止把两句或多句/);
+  const r=response(request);r.repairs[0].choiceId='其他镜头的编号';
+  r.repairs[0].nativePresentation.wordEvents[0].fromAnchorId='未知锚点';
+  assert.throws(()=>compileEditorialSelection(r,request,args),error=>{
+    assert.equal(error.issues.length,2);assert.ok(error.issues.every(i=>i.shotId==='s15'));
+    assert.equal(error.issues[1].field,'docTitle');assert.equal(error.issues[1].eventIndex,0);return true;
+  });
 });
