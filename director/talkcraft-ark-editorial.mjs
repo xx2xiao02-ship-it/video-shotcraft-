@@ -24,6 +24,7 @@ import {normalizeEditorialParams,normalizeSavedEditorialParams,editorialDslLocks
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
 import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 import {auditEditorialMaterialContract,editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
+import {restoreEditorialReviewedBindings} from './talkcraft-editorial-binding-recovery.mjs';
 
 const json = file => JSON.parse(readFileSync(file, 'utf8'));
 export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot}) {
@@ -437,8 +438,10 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
     writeFileSync(path.join(qa,'ark-editorial-coverage.json'),JSON.stringify(coverage.report,null,2));
     if (!coverage.report.passed) throw new Error(`分镜句子归属恢复未通过：${coverage.report.issues.join('；')}`);
     const normalized = normalizeEditorialParams(coverage.result,catalog);
-    result = normalized.result;
-    const repairs = [...semanticRepairs,...coverage.report.repairs, ...normalized.repairs, ...repairObviousCardProps(result)];
+    const recoveredBindings=restoreEditorialReviewedBindings(project,normalized.result,catalog);
+    result = recoveredBindings.result;
+    writeFileSync(path.join(qa,'editorial-binding-recovery.json'),JSON.stringify({schema:'talkcraft-editorial-binding-recovery-v1',repairs:recoveredBindings.repairs,rejected:recoveredBindings.rejected},null,2));
+    const repairs = [...semanticRepairs,...coverage.report.repairs, ...normalized.repairs,...recoveredBindings.repairs, ...repairObviousCardProps(result)];
     repairs.push(...repairInvalidSemanticLabels(result,vocab));
     repairs.push(...repairShotMainWeights(result));
     if (repairs.length) {
