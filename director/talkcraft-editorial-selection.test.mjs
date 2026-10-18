@@ -520,6 +520,18 @@ test('局部内容在写入语义前一次报告错理由、跨镜锚点及无�
   assert.ok(!allowed.windows[0].rejected.QUANTITATIVE_INPUT_REQUIRED?.includes('shape-wipe-transition'));
 });
 
+test('正式局部编译免费规范化明确textFields别名，不改事件锚点或原始响应',()=>{
+ const args=fixture(),request=buildEditorialSelectionRequest(args),r=response(request);
+ const originalFields=structuredClone(r.repairs[0].nativePresentation.textFields);
+ r.repairs[0].nativePresentation.textFields=originalFields.map(({key,...rest})=>({...rest,field:key}));
+ const before=structuredClone(r),compiled=compileEditorialSelection(r,request,args);
+ assert.deepEqual(r,before);
+ assert.deepEqual(compiled.shots[0].nativePresentation.textFields,originalFields);
+ assert.equal(compiled.shots[0].nativePresentation.wordEvents[0].field,'docTitle');
+ const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ assert.deepEqual(model.responseContract.repairs[0].textFieldFields,['key','visibility','reason']);
+});
+
 test('空文字计划在局部编译阶段拒绝，不改锁定原稿或等待安装后报错',()=>{
   const args=fixture(),request=buildEditorialSelectionRequest(args),before=structuredClone(args.proposal);
   for(const field of ['textFields','wordEvents']){

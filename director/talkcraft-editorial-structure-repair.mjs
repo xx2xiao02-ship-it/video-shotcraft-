@@ -30,6 +30,22 @@ export function repairEditorialStructure(raw,request){
   if(raw?.requestId!==request?.requestId)throw Error('结构修复请求指纹不匹配');
   for(const row of response.repairs||[]){
     if(!object(row)||!request.editableShotIds.includes(row.shotId))continue;
+    const fields=row.nativePresentation?.textFields;
+    if(Array.isArray(fields)&&fields.some(f=>object(f)&&Object.hasOwn(f,'field'))){
+      for(const [i,f]of fields.entries()){
+        if(!object(f)||!Object.hasOwn(f,'field'))continue;
+        if(typeof f.field!=='string'||!f.field.trim()||
+          !Object.hasOwn(row.templateParams?.cardProps||{},f.field)||typeof row.templateParams.cardProps[f.field]!=='string'||
+          Object.hasOwn(f,'key')&&f.key!==f.field){
+          issues.push({code:'EDITORIAL_STRUCTURE_CONFLICT',shotId:row.shotId,message:`${row.shotId} textFields的field别名不对应本次明确文字参数，或与key冲突，不能修复`});continue;
+        }
+        const sourceValue=structuredClone(f);f.key=f.field;delete f.field;
+        changes.push({shotId:row.shotId,operation:'explicit-text-field-alias',
+          from:`nativePresentation.textFields[${i}].field`,to:`nativePresentation.textFields[${i}].key`,sourceValue});
+      }
+      if(new Set(fields.map(f=>f?.key)).size!==fields.length)
+        issues.push({code:'EDITORIAL_STRUCTURE_CONFLICT',shotId:row.shotId,message:`${row.shotId} textFields别名转换后字段重复，不能合并或猜测`});
+    }
     if(object(row.templateParams)&&Object.hasOwn(row.templateParams,'templateMaterialQueries'))
       row.templateParams.templateMaterialQueries=normalizeQueries(row.templateParams.templateMaterialQueries,row.shotId,'templateParams.templateMaterialQueries',changes,issues);
     for(const key of TEMPLATE_PARAM_RELOCATIONS){

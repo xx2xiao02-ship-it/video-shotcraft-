@@ -409,3 +409,5 @@ DeepSeek Responses的输出预算同时包含推理与最终JSON。正式调用�
 
 局部修订输入按正式materialDemand逐选项给出category和requiredWithoutSourceDisplay。字幕花字、强调标注（含人物旁圈注）及指定章节卡，在无真实资料展示时均须最终背景决定；omit须本次非空pureTextReason，backgroundReason不能替代；use仍须真实查询、授权、本地绑定。模型不自行重新定义“纯文字”范围，人物存在不豁免；不自动复制理由或用空字段放行。完整输入投影由发送前审计同源核验，三镜背景周期独立检查。
 
+07结构修复支持textFields中明确的field→key别名：仅限本次可编辑镜且值与该镜字符串cardProps精确对应，不改变字段值、visibility、wordEvents或真实时钟。key冲突、未知参数或转换后重复时原子拒绝，不选值不合并。原始响应不可变，记录逐项来源及规范化前后哈希；输入合同同时显式列出textFieldFields。免费回放后仍运行全部字段、锚点、素材和时序校验，结构修复不代表节点通过。
+

@@ -3,6 +3,25 @@ import assert from 'node:assert/strict';
 import {repairEditorialStructure} from './talkcraft-editorial-structure-repair.mjs';
 const request={requestId:'this-request',editableShotIds:['s03','s08']};
 const raw=()=>({requestId:request.requestId,repairs:[{shotId:'s03',templateParams:{cardProps:{text:'真实内容'}},templateMaterialQueries:{src:'官方照片'},semanticDeviations:{解释:'真实理由'}}]});
+
+test('本次文字字段的field别名可无损转key，字级事件和原文不变且重复执行幂等',()=>{
+ const original=raw();delete original.repairs[0].templateMaterialQueries;delete original.repairs[0].semanticDeviations;
+ original.repairs[0].nativePresentation={textFields:[{field:'text',visibility:'visible',reason:'真实内容'}],
+  wordEvents:[{field:'text',text:'真实内容',sentenceRef:'current-sentence',fromOffset:0,throughOffset:3}]};
+ const before=structuredClone(original),fixed=repairEditorialStructure(original,request);
+ assert.equal(fixed.report.passed,true);assert.deepEqual(original,before);
+ assert.deepEqual(fixed.response.repairs[0].nativePresentation.textFields,[{key:'text',visibility:'visible',reason:'真实内容'}]);
+ assert.deepEqual(fixed.response.repairs[0].nativePresentation.wordEvents,before.repairs[0].nativePresentation.wordEvents);
+ assert.deepEqual(fixed.report.changes[0].sourceValue,before.repairs[0].nativePresentation.textFields[0]);
+ assert.notEqual(fixed.report.rawSha256,fixed.report.normalizedSha256);
+ assert.deepEqual(repairEditorialStructure(fixed.response,request).report.changes,[]);
+ for(const fields of [[{field:'unknown',visibility:'visible'}],[{field:'text',key:'different',visibility:'visible'}],
+  [{field:'text',visibility:'visible'},{key:'text',visibility:'hidden'}]]){
+   const invalid=structuredClone(before);invalid.repairs[0].nativePresentation.textFields=fields;
+   const rejected=repairEditorialStructure(invalid,request);assert.equal(rejected.report.passed,false);
+   assert.deepEqual(rejected.response,invalid);assert.deepEqual(rejected.report.changes,[]);
+ }
+});
 test('错层无损移动，原始内容不变，重复修复幂等且保留内容哈希',()=>{
   const original=raw(),before=structuredClone(original),{response,report}=repairEditorialStructure(original,request);
   assert.deepEqual(original,before);assert.equal(report.changes.length,2);
