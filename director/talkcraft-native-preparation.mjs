@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 import {wordTimingFile} from './talkcraft-native-timing.mjs';
 import {proceduralCue,installProceduralCue} from './talkcraft-procedural-sfx.mjs';
+import {nativeCueRuntime,nativeCueSource} from './talkcraft-cue-level-repair.mjs';
 
 function measuredGapVoiceDb(project,gaps){
   try{
@@ -198,14 +199,13 @@ export function prepareNativeCueAssets(project,skillRoot,dest,shotIds=null,{reso
     const sample=samples.SFX_SAMPLES[key];
     fs.writeFileSync(path.join(dest,c.file),Buffer.from(Array.isArray(sample)?sample[0]:sample,'base64'));
   }
-  const runtime=cues.map(({t,file,volume,rate,clip})=>({t,file,volume,...(rate?{rate}:{}),clip}));
+  const runtime=nativeCueRuntime(cues);
   return {runtime};
 }
 
 export function installNativeCues(project,skillRoot,shotIds,options) {
   const {runtime}=prepareNativeCueAssets(project,skillRoot,path.join(project,'remotion/public/sfx'),shotIds,options);
   fs.writeFileSync(path.join(project,'remotion/src/sfx.ts'),
-    'export type SfxCue = {t:number; file:string; volume:number; rate?:number; clip?:number};\n'+
-    'export const CUES: SfxCue[] = '+JSON.stringify(runtime,null,2)+';\nexport const SFX_CUES=CUES;\nexport const cues=CUES;\n');
+    nativeCueSource(runtime));
   return {count:runtime.length,shotIds};
 }

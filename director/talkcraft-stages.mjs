@@ -13,6 +13,7 @@ import {preservePreviousSample,recordSampleRender} from './talkcraft-sample-prov
 import {recordShotPreviews} from './talkcraft-shot-preview.mjs';
 import {installHostContextRuntime} from './talkcraft-host-context-install.mjs';
 import {readWordAlignment} from './talkcraft-word-alignment.mjs';
+import {planNativeCueLevelRepair} from './talkcraft-cue-level-repair.mjs';
 import {alignNativeShotBoundaries,prepareNativeProduction,installNativeCues} from './talkcraft-native-preparation.mjs';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -20,7 +21,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, rename
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {useAlignedTiming} from './talkcraft-project.mjs';
-import {readNativeTiming, writeNativeTiming, requireRenderTiming} from './talkcraft-native-timing.mjs';
+import {readNativeTiming, writeNativeTiming, requireRenderTiming,wordTimingFile} from './talkcraft-native-timing.mjs';
 import {applySemanticDecisions} from './talkcraft-semantic-decisions.mjs';
 import {runTalkcraftSemanticCheck} from './talkcraft-semantic-check.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
@@ -897,6 +898,38 @@ function runTalkcraftStageInternal(stage, runId) {
   if (stage === 'qa') {
     assertPipelineProvenance(project);
     if (!officialRenderCurrent(project)) throw new Error('缺少与当前输入一致的正式渲染记录，不能把候选文件作为成片验收');
+    const levelRepair=planNativeCueLevelRepair(project);
+    if(levelRepair.changed){
+      // Repair mixing inside node 13, using only the current verified picture.
+      // Stage the candidate first: failures leave the official film untouched.
+      const isolated=prepareSfxSoloProject(project,SKILL,{purpose:'full-audio'});
+      writeFileSync(path.join(isolated.staging,'src/sfx.ts'),levelRepair.source);
+      writeFileSync(path.join(isolated.staging,'cues.json'),JSON.stringify(levelRepair.runtime,null,2));
+      const renderShots=prepareTalkcraftRenderShots(project),remotion=path.join(project,'remotion');
+      const segments=path.join(remotion,'out',hasVerifiedPreviewSegments(project)?'segments':'segments-final-v1');
+      assertAudioPassSegments(segments,renderShots.shots);
+      const mix=path.join(isolated.staging,'corrected-mix.wav'),final=path.join(isolated.staging,'corrected-final.mp4');
+      run('node',[script('render_shots.mjs'),'--entry','src/index.ts','--comp','Main','--shots',renderShots.file,
+        '--seg-dir',segments,'--concat',path.join(isolated.staging,'assembled.mp4'),'--audio',mix,'--mux',final,
+        '--props',talkcraftMusicProps(ROOT,remotion,false),...localBrowserArgs()],isolated.staging);
+      const source=JSON.parse(readFileSync(path.join(project,'source-run.json'),'utf8'));
+      inspectTechnicalMedia(final,{fps:source.fps||30,totalFrames:source.totalFrames});
+      run(PYTHON,[script('sfx_check.py'),'--mix',final,path.join(project,'audio/full.mp3'),path.join(isolated.staging,'cues.json'),
+        '--timestamps',wordTimingFile(project)],project);
+      const archive=preserveStaleFinalArtifacts(project,{isCurrent:()=>false});
+      copyFileSync(path.join(remotion,'src/sfx.ts'),path.join(archive,'sfx.ts'));
+      copyFileSync(path.join(remotion,'cues.json'),path.join(archive,'cues.json'));
+      writeFileSync(path.join(remotion,'src/sfx.ts'),levelRepair.source);
+      writeFileSync(path.join(remotion,'cues.json'),JSON.stringify(levelRepair.runtime,null,2));
+      copyFileSync(final,path.join(remotion,'out/final.mp4'),constants.COPYFILE_EXCL);
+      copyFileSync(mix,path.join(remotion,'out/full-mix.wav'));
+      bindMachineVideo(project,path.join(remotion,'out/final.mp4'));
+      writeTalkcraftQaManifests(ROOT,runId);
+      writeTalkcraftTemplateUsage(project,SKILL,path.join(remotion,'out/final.mp4'));
+      recordOfficialRender(project,SKILL);
+      writeFileSync(path.join(project,'qa/audio-level-repair.json'),JSON.stringify({schema:'talkcraft-audio-level-repair-v1',
+        changes:levelRepair.changes,archive,videoReencoded:false,paidCalls:0,finalSha256:sha256(path.join(remotion,'out/final.mp4'))},null,2));
+    }
     writeTalkcraftQaManifests(ROOT, runId);
     requireFiles(project, ['remotion/out/final.mp4', 'remotion/cues.json', 'remotion/cards-used.json', 'remotion/anchors.json']);
     const remotion = path.join(project, 'remotion');
