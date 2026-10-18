@@ -28,6 +28,31 @@ test('新编导计划绑定真实切镜帧和句序，不能覆盖人工修订',
  prepareEditorialNativePlans(root,catalog,result);assert.equal(fs.readFileSync(file,'utf8'),'user edited');
 });
 
+test('免费恢复仅同步确切字段别名到已有派生计划，备份留存且其他修改原子拒绝',t=>{
+ const root=fs.mkdtempSync(path.resolve('tmp/editorial-native-alias-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
+ fs.mkdirSync(path.join(root,'remotion'),{recursive:true});fs.writeFileSync(path.join(root,'source-run.json'),'{}');
+ fs.writeFileSync(path.join(root,'remotion/shots.json'),JSON.stringify([{id:'s01',shotCard:'card',start:0,end:3,firstSentence:0,lastSentence:0,subject:'other'}]));
+ const native={mobileMinTextPx:12,textFields:[{field:'text',visibility:'visible'}],wordEvents:[{field:'text',text:'原文',sentenceIndex:0,anchor:'原文',role:'spoken'}]};
+ const result={shots:[{id:'s01',nativePresentation:native}]},catalog={cards:[{cardId:'card',duration:{frames:90}}]};
+ assert.equal(prepareEditorialNativePlans(root,catalog,result).prepared,true);
+ const file=path.join(root,'remotion/native-presentation.json'),before=fs.readFileSync(file);
+ const wordFile=path.join(root,'remotion/word-reveal-plan.json'),wordBytes=fs.readFileSync(wordFile);
+ result.shots[0].nativePresentation.textFields=[{key:'text',visibility:'visible'}];
+ const changedWords=JSON.parse(wordBytes);changedWords.events[0].anchor='人工调整';fs.writeFileSync(wordFile,JSON.stringify(changedWords));
+ assert.equal(prepareEditorialNativePlans(root,catalog,result,{repairDerivedFieldAliases:true}).prepared,false);
+ assert.ok(fs.readFileSync(file).equals(before));fs.writeFileSync(wordFile,wordBytes);
+ assert.equal(prepareEditorialNativePlans(root,catalog,result,{repairDerivedFieldAliases:true}).prepared,true);
+ assert.deepEqual(JSON.parse(fs.readFileSync(file)).shots[0].textFields,[{key:'text',visibility:'visible'}]);
+ assert.ok(fs.readFileSync(wordFile).equals(wordBytes));
+ const backups=fs.readdirSync(path.join(root,'qa/editorial-free-replay-artifacts'));assert.equal(backups.length,1);
+ assert.ok(fs.readFileSync(path.join(root,'qa/editorial-free-replay-artifacts',backups[0])).equals(before));
+ const fixed=fs.readFileSync(file);assert.equal(prepareEditorialNativePlans(root,catalog,result,{repairDerivedFieldAliases:true}).prepared,true);
+ assert.ok(fs.readFileSync(file).equals(fixed));
+ const changed=JSON.parse(fixed);changed.shots[0].mobileMinTextPx=24;fs.writeFileSync(file,JSON.stringify(changed));
+ const edited=fs.readFileSync(file);assert.equal(prepareEditorialNativePlans(root,catalog,result,{repairDerivedFieldAliases:true}).prepared,false);
+ assert.ok(fs.readFileSync(file).equals(edited));
+});
+
 test('旧模型结果缺少计划时保留响应，只登记待补项',t=>{
  const root=fs.mkdtempSync(path.resolve('tmp/editorial-native-gap-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
  fs.mkdirSync(path.join(root,'remotion'),{recursive:true});fs.writeFileSync(path.join(root,'source-run.json'),'{}');

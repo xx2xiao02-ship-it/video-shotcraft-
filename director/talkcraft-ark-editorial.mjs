@@ -173,7 +173,7 @@ export function checkEditorial(root,runId,options={}) {
     }
   });
 }
-function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=resolveTalkcraftSkillRoot(root)}={}) {
+function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=resolveTalkcraftSkillRoot(root),repairDerivedFieldAliases=false}={}) {
   const project = talkcraftProject(root,runId);
   if (!existsSync(path.join(project,'qa/ark-editorial-response.json'))) throw new Error('没有已保存的火山分镜结果');
   const checked=stage('semantic-check',runId);
@@ -207,7 +207,7 @@ function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=re
   const bindings=stage('semantic-shot-check',runId);
   if(bindings?.passed===false)throw Error('分镜句子归属校验未通过');
   alignNativeShotBoundaries(project);
-  const nativePlan=prepareEditorialNativePlans(project,catalog,json(path.join(project,'qa/ark-editorial-response.json')));
+  const nativePlan=prepareEditorialNativePlans(project,catalog,json(path.join(project,'qa/ark-editorial-response.json')),{repairDerivedFieldAliases});
   const nativeRequired=json(path.join(project,'source-run.json')).pipeline==='video-talkcraft';
   const nativeIssues=nativeRequired&&!nativePlan.prepared?nativePlan.issues.map(issue=>`[NATIVE_EDITORIAL_PLAN] ${issue}`):[];
   if(nativeIssues.length)throw new Error(`分镜提案校验未通过：${nativeIssues.join('；')}`);
@@ -680,7 +680,7 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
       shots.map(s => `## ${s.id} ${s.start.toFixed(3)}–${s.end.toFixed(3)} 秒\n\n- 主体：${s.subject === 'person' ? '数字人' : '辅助画面'}\n- 意图：${s.intent}\n- 画面设计：${s.visual}\n${editorialSelectionNotes(s,compiledSelectionRequest&&!compiledSelectionRequest.editableShotIds.includes(s.id)?vocab:editorialShotSemantics(result.sentences,s))}- 素材：待采集与核验\n- 选卡：待候选生成后审核\n- 蒙皮：按本片主题，待实现\n- 节拍、音效：待精确定位与核验\n`).join('\n') +
       '\n## 未完成 / 未采集清单\n\n- 真实素材与事实证据\n- 卡片候选审核及源码核对\n- 精确动效锚点、音效与层矩阵\n- 分镜预检、样板镜实现和验收\n';
     saveEditorialDerivedArtifact(project,'SHOTBOOK.md',book,{replay:recoverProviderOnly});
-    const checked=checkEditorial(root,runId,{stage});
+    const checked=checkEditorial(root,runId,{stage,repairDerivedFieldAliases:recoverProviderOnly});
     return {...checked, shots:shots.length};
   } finally {closeSync(fd); unlinkSync(lock);}
 }

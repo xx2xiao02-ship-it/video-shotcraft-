@@ -7,6 +7,7 @@ import {TEXT_EFFECT_RULES} from './talkcraft-text-effect-dependencies.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {isDeepStrictEqual} from 'node:util';
 import {CONTENT_ONSET_RULES} from './talkcraft-content-onset.mjs';
 import {assertNativeMotionRate,assertNativeMediaClock,NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
 import {assertNativeHoldBudget,NATIVE_HOLD_RULES} from './talkcraft-native-time-map.mjs';
@@ -55,7 +56,7 @@ export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason,play
 
 // Model proposals retain their saved response provenance. Frame boundaries and
 // sentence IDs come from the application's actual audio/shot records.
-export function prepareEditorialNativePlans(project,catalog,result){
+export function prepareEditorialNativePlans(project,catalog,result,{repairDerivedFieldAliases=false}={}){
   const read=name=>JSON.parse(fs.readFileSync(path.join(project,name),'utf8'));
   const shots=read('remotion/shots.json'),source=read('source-run.json'),rows=[],events=[],issues=[],checks=[];
   for(const shot of shots){
@@ -90,6 +91,32 @@ export function prepareEditorialNativePlans(project,catalog,result){
     responseSha256:fs.existsSync(sourceFile)?createHash('sha256').update(fs.readFileSync(sourceFile)).digest('hex'):null,
     issues,checks,structuralDraftReady:issues.length===0,runtimeVerified:false,userAcceptance:false},null,2));
   if(issues.length)return {prepared:false,issues};
+  if(repairDerivedFieldAliases){
+    const nativeFile=path.join(project,'remotion/native-presentation.json'),wordFile=path.join(project,'remotion/word-reveal-plan.json');
+    const expected={schema:'talkcraft-native-presentation-v1',fps:30,shots:rows};
+    const expectedWords={scope:'native-shots',fps:30,events};
+    if(fs.existsSync(wordFile)&&!isDeepStrictEqual(read('remotion/word-reveal-plan.json'),expectedWords))
+      return {prepared:false,issues:['免费结构恢复不能覆盖已修改的字级事件计划']};
+    if(fs.existsSync(nativeFile)){
+      const previous=read('remotion/native-presentation.json'),normalized=structuredClone(previous),changes=[];
+      for(const row of normalized.shots||[])for(const [i,f]of (row.textFields||[]).entries()){
+        if(!f||typeof f.field!=='string')continue;
+        if(Object.hasOwn(f,'key')&&f.key!==f.field)return {prepared:false,issues:['既有展示字段别名冲突，不能覆盖']};
+        changes.push({shotId:row.shotId,index:i,from:'field',to:'key',value:f.field});f.key=f.field;delete f.field;
+      }
+      if(!isDeepStrictEqual(normalized,expected))return {prepared:false,issues:['既有展示计划与本次正式编译结果存在别名之外的差异，不能覆盖人工修改']};
+      if(changes.length){
+        const bytes=fs.readFileSync(nativeFile),beforeSha256=createHash('sha256').update(bytes).digest('hex');
+        const directory=path.join(qa,'editorial-free-replay-artifacts');fs.mkdirSync(directory,{recursive:true});
+        const backup=path.join(directory,'native-presentation.json.'+beforeSha256);
+        if(!fs.existsSync(backup))fs.writeFileSync(backup,bytes,{flag:'wx'});
+        if(!fs.readFileSync(backup).equals(bytes))return {prepared:false,issues:['既有展示计划备份校验失败，未覆盖']};
+        const output=JSON.stringify(expected,null,2);fs.writeFileSync(nativeFile,output);
+        fs.writeFileSync(path.join(qa,'native-derived-alias-repair.json'),JSON.stringify({schema:'talkcraft-native-derived-alias-repair-v1',
+          beforeSha256,afterSha256:createHash('sha256').update(output).digest('hex'),changes,externalRequests:0,productionAdmitted:false},null,2));
+      }
+    }
+  }
   for(const [name,value] of [['native-presentation.json',{schema:'talkcraft-native-presentation-v1',fps:30,shots:rows}],
     ['word-reveal-plan.json',{scope:'native-shots',fps:30,events}]]){
     const file=path.join(project,'remotion',name);
