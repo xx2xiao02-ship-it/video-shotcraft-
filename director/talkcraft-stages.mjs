@@ -597,7 +597,15 @@ function runTalkcraftStageInternal(stage, runId) {
     assertTalkcraftTemplateGovernance(project);
     if(state.wordTimingReady)prepareNativeProduction(project,SKILL);
     recordReviewedCandidates(project,{skillRoot:SKILL});
-    assertReviewedSelection(project,{skillRoot:SKILL});
+    try{assertReviewedSelection(project,{skillRoot:SKILL});}
+    catch(error){
+      // 07 must carry the complete current proposal forward, including a
+      // successful partial repair. Never fall back to the installed old draft.
+      const native=checkNativeGovernance(project,{catalog:generated.governed,write:true});
+      const issues=[...(error.issues||[{code:'REVIEWED_SELECTION_INVALID',message:error.message}]),...native.issues];
+      savePlanningEditorialRepairFeedback(project,{passed:false,issues});
+      throw Object.assign(Error(issues.map(i=>i.message).join('；')),{issues});
+    }
     return {project,artifact:'qa/card-candidates.md',indexFile:generated.indexFile,
       governedCardCount:generated.governed.cards.length,openingFilter:generated.openingFilter,
       adjustments,reconciled:[],comparison,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};

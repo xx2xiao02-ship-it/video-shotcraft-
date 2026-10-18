@@ -139,7 +139,7 @@ export function assertReviewedSelection(project,options={}) {
   for(const name of ['semantics.json','SHOTBOOK.md','qa/card-candidates.json'])
     if(binding.inputs?.[name]!==fileHash(path.join(project,name)))throw Error('候选依据已变化，请重新生成候选：'+name);
   if(!Array.isArray(shots)||!shots.length)throw Error('分镜为空，不能验证已审选卡');
-  const ids=new Set(),issues=auditHostContext(shots).map(i=>i.message),deviations=[];
+  const ids=new Set(),issues=auditHostContext(shots).map(i=>i.message),deviations=[],repairIssues=[];
   for(let i=0;i<shots.length;i++){
     const shot=shots[i],card=reviewed.cards.get(shot.shotCard);
     try{assertCaptionScene(shot);}catch(error){issues.push(error.message);}
@@ -154,12 +154,17 @@ export function assertReviewedSelection(project,options={}) {
     if(!matched){
       const reasons=Object.entries(entry.waived||{}).filter(([semantic,reason])=>
         entry.semantics?.includes(semantic)&&typeof reason==='string'&&[...reason.replace(/\s/gu,'')].length>=4);
-      if(!reasons.length)issues.push('正式选卡在推荐候选外，须按原项目在本镜写语义偏离理由（至少4字）：'+shot.id+' / '+shot.shotCard);
+      if(!reasons.length){
+        const message='正式选卡在推荐候选外，须按原项目在本镜写语义偏离理由（至少4字）：'+shot.id+' / '+shot.shotCard;
+        issues.push(message);repairIssues.push({code:'SELECTION_DEVIATION_REQUIRED',shotId:shot.id,cardId:shot.shotCard,
+          field:'templateParams.semanticDeviations',allowedSemanticKeys:entry.semantics||[],message});
+      }
       else deviations.push({shotId:shot.id,cardId:shot.shotCard,reasons:Object.fromEntries(reasons)});
     }
   }
   issues.push(...auditTemplateReuse(shots).map(i=>'连续30镜内重复使用模板，缺少同一观点承接依据：'+i.shotId+' / '+i.cardId));
-  if(issues.length)throw Error(issues.join('\n'));
+  if(issues.length)throw Object.assign(Error(issues.join('\n')),{issues:[...repairIssues,
+    ...issues.filter(message=>!repairIssues.some(i=>i.message===message)).map(message=>({code:'REVIEWED_SELECTION_INVALID',message}))]});
   return {passed:true,shots:shots.length,deviations,registrySha256:reviewed.sha256,userAcceptance:false};
 }
 

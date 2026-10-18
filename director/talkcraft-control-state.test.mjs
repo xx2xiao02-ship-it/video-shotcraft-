@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import {talkcraftControlState,currentFailure} from './talkcraft-control-state.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
 
+test('07显示已核验事务的最新补全问题，旧规划报告不能覆盖成功修复后的范围',()=>{
+  const run={inputReady:true,wordTimingReady:true,semanticPassed:true,shotbook:true,editorialChecked:true,candidatesReady:true,
+    planningPassed:false,planningIssues:['s03旧问题'],nodeRepair:{node:'storyboard-review',status:'blocked',
+      failedChecks:[{shotId:'s05',code:'SELECTION_DEVIATION_REQUIRED',message:'当前理由漏填'}]}};
+  const state=talkcraftControlState(run,null);
+  assert.equal(state.nextStage,'planning-check');assert.match(state.waitingFor,/07内部补全/);
+  assert.deepEqual(state.blockers,['s05：[SELECTION_DEVIATION_REQUIRED] 当前理由漏填']);
+  assert.deepEqual(talkcraftControlState({...run,nodeRepair:{...run.nodeRepair,status:'running'}},null).blockers,['s03旧问题']);
+});
+
 test('已有逐句标注先执行03真实校验，不被04历史模型失败跳过',()=>{
   const failure={code:'LOCAL_EXECUTION_FAILED',task:{name:'talkcraft-editorial'}};
   const input={inputReady:true,wordTimingReady:true,semanticReady:true,semanticPassed:false,

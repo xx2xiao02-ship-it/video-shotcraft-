@@ -11,7 +11,7 @@ import {nativeSampleCurrent} from './talkcraft-sample-provenance.mjs';
 import {isNativePresentation,nativeGovernanceStatus} from './talkcraft-native-governance.mjs';
 import {factReviewStatus} from './talkcraft-fact-review.mjs';
 import {editorialSubmissionState} from './talkcraft-editorial-submission.mjs';
-import {preserveCandidateMaterialRepairFeedback,currentRejectedEditorialFeedback,preserveRejectedEditorialFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {preserveCandidateMaterialRepairFeedback,currentRejectedEditorialFeedback,preserveRejectedEditorialFeedback,currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialCompletionCurrent} from './talkcraft-editorial-completion.mjs';
 import {assertTextContrastProof,wordRevealSourceBinding} from './talkcraft-word-reveal.mjs';
 import {summarizeWordFailures} from './talkcraft-word-runtime-validation.mjs';
@@ -298,11 +298,17 @@ export function readTalkcraftStatus(root, runId) {
     textContrastAudit={passed:true,currentSource:true,blocking:false,scope:'full',completedAt:statSync(path.join(project,'qa/text-contrast-runtime.json')).mtimeMs};
   } catch {} // Partial, failed or stale evidence never resolves a full-film failure.
   const repair=has('qa/node-repair.json')?json(path.join(project,'qa/node-repair.json')):null;
+  let retainedChecks=[];
+  if(repair?.node==='storyboard-review'&&repair.status==='blocked'){
+    try{const feedback=currentEditorialRepairFeedback(project);
+      if(feedback?.retainedTransaction===repair.directory)retainedChecks=feedback.failedChecks;
+    }catch{} // Unverified transaction evidence must never replace current gates.
+  }
   const completion=has('qa/preflight-node-completion.json')?json(path.join(project,'qa/preflight-node-completion.json')):null;
   const completionCurrent=completion?.schema==='talkcraft-preflight-completion-v1'&&completion.runId===runId&&completion.entryReviewed===true&&
     completion.afterInputs&&Object.entries(completion.afterInputs).every(([n,h])=>(has(n)?digest(path.join(project,n)):null)===h);
   return {runId,digitalHumanAutomation:readDigitalHumanAutomation(project),continuationPolicy:readTalkcraftContinuation(project),
-    nodeRepair:repair?{schema:repair.schema,node:repair.node,status:repair.status,directory:repair.directory,error:repair.error||null,providerSubmitted:repair.providerSubmitted===true,responseFailure:repair.responseFailure||null}:null,
+    nodeRepair:repair?{schema:repair.schema,node:repair.node,status:repair.status,directory:repair.directory,error:repair.error||null,providerSubmitted:repair.providerSubmitted===true,responseFailure:repair.responseFailure||null,failedChecks:retainedChecks}:null,
     nodeCompletion:completionCurrent?{node:'preflight',status:completion.status,phase:completion.phase,error:completion.error||null}:null,
     sourceRunId:source.sourceRunId || null, voice:source.voice || null,voiceMode:source.voiceMode||'standard',voiceEngine:source.voiceEngine||null,canRecoverAlignment,digitalHuman,
     ...timingHealth(timing), wordTimingReady:timingHealth(timing).wordTimingReady || (()=>{try{return !!readWordAlignment(project);}catch{return false;}})(), canRecoverTiming,

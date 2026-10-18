@@ -174,6 +174,12 @@ test('选卡必填合同逐方案显式发送；空参数在编译前聚合拒�
   const args=fixture(),request=buildEditorialSelectionRequest(args);
   const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
   const model=editorialSelectionModelInput(request,{promptCatalog});
+  const reason=model.windows[0].selectionReasonContract;
+  assert.equal(reason.path,'templateParams.semanticDeviations');
+  assert.equal(reason.requiredWhen,'outside-upstream-recommendations');
+  assert.deepEqual(reason.allowedSemanticKeys,request.windows[0].actualCandidateSemantics);
+  assert.deepEqual(reason.choices.map(c=>c.choiceId),request.windows[0].choices.map(c=>c.choiceId));
+  assert.ok(reason.choices.every(c=>Array.isArray(c.indexedSemantics)&&typeof c.directSemanticMatch==='boolean'));
   assert.deepEqual(model.parameterContracts,editorialRequiredParameterContracts(request,catalog));
   const r=response(request),before=structuredClone(r);
   r.repairs[0].templateParams.cardProps={};

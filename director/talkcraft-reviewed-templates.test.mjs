@@ -31,6 +31,19 @@ test('only exact reviewed source versions enter candidate index',t=>{const f=fix
   assert.deepEqual(reviewedTemplateIndex({cards:[{slug:'approved'},{slug:'unknown'}]},f.options).cards,[{slug:'approved'}]);
   assert.equal(assertReviewedSelection(f.project,f.options).shots,1);
 });
+
+test('候选外理由遗漏逐镜返回正式补全路径，不伪造理由或改选卡',t=>{
+  const f=fixture(t);
+  f.write('qa/card-candidates.json',{s01:{semantics:['论点'],waived:{},candidates:{}}});
+  recordReviewedCandidates(f.project,f.options);
+  const before=fs.readFileSync(path.join(f.project,'remotion/shots.json'));
+  assert.throws(()=>assertReviewedSelection(f.project,f.options),error=>{
+    assert.deepEqual(error.issues,[{code:'SELECTION_DEVIATION_REQUIRED',shotId:'s01',cardId:'approved',
+      field:'templateParams.semanticDeviations',allowedSemanticKeys:['论点'],
+      message:'正式选卡在推荐候选外，须按原项目在本镜写语义偏离理由（至少4字）：s01 / approved'}]);return true;
+  });
+  assert.deepEqual(fs.readFileSync(path.join(f.project,'remotion/shots.json')),before);
+});
 test('catalog presence without review cannot admit a card',t=>{const f=fixture(t);f.registry.cards[0].reviewStatus='registered';f.save();assert.throws(()=>loadReviewedTemplates(f.options),/审查证据/);});
 test('missing portrait review is blocking',t=>{const f=fixture(t);f.registry.cards[0].reviews.pop();f.save();assert.throws(()=>loadReviewedTemplates(f.options),/横竖版/);});
 test('changed reviewed dependency requires a new review',t=>{const f=fixture(t);fs.appendFileSync(path.join(f.skillRoot,f.relative),'changed');assert.throws(()=>loadReviewedTemplates(f.options),/源码版本已变化/);});

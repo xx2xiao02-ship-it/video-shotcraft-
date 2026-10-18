@@ -77,7 +77,11 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
   if (run.editorialChecked===false) return state('editorial-check', '完成04分镜校验，文件存在不代表通过', ['EDITORIAL_CHECK_NOT_PASSED']);
   if(run.digitalHumanGenerationPlanned&&!run.mediaPreparationPassed)return state('media-preflight','核对数字人生成输入');
   if (!run.candidatesReady) return state('candidates', '生成候选并完成正式选卡',run.candidateIssues||[]);
-  if(!run.planningPassed)return state('planning-check','校验当前候选版本的分镜规划',run.planningIssues||[]);
+  if(!run.planningPassed){
+    const retained=run.nodeRepair?.node==='storyboard-review'&&run.nodeRepair.status==='blocked'?run.nodeRepair.failedChecks:[];
+    return state('planning-check',retained?.length?'07内部补全当前事务后复检':'校验当前候选版本的分镜规划',
+      retained?.length?retained.map(i=>`${i.shotId||'全局'}：[${i.code}] ${i.message}`):run.planningIssues||[]);
+  }
   if(!run.storyboardApproved)return state('approve-storyboard','审核当前分镜规划');
   if(run.digitalHumanGenerationPlanned){
     if(!run.digitalHuman?.ready)return state('digital-human','按已审核人物区间生成口型');

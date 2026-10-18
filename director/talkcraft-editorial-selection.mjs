@@ -117,7 +117,14 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   if(request.schema!=='talkcraft-editorial-selection-request-v2')throw fail('新局部请求必须使用本镜字符锚点协议');
   const slugs=new Set(request.windows.flatMap(w=>w.choices.map(c=>c.slug)));
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
-    editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
+    editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
+      selectionReasonContract:{path:'templateParams.semanticDeviations',requiredWhen:'outside-upstream-recommendations',
+        allowedSemanticKeys:[...w.actualCandidateSemantics],minimumNonWhitespaceCharacters:4,
+        choices:w.choices.map(c=>({choiceId:c.choiceId,
+          indexedSemantics:[...(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[])],
+          directSemanticMatch:(promptCatalog.cards.find(card=>card.slug===c.slug)?.semantics||[]).some(s=>w.actualCandidateSemantics.includes(s)),
+          instruction:'技术兼容不等于语义推荐；候选外须针对本镜所选卡填写具体理由，不能用空对象、画面intent或旧卡理由代替'}))},
+      anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.map(r=>pick(r,['code','shotId','displayShotId','field'])),
     materials:request.materialShotIds.map(id=>materialInput(
       request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request)),

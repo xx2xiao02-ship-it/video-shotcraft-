@@ -381,6 +381,26 @@ export function recoverProviderEditorial(root,runId,options={}){
     call:async()=>{throw Error('免费响应恢复禁止外部模型请求');}});
 }
 
+export function replayExistingEditorialProviderResult(project,options){
+  if(!existsSync(path.join(project,'qa/ark-editorial-response.json')))
+    throw Error('没有本次已保存的分镜响应；免费恢复不会调用模型');
+  // Recompilation verifies the immutable request, raw receipt and run binding.
+  // Existing shot artifacts are expected after a successful partial replay.
+  return recompileRetainedEditorialSelection(project,options);
+}
+
+export function saveEditorialDerivedArtifact(project,name,content,{replay=false}={}){
+  const file=path.join(project,name);
+  if(!replay||!existsSync(file))return writeFileSync(file,content,{flag:'wx'});
+  const previous=readFileSync(file);
+  if(previous.equals(Buffer.from(content)))return;
+  const dir=path.join(project,'qa/editorial-free-replay-artifacts');mkdirSync(dir,{recursive:true});
+  const backup=path.join(dir,`${path.basename(name)}.${createHash('sha256').update(previous).digest('hex')}`);
+  if(!existsSync(backup))writeFileSync(backup,previous,{flag:'wx'});
+  if(!readFileSync(backup).equals(previous))throw Error('免费恢复的分镜备份不一致，未更新产物');
+  writeFileSync(file,content);
+}
+
 // Both the paid path and the free input check use this exact producer. No
 // callback, provider configuration or authorization reservation lives here.
 export function prepareEditorialRepairInput({previousFailures,aligned,catalog,personWindows,promptCatalog,theme,projectRoot}){
@@ -404,7 +424,9 @@ export function checkEditorialSelectionInput(root,runId,{skillRoot=resolveTalkcr
   if(!state.inputReady||state.activeTask)throw Error('输入未就绪或正式任务正在执行，不能检查局部修订输入');
   const lock=path.join(project,'editorial.lock'),fd=openSync(lock,'wx');
   try{
-    const previousFailures=currentRejectedEditorialFeedback(project);
+    const rejected=currentRejectedEditorialFeedback(project);
+    const retained=rejected?null:currentEditorialRepairFeedback(project);
+    const previousFailures=rejected||(retained?.retainedTransaction?retained:null);
     if(!previousFailures)throw Error('没有与当前输入、原始返回及提案完全对应的拒绝记录，不回退到旧工作记录');
     const aligned=json(path.join(project,'aligned-sentences.json')),index=json(path.join(skillRoot,'references/cards-index.json'));
     const catalog=loadTalkcraftGovernedCatalog(index),reviewed=loadReviewedTemplates({skillRoot});
@@ -460,7 +482,7 @@ async function generateEditorialInternal(root, runId, {call = talkcraftEditorial
     if (!readTalkcraftStatus(root, runId).inputReady) throw new Error('请先完成配音和时间轴处理');
     const inputState=readTalkcraftStatus(root,runId);
     if(inputState.workflowPath==='recorded-host'&&!inputState.mediaPreflightPassed)throw Error('真人视频必须先通过素材体检，再按原版进入分镜；不会切换到 RunningHub');
-    assertEditorialGenerationState(project,inputState);
+    if(!recoverProviderOnly)assertEditorialGenerationState(project,inputState);
     const semantics = json(path.join(project,'semantics.json'));
     const aligned = json(path.join(project,'aligned-sentences.json'));
     const index = json(path.join(skill,'references/cards-index.json'));
@@ -475,8 +497,8 @@ async function generateEditorialInternal(root, runId, {call = talkcraftEditorial
     const vocab = new Set(index.vocab.map(v => v.word));
     const qa = path.join(project,'qa'); mkdirSync(qa, {recursive:true});
     const responseFile = path.join(qa,'ark-editorial-response.json');
-    if(recoverProviderOnly&&existsSync(responseFile)){
-      const replay=recompileRetainedEditorialSelection(project,{runId,aligned,catalog,personWindows:reusedEditorialWindows(project,aligned)});
+    if(recoverProviderOnly){
+      const replay=replayExistingEditorialProviderResult(project,{runId,aligned,catalog,personWindows:reusedEditorialWindows(project,aligned)});
       writeFileSync(path.join(qa,'editorial-selection-audit.json'),JSON.stringify({schema:'talkcraft-editorial-selection-audit-v1',
         requestId:replay.request.requestId,passed:true,compiled:true,editableShotIds:replay.request.editableShotIds,
         compiledSha256:createHash('sha256').update(JSON.stringify(replay.result)).digest('hex'),
@@ -651,11 +673,11 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
     const updated = json(path.join(project,'semantics.json'));
     updated.sentences.forEach((sentence,i) => {sentence.shot = shots.find(s => i >= s.firstSentence && i <= s.lastSentence).id;});
     writeFileSync(path.join(project,'semantics.json'),JSON.stringify(updated,null,2));
-    writeFileSync(path.join(project,'remotion/shots.json'),JSON.stringify(shots,null,2),{flag:'wx'});
+    saveEditorialDerivedArtifact(project,'remotion/shots.json',JSON.stringify(shots,null,2),{replay:recoverProviderOnly});
     const book = '# SHOTBOOK\n\n## 0 全局设计\n\n- 编导来源：火山方舟\n- 样板镜：s01\n- 当前状态：分镜初稿，素材、选卡与节拍尚待核验。\n\n' +
       shots.map(s => `## ${s.id} ${s.start.toFixed(3)}–${s.end.toFixed(3)} 秒\n\n- 主体：${s.subject === 'person' ? '数字人' : '辅助画面'}\n- 意图：${s.intent}\n- 画面设计：${s.visual}\n${editorialSelectionNotes(s,compiledSelectionRequest&&!compiledSelectionRequest.editableShotIds.includes(s.id)?vocab:editorialShotSemantics(result.sentences,s))}- 素材：待采集与核验\n- 选卡：待候选生成后审核\n- 蒙皮：按本片主题，待实现\n- 节拍、音效：待精确定位与核验\n`).join('\n') +
       '\n## 未完成 / 未采集清单\n\n- 真实素材与事实证据\n- 卡片候选审核及源码核对\n- 精确动效锚点、音效与层矩阵\n- 分镜预检、样板镜实现和验收\n';
-    writeFileSync(path.join(project,'SHOTBOOK.md'),book,{flag:'wx'});
+    saveEditorialDerivedArtifact(project,'SHOTBOOK.md',book,{replay:recoverProviderOnly});
     const checked=checkEditorial(root,runId,{stage});
     return {...checked, shots:shots.length};
   } finally {closeSync(fd); unlinkSync(lock);}
