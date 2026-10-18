@@ -79,6 +79,10 @@ test('图形比较失败时发送真实图形分类目录与理由合同，不�
  assert.ok(contract.cards.length>0);assert.equal(contract.minimumReasonCharacters,4);
  assert.ok(!contract.cards.some(c=>c.slug==='soft-blur-in'));
  assert.ok(model.materials.filter(r=>r.shotId!==request.editableShotIds[0]).every(r=>!r.graphicComparisonContract));
+  request.failedChecks=[];request.windows[0].choices=[{choiceId:'new-text',slug:'soft-blur-in'}];
+  const proactive=editorialSelectionModelInput(request,{promptCatalog});
+  assert.deepEqual(proactive.materials[0].graphicComparisonContract.cards.map(c=>c.slug),
+    promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug));
 });
 
 test('资料协议区分锁定换槽与创意重写，逐行明确数组和已有绑定归属',()=>{

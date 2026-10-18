@@ -119,6 +119,10 @@ function materialInput(row,editable,request){
 export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
   if(request.schema!=='talkcraft-editorial-selection-request-v2')throw fail('新局部请求必须使用本镜字符锚点协议');
   const slugs=new Set(request.windows.flatMap(w=>w.choices.map(c=>c.slug)));
+  const mayRequireGraphicComparison=id=>request.editableShotIds.includes(id)&&request.windows.find(w=>w.shotId===id)?.choices.some(choice=>{
+    const card=promptCatalog.cards.find(c=>c.slug===choice.slug);
+    return ['字幕花字','强调标注'].includes(card?.category)||['chapter-title-card','chapter-progress-list'].includes(choice.slug);
+  });
   const cycleContract=w=>({openingShotCount:3,
     instruction:'所列选项在当前锁定相邻镜头与已有真实视频绑定下会形成违规纯文字三连；本协议不允许凭空回传背景文件，不能选择这些choiceId。不得通过省略理由、图片或检索候选豁免；其余选项仍须满足全部合同。',
     incompatibleChoices:w.choices.flatMap(choice=>{
@@ -142,10 +146,10 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
         'allowedCarrierLeadFrames','begin','end','wordFrame','firstReadableFrame','minimumTotalFrames'])),
     materials:request.materialShotIds.map(id=>({...materialInput(
       request.baseProposal.materialResearch?.shots?.find(r=>r.shotId===id)||{shotId:id,research:[]},request.editableShotIds.includes(id),request),
-      ...(request.failedChecks.some(c=>c.shotId===id&&c.code==='GRAPHIC_COMPARISON_REQUIRED')?{
+      ...(mayRequireGraphicComparison(id)||request.failedChecks.some(c=>c.shotId===id&&c.code==='GRAPHIC_COMPARISON_REQUIRED')?{
         graphicComparisonContract:{path:'graphicAlternatives',minimumReasonCharacters:4,
           cards:promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>pick(c,['slug','title','oneliner','usage'])),
-          instruction:'必须实际比较列出的图形卡并返回cardId和本镜具体不适配理由；强调标注、人物互动或纯文字卡不算图形替代。若改选图形卡仍须满足选卡、人物、真实数据、时长和全部参数合同；不得虚构数值。'}}:{})})),
+          instruction:'若最终选择纯文字或强调模板且无真实资料展示，必须实际比较列出的图形卡并返回cardId和本镜具体不适配理由；强调标注、人物互动或纯文字卡不算图形替代。若改选图形卡仍须满足选卡、人物、真实数据、时长和全部参数合同；不得虚构数值。'}}:{})})),
     responseContract:editorialResponseContract(request),
     parameterContracts:editorialRequiredParameterContracts(request,{contracts:promptCatalog.contracts}),
     catalog:{cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
