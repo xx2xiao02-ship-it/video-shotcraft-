@@ -18,6 +18,14 @@ export const EDITORIAL_MATERIAL_RULES=MATERIAL_RESEARCH_RULES+VISUAL_PREFERENCE_
 export const EDITORIAL_SELECTION_MATERIAL_RULES=MATERIAL_RESEARCH_SELECTION_RULES+VISUAL_PREFERENCE_RULES;
 export const EDITORIAL_HOLD_RULES=NATIVE_HOLD_RULES;
 
+// The same structural gate runs before installation and when rebuilding plans.
+// Empty arrays cannot stand in for authored content or real word anchors.
+export function assertEditorialTextPlan(proposal){
+  if(!Array.isArray(proposal?.textFields)||!proposal.textFields.length||
+     !Array.isArray(proposal?.wordEvents)||!proposal.wordEvents.length)
+    throw Error('缺少可见字段和真实锚词事件');
+}
+
 export function nativeEditorialTimeline(duration,nativeFrames,holdAt,reason,playbackRate){
   if(!Number.isInteger(duration)||duration<1||!Number.isInteger(nativeFrames)||nativeFrames<1)
     throw Error('镜头和原卡总帧数必须为正整数');
@@ -59,8 +67,7 @@ export function prepareEditorialNativePlans(project,catalog,result){
         motionFits:(nativeFrames-1)/(endFrame-startFrame-1)<=NATIVE_MAX_RATE});
       const timeline=nativeEditorialTimeline(endFrame-startFrame,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason,proposal.playbackRate);
       assertNativeMediaClock(timeline,card.policy?.media,shot.templateParams?.cardProps);
-      if(!Array.isArray(proposal.textFields)||!proposal.textFields.length||!Array.isArray(proposal.wordEvents)||!proposal.wordEvents.length)
-        throw Error('缺少可见字段和真实锚词事件');
+      assertEditorialTextPlan(proposal);
       rows.push({shotId:shot.id,cardId:shot.shotCard,startFrame,endFrame,nativeFrames,
         humanLayout:source.isDigitalHuman&&shot.subject==='person'?'person':'none',mobileMinTextPx:proposal.mobileMinTextPx,
         textFields:proposal.textFields,requestedPlaybackRate:proposal.playbackRate??null,timeline});

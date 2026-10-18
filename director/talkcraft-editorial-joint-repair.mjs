@@ -55,6 +55,11 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');
+      // A fixed illustration with no authored content or media inlet cannot
+      // implement a new content design under the existing native text gate.
+      const capability=card.policy?.capabilities;
+      if(capability?.illustrationOnlyWithoutAdapter===true&&capability.parameterizedContent===false&&capability.nativeMedia===false)
+        reasons.push('AUTHORED_CONTENT_SLOT_UNAVAILABLE');
       if(editorialRequiredNumericFields(card).length&&!editorialQuantitativeInput(proposal,shot))
         reasons.push('QUANTITATIVE_INPUT_REQUIRED');
       const replacement=shots.map(s=>s.id===shot.id?{...s,shotCard:card.cardId}:s);

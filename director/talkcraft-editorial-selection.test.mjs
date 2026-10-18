@@ -31,7 +31,9 @@ function response(request,slug='doc-park-left-pill-deal'){
   return {schema:'talkcraft-editorial-selection-response-v1',requestId:request.requestId,
     repairs:[{shotId:'s15',choiceId:choice.choiceId,intent:'明确展示央行研究',visual:'使用原卡机构资料与标签',
       templateParams:{cardProps:{},templateMaterialQueries:queries},
-      nativePresentation:{holdAtNativeFrame:100,holdReason:'资料可见时驻留',mobileMinTextPx:12,textFields:[],wordEvents:[]}}],
+      nativePresentation:{holdAtNativeFrame:100,holdReason:'资料可见时驻留',mobileMinTextPx:12,
+        textFields:[{key:'docTitle',visibility:'visible'}],
+        wordEvents:[{field:'docTitle',text:'央行的预期管理',sentenceIndex:0,anchor:'预期管理',role:'spoken'}]}}],
     materialResearchUpdates:[{shotId:'s15',research:[{kind:'identity',query:'央行官方资料',reason:'真实机构身份',displayField:choice.sourceDisplayFields[0]}]}]};
 }
 
@@ -138,7 +140,7 @@ test('局部内容在写入语义前一次报告错理由、跨镜锚点及无�
   const args=fixture();args.proposal.sentences[0].sem=['例证'];args.proposal.sentences[0].weight='main';
   const request=buildEditorialSelectionRequest(args),result=structuredClone(request.baseProposal);
   Object.assign(result.shots[0],{shotCard:'shape-wipe-transition',templateParams:{semanticDeviations:{引用:'不能挪用其他镜头理由'}},
-    nativePresentation:{wordEvents:[{field:'chartTitle',role:'spoken',sentenceIndex:1,anchor:'普通人的生活选择'}]}});
+    nativePresentation:{textFields:[{key:'chartTitle',visibility:'visible'}],wordEvents:[{field:'chartTitle',role:'spoken',sentenceIndex:1,anchor:'普通人的生活选择'}]}});
   const audit=auditEditorialSelectionContent(result,request,args);
   assert.deepEqual(audit.issues.map(i=>i.code),['SHOT_SEMANTIC_DEVIATION_MISMATCH','EDITORIAL_WORD_EVENT_SCOPE','QUANTITATIVE_INPUT_REQUIRED']);
   assert.equal(audit.passed,false);assert.deepEqual(args.proposal,request.baseProposal);
@@ -148,4 +150,13 @@ test('局部内容在写入语义前一次报告错理由、跨镜锚点及无�
   args.proposal.sentences[0].need=['量化'];
   const allowed=buildEditorialJointRepairContract(args);
   assert.ok(!allowed.windows[0].rejected.QUANTITATIVE_INPUT_REQUIRED?.includes('shape-wipe-transition'));
+});
+
+test('空文字计划在局部编译阶段拒绝，不改锁定原稿或等待安装后报错',()=>{
+  const args=fixture(),request=buildEditorialSelectionRequest(args),before=structuredClone(args.proposal);
+  for(const field of ['textFields','wordEvents']){
+    const r=response(request);r.repairs[0].nativePresentation[field]=[];
+    assert.throws(()=>compileEditorialSelection(r,request,args),/缺少可见字段和真实锚词事件/);
+    assert.deepEqual(args.proposal,before);
+  }
 });

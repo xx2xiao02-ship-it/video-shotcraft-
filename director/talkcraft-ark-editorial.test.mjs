@@ -149,11 +149,14 @@ test('提案结构通过仍不冒充素材、实帧及用户验收，未知字�
   const catalog=loadTalkcraftGovernedCatalog(JSON.parse(readFileSync('_audit/video-talkcraft/references/cards-index.json','utf8')));
   const sentence={i:0,text:'原句',sem:['强调'],need:['强调'],weight:'main',entities:[]};
   const value={sentences:[sentence],shots:[{id:'s01',firstSentence:0,lastSentence:0,shotCard:'per-character-rise',
-    templateParams:{cardProps:{text:'原句'}},nativePresentation:{holdAtNativeFrame:60,holdReason:'主体仍可见'}}]};
+    templateParams:{cardProps:{text:'原句'}},nativePresentation:{holdAtNativeFrame:60,holdReason:'主体仍可见',
+      textFields:[{key:'text',visibility:'visible'}],wordEvents:[{field:'text',text:'原句',sentenceIndex:0,anchor:'原句',role:'spoken'}]}}]};
   const options={semantics:{sentences:[{i:0,text:'原句'}]},aligned:[{start:0,end:3}],vocab,catalog,projectRoot:process.cwd()};
   const report=auditEditorialProposal(value,options);
   assert.equal(report.passed,true);assert.equal(report.productionAdmitted,false);
   assert.equal(report.runtimeVerified,false);assert.equal(report.userAcceptance,false);
+  const noText=structuredClone(value);noText.shots[0].nativePresentation.textFields=[];
+  assert.ok(auditEditorialProposal(noText,options).issues.some(i=>i.code==='NATIVE_EDITORIAL_PLAN'&&i.message.includes('真实锚词')));
   value.shots[0].templateParams.cardProps.notARegisteredField='不允许';
   assert.equal(auditEditorialProposal(value,options).passed,false);
 });
@@ -257,7 +260,9 @@ test('正式 B 管线的原卡动作计划失败由提案节点直接阻断，�
   writeFileSync(path.join(project,'SHOTBOOK.md'),'# SHOTBOOK\n');
   writeFileSync(path.join(project,'sources.md'),'# Sources\n');
   assert.throws(()=>checkEditorial(root,runId,{skillRoot:path.resolve('_audit/video-talkcraft'),stage:s=>{calls.push(s);return {passed:true};}}),/NATIVE_EDITORIAL_PLAN/);
-  assert.deepEqual(calls,['semantic-check','semantic-shot-check']);
+  assert.deepEqual(calls,['semantic-check']);
+  const feedback=JSON.parse(readFileSync(path.join(project,'qa/editorial-repair-feedback.json')));
+  assert.equal(feedback.failedChecks[0].code,'NATIVE_EDITORIAL_PLAN');
   assert.equal(existsSync(path.join(project,'qa/preflight-result.json')),false);
 });test('semantic timing keeps original precision at shot boundaries', () => {
   const actual=bindEditorialTiming({sentences:[{i:0,text:'第一句。',t:16.641}]},

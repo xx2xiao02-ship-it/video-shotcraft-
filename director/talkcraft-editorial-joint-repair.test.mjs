@@ -117,3 +117,13 @@ test('没有联合可行卡时明确返回重排，不用第一卡、虚构媒�
   assert.deepEqual(result.candidates,[]);assert.match(result.nextAction,/真实自然句/);
   assert.equal(args.proposal.shots[1].shotCard,'focus-dim-spotlight');
 });
+
+test('固定示意卡没有本片内容与媒体入口时不能作为可执行修订方案',()=>{
+  const args=fixture(),report=buildEditorialJointRepairContract(args);
+  assert.equal(report.reviewedCount,108);
+  for(const w of report.windows){
+    assert.ok(w.rejected.AUTHORED_CONTENT_SLOT_UNAVAILABLE.includes('motion-blur-slam-in'));
+    assert.ok(!w.candidates.some(c=>c.slug==='motion-blur-slam-in'));
+    assert.equal(new Set([...w.candidates.map(c=>c.slug),...Object.values(w.rejected).flat()]).size,108);
+  }
+});

@@ -12,7 +12,7 @@ import {applySemanticDecisions,validateSemanticDecisions} from './talkcraft-sema
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC, OPENING_MAX_SHOT_SEC, OPENING_TARGET_SHOT_SEC} from './talkcraft-template-governance.mjs';
 import {loadTalkcraftGovernedCatalog, talkcraftEditorialContract, validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
-import {nativeEditorialTimeline,prepareEditorialNativePlans,EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
+import {nativeEditorialTimeline,prepareEditorialNativePlans,assertEditorialTextPlan,EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
 import {alignNativeShotBoundaries} from './talkcraft-native-preparation.mjs';
@@ -59,7 +59,8 @@ export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,p
     if(!card||!proposal){add('NATIVE_EDITORIAL_PLAN',`${shot.id} 缺少正式模板或展示计划`,{shotId:shot.id});continue;}
     const durationFrames=Math.round(end*30)-Math.round(start*30),nativeFrames=card.duration.frames;
     checks.push({shotId:shot.id,cardId:shot.shotCard,durationFrames,nativeFrames,proposedHoldFrame:proposal.holdAtNativeFrame});
-    try{const timeline=nativeEditorialTimeline(durationFrames,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason,proposal.playbackRate);
+    try{assertEditorialTextPlan(proposal);
+      const timeline=nativeEditorialTimeline(durationFrames,nativeFrames,proposal.holdAtNativeFrame,proposal.holdReason,proposal.playbackRate);
       assertNativeMediaClock(timeline,card.policy?.media,shot.templateParams?.cardProps);
       checks.at(-1).motionPlaybackRates=timeline.filter(s=>s.kind==='motion').map(s=>s.playbackRate);}
     catch(error){add('NATIVE_EDITORIAL_PLAN',`${shot.id}：${error.message}`,{shotId:shot.id});}
@@ -170,6 +171,13 @@ function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=re
   const checked=stage('semantic-check',runId);
   if(checked?.passed===false)throw Error('逐句语义校验未通过');
   const catalog = loadTalkcraftGovernedCatalog(json(path.join(skillRoot,'references/cards-index.json')));
+  if(json(path.join(project,'source-run.json')).pipeline==='video-talkcraft'){
+    const issues=[];
+    for(const shot of json(path.join(project,'qa/ark-editorial-response.json')).shots||[])
+      try{assertEditorialTextPlan(shot.nativePresentation);}
+      catch(error){issues.push({code:'NATIVE_EDITORIAL_PLAN',shotId:shot.id,message:`${shot.id}：${error.message}`});}
+    if(issues.length)throw Object.assign(Error('分镜提案校验未通过：'+issues.map(i=>`[${i.code}] ${i.message}`).join('；')),{issues});
+  }
   normalizeSavedEditorialParams(project,catalog);
   const shots = json(path.join(project,'remotion/shots.json'));
   assertTemplateOnlyEditorialProposal({shots},{skillRoot});
