@@ -17,7 +17,7 @@ function materialLibraryRoot(root) {
 }
 const isBackgroundRole = value => ['background', '背景素材'].includes(String(value || '').trim().toLowerCase());
 export function allocateUniqueBackgrounds(root,project){
- const file=path.join(project,'remotion/shots.json'),shots=JSON.parse(fs.readFileSync(file,'utf8'));
+ const file=path.join(project,'remotion/shots.json'),original=fs.readFileSync(file,'utf8'),shots=JSON.parse(original);
  // The model may return the business label in Chinese. Normalize it before
  // allocation so every downstream renderer and exclusivity check sees one role.
  for (const shot of shots) {
@@ -75,7 +75,8 @@ export function allocateUniqueBackgrounds(root,project){
        materialFit:playback.playbackRate < 1 ? 'slowdown' : 'cover'});
    }
  }
- fs.writeFileSync(file,JSON.stringify(shots,null,2));fs.mkdirSync(path.join(project,'qa'),{recursive:true});
+ if(JSON.stringify(shots)!==JSON.stringify(JSON.parse(original)))fs.writeFileSync(file,JSON.stringify(shots,null,2)+'\n');
+ fs.mkdirSync(path.join(project,'qa'),{recursive:true});
  fs.writeFileSync(path.join(project,'qa/background-allocation.json'),JSON.stringify({assigned,unresolved},null,2));
  fs.writeFileSync(path.join(project,'qa/background-source-recovery.json'),JSON.stringify(recovery,null,2));
  return {assigned,unresolved};

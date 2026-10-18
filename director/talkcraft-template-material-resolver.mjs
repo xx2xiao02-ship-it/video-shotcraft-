@@ -31,6 +31,8 @@ function fits(meta,kind,requiredSec){
 export function resolveTalkcraftTemplateMaterials(project,{root=path.resolve(project,'../../../..'),catalog=null,deferGeneratedHost=false}={}){
   catalog ??= loadTalkcraftGovernedCatalog(read(path.join(resolveTalkcraftSkillRoot(ROOT),'references/cards-index.json')));
   const shotsFile=path.join(project,'remotion/shots.json'),shots=read(shotsFile);
+  const researchFile=path.join(project,'material-research-plan.json');
+  const researchRows=fs.existsSync(researchFile)?read(researchFile).shots||[]:[];
   const library=path.join(root,'materials/_scenes'),indexFile=path.join(root,'materials/_index.json');
   const index=fs.existsSync(indexFile)?read(indexFile):[];
   const backgroundIds=new Set(shots.filter(s=>s.templateParams?.materialRole==='background').map(s=>String(s.templateParams.materialSourceId||'').toLowerCase()).filter(Boolean));
@@ -107,6 +109,18 @@ export function resolveTalkcraftTemplateMaterials(project,{root=path.resolve(pro
           continue;
         }
         unresolved.push({shotId:shot.id,field,code:'digital_human_binding_required',message:'需要绑定本镜时间范围对应的成功数字人素材，不能从背景库选人物视频'});continue;
+      }
+      const protectedSource=/官方|原始(?:报告|图表|数据)|人物(?:页|资料)|\b(?:official|profile|research paper)\b/iu.test(params.templateMaterialQueries?.[field]||'')||
+        researchRows.some(row=>(row.materialBindings||[]).some(b=>row.shotId===shot.id&&b.field===field)||
+        (row.research||[]).some(need=>{
+          const target=need.displayShotId||row.shotId;
+          const fields=Object.keys(card.policy.media).filter(k=>k!=='hostSrc'&&!skip.has(k));
+          return target===shot.id&&(need.displayField===field||!need.displayField&&fields.length===1&&fields[0]===field);
+        }));
+      if(protectedSource){
+        unresolved.push({shotId:shot.id,field,code:'reviewed_source_binding_required',
+          message:'该槽有明确真实资料需求或已声明文件；须先核验并恢复对应来源，禁止用本地语境素材替填'});
+        continue;
       }
       const needed=kind==='image-list'&&typeof props.labels==='string'?props.labels.split('\n').length:kind==='image-list'?0:1;
       if(!needed){unresolved.push({shotId:shot.id,field,code:'material_cardinality_unknown',message:'缺少与图片列表一一对应的标签，不能猜测图片数量'});continue;}

@@ -35,6 +35,64 @@ test('正式绑定资料到原卡实际槽，继续经过原有来源校验，�
   const file=path.join(p,'remotion/shots.json'),stamp=fs.statSync(file).mtimeMs;
   prepareResearchBindings(p,catalog);assert.equal(fs.statSync(file).mtimeMs,stamp);
 });
+
+test('修订归档旧计划后按当前明确资料记录恢复原槽，不按镜头编号猜旧文件',t=>{
+  const {p,write,entry}=fixture(t);fs.unlinkSync(path.join(p,'material-binding-plan.json'));
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[{kind:entry.kind,query:entry.query}],bindings:[entry]}]});
+  const result=prepareResearchBindings(p,catalog);
+  assert.equal(result.pendingPlan,true);assert.equal(result.issues.length,0);assert.equal(result.applied.length,1);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0].templateParams.cardProps.srcFront,entry.localPath);
+});
+
+test('内部双图materialBindings进入实际原槽，未核验来源不能被当作成功素材',t=>{
+  const {p,write,entry}=fixture(t);fs.unlinkSync(path.join(p,'material-binding-plan.json'));
+  const source={...entry,url:entry.sourceUrl,reason:entry.identityReason};delete source.sourceUrl;delete source.identityReason;
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[],materialBindings:[source]}]});
+  assert.equal(prepareResearchBindings(p,catalog).applied.length,1);
+  const snapshot=fs.readFileSync(path.join(p,'remotion/shots.json'),'utf8');
+  delete source.licenseVerified;write('material-research-plan.json',{shots:[{shotId:'s01',research:[],materialBindings:[source]}]});
+  assert.equal(prepareResearchBindings(p,catalog).issues[0].code,'REVIEWED_SOURCE_BINDING_REJECTED');
+  assert.equal(fs.readFileSync(path.join(p,'remotion/shots.json'),'utf8'),snapshot);
+});
+
+test('没有实际资料记录时不从查询词、其他人物或背景自动补来源',t=>{
+  const {p,write}=fixture(t);fs.unlinkSync(path.join(p,'material-binding-plan.json'));
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[{kind:'identity',query:'另一个人'}]}]});
+  assert.equal(prepareResearchBindings(p,catalog).applied.length,0);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0].templateParams.cardProps,{});
+});
+
+test('旧query的历史来源保留但不再执行，不把它误报为当前镜头新增失败',t=>{
+  const {p,write,entry}=fixture(t);fs.unlinkSync(path.join(p,'material-binding-plan.json'));
+  const history={...entry,query:'不再使用的旧检索词'};
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[{kind:entry.kind,query:entry.query}],bindings:[history,entry]}]});
+  assert.equal(prepareResearchBindings(p,catalog).issues.length,0);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))).shots[0].bindings[0].query,history.query);
+});
+
+test('核心人物只有实际资料和唯一姓名标签核对后才能归一查询关联，不能换槽绕过',t=>{
+  const {p,write,entry,plan}=fixture(t);
+  const row={shotId:'s01',research:[{kind:entry.kind,query:entry.query,entityType:'person',entityName:'霍尔',displayField:'srcFront'}],
+    personDisplays:[{entityName:'霍尔',role:'core',labelField:'name',labelText:'霍尔',bindingQuery:'旧查询'}]};
+  write('material-research-plan.json',{shots:[row]});
+  write('remotion/shots.json',[{id:'s01',shotCard:'pair',templateParams:{cardProps:{name:'霍尔'}}}]);
+  assert.equal(prepareResearchBindings(p,catalog).issues.length,0);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))).shots[0].personDisplays[0].bindingQuery,entry.query);
+  row.research[0].displayField='different';write('material-research-plan.json',{shots:[row]});
+  assert.match(prepareResearchBindings(p,catalog).issues[0].message,/不同展示槽位/);
+});
+
+test('补核验内部资料只接受当前明确文件与来源，不改成任意计划图片',t=>{
+  const {p,write,entry,plan}=fixture(t);
+  const internal={...entry};delete internal.kind;delete internal.query;
+  plan.bindings=[internal];write('material-binding-plan.json',plan);
+  const declaration={field:entry.field,localPath:entry.localPath,sha256:entry.sha256,sourceUrl:entry.sourceUrl};
+  write('material-research-plan.json',{shots:[{shotId:'s01',research:[],materialBindings:[declaration]}]});
+  assert.equal(prepareResearchBindings(p,catalog).issues.length,0);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))).shots[0].materialBindings[0].licenseVerified,true);
+  plan.bindings[0].sourceUrl='https://different.example/';write('material-binding-plan.json',plan);
+  assert.match(prepareResearchBindings(p,catalog).issues[0].message,/完全对应/);
+});
 test('正式绑定保存准确槽位；历史缺槽记录只按已核准计划补回，不覆盖来源',t=>{
   const {p,write,plan,entry}=fixture(t);
   const source={...entry};delete source.field;source.reviewNote='保留历史来源核验';
