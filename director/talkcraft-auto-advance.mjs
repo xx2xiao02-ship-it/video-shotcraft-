@@ -62,8 +62,10 @@ export function createTalkcraftAutoAdvance({readRun, readRecord, writeRecord, qu
       }
       const stage = automaticTalkcraftStage(run);
       if (!stage) {
+        const progressed = !run.activeTask && !run.lastFailure && !run.failureReport &&
+          Boolean(run.nextStage) && run.nextStage !== record.lastStage;
         save(runId, record, {state:run.activeTask ? 'running' : run.lastFailure || run.failureReport ? 'blocked' : 'waiting',
-          waitingFor:run.waitingFor || null});
+          waitingFor:run.waitingFor || null, ...(progressed ? {error:null} : {})});
         return;
       }
       // 成功退出但产物未推进也必须暂停，不能反复启动同一阶段。

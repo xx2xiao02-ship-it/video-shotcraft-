@@ -110,3 +110,14 @@ test('修正调度接管阶段标记，恢复后不被此前同名节点的旧�
  run={provenance:{verified:true},nextStage:'candidates',editorialChecked:true};
  await auto.advance('current');assert.equal(queued,1);await auto.advance('current');assert.equal(queued,1);assert.equal(record.state,'blocked');
 });
+
+test('成功推进人工终审时清除旧的未推进提示，不审批也不重复启动；真实失败仍保留',async()=>{
+ const h=harness();h.auto.enable('run');h.setRun(ready('qa'));
+ await h.auto.tick();await h.auto.tick();assert.match(h.getRecord().error,/未推进/);
+ h.setRun({...ready('approve-final'),qaPassed:true,waitingFor:'人工视觉审核',continuationPolicy:{enabled:true}});
+ await h.auto.tick();assert.equal(h.getRecord().state,'waiting');assert.equal(h.getRecord().error,null);
+ assert.equal(h.getRecord().waitingFor,'人工视觉审核');assert.equal(h.queued.length,1);
+ h.setRecord({...h.getRecord(),error:'真实检查失败'});
+ h.setRun({...ready(null),lastFailure:{code:'QA_FAILED'}});await h.auto.tick();
+ assert.equal(h.getRecord().state,'blocked');assert.equal(h.getRecord().error,'真实检查失败');
+});
