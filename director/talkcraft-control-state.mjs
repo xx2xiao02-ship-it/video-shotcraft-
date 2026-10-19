@@ -88,6 +88,8 @@ export function talkcraftControlState(run, report, execution = {ok:true}) {
     if(!run.mediaPreflightPassed)return state('host-preflight','验收已生成的口型视频');
   }
   if (!run.preflightPassed) {
+    if(run.parallelPreparation?.status==='stale')return state('preflight',
+      '09内部重新准备已变更的本地依赖，再执行原版全量预检',['PARALLEL_PREPARATION_RECHECK_REQUIRED']);
     if(run.parallelPreparation&&run.parallelPreparation.status!=='done')return state(null,
       '并行支线尚未汇合：'+(run.parallelPreparation.error||run.parallelPreparation.status),['PARALLEL_PREPARATION_NOT_PASSED']);
     return state('preflight', '执行 GitHub 原版分镜全量预检', run.preflightIssues || ['PREFLIGHT_NOT_PASSED']);

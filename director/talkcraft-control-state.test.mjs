@@ -125,7 +125,11 @@ test('全量预检通过后并行准备指纹变化不再倒退阻断人工审�
   const state=talkcraftControlState({...run,parallelPreparation:stale,sample:true,sampleApproved:true,final:true,qaPassed:true});
   assert.equal(state.nextStage,'approve-final');
   assert.deepEqual(state.blockers,['HUMAN_VISUAL_REVIEW_REQUIRED']);
-  assert.equal(talkcraftControlState({...run,preflightPassed:false,parallelPreparation:stale}).nextStage,null);
+  const repair=talkcraftControlState({...run,preflightPassed:false,parallelPreparation:stale});
+  assert.equal(repair.nextStage,'preflight');
+  assert.deepEqual(repair.blockers,['PARALLEL_PREPARATION_RECHECK_REQUIRED']);
+  for(const status of ['running','failed','interrupted'])
+    assert.equal(talkcraftControlState({...run,preflightPassed:false,parallelPreparation:{status}}).nextStage,null);
 });
 
 test('视觉历史失败不能代替代码预检或样片审批',()=>{
