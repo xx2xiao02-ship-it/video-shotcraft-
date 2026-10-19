@@ -42,18 +42,22 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,s
     const old=original?.bindings?.filter(b=>b.kind===binding.kind&&b.query===binding.query);
     if(old?.length!==1)continue;
     const source=old[0],need=row.research?.find(r=>r.kind===binding.kind&&r.query===binding.query);
-    if(!need)continue;
-    const targetId=binding.displayShotId||need.displayShotId||row.shotId;
+    const explicitSource=bindingSelections.some(r=>r.shotId===row.shotId&&r.field===binding.field&&
+      editorialMaterialRefs(request,row.shotId,'bindings').some(ref=>ref.ref===r.bindingRef&&JSON.stringify(ref.item)===JSON.stringify(source)));
+    // A model-selected current binding can be a source-only record (no new
+    // research request). Restore only its unchanged slot; never invent a need.
+    if(!need&&(!explicitSource||source.field!==binding.field))continue;
+    const targetId=binding.displayShotId||need?.displayShotId||row.shotId;
     if(!request.editableShotIds.includes(targetId))continue;
-    const target=result.shots.find(s=>s.id===targetId),field=binding.field||need.displayField;
+    const target=result.shots.find(s=>s.id===targetId),field=binding.field||need?.displayField;
     const props=target?.templateParams?.cardProps;
     if(!props||!field||props[field]!==undefined&&props[field]!==null&&props[field]!=='')continue;
     try{
       const oldNeed=original.research?.find(r=>r.kind===binding.kind&&r.query===binding.query);
       const oldTarget=source.displayShotId||oldNeed?.displayShotId||row.shotId;
       const explicitRetarget=slotRetargets.some(r=>r.shotId===row.shotId&&r.kind===binding.kind&&r.query===binding.query&&r.field===field)&&
-        binding.field===field&&need.displayField===field;
-      if(targetId!==oldTarget||need.displayField&&need.displayField!==field||source.field!==field&&!explicitRetarget)
+        binding.field===field&&need?.displayField===field;
+      if(targetId!==oldTarget||need?.displayField&&need.displayField!==field||source.field!==field&&!explicitRetarget)
         throw Error('来源记录与本次明确目标不一致，不能自动选槽');
       const media=catalog.cards.find(c=>c.cardId===target.shotCard)?.policy?.media||{};
       if(field==='hostSrc'||!['image','image-or-video'].includes(media[field]))throw Error('目标不是原卡公开图片槽');
@@ -76,7 +80,7 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,s
       if(source.sourceVerified!==true||source.licenseVerified!==true||!/^https:\/\//u.test(source.sourceUrl||'')||
         !source.license||!source.licenseUrl||!source.identityReason||!source.contentLanguage||source.contentLanguage==='und'||
         !/^(zh(?:-[a-z]+)*|zxx)$/iu.test(source.contentLanguage)&&!source.languageReason)throw Error('来源、授权或语言核验不完整');
-      if(need.entityType==='person'){
+      if(need?.entityType==='person'){
         if(oldNeed?.entityType!=='person'||oldNeed.entityName!==need.entityName)throw Error('人物身份变化');
         const display=row.personDisplays?.find(d=>d.entityName===need.entityName&&d.bindingQuery===need.query);
         if(!display||props[display.labelField]!==display.labelText||!display.labelText)throw Error('人物标签与资料身份不一致');

@@ -1,4 +1,4 @@
-import {repairEditorialSourceSlotAliases} from './talkcraft-editorial-source-slot-repair.mjs';
+import {repairEditorialSourceSlotAliases,repairEditorialRetainedSourceAliases} from './talkcraft-editorial-source-slot-repair.mjs';
 import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {editorialRequiredParameterContracts,auditEditorialRequiredProps} from './talkcraft-editorial-required-props.mjs';
 import {repairEditorialStructure} from './talkcraft-editorial-structure-repair.mjs';
@@ -339,7 +339,8 @@ export function compileEditorialSelection(response,request,inputs){
        !row.research?.some(r=>r.entityType==='person'&&r.entityName===person))
       throw fail(`${window.shotId}不能删除或降级原核心人物资料需求`,window.shotId);
   }
-  const sourceSlotAliases=repairEditorialSourceSlotAliases(result,request,inputs);
+  const sourceSlotAliases=[...repairEditorialRetainedSourceAliases(result,request,{...inputs,bindingSelections}),
+    ...repairEditorialSourceSlotAliases(result,request,inputs)];
   const slotRetargets=response.materialResearchUpdates.flatMap(row=>(row.bindings||[])
     .filter(binding=>typeof binding.field==='string')
     .map(binding=>({shotId:row.shotId,kind:binding.kind,query:binding.query,field:binding.field})));

@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {createHash} from 'node:crypto';
-import {repairEditorialSourceSlotAliases} from './talkcraft-editorial-source-slot-repair.mjs';
+import {repairEditorialSourceSlotAliases,repairEditorialRetainedSourceAliases} from './talkcraft-editorial-source-slot-repair.mjs';
+import {editorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 import {restoreEditorialBoundSlots} from './talkcraft-editorial-bound-slots.mjs';
 function fixture(t){
  const projectRoot=fs.mkdtempSync(path.join(os.tmpdir(),'source-slot-alias-'));t.after(()=>fs.rmSync(projectRoot,{recursive:true,force:true}));
@@ -16,6 +17,42 @@ function fixture(t){
  const options={projectRoot,catalog:{cards:[{cardId:'new',policy:{media:{src:'image'}}}]}};
  return {request,result,options};
 }
+
+function retainedFixture(t){
+ const f=fixture(t),rows=f.request.baseProposal.materialResearch.shots;
+ rows[0].research[0].displayField='src';rows[0].bindings[0].field='src';
+ rows[1].research=[];rows[1].bindings[0].field='src1';
+ f.result.materialResearch=structuredClone(f.request.baseProposal.materialResearch);
+ f.result.shots[1].templateParams={cardProps:{title:'本次模型内容'},templateMaterialQueries:{}};
+ f.options.catalog.cards[0].policy.media={src1:'image',src2:'image',src3:'image'};
+ f.options.bindingSelections=[{shotId:'s11',field:'src1',bindingRef:editorialMaterialRefs(f.request,'s11','bindings')[0].ref}];
+ return f;
+}
+
+test('多槽换卡仅按本次明确选择且字段未改的来源修正同文件旧别名，来源独立绑定无需虚构research',t=>{
+ const f=retainedFixture(t),before=structuredClone(f.request);
+ const aliases=repairEditorialRetainedSourceAliases(f.result,f.request,f.options);
+ assert.equal(aliases.length,1);assert.equal(aliases[0].field,'src1');
+ const restored=restoreEditorialBoundSlots(f.result,f.request,{...f.options,sourceSlotAliases:aliases,slotRetargets:aliases});
+ assert.deepEqual(restored.rejected,[]);assert.equal(restored.repairs.length,1);
+ assert.equal(f.result.shots[1].templateParams.cardProps.src1,'remotion/public/doc.png');
+ assert.deepEqual(f.result.materialResearch.shots[1].research,[]);assert.deepEqual(f.request,before);
+ assert.deepEqual(repairEditorialRetainedSourceAliases(f.result,f.request,f.options),[]);
+});
+
+test('未明确选择、改槽、跨目标、多保留落点、不同文件和授权缺失均不能推断多槽别名',t=>{
+ for(const change of [f=>f.options.bindingSelections=[],f=>f.options.bindingSelections[0].bindingRef='old',
+ f=>f.result.materialResearch.shots[1].bindings[0].field='src2',
+ f=>f.result.materialResearch.shots[0].research[0].displayShotId='other',
+ f=>f.request.baseProposal.materialResearch.shots[0].bindings[0].licenseVerified=false,
+ f=>fs.writeFileSync(path.join(f.options.projectRoot,'remotion/public/doc.png'),'changed'),
+ f=>{const row=f.request.baseProposal.materialResearch.shots[1];row.bindings.push({...row.bindings[0],query:'other',field:'src2'});
+  f.result.materialResearch.shots[1].bindings=structuredClone(row.bindings);
+  f.options.bindingSelections.push({shotId:'s11',field:'src2',bindingRef:editorialMaterialRefs(f.request,'s11','bindings')[1].ref});}]){
+  const f=retainedFixture(t);change(f);const before=structuredClone(f.result);
+  assert.deepEqual(repairEditorialRetainedSourceAliases(f.result,f.request,f.options),[]);assert.deepEqual(f.result,before);
+ }
+});
 test('同一已核验文件的旧字段别名可跟随本次明确单槽设计免费修正，再由原恢复器和门禁核验',t=>{
  const f=fixture(t),before=structuredClone(f.request),locked=structuredClone(f.result.shots[0]);
  const aliases=repairEditorialSourceSlotAliases(f.result,f.request,f.options);assert.equal(aliases.length,2);
