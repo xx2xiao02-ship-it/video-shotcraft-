@@ -5,12 +5,15 @@ export const LOCAL_AUTO_STAGES = new Set(['word-timing', 'semantic-check', 'edit
 export function automaticTalkcraftStage(run) {
   if(run?.continuationPolicy?.enabled===true&&['approve-final','deliver'].includes(run.nextStage))return null;
   const revisionPreparation=run?.editorialChecked===true&&['media-preflight','candidates','planning-check'].includes(run.nextStage);
-  const delegatedApproval=run?.nextStage==='approve-storyboard'&&run.continuationPolicy?.enabled===true&&run.planningPassed===true;
+  const delegatedApproval=run?.continuationPolicy?.enabled===true&&
+    (run.nextStage==='approve-storyboard'&&run.planningPassed===true||
+      run.nextStage==='approve-sample'&&run.sample===true&&run.preflightPassed===true&&run.storyboardApproved===true);
   if (!run?.provenance?.verified || run.activeTask || run.lastFailure || run.failureReport ||
       run.storyboardAdjustmentPending&&!revisionPreparation&&!delegatedApproval || run.factReview?.revisionPending) return null;
   if(run.nextStage==='digital-human'&&run.digitalHumanAutomation?.enabled===true&&
     run.planningPassed===true&&run.storyboardApproved===true)return 'digital-human';
   if(run.nextStage==='approve-storyboard'&&run.continuationPolicy?.enabled===true&&run.planningPassed===true)return 'approve-storyboard';
+  if(run.nextStage==='approve-sample'&&delegatedApproval)return 'approve-sample';
   return LOCAL_AUTO_STAGES.has(run.nextStage) ? run.nextStage : null;
 }
 

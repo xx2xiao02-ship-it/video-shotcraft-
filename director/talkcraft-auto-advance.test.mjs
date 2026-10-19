@@ -4,6 +4,16 @@ import {spawn} from 'node:child_process';
 import {automaticTalkcraftStage, createTalkcraftAutoAdvance, LOCAL_AUTO_STAGES} from './talkcraft-auto-advance.mjs';
 
 const ready = nextStage => ({provenance:{verified:true},nextStage});
+
+test('授权推进14时样片按机器门禁委托继续，未授权与人工终审仍停止',()=>{
+ const r={...ready('approve-sample'),continuationPolicy:{enabled:true,stopAt:'review'},sample:true,
+  preflightPassed:true,storyboardApproved:true,storyboardAdjustmentPending:true};
+ assert.equal(automaticTalkcraftStage(r),'approve-sample');
+ for(const patch of [{sample:false},{preflightPassed:false},{storyboardApproved:false},
+  {continuationPolicy:{enabled:false}},{activeTask:{id:1}},{lastFailure:{code:'failure'}}])
+  assert.equal(automaticTalkcraftStage({...r,...patch}),null);
+ for(const nextStage of ['approve-final','deliver'])assert.equal(automaticTalkcraftStage({...r,nextStage}),null);
+});
 function harness(queueOverride) {
   let run = ready('word-timing'), record = null;
   const queued = [];

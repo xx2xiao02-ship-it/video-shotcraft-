@@ -500,7 +500,7 @@ async function createModeCRun(fields, avatars) {
 }
 
 const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
-for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','semantic-check','editorial-revision','approve-storyboard','material-research','institution-source-repair'])TALKCRAFT_STAGE_NAMES.add(stage);
+for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','semantic-check','editorial-revision','approve-storyboard','approve-sample','material-research','institution-source-repair'])TALKCRAFT_STAGE_NAMES.add(stage);
 
 function readTalkcraftAutoRecord(runId) {
   try { return JSON.parse(fs.readFileSync(path.join(talkcraftProject(ROOT, runId), 'workflow-automation.json'), 'utf8')); }
@@ -565,6 +565,17 @@ async function queueTalkcraftStage(body) {
   assertPipelineProvenance(project);
   if(stage==='approve-storyboard'){
     approveDelegatedTalkcraftStoryboard(ROOT,runId);
+    return {ok:true,runId,stage,billable:false,approvalMethod:'delegated-after-checks'};
+  }
+  if(stage==='approve-sample'){
+    const current=withTalkcraftWorkbench(status);
+    if(current.continuationPolicy?.enabled!==true||current.nextStage!=='approve-sample'||
+      !current.sample||!current.preflightPassed||!current.storyboardApproved||current.lastFailure||current.failureReport)
+      throw Error('本次通路未授权或样片及原规则检查未通过，不能委托继续');
+    assertTalkcraftCardCallsBound(ROOT,resolveTalkcraftSkillRoot(ROOT),runId,
+      {requireCardCalls:status.cardCallsRequired,requiredShotIds:status.cardCallsRequired?['s01']:[]});
+    approveTalkcraftSample(ROOT,runId,{method:'delegated-after-checks',
+      policy:'用户授权本次通路推进至14停止；样片机器检查后继续，不代表人工观看或视觉验收'});
     return {ok:true,runId,stage,billable:false,approvalMethod:'delegated-after-checks'};
   }
   if(stage==='planning-repair'){
