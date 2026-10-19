@@ -9,7 +9,8 @@ const fixture=()=>{
 };
 test('面板展示当前控制状态已核对的中心问题，不被通用任务失败覆盖',()=>{
  const run=fixture(),result=talkcraftBlocker(run);
- assert.equal(result.reason,'当前联合方案待补全');assert.deepEqual(result.failedChecks,run.correctionCenter.issues);
+ assert.equal(result.reason,'当前联合方案待补全');assert.deepEqual(result.failedChecks,run.blockers);
+ assert.ok(result.failedChecks.every(c=>typeof c==='string'&&c.includes('template_window_reuse')));
  assert.match(result.preservation,/已执行免费恢复与复检/);
  assert.equal(result.recoveryAction,null);
 });

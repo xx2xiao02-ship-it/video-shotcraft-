@@ -58,7 +58,7 @@ export function talkcraftBlocker(run) {
   }
   return {schema:'talkcraft-blocker-v1',runId:run.runId,code,stage,
     title:node?`${String(node.number).padStart(2,'0')} · ${node.label}`:failure?.title||run.waitingFor||'工作流检查',
-    reason,owner,method,criteria,failedChecks:centerCurrent?centerIssues:run.failureReport?.failedChecks||run.preflightIssues||[],
+    reason,owner,method,criteria,failedChecks:centerCurrent?[...run.blockers]:run.failureReport?.failedChecks||run.preflightIssues||[],
     recoveryAction:run.nextStage==='editorial-recover'?{label:failure?.task?.name==='talkcraft-editorial-recover'?'修改后重新校验（不调用模型）':'恢复已保存分镜（不调用模型）'}:null,
     baseline:{label:'video-talkcraft 上游规则与已确认的 B 模式治理约束',url:'https://github.com/Vincentwei1021/video-talkcraft/blob/main/SKILL.md'},
     preservation:centerCurrent?'已有配音、模型结果和成功素材保留；已执行免费恢复与复检，剩余问题按当前清单治理，不代表节点已通过。':'已有配音、模型结果和成功素材保留；治理方案尚未执行，不代表问题已解决。'};
