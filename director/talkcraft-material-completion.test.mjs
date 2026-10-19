@@ -222,3 +222,24 @@ test('限流后逐槽共享退避状态，优先免费恢复旧响应，不逐�
  fs.writeFileSync(path.join(p,legacy),JSON.stringify({query,pages:[cached]}));
  const recovered=await discoverCompletionSources(p,need,{fetchImpl});assert.equal(recovered.candidates.length,1);assert.equal(calls,1);
 });
+
+test('SVG资金流图仅恢复来源API提供的PNG，保留原件和许可，不执行SVG',async t=>{
+ const {p}=fixture(t),query='央行 资金 流动 示意图';
+ const svg=page('File:Flow of Funds.svg');svg.imageinfo[0].url='https://upload.wikimedia.org/wikipedia/commons/a/a9/Flow_of_Funds.svg';
+ svg.imageinfo[0].descriptionurl='https://commons.wikimedia.org/wiki/File:Flow_of_Funds.svg';
+ svg.imageinfo[0].extmetadata.ImageDescription.value='A chart showing the flow of funding through the financial system.';
+ const need={kind:'image',query,concepts:[]},match=sourceSearchContract(query);
+ assert.equal(commonsCandidate(svg,{...need,match}),null);
+ const raster=structuredClone(svg);Object.assign(raster.imageinfo[0],{thumburl:'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Flow_of_Funds.svg/1600px-Flow_of_Funds.svg.png',thumbwidth:1600,thumbheight:1008});
+ const candidate=commonsCandidate(raster,{...need,match});assert.equal(candidate.rendition,'source-api-png');assert.equal(candidate.originalMediaUrl,svg.imageinfo[0].url);
+ const bad=structuredClone(raster);bad.imageinfo[0].thumburl='https://untrusted.invalid/diagram.png';assert.equal(commonsCandidate(bad,{...need,match}),null);
+ delete bad.imageinfo[0].extmetadata.LicenseUrl;bad.imageinfo[0].thumburl=raster.imageinfo[0].thumburl;assert.equal(commonsCandidate(bad,{...need,match}),null);
+ let rasterCalls=0;
+ const fetchImpl=async value=>{const u=new URL(value);if(u.searchParams.has('pageids')){rasterCalls++;assert.equal(u.searchParams.get('iiurlwidth'),'1600');return new Response(JSON.stringify({query:{pages:{1:raster}}}));}
+  return new Response(JSON.stringify({query:{pages:u.searchParams.get('gsrsearch')===query?{1:svg}:{}}}));};
+ const found=await discoverCompletionSources(p,need,{fetchImpl});assert.equal(found.candidates.length,1);assert.equal(rasterCalls,1);
+ assert.match(found.candidates[0].evidence,/-raster.json$/u);
+ fs.writeFileSync(path.join(p,'qa/source-discovery/commons-provider-state.json'),JSON.stringify({retryAt:new Date(Date.now()+60000).toISOString(),failures:1}));
+ const cached=await discoverCompletionSources(p,need,{fetchImpl:async()=>{throw Error('缓存恢复不得请求网络');}});
+ assert.equal(cached.candidates.length,1);assert.equal(rasterCalls,1);
+});

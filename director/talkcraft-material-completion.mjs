@@ -38,7 +38,7 @@ const vocabulary=[
  [/市场|消费|物价|购物/iu,['street market','shopping market'],/street market|marketplace|shopping|retail|市场|购物/iu],
  [/城市|街景|日常|普通人生活/iu,['city street people'],/city|street|pedestrian|城市|街/iu],
  [/央行|中央银行|中国人民银行/iu,['central bank',"People's Bank of China monetary policy"],/central bank|people.s bank of china|人民银行/iu],
- [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram','monetary transmission diagram','interest rate channel diagram'],/flow of funds|money flow|monetary.*transmission|interest rate channel|资金流/iu],
+ [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram','monetary transmission diagram','interest rate channel diagram'],/flow of fund(?:s|ing)|money flow|monetary.*transmission|interest rate channel|资金流/iu],
 ];
 export function sourceSearchContract(query,concepts=[],alternatives=[]){
  const text=[query,...concepts].join(' '),groups=vocabulary.filter(([r])=>r.test(text));
@@ -63,7 +63,7 @@ export function sourceSearchContract(query,concepts=[],alternatives=[]){
    (!economics||/economic|经济学/iu.test(value))&&
    (!/诺贝尔|nobel/iu.test(text)||! /\big nobel\b/iu.test(value))&&
    (!/诺贝尔|nobel/iu.test(text)||!differentAward.test(value)||differentAward.test(text))&&
-   (!diagram||/diagram|schematic|示意|流程图/iu.test(value)&&/flow|transmission|interest rate|资金|传导|利率/iu.test(value))&&
+   (!diagram||/diagram|schematic|chart|示意|流程图/iu.test(value)&&/flow|transmission|interest rate|资金|传导|利率/iu.test(value))&&
    (!document||/announcement|monetary policy|货币政策|公告/iu.test(value))&&
    (!institution||/people.s bank of china|中国人民银行/iu.test(value));
  const matchesAlternative=value=>/economic|经济/iu.test(value)&&! /nobel|诺贝尔|chemistry|medicine|physics|化学|医学|物理/iu.test(value)&&approvedAlternatives.some(a=>a.matches(value));
@@ -118,12 +118,18 @@ export function commonsCandidate(page,{kind,query,match}){
  const author=plain(e.Artist?.value),description=plain(e.ImageDescription?.value);
  const text=plain(page.title)+' '+description.slice(0,600);
  if(!author||!match.matches(text))return null;
- const mediaPath=new URL(i.url).pathname;
+ const originalMediaPath=new URL(i.url).pathname;
+ // SVG is never executed locally. Only use the source API's official raster
+ // rendition; its title, licence and author still refer to the original work.
+ const raster=/\.svg$/iu.test(originalMediaPath)&&kind==='image'&&
+   /^https:\/\/(?:upload|thumb)\.wikimedia\.org\//u.test(i.thumburl||'')&&/\.png$/iu.test(new URL(i.thumburl).pathname);
+ const mediaUrl=raster?i.thumburl:i.url,mediaPath=new URL(mediaUrl).pathname;
  const video=/\.(?:webm|ogv)$/iu.test(mediaPath),image=/\.(?:png|jpe?g|webp)$/iu.test(mediaPath);
  if(kind==='video'?!video:!image&&!video)return null;
  if(kind==='video'&&(i.width<1280||i.height<720))return null;
  return {sourceId:'commons:'+page.pageid,title:page.title,description,sourceUrl:i.descriptionurl,
-  mediaUrl:i.url,kind:video?'video':'image',width:i.width,height:i.height,size:i.size,
+  mediaUrl,kind:video?'video':'image',width:raster?i.thumbwidth:i.width,height:raster?i.thumbheight:i.height,size:i.size,
+  ...(raster?{originalMediaUrl:i.url,rendition:'source-api-png'}:{}),
   license,licenseUrl,author,query,matchedConcepts:match.matched(text),sourceVerified:true,licenseVerified:true,
   attribution:[page.title,author,license,i.descriptionurl].join(' | ')};
 }
@@ -153,7 +159,22 @@ export async function discoverCompletionSources(project,need,{fetchImpl=fetch}={
     record={query,apiUrl:u.href,pages:Object.values(data.query?.pages||{}),checkedAt:new Date().toISOString()};save(project,file,record);
    }catch(e){errors.push({query,message:e.message});continue;}
   }
-  for(const p of record.pages){const c=commonsCandidate(p,{...need,query,match});if(c&&!rows.some(x=>x.sourceId===c.sourceId))rows.push({...c,evidence:file,evidenceSha256:sha(fs.readFileSync(path.join(project,file)))});}
+  let evidenceFile=file;
+  const svgPages=need.kind==='image'?record.pages.filter(p=>/\.svg(?:\?|$)/iu.test(p.imageinfo?.[0]?.url||'')&&match.matches(plain(p.title)+' '+plain(p.imageinfo?.[0]?.extmetadata?.ImageDescription?.value).slice(0,600))).slice(0,4):[];
+  if(svgPages.length){
+   const rasterFile=file.replace(/\.json$/u,'-raster.json');
+   if(fs.existsSync(path.join(project,rasterFile))){record=read(path.join(project,rasterFile));evidenceFile=rasterFile;}
+   else if(!(Date.parse(providerState?.retryAt)>Date.now())){
+    const u=new URL('https://commons.wikimedia.org/w/api.php');u.search=new URLSearchParams({action:'query',format:'json',pageids:svgPages.map(p=>p.pageid).join('|'),prop:'imageinfo',iiprop:'url|size|extmetadata',iiurlwidth:'1600'});
+    try{const r=await fetchImpl(u,{headers:{'User-Agent':'VideoShotCraft/1.0 (editorial material research)'},signal:AbortSignal.timeout(15000)});
+     if(r.status===429||r.status===503){const delay=Number(r.headers?.get?.('retry-after')),failures=(providerState?.failures||0)+1;providerState={status:r.status,failures,retryAt:new Date(Date.now()+(Number.isFinite(delay)&&delay>0?Math.min(delay,3600):120*failures)*1000).toISOString()};save(project,stateFile,providerState);throw Error('SOURCE_PROVIDER_COOLDOWN');}
+     if(!r.ok)throw Error('HTTP_'+r.status);const d=await r.json();if(d.error)throw Error('COMMONS_'+d.error.code);
+     const enriched=Object.values(d.query?.pages||{}),byId=new Map(enriched.map(p=>[p.pageid,p]));
+     record={query,apiUrl:u.href,parentEvidence:file,parentSha256:sha(fs.readFileSync(path.join(project,file))),pages:record.pages.map(p=>byId.get(p.pageid)||p),checkedAt:new Date().toISOString()};save(project,rasterFile,record);evidenceFile=rasterFile;
+    }catch(e){errors.push({query,message:e.message});}
+   }
+  }
+  for(const p of record.pages){const c=commonsCandidate(p,{...need,query,match});if(c&&!rows.some(x=>x.sourceId===c.sourceId))rows.push({...c,evidence:evidenceFile,evidenceSha256:sha(fs.readFileSync(path.join(project,evidenceFile)))});}
   // Search is bounded and whole-node. Multiple candidates allow exclusivity;
   // one discovered URL is never taken as a completed material binding.
   if(rows.length>=24)break;
@@ -231,12 +252,12 @@ export function auditCompletionBindings(project){
  return invalid;
 }
 async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
- const allowed=value=>{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&(u.hostname==='upload.wikimedia.org'||u.hostname==='archive.org'||u.hostname.endsWith('.archive.org'));};
+ const allowed=value=>{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&(u.hostname==='upload.wikimedia.org'||u.hostname==='thumb.wikimedia.org'||u.hostname==='archive.org'||u.hostname.endsWith('.archive.org'));};
  if(!allowed(candidate.mediaUrl))throw Error('素材下载站点不在来源合同内');
  const key=digest({url:candidate.mediaUrl,evidence:candidate.evidenceSha256}),manifest='qa/source-downloads/'+key+'.json';
  if(fs.existsSync(path.join(project,manifest))){const r=read(path.join(project,manifest)),f=publicFile(project,r.localPath);
   if(r.mediaUrl!==candidate.mediaUrl||r.evidenceSha256!==candidate.evidenceSha256||sha(fs.readFileSync(f))!==r.sha256)throw Error('已下载来源文件变化，停止恢复');return r;}
- const commons=new URL(candidate.mediaUrl).hostname==='upload.wikimedia.org',stateFile='qa/source-discovery/commons-provider-state.json';
+ const commons=['upload.wikimedia.org','thumb.wikimedia.org'].includes(new URL(candidate.mediaUrl).hostname),stateFile='qa/source-discovery/commons-provider-state.json';
  let state;try{state=read(path.join(project,stateFile));}catch{}
  if(commons&&Date.parse(state?.retryAt)>Date.now())throw Error('SOURCE_PROVIDER_COOLDOWN: '+state.retryAt);
  let targetUrl=candidate.mediaUrl,r;
