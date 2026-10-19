@@ -53,11 +53,13 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     researchPlan:proposal.materialResearch,catalog,projectRoot});
   // A reuse issue names both ends; repair an independently failing end first,
   // rather than unlocking its otherwise valid counterpart as collateral work.
-  const ids=new Set(failedChecks.filter(i=>i.code!=='template_window_reuse')
+  const ids=new Set(failedChecks.filter(i=>!['template_window_reuse','REAL_SOURCE_NOT_BOUND'].includes(i.code))
     .flatMap(i=>[i.shotId,i.displayShotId,...(i.shotIds||[])]).filter(Boolean));
   for(const issue of failedChecks.filter(i=>i.code==='template_window_reuse'))
     if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
-  if(!ids.size)throw Error('失败清单没有本次明确镜头范围，禁止扩大到全片或默认首镜；先修复失败证据');
+  if(!ids.size)throw Error(failedChecks.some(i=>i.code==='REAL_SOURCE_NOT_BOUND')?
+    '真实来源尚未核验绑定；重选卡不能产生许可或来源，须先在06采集核验，不发起无效付费修订':
+    '失败清单没有本次明确镜头范围，禁止扩大到全片或默认首镜；先修复失败证据');
   const pending=shots.filter(s=>ids.has(s.id));
   // A film-wide quota does not require EVERY text shot to become graphics.
   // Prefer ranges that actually have a graphic duration domain; short text

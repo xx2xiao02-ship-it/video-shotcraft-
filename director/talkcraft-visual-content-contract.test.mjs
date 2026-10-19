@@ -83,3 +83,8 @@ test('必填人物槽必须在选卡阶段核验人物窗口，不留到06索取
  assert.ok(auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_SUBJECT_REQUIRED'));
  s.subject='person';assert.ok(!auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_SUBJECT_REQUIRED'));
 });
+test('手绘固定车身不是可替换经济图形，改标签和手部图片不能通过占位检查',()=>{
+ const s=shot('s17','pencil-sketch-draw',{label:'收入与消费',handSrc:'sources/official.png'});
+ assert.ok(auditVisualContent([s],{catalog}).issues.some(i=>i.code==='DEMO_VISUAL_NOT_REPLACEABLE'));
+ assert.match(visualContentContract(catalog.cards.find(c=>c.cardId===s.shotCard)).reason,/固定车身/);
+});

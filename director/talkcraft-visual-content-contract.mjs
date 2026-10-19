@@ -23,6 +23,11 @@ export function visualContentContract(card){
   contract.placeholder=true;
   contract.reason='品牌登场原卡包含固定三角、方、圆演示标志，公开参数没有真实标志槽；不能把品牌文字和占位标当图形解释';
  }
+ if(id==='pencil-sketch-draw'){
+  if(!source.includes('M 140 250 L 200 250'))throw Error('手绘卡固定车身轮廓契约已变化，须重新审计');
+  contract.placeholder=true;
+  contract.reason='原卡绘制固定车身轮廓，公开参数只能改标签和笔具；不能把车身演示图充当经济机制或真实资料';
+ }
  if(id==='numbered-step-stack')contract.meaningfulItems={field:'stepsDsl',minimum:2};
  if(['rack-focus-pair','info-card-assemble','still-layout-relay'].includes(id)){
   const dep=card.implementation.dependencies?.find(d=>d.file.replaceAll('\\','/').endsWith(`/template/cards/${id}.tsx`));

@@ -151,6 +151,10 @@ test('无明确失败镜范围不能默认为首镜或全片修订',()=>{
  const args=fixture();args.failedChecks=[{code:'EDITORIAL_REPAIR_SELECTION_INVALID'}];
  assert.throws(()=>buildEditorialJointRepairContract(args),/没有本次明确镜头范围/);
 });
+test('只缺真实来源时不花钱重选卡，来源许可不能由创作修订产生',()=>{
+ const args=fixture();args.failedChecks=[{code:'REAL_SOURCE_NOT_BOUND',shotId:'s14'}];
+ assert.throws(()=>buildEditorialJointRepairContract(args),/先在06采集核验/);
+});
 
 test('固定示意卡没有本片内容与媒体入口时不能作为可执行修订方案',()=>{
   const args=fixture(),report=buildEditorialJointRepairContract(args);
