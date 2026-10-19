@@ -30,8 +30,9 @@ export function repeatedPaidRepairScope(project,feedback,revisionPlan){
   if(request.schema!=='talkcraft-editorial-selection-request-v2'||!requestId||requestId!==digest(contract)||
     JSON.stringify([...request.editableShotIds||[]].sort())!==JSON.stringify([...ids].sort())||
     !Array.isArray(request.failedChecks))continue;
-  if(JSON.stringify(paidRepairScope(request.failedChecks,ids))===JSON.stringify(current))
-    return {requestId,directory:path.relative(project,work).replaceAll('\\','/'),shotIds:ids,scope:current};
+  const prior=new Set(paidRepairScope(request.failedChecks,ids)),repeated=current.filter(i=>prior.has(i));
+  if(repeated.length)
+    return {requestId,directory:path.relative(project,work).replaceAll('\\','/'),shotIds:ids,scope:repeated};
  }
  return null;
 }

@@ -15,7 +15,7 @@ function fixture(t){
  return {p,w,put,request,checks,plan:{editableShotIds:['s08']}};
 }
 test('素材与时序错误交替也识别此前本任务已提交范围，不依赖规则版本或动效编号',t=>{
- const f=fixture(t),feedback={failedChecks:[{...f.checks[0],effectId:'new-id'}, {...f.checks[0],effectId:'other'},{code:'OTHER',shotId:'s09'}]};
+ const f=fixture(t),feedback={failedChecks:[{...f.checks[0],effectId:'new-id'}, {...f.checks[0],effectId:'other'},{code:'NEW_ERROR',shotId:'s08'},{code:'OTHER',shotId:'s09'}]};
  const r=repeatedPaidRepairScope(f.p,feedback,f.plan);assert.equal(r.requestId,f.request.requestId);assert.deepEqual(r.shotIds,['s08']);
 });
 test('不同目标镜头、不同问题类型或字段不误当成相同范围',t=>{
