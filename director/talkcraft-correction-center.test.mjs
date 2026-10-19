@@ -188,3 +188,15 @@ test('展示源码变更使样片失效时恢复样片依赖，不原样重试�
  assert.notEqual(planNodeCorrection({...context,attempts:[...context.attempts,{fingerprint:'new-sources',action:'rebuild-sample'}]}).action,'rebuild-sample');
  assert.notEqual(planNodeCorrection({...context,run:{...run,lastFailure:{...run.lastFailure,cause:'Other render error'}}}).action,'rebuild-sample');
 });
+
+test('调整要求已处理时不批准付费动作；发送前拒绝不冒充模型未收敛',()=>{
+ const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];f.progressKey='scope';
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'用户原授权'};
+ f.run.storyboardAdjustmentPending=false;const before=structuredClone(f),d=planNodeCorrection(f);
+ assert.equal(d.action,null);assert.equal(d.state,'waiting-input');assert.match(d.reason,/正式调整入口/u);assert.deepEqual(f,before);
+ f.run.storyboardAdjustmentPending=true;f.run.inputReady=false;assert.equal(planNodeCorrection(f).state,'waiting-input');
+ f.run.inputReady=true;assert.equal(planNodeCorrection(f).action,'editorial-repair');
+ f.attempts.push({action:'editorial-repair',progressKey:f.progressKey,status:'dispatch-failed',error:'正式入口尚未就绪'});
+ const failed=planNodeCorrection(f);assert.equal(failed.action,null);assert.equal(failed.state,'needs-code-audit');assert.match(failed.reason,/正式入口尚未就绪/u);
+ f.attempts.at(-1).status='queued';assert.match(planNodeCorrection(f).reason,/没有收敛/u);
+});

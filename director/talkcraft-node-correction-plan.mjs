@@ -62,6 +62,15 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     return {...base,state:'needs-code-audit',action:null,reason:'模板时序源码契约缺失或指纹变化；先完成代码审计并免费复检，不交模型创作或消耗费用授权'};
   if(repeatedPaidScope)return {...base,state:'needs-repair',action:null,repeatedPaidScope,reason:'本次目标镜头的相同问题已提交过模型，识别到跨事务修订循环；先治理输入或恢复代码，不因切换问题类别或更新规则再次计费'};
   const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
+  // Match the formal revision entry before reserving any model action.
+  // A dispatch rejection is not a provider response or evidence of non-convergence.
+  if(creative&&run.storyboardAdjustmentPending===false)
+    return {...base,state:'waiting-input',action:null,reason:'本次调整要求尚未处于待处理状态；须通过正式调整入口登记当前要求，再校验发送前合同，不调用模型或沿用已处理的旧要求'};
+  if(creative&&(run.inputReady===false||(run.shotbook===false&&run.editorialRepairReady===false)))
+    return {...base,state:'waiting-input',action:null,reason:'正式分镜修订输入尚未就绪；先免费恢复本次输入，不预留模型执行或判为修订未收敛'};
+  const rejectedDispatch=attempts.findLast(a=>a.action==='editorial-repair'&&a.progressKey===progressKey&&a.status==='dispatch-failed');
+  if(progressKey&&rejectedDispatch)
+    return {...base,state:'needs-code-audit',action:null,reason:'正式修订调度失败，不能当作模型返回未收敛，也不自动重试：'+String(rejectedDispatch.error||'未返回具体原因')};
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};
   if(creative&&revisionPlanError)return {...base,state:'needs-repair',action:null,reason:'正式发送前合同未通过：'+revisionPlanError};
