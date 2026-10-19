@@ -46,6 +46,8 @@ export function approveNodeCorrection(plan,context){
   if(['review','deliver'].includes(plan.node)||['approve-final','deliver'].includes(run.nextStage))return deny('14人工审核不能自动批准');
   const body=plan.body||{};
   const legal=plan.action==='local-recheck'?body.stage===policy.freeStage&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='source-discovery'?plan.node==='candidates'&&body.stage==='material-research'&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='source-recheck'?plan.node==='candidates'&&body.stage==='candidates'&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='restore-unsubmitted'?body.stage==='editorial-recover'&&body.restoreUnsubmitted===true&&Object.keys(body).every(k=>['stage','restoreUnsubmitted'].includes(k)):
     plan.action==='recover-response'?body.stage==='planning-repair'&&body.recoverProviderResponse===true&&Object.keys(body).every(k=>['stage','recoverProviderResponse'].includes(k)):
     plan.action==='editorial-repair'?body.stage==='editorial-revision'&&body.approveModelCost===true&&Object.keys(body).every(k=>['stage','approveModelCost','authorizationNote'].includes(k)):false;

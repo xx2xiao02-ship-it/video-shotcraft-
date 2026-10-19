@@ -42,6 +42,20 @@ test('规则热修改后没有验证重载前不调度任何新任务，包括�
  assert.equal(planNodeCorrection(f).action,'editorial-repair');
 });
 
+test('06仅缺来源时先免费采集再绑定复检，不因费用授权转成付费换卡，重复继续有界',()=>{
+ const f=fixture();f.feedback.failedChecks=[{code:'REAL_SOURCE_NOT_BOUND',shotId:'s07'}];
+ f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'用户原授权'};
+ let d=planNodeCorrection(f);assert.equal(d.action,'source-discovery');assert.equal(d.approved,true);
+ assert.deepEqual(d.body,{stage:'material-research'});assert.equal(d.body.approveModelCost,undefined);
+ f.attempts.push({fingerprint:f.fingerprint,action:d.action});
+ d=planNodeCorrection(f);assert.equal(d.action,'source-recheck');assert.equal(d.approved,true);assert.deepEqual(d.body,{stage:'candidates'});
+ f.attempts.push({fingerprint:f.fingerprint,action:d.action});
+ d=planNodeCorrection(f);assert.equal(d.action,null);assert.equal(d.state,'needs-source-verification');assert.equal(d.productionAdmitted,false);
+ const forged={...proposeNodeCorrection({...f,attempts:[]}),action:'source-discovery',body:{stage:'material-research',approveModelCost:true}};
+ assert.equal(approveNodeCorrection(forged,{...f,attempts:[]}).approved,false);
+});
+
 
 import {proposeNodeCorrection} from './talkcraft-node-correction-plan.mjs';
 import {approveNodeCorrection} from './talkcraft-correction-center.mjs';

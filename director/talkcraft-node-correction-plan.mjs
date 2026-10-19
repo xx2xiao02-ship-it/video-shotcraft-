@@ -32,6 +32,16 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(run.nodeRepair?.providerSubmitted&&run.nodeRepair.status==='blocked'&&run.nodeRepair.node==='storyboard-review'&&!used('recover-response'))
     return {...base,state:'ready-to-correct',approved:false,action:'recover-response',body:{stage:'planning-repair',recoverProviderResponse:true},reason:'优先免费恢复本次已保存响应'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
+  const sourceOnly=node==='candidates'&&feedback?.failedChecks?.length&&
+    feedback.failedChecks.every(i=>i.code==='REAL_SOURCE_NOT_BOUND');
+  if(sourceOnly){
+    if(!used('source-discovery'))return {...base,state:'ready-to-correct',action:'source-discovery',
+      body:{stage:'material-research'},reason:'仅缺真实来源：由06免费检索资料，不用付费重选卡代替来源核验'};
+    if(!used('source-recheck'))return {...base,state:'ready-to-correct',action:'source-recheck',
+      body:{stage:'candidates'},reason:'资料检索后由06恢复已核验绑定并复检；候选URL不代表许可或素材已齐'};
+    return {...base,state:'needs-source-verification',action:null,
+      reason:'06已执行免费检索和绑定复检，仍缺可核验来源；保留真实缺项，不重复检索或付费换卡，不推断许可'};
+  }
   const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};
