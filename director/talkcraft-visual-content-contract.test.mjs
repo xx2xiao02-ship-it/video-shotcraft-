@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {loadTalkcraftGovernedCatalog,validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
-import {auditVisualContent,auditFilmExpression,visualContentContract} from './talkcraft-visual-content-contract.mjs';
+import {auditVisualContent,auditFilmExpression,visualContentContract,isTextDominant} from './talkcraft-visual-content-contract.mjs';
 import {captionOutlineStyle} from './talkcraft-caption-style.mjs';
 import {editorialRequiredParameterContracts} from './talkcraft-editorial-required-props.mjs';
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
@@ -57,4 +57,12 @@ test('真实资料槽不等于人物布局兼容，源依赖指纹与冲突一�
  const card=structuredClone(catalog.cards.find(c=>c.cardId==='rack-focus-pair'));
  card.implementation.dependencies.find(d=>d.file.replaceAll('\\','/').endsWith('/template/cards/rack-focus-pair.tsx')).sha256='bad';
  assert.throws(()=>visualContentContract(card),/布局指纹/);
+});
+
+test('图形分类在原卡目录、治理目录和紧凑目录之间保持一致，不能丢类别后将文字误判成图形',()=>{
+ for(const card of catalog.cards){
+  const source=index.cards.find(c=>c.slug===card.cardId);assert.equal(card.category,source.category);
+  assert.equal(isTextDominant({shotCard:card.cardId},catalog),isTextDominant({shotCard:card.cardId},index));
+ }
+ const bad=structuredClone(index);delete bad.cards[0].category;assert.throws(()=>loadTalkcraftGovernedCatalog(bad),/类别/);
 });

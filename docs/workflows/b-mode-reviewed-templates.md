@@ -462,3 +462,5 @@ DeepSeek Responses的输出预算同时包含推理与最终JSON。正式调用�
 - 04完成凭据绑定视觉内容、参数和步进/时长校验源码SHA。源码更新后旧凭据自动失效，正式新任务不能用历史native计划冒充新规则已通过；旧证据保留，必须免费复检生成当前凭据。
 
 新增资料的 kind 表示身份/证据/数据的核验类型，发送与校验复用 EDITORIAL_RESEARCH_KINDS；image/video 属于文件类型，不能混入 research。普通语境图走原卡 templateMaterialQueries，不能升级成证据。发送前检查逐镜 newResearchContract，旧响应不能靠自动改 kind 或丢项通过。
+
+图形优先必须贯穿目录投影：治理目录从同一 cards-index 按唯一 slug 保留 category；类别缺失即拒绝，不能当作非文字。全片文字占比失败镜进入局部修订时，另一张文字主导卡以 GRAPHIC_REPLACEMENT_REQUIRED 排除，但108卡比较证据仍完整，模型自主设计语义、字段及锚点；不可通过填写理由或铺视频逃避占比。

@@ -142,3 +142,12 @@ test('内部已核验资料即使没有research需求也约束全部固定槽，
  assert.ok(w.candidates.every(c=>['srcBefore','srcAfter'].every(f=>c.sourceDisplayFields.includes(f))));
  assert.deepEqual(args,before);
 });
+
+test('全片文字占比失败的修订不再向模型提供另一张纯文字卡；108卡仍逐项给出比较证据',()=>{
+ const args=fixture();args.failedChecks=[{shotId:'s21',code:'FILM_TEXT_DOMINANCE',shotIds:['s21']}];
+ const before=structuredClone(args),r=buildEditorialJointRepairContract(args),w=r.windows[0];
+ assert.ok(w.rejected.GRAPHIC_REPLACEMENT_REQUIRED.includes('outline-box-title'));
+ assert.ok(w.candidates.length>0);assert.ok(!w.candidates.some(c=>c.slug==='tracking-in'||c.slug==='soft-blur-in'));
+ assert.equal(new Set([...w.candidates.map(c=>c.slug),...Object.values(w.rejected).flat()]).size,108);
+ assert.deepEqual(args,before);assert.equal(w.selected.slug,'outline-box-title');
+});

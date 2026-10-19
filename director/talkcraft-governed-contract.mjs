@@ -52,6 +52,11 @@ export function loadTalkcraftGovernedCatalog(index) {
   const extra = [...governed].filter(id => !indexed.has(id));
   if (indexed.size !== index.cards.length || governed.size !== catalog.cards.length || missing.length || extra.length)
     throw new Error(`B 模板索引与治理契约不一致：缺少 ${missing.join('、')}；多出 ${extra.join('、')}`);
+  for(const card of catalog.cards){
+    const indexedCard=index.cards.find(row=>row.slug===card.cardId);
+    if(typeof indexedCard.category!=='string'||!indexedCard.category.trim())throw Error(`${card.cardId} 缺少原始模板类别，不能执行图形占比检查`);
+    card.category=indexedCard.category;
+  }
   return catalog;
 }
 

@@ -4,7 +4,7 @@ import {auditEditorialMaterialContract,editorialSourceDisplayFields} from './tal
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock,assertNativeHoldBudget} from './talkcraft-native-time-map.mjs';
-import {visualContentContract} from './talkcraft-visual-content-contract.mjs';
+import {visualContentContract,isTextDominant} from './talkcraft-visual-content-contract.mjs';
 
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
@@ -59,6 +59,8 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       sourceUrl:b.sourceUrl||b.url,identityReason:b.identityReason||b.reason||b.matchReason,
       matchReason:b.matchReason,contentLanguage:b.contentLanguage}));
     const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length||retainedInternalSlots.length);
+    const requireGraphicReplacement=failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&
+      (i.shotId===shot.id||i.shotIds?.includes(shot.id)));
     const rejected={},candidates=[];
     const reject=(code,slug)=>(rejected[code]??=[]).push(slug);
     for(const card of catalog.cards){
@@ -72,6 +74,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       const capability=card.policy?.capabilities;
       const visual=visualContentContract(card);
       if(visual.placeholder)reasons.push('DEMO_VISUAL_NOT_REPLACEABLE');
+      if(requireGraphicReplacement&&isTextDominant({shotCard:card.cardId},catalog))reasons.push('GRAPHIC_REPLACEMENT_REQUIRED');
       if(range.requiredSubject==='person'&&visual.hostConflict)reasons.push('HOST_CONTENT_REGION_CONFLICT');
       if(capability?.illustrationOnlyWithoutAdapter===true&&capability.parameterizedContent===false&&capability.nativeMedia===false)
         reasons.push('AUTHORED_CONTENT_SLOT_UNAVAILABLE');
