@@ -47,7 +47,7 @@ test('重新编导归档旧结果时保留当前修改要求和成功音频，�
   const root=mkdtempSync(path.join(workspace,'talkcraft-revision-request-test-'));
   try {
     const project=path.join(root,'director/b-mode-runs',id,'talkcraft');
-    for (const dir of ['qa','audio','remotion'])mkdirSync(path.join(project,dir),{recursive:true});
+    for (const dir of ['qa','audio','remotion','qa/editorial-provider-envelopes','qa/editorial-provider-responses'])mkdirSync(path.join(project,dir),{recursive:true});
     const oldSemantics=JSON.stringify({sentences:[{i:0,text:'原句',shot:'s01'}]});
     for (const [name,value] of Object.entries({'source-run.json':JSON.stringify({runId:id}),
       'SHOTBOOK.md':'原分镜','semantics.json':oldSemantics,'remotion/shots.json':'[{"id":"s01"}]',
@@ -55,7 +55,12 @@ test('重新编导归档旧结果时保留当前修改要求和成功音频，�
       'qa/ark-editorial-response-before-repairs.json':'{"originalOldResponse":true}',
       'remotion/native-presentation.json':'{"oldPresentation":true}',
       'remotion/word-reveal-plan.json':'{"oldWordReveal":true}',
-      'qa/ark-editorial-response.json':'{"old":true}','audio/full.mp3':'paid-audio-preserved'}))
+      'qa/ark-editorial-response.json':'{"old":true}',
+      'qa/editorial-provider-receipt.json':'{"file":"qa/editorial-provider-envelopes/current.json"}',
+      'qa/editorial-provider-envelopes/current.json':'{"retainedEnvelope":true}',
+      'qa/editorial-provider-responses/current.json':'{"retainedRaw":true}',
+      'qa/editorial-selection-audit.json':'{"rawResponse":"qa/editorial-provider-responses/current.json"}',
+      'audio/full.mp3':'paid-audio-preserved'}))
       writeFileSync(path.join(project,name),value);
     writeFileSync(path.join(project,'qa/card-candidates.json'),JSON.stringify({s01:{candidates:{论点:[{slug:'per-character-rise'}]}}}));
     writeFileSync(path.join(project,'qa/card-candidates.md'),'# candidates');
@@ -71,6 +76,8 @@ test('重新编导归档旧结果时保留当前修改要求和成功音频，�
       assert.equal(existsSync(path.join(revision,name)),true);
     }
     assert.equal(readFileSync(path.join(project,'audio/full.mp3'),'utf8'),'paid-audio-preserved');
+    for(const name of ['qa/editorial-provider-receipt.json','qa/editorial-provider-envelopes/current.json','qa/editorial-provider-responses/current.json'])
+      assert.deepEqual(readFileSync(path.join(revision,name)),readFileSync(path.join(project,name)),'归档与当前响应证据一致');
     assert.equal(readFileSync(path.join(project,'semantics.json'),'utf8'),'{"sentences":[{"i":0,"text":"原句"}]}');
   } finally {
     if(!root.startsWith(workspace+path.sep))throw Error('Test cleanup escaped workspace');

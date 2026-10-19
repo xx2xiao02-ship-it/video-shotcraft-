@@ -1,4 +1,5 @@
 import {graphicRelationContract} from './talkcraft-graphic-relation.mjs';
+import {constrainJointSelection} from './talkcraft-editorial-joint-selection.mjs';
 import {repairEditorialSourceSlotAliases,repairEditorialRetainedSourceAliases} from './talkcraft-editorial-source-slot-repair.mjs';
 import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {editorialRequiredParameterContracts,auditEditorialRequiredProps} from './talkcraft-editorial-required-props.mjs';
@@ -39,7 +40,7 @@ export function buildEditorialSelectionRequest(inputs){
   if(!joint?.windows?.length)throw fail('没有可核验的失败镜，不能创建局部修订');
   const proposal=structuredClone(inputs.proposal);
   delete proposal.editorialSelectionRejection;
-  const windows=joint.windows.map(w=>{
+  let windows=joint.windows.map(w=>{
     const candidates=w.candidates;
     if(!candidates.length)throw fail(`${w.shotId}没有固定句范围内同时满足真实视频背景、语义和时长的方案，须先治理重排范围，不能发起相同选卡请求`,w.shotId);
     return {shotId:w.shotId,firstSentence:w.firstSentence,lastSentence:w.lastSentence,
@@ -52,19 +53,21 @@ export function buildEditorialSelectionRequest(inputs){
         projectRoot:inputs.projectRoot,includeTiming:inputs.anchorTiming!==false}),
       choices:candidates.map(c=>({...c,choiceId:digest({input:joint.inputSha256,shotId:w.shotId,choice:c})}))};
   });
+  if(inputs.jointSelectionVersion!==0)windows=constrainJointSelection(windows,proposal.shots);
   const editableShotIds=windows.map(w=>w.shotId);
   const materialShotIds=(proposal.materialResearch?.shots||[]).filter(r=>editableShotIds.includes(r.shotId)||
     r.research?.some(s=>editableShotIds.includes(s.displayShotId))||
     r.bindings?.some(s=>editableShotIds.includes(s.displayShotId))).map(r=>r.shotId);
   for(const w of windows)if(w.requiresSource&&!materialShotIds.includes(w.shotId))materialShotIds.push(w.shotId);
-  const contract={schema:'talkcraft-editorial-selection-request-v2',jointInputSha256:joint.inputSha256,
+  const contract={schema:'talkcraft-editorial-selection-request-v2',...(inputs.jointSelectionVersion!==0?{jointSelectionVersion:1}:{}),jointInputSha256:joint.inputSha256,
     reviewedCount:joint.reviewedCount,editableShotIds,materialShotIds,windows,...(joint.batch?{batch:joint.batch}:{}),
     failedChecks:structuredClone(inputs.failedChecks||[]),baseProposal:proposal};
   return {...contract,requestId:digest(contract)};
 }
 
 export function auditEditorialSelectionRequest(request,inputs){
-  try{return JSON.stringify(request)===JSON.stringify(buildEditorialSelectionRequest(inputs))?[]:
+  if(!request||![undefined,1].includes(request.jointSelectionVersion))return ['局部修订选择契约缺失或版本无效'];
+  try{return JSON.stringify(request)===JSON.stringify(buildEditorialSelectionRequest({...inputs,jointSelectionVersion:request.jointSelectionVersion??0}))?[]:
     ['局部修订选择契约缺失、篡改或已过期'];}catch(error){return [error.message];}
 }
 
@@ -164,7 +167,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
       jointChoiceConflicts.push({leftShotId:left.shotId,leftChoiceId:a.choiceId,rightShotId:right.shotId,rightChoiceId:b.choiceId,cardId:a.slug});
   }
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
-    jointSelectionContract:{windowSize:30,conflicts:jointChoiceConflicts,
+    jointSelectionContract:{windowSize:30,feasibility:'each-offered-choice-has-a-complete-nonrepeating-assignment',conflicts:jointChoiceConflicts,
       instruction:'所有可编辑镜必须一起选卡。conflicts每对方案在30镜窗口内同卡冲突，不能各镜独立选择后重复。仅真实同一观点的templateContinuity承接合同可按原校验例外，不得虚构观点或理由；该输入合同不要回传。'},
     wordAnchorPolicy:'wordEvents首尾位置必须来自本镜sentenceRef的characters.offset，标点没有有声锚点。含标点的文本只用本句有声首尾字符锚定；纯标点字段不得把标点offset当锚点，须明确本句合法有声锚点及展示角色依据。不得跨句、跨镜、补编号或自由填写时间。',
     punctuationAttachmentPolicy:'展示文字保留原标点，首尾锚点仅使用本句characters中的有声字符。单独标点字段应挂载同一句紧邻前文的最后一个有声字符，且该前文须有唯一有效的spoken事件并与源文完全一致；不能为标点创造发音时刻，不能靠修改句引用或任意挪动编号修复。服务端只恢复有完整源文证据且通过中心审批的确定性挂载，不推断创作意图。',
@@ -327,7 +330,9 @@ export function compileEditorialSelection(response,request,inputs){
   if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json')))
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-reuse-correction.json'),JSON.stringify({proposal:reusePlan,approval:reuseApproval},null,2));
   const materials=prepareEditorialMaterialUpdates(response,request);
-  const initialIssues=[...parameterIssues,...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
+  // Reuse is still rejected below against the fully compiled proposal. Keep
+  // that proposal available for the next repair instead of losing valid edits.
+  const initialIssues=[...parameterIssues,...bindings.issues.filter(i=>i.code!=='template_window_reuse'),...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
   if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
@@ -406,7 +411,8 @@ export function compileEditorialSelection(response,request,inputs){
   const baseline=[...auditTemplateReuse(request.baseProposal.shots),...auditEditorialMaterialContract({shots:request.baseProposal.shots,
     sentences:request.baseProposal.sentences,researchPlan:request.baseProposal.materialResearch,catalog:inputs.catalog,projectRoot:inputs.projectRoot}).issues];
   const {blockingIssues}=partitionDeferredEditorialIssues(issues,baseline,request);
-  if(blockingIssues.length)throw Object.assign(new Error(blockingIssues.map(i=>i.message).join('；')),{issues:blockingIssues});
+  if(blockingIssues.length)throw Object.assign(new Error(blockingIssues.map(i=>i.message).join('；')),{issues:blockingIssues,
+    ...(blockingIssues.every(i=>i.code==='template_window_reuse')?{repairProposal:result}:{})});
   // Full proposal preflight still runs in the sender/recovery path and retains
   // every deferred failure. This return is compilation, never node completion.
   return result;

@@ -24,7 +24,7 @@ export function editorialReplayBatch(request){
 
 // This operation has no provider callback, config, authorization reservation or
 // directory scan. It accepts only this transaction's explicitly rejected result.
-export function recompileRetainedEditorialSelection(project,{runId,aligned,catalog,personWindows}){
+export function recompileRetainedEditorialSelection(project,{runId,aligned,catalog,personWindows,projectRoot=project}){
   const qa=path.join(project,'qa'),request=read(path.join(qa,'editorial-selection-request.json'));
   const audit=read(path.join(qa,'editorial-selection-audit.json'));
   const cache=read(path.join(qa,'ark-editorial-response.json'));
@@ -61,7 +61,7 @@ export function recompileRetainedEditorialSelection(project,{runId,aligned,catal
   // Reconstruct the immutable contract version actually submitted. New senders
   // always include real clocks; a bound older response may still be recompiled
   // under every CURRENT content/timing gate without re-signing its anchor IDs.
-  const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot:project,
+  const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot,
     anchorTiming:request.windows.some(w=>w.anchorScope?.sentences.some(s=>Array.isArray(s.clock))),
     ...(request.batch?{repairBatch:editorialReplayBatch(request)}:{})};
   const outdated=auditEditorialSelectionRequest(request,inputs);

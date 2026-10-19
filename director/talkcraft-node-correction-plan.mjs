@@ -40,7 +40,8 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
-  if(feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>i.code==='template_window_reuse'))
+  const reuseOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>i.code==='template_window_reuse');
+  if(reuseOnly&&!authorization)
     return {...base,state:'needs-repair',action:null,
       jointRepairShotIds:[...new Set(feedback.failedChecks.flatMap(i=>[i.previousShotId,i.shotId]).filter(Boolean))],
       reason:`仍有${feedback.failedChecks.length}组重复选卡冲突，须按完整联合方案补齐替代设计；当前返回没有完整备选参数、素材及锚点，不自动换卡或追加付费`};
@@ -65,7 +66,7 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(feedback?.failedChecks?.some(i=>['TEXT_EFFECT_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CHANGED'].includes(i.code)))
     return {...base,state:'needs-code-audit',action:null,reason:'模板时序源码契约缺失或指纹变化；先完成代码审计并免费复检，不交模型创作或消耗费用授权'};
   if(repeatedPaidScope)return {...base,state:'needs-repair',action:null,repeatedPaidScope,reason:'本次目标镜头的相同问题已提交过模型，识别到跨事务修订循环；先治理输入或恢复代码，不因切换问题类别或更新规则再次计费'};
-  const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
+  const creative=reuseOnly||feedback?.failedChecks?.some(i=>creativeCode(i.code));
   // Match the formal revision entry before reserving any model action.
   // A dispatch rejection is not a provider response or evidence of non-convergence.
   if(creative&&run.storyboardAdjustmentPending===false)
@@ -84,12 +85,16 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
       .flatMap(i=>[i.shotId,i.displayShotId,...(i.shotIds||[])]).filter(id=>id&&!editable.has(id)))];
     if(revisionPlan.batch?.deferredShotIds?.length||revisionPlan.deferredShotIds?.length||missing.length)
       return {...base,state:'needs-code-audit',action:null,reason:'修正方案未覆盖本次完整失败范围，禁止按单镜或子集拆分计费；遗漏镜头：'+missing.join('、')};
+    if(reuseOnly&&feedback.failedChecks.some(i=>!editable.has(i.shotId)&&!editable.has(i.previousShotId)))
+      return {...base,state:'needs-code-audit',action:null,reason:'联合修订未覆盖全部重复选卡冲突边，禁止拆分计费'};
   }
 
   if(creative&&['editorial','candidates','storyboard-review','preflight'].includes(node)&&!used('editorial-repair')){
     const grant=authorization?.schema==='talkcraft-correction-authorization-v1'&&authorization.runId===run.runId&&
       Date.parse(authorization.expiresAt)>now&&authorization.scope?.includes(node)&&
       digest(authorization.inputs)===digest(inputs)&&digest(authorization.provider)===digest(provider);
+    if(grant&&authorization.maxModelTasks===1&&attempts.some(a=>a.action==='editorial-repair'&&a.authorizationSha256===digest(authorization)))
+      return {...base,state:'needs-repair',action:null,reason:'本次治理模型额度已预留或使用；先恢复现有结果，不自动追加计费'};
     if(grant)return {...base,...(revisionPlan?{revisionPlan}:{}),state:'ready-to-correct',approved:false,action:'editorial-repair',
       body:{stage:'editorial-revision',approveModelCost:true,authorizationNote:authorization.approval},reason:'按本次有效授权修订完整失败范围；原始返回、锁定内容及全部门禁保留'};
     return {...base,state:'waiting-authorization',action:null,reason:'创作修订需要本次有效费用授权，不能自行扩大授权'};

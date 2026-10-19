@@ -437,6 +437,21 @@ export function prepareTalkcraftStoryboardRevision(root, runId) {
   mkdirSync(revision, {recursive:true});
   preserveRejectedEditorialFeedback(project,revision);
   preserveCandidateMaterialRepairFeedback(project,revision);
+  // Keep the exact bound response recoverable after the live submission is
+  // renewed. These are evidence copies, not another scan across old runs.
+  const receiptFile=path.join(project,'qa/editorial-provider-receipt.json');
+  if(existsSync(receiptFile)){
+    const receipt=JSON.parse(readFileSync(receiptFile,'utf8'));
+    const auditFile=path.join(project,'qa/editorial-selection-audit.json');
+    const audit=existsSync(auditFile)?JSON.parse(readFileSync(auditFile,'utf8')):null;
+    for(const name of ['qa/editorial-provider-receipt.json',receipt.file,audit?.rawResponse].filter(Boolean)){
+      const relative=String(name).replaceAll('\\','/');
+      if(!/^qa\/(editorial-provider-receipt\.json|editorial-provider-(envelopes|responses)\/[a-zA-Z0-9.-]+\.json)$/u.test(relative))
+        throw Error('响应证据路径不属于本次修订');
+      const target=path.join(revision,relative);mkdirSync(path.dirname(target),{recursive:true});
+      copyFileSync(path.join(project,relative),target);
+    }
+  }
   const files = ['SHOTBOOK.md', 'remotion/shots.json', 'semantic-decisions.json',
     'material-research-plan.json','material-binding-plan.json',
     'semantics.json', 'qa/ark-editorial-response.json', 'qa/editorial-repair-feedback.json', 'qa/preflight-result.json',

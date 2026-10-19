@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {backgroundPresentation,backgroundCaptionTheme,checkPresentationSemantics} from './talkcraft-background-presentation.mjs';
 import fs from 'node:fs';
+import {hasVideoBackground} from './talkcraft-text-video.mjs';
 import {contrastRatio,crossfadeBackground,compositeColor} from './talkcraft-color-contrast.mjs';
 test('新任务转场字幕覆盖浅深背景和闪光，固定填色与必要底衬不依赖镜头编号或播放帧',()=>{
  for(const shotCard of ['black-slam-transition','particle-weld-transition','overexpose-flip-transition']){
@@ -32,7 +33,7 @@ test('照片墙原生暗幕底使用浅色独立字幕，不改变模板构图�
  assert.equal(backgroundCaptionTheme({shotCard:'rack-focus-pair',templateParams:{}},theme),theme);
  assert.equal(theme.text,'#1a1a1a');
 });
-import {loadTalkcraftGovernedCatalog,verifiedChapterBackgroundParameter} from './talkcraft-governed-contract.mjs';
+import {loadTalkcraftGovernedCatalog,verifiedChapterBackgroundParameter,validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
 const shot=()=>({id:'s17',shotCard:'chapter-progress-list',templateParams:{materialRole:'background',materialSrc:'broll/city.mp4',materialSourceId:'local:city',materialMatchReason:'城市生活语境',backgroundPresentation:'theme-wash-v1',cardProps:{bg:'#ffffff00',rows:'|存钱\n|消费|current\n|规划未来'}}});
 test('真实背景使用公开透明底，不改变模板几何',()=>{assert.equal(backgroundPresentation(shot(),{background:'#f7f5f0'}).overlay,'#000000b8');assert.equal(checkPresentationSemantics([shot()]).passed,true);});
 test('路径存在也不能让实色卡片遮住背景',()=>{const s=shot();s.templateParams.cardProps.bg='#111111';assert.equal(checkPresentationSemantics([s]).issues[0].code,'BACKGROUND_OCCLUDED');});
@@ -47,6 +48,19 @@ test('透明底和空编号仅纠正已锁定源卡能力，不豁免任意颜�
  s.templateParams.cardProps.bg='bad';assert.equal(verifiedChapterBackgroundParameter({code:'PROP_COLOR',at:'calls[0].props.bg'},s,card),false);
  s.templateParams.cardProps.rows='invalid';assert.equal(verifiedChapterBackgroundParameter({code:'DATA_FORMAT',at:'calls[0].props.rows'},s,card),false);
  assert.equal(verifiedChapterBackgroundParameter({code:'PROP_COLOR',at:'calls[0].props.bg'},shot(),{...card,implementation:{...card.implementation,sha256:'wrong'}}),false);
+});
+
+test('04可识别公开透明CSS底色且将真实背景留为待绑定，不把06文件提前作为颜色格式条件',()=>{
+ const root=process.env.TALKCRAFT_SKILL_ROOT||'E:/video-shotcraft/_audit/video-talkcraft';
+ const catalog=loadTalkcraftGovernedCatalog(JSON.parse(fs.readFileSync(root+'/references/cards-index.json')));
+ const s=shot();delete s.templateParams.materialSrc;delete s.templateParams.backgroundPresentation;delete s.templateParams.materialRole;
+ s.templateParams.cardProps={rows:'1|物价稳定\n2|收入稳定|current',headText:'稳定预期',bg:'#ffffff00',accent:'#ffffff',dim:'#c8c8c8'};
+ const audit=validateTalkcraftDesignProps([s],{catalog,projectRoot:process.cwd()});
+ assert.equal(audit.errors.some(i=>i.code==='PROP_COLOR'),false);
+ assert.ok(audit.pending.some(i=>i.code==='BACKGROUND_BINDING_REQUIRED'));
+ assert.equal(audit.productionAdmitted,false);assert.equal(hasVideoBackground(s),false);
+ s.templateParams.cardProps.bg='#ffffff80';
+ assert.ok(validateTalkcraftDesignProps([s],{catalog,projectRoot:process.cwd()}).errors.some(i=>i.code==='PROP_COLOR'));
 });
 test('真实统计数值不因为是数字就被当成装饰编号',()=>{assert.equal(checkPresentationSemantics([{shotCard:'count-badge-title',templateParams:{cardProps:{num:'25'}}}]).passed,true);});
 

@@ -18,7 +18,7 @@ const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true})
 const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-templates.mjs','talkcraft-graphic-relation.mjs','talkcraft-text-video.mjs','talkcraft-material-policy.mjs','talkcraft-material-research.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-background-presentation.mjs','talkcraft-keyword-caption.tsx','talkcraft-title-presentation.mjs','talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-correction.mjs','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-runtime-fidelity.mjs','talkcraft-paid-scope-history.mjs','talkcraft-template-material-resolver.mjs','talkcraft-node-repair.mjs','talkcraft-editorial-planning-contract.mjs','talkcraft-native-governance.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json','talkcraft-stages.mjs','talkcraft-auto-advance.mjs','talkcraft-native-preparation.mjs','talkcraft-editorial-selection-replay.mjs','talkcraft-editorial-source-slot-repair.mjs','talkcraft-editorial-bound-slots.mjs','talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
  'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-punctuation-correction.mjs','talkcraft-editorial-reuse-correction.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
- 'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs','../console-server.mjs'];
+ 'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
@@ -31,7 +31,7 @@ export function authorizeCorrectionCenter(project,runId,{approval,expiresAt,now=
   const inputs=identity(project);if(Object.values(inputs).some(v=>!v))throw Error('治理授权缺少本次原稿、字级时间或原配音');
   return save(project,'qa/correction-authorization.json',{schema:'talkcraft-correction-authorization-v1',runId,approval,
     approvedAt:new Date(now).toISOString(),expiresAt:new Date(expiry).toISOString(),inputs,provider,
-    scope:['editorial','candidates','storyboard-review','preflight'],allowTts:false,allowRunningHub:false,stopAt:'review'});
+    scope:['editorial','candidates','storyboard-review','preflight'],maxModelTasks:1,allowTts:false,allowRunningHub:false,stopAt:'review'});
 }
 export function correctionCenterSnapshot(project){return read(path.join(project,'qa/correction-center.json'));}
 
@@ -100,7 +100,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
   const progressKey=correctionProgressKey({inputs,rules,node:correctionNode(run),checks:feedback?.failedChecks||[]});
   const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
-    !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code));
+    !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code)||i.code==='template_window_reuse');
   const provider=rulesVersionVerified&&pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
   const unsubmitted=read(path.join(project,'qa/editorial-revision-authorization.json'));
   const institutionRepair=rulesVersionVerified?proposeInstitutionSourceRepair(project):null;
@@ -117,7 +117,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action
   // after process death or an unknown provider result.
-  const attempt={action:decision.action,fingerprint,progressKey,startedAt:new Date(now).toISOString(),status:'dispatching'};
+  const attempt={action:decision.action,fingerprint,progressKey,...(decision.action==='editorial-repair'?{authorizationSha256:digest(authorization)}:{}),startedAt:new Date(now).toISOString(),status:'dispatching'};
   record.attempts=[...attempts,attempt];record.state='correcting';save(project,'qa/correction-center.json',record);
   try{const task=await queueStage({runId:run.runId,...decision.body});attempt.status='queued';attempt.taskId=task.id;
     save(project,'qa/correction-center.json',record);return {handled:true,decision,task};

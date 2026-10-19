@@ -419,6 +419,20 @@ export function saveEditorialDerivedArtifact(project,name,content,{replay=false}
 // callback, provider configuration or authorization reservation lives here.
 // The current failure scope is atomic: never silently slice it into paid batches.
 export function prepareEditorialRepairInput({previousFailures,aligned,catalog,personWindows,promptCatalog,theme,projectRoot}){
+  // A reuse rejection must not reset the other completed designs to the old
+  // request base. Recompile ONLY this response, keeping every original gate.
+  if(projectRoot&&previousFailures?.proposal?.editorialSelectionRejection&&
+    previousFailures.failedChecks?.length&&previousFailures.failedChecks.every(i=>i.code==='template_window_reuse')){
+    const evidence=previousFailures.snapshot?path.resolve(projectRoot,previousFailures.snapshot):projectRoot;
+    if(evidence!==path.resolve(projectRoot)&&!evidence.startsWith(path.resolve(projectRoot,'qa/storyboard-revisions')+path.sep))
+      throw Error('联合修订恢复证据不属于本次任务');
+    const runId=json(path.join(projectRoot,'source-run.json')).runId||path.basename(path.dirname(projectRoot));
+    try{recompileRetainedEditorialSelection(evidence,{runId,aligned,catalog,personWindows,projectRoot});}
+    catch(error){
+      if(!error.repairProposal||!error.issues?.length||!error.issues.every(i=>i.code==='template_window_reuse'))throw error;
+      previousFailures={...previousFailures,proposal:error.repairProposal,failedChecks:error.issues};
+    }
+  }
   const planningContract=buildEditorialPlanningContract({aligned,catalog,personWindows,previousShots:previousFailures?.proposal?.shots||[]});
   const repairInputs=previousFailures?.proposal?{proposal:previousFailures.proposal,failedChecks:previousFailures.failedChecks,
     aligned,catalog,personWindows,projectRoot}:null;
