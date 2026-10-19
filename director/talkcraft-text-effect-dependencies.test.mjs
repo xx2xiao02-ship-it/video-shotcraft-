@@ -75,7 +75,36 @@ test('真实原卡入口晚于首秒时，0帧文字事件不能掩盖空等',()
 
 
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
+import {skinTalkcraftSharedFont} from './talkcraft-card-runtime.mjs';
 import {recordTextEffectDependencies} from './talkcraft-text-effect-dependencies.mjs';
+
+test('扇形资料、五选一和气泡使用逐项源码窗口，晚锚点及提前强调仍拒绝',()=>{
+ const stack=textEffectContract('stack-fan-out',{},204);
+ assert.equal(stack.media.length,5);assert.equal(stack.texts[0].begin,7);assert.equal(stack.texts[0].end,191);
+ assert.ok(check(shot('stack-fan-out',{title:'政策资料'}),[{field:'title',text:'政策资料',localFrame:195}],204).issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+ const chip=shot('chip-grid-single-select',{options:'储蓄\n消费',selected:1,equation:'未来 收入'});
+ assert.ok(check(chip,[{field:'options',text:'储蓄',localFrame:80},{field:'options',text:'消费',localFrame:125},{field:'equation',text:'未来收入',localFrame:0}],216).issues.some(i=>i.code==='TEXT_EFFECT_DEPENDENCY_EARLY'));
+ assert.ok(check(chip,[{field:'options',text:'储蓄',localFrame:0},{field:'options',text:'消费',localFrame:125}],216).issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+ const bubble=shot('danmu-bubble-praise',{bubbles:'个人小事|180,160|灰中\n经济大潮|300,320|强调'});
+ assert.equal(check(bubble,[{field:'bubbles',text:'个人小事',localFrame:0},{field:'bubbles',text:'经济大潮',localFrame:0}],131).passed,true);
+ assert.ok(check(bubble,[{field:'bubbles',text:'个人小事',localFrame:100}],131).issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+});
+
+test('新增时序合同绑定原模板、参数封装与共享源码哈希',()=>{
+ const root=path.resolve(new URL('..',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/u,'$1'));
+ const skill=resolveTalkcraftSkillRoot(root),manifest=JSON.parse(fs.readFileSync(new URL('./talkcraft-text-effect-sources.json',import.meta.url)));
+ for(const card of ['stack-fan-out','chip-grid-single-select','danmu-bubble-praise']){
+  assert.ok(textEffectContract(card,{},216));
+  for(const [relative,expected] of Object.entries(manifest[card])){
+   const canonical=relative.startsWith('parameterized-cards/')?path.join(skill,'workbench/src/cards',relative.slice('parameterized-cards/'.length)):path.join(skill,'template',relative);
+   let source=fs.readFileSync(canonical,'utf8');if(relative.startsWith('parameterized-cards/gen/'))source=source.replace(/(["'])@tpl\//gu,'$1../../cards/');
+   if(relative==='parameterized-cards/shared.tsx')source=skinTalkcraftSharedFont(source);
+   assert.equal(createHash('sha256').update(source).digest('hex'),expected,card+'/'+relative);
+  }
+ }
+});
 test('正式源码缺失或变化不能套旧时间表，sourceVerified必须为false',t=>{
  const p=fs.mkdtempSync(path.join(os.tmpdir(),'text-effect-proof-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));
  fs.mkdirSync(path.join(p,'remotion'),{recursive:true});

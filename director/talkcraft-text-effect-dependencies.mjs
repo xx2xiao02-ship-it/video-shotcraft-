@@ -18,6 +18,23 @@ export function textEffectContract(card,p={},nativeFrames=1){
  const group=(field,n,at=()=>0,end=()=>last)=>{for(let i=0;i<n;i++)text(field,i,frames(at(i)),end(i));};
  const all=(fields,at=0,end=last)=>fields.forEach(f=>text(f,0,at,end));
  switch(card){
+ case 'stack-fan-out':{
+  text('title',0,frames(.2),Math.ceil(6.4*30)-1);texts.at(-1).wholeField=true;
+  for(let i=0;i<5;i++)media.push({field:'src'+(i+1),begin:frames(.2+i*.05),end:Math.ceil((5.8+i*.04+.4)*30)-1});
+  break;}
+ case 'chip-grid-single-select':{
+  text('question',0,frames(.1),Math.ceil(6.8*30)-1);texts.at(-1).wholeField=true;
+  const options=lines(p.options).slice(0,6),selected=Math.min(options.length,Math.max(1,Math.round(num(p,'selected',3))))-1;
+  options.forEach((_,i)=>text('options',i,frames(.5+i*.1),Math.ceil((i===selected?6.8:3.8)*30)-1));
+  text('equation',0,frames(3.75),Math.ceil(6.8*30)-1);texts.at(-1).wholeField=true;
+  effect('selected-chip-flash','options',selected,2,2+.033+.34);
+  break;}
+ case 'danmu-bubble-praise':{
+  lines(p.bubbles).forEach((_,i)=>{
+   const at=num(p,'lead',.4)+i*.55;
+   text('bubbles',i,frames(at),Math.ceil((at+.3+.75+.4)*30)-1);
+   effect('bubble-carrier-'+i,'bubbles',i,at,at+.3,1);
+  });break;}
  case 'converging-arrows':{
   all(['leadText','preText','focusText','postText']);texts.forEach(w=>w.wholeField=true);
   const at=num(p,'startDelay',.42);

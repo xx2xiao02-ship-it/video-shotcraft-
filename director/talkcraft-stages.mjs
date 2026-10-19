@@ -39,6 +39,7 @@ import {readTalkcraftDigitalHumanStatus} from './talkcraft-digital-human-status.
 import {writeTalkcraftTemplateUsage} from './talkcraft-template-usage.mjs';
 import {compileWordReveals,applyWordRevealTiming,installWordRevealRuntime} from './talkcraft-word-reveal.mjs';
 import {checkNativeGovernance,isNativePresentation} from './talkcraft-native-governance.mjs';
+import {executeApprovedTimingCompletion} from './talkcraft-timing-completion.mjs';
 import {factReviewStatus} from './talkcraft-fact-review.mjs';
 import {installBackgroundVisibility} from './talkcraft-background-visibility.mjs';
 import {pythonExecutable,pythonEnvironment,requireChineseAlignmentSupport} from './portable-runtime.mjs';
@@ -635,6 +636,13 @@ function runTalkcraftStageInternal(stage, runId) {
       adjustments,reconciled:[],comparison,bindings:binding.bindings,sourceSync,status:'candidate_selection_bound'};
   }  if (stage === 'preflight'||stage==='planning-check') {
     const planning=stage==='planning-check';
+    if(planning){
+      const centerFile=path.join(project,'qa/correction-center.json');
+      if(existsSync(centerFile)){
+        const center=JSON.parse(readFileSync(centerFile,'utf8'));
+        if(center.approved&&center.action==='timing-completion')executeApprovedTimingCompletion(project);
+      }
+    }
     const state=readTalkcraftStatus(ROOT,runId);
     const source=JSON.parse(readFileSync(path.join(project,'source-run.json'),'utf8'));
     const finalized=state.digitalHumanGenerationPlanned&&!planning;

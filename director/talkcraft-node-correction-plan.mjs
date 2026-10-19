@@ -21,7 +21,7 @@ export function correctionNode(run){
   if(run.nextStage==='planning-check'&&run.candidatesReady===true)return 'storyboard-review';
   return workflowNodeForTask(run.lastFailure?.task?.name||run.nextStage);
 }
-export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,governance,sourcePlan,now=Date.now()}){
+export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,governance,sourcePlan,timingPlan,timingPlanError,now=Date.now()}){
   const node=correctionNode(run),policy=CORRECTION_NODE_POLICIES.find(p=>p.node===node);
   const base={schema:'talkcraft-correction-decision-v1',runId:run.runId,node,issues:feedback?.failedChecks||[],
     globalRules:['graphic-first','real-media-slots','word-time','text-capacity','host-content-separation','caption-outline'],
@@ -48,6 +48,10 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
+  if(timingPlanError)return {...base,state:'needs-code-audit',action:null,reason:'免费时序方案编译失败，不能误转付费创作：'+timingPlanError};
+  if(node==='storyboard-review'&&governance&&timingPlan?.operations?.length&&!used('timing-completion'))
+    return {...base,state:'ready-to-correct',action:'timing-completion',body:{stage:'planning-check'},timingCompletionPlan:timingPlan,
+      reason:'按逐镜源码时序合同提出可行驻留修正，中心审批后由07执行原规则复检；不改文案、真实锚点或无关镜头，不收费'};
   const sourceRetry=sourcePlan?.transportRetry;
   const retryToken=dueSourceRetryToken(sourcePlan,now);
   const retryAttempts=attempts.filter(a=>a.action==='material-completion'&&a.sourceRetryToken===retryToken);

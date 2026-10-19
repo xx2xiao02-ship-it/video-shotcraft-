@@ -12,6 +12,7 @@ const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 // The registry describes real production handlers. It never edits arbitrary
 // code, invents template parameters, or bypasses a downstream gate.
 export const GOVERNANCE_HANDLERS=Object.freeze({
+ 'timing-completion':{stage:'planning-check',nodes:['storyboard-review'],paid:false},
  'material-completion':{stage:'material-completion',nodes:['candidates','storyboard-review','preflight'],paid:false},
  'editorial-repair':{stage:'editorial-revision',nodes:['editorial','candidates','storyboard-review','preflight'],paid:true},
  'local-recheck':{nodes:MANAGED_WORKFLOW_NODES.filter(n=>!['review','deliver'].includes(n.id)).map(n=>n.id),paid:false},
@@ -33,7 +34,7 @@ export function buildGovernanceMap(root,{index,catalog}={}){
    global:['原稿、音频及真实字级时钟固定','前三镜锁定','全片30镜去重或有真实同观点承接依据','全片图形优先和文字比例','模板源码、实际参数、素材槽和时长同源核验','中心技术终审不替代14人工审核']},
   templates:contract.cards.map(c=>{const source=catalog.cards.find(x=>x.cardId===c.slug).implementation;return {...c,
    source:{layer:source.layer,file:source.file,export:source.export,sha256:source.sha256,dependencies:source.dependencies},
-   handlers:['material-completion','editorial-repair','local-recheck']};}),
+   handlers:['material-completion','timing-completion','editorial-repair','local-recheck']};}),
   handlers:GOVERNANCE_HANDLERS,nodes:MANAGED_WORKFLOW_NODES.map(n=>({node:n.id,
    handlers:Object.entries(GOVERNANCE_HANDLERS).filter(([,h])=>h.nodes.includes(n.id)).map(([id])=>id),
    humanOnly:['review','deliver'].includes(n.id)}))};
@@ -48,6 +49,7 @@ export function buildGovernanceCase(project,{run,feedback,rules,map,catalog}){
   return {shotId:s.id,cardId,templateContractSha256:digest(template),currentParameters:s.templateParams?.cardProps||{},
    durationSeconds:Number(s.end)-Number(s.start),issues:checks,
    steps:[{handler:'material-completion',when:'缺少真实素材或绑定',effects:['采集、许可核验、恢复及真实槽绑定']},
+    {handler:'timing-completion',when:'07有不改文案与真实锚点的合法驻留方案',effects:['免费修正完整原生时间计划并复检']},
     {handler:'editorial-repair',when:'已证实需新创作且免费恢复无解',requiresCurrentCostAuthorization:true},
     {handler:'local-recheck',when:'每次修正后',effects:['原节点门禁及全片联合校验']}],
    locked:['口播原文','配音','数字人素材','字级时钟','无关镜头']};

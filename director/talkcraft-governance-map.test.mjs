@@ -15,7 +15,8 @@ test('中心模板地图复用完整已审合同；参数、DSL、源码、时�
  try{fs.mkdirSync(path.join(p,'remotion'));const shots=catalog.cards.slice(0,4).map((c,i)=>({id:'s0'+i,shotCard:c.cardId,start:i,end:i+1,templateParams:{cardProps:{text:'原文'}}}));
   fs.writeFileSync(path.join(p,'remotion/shots.json'),JSON.stringify(shots));
   const review=buildGovernanceCase(p,{run:{runId:'current'},feedback:{failedChecks:shots.map(s=>({shotId:s.id,code:'MISSING'}))},rules:{version:1},map,catalog});
-  assert.equal(review.shotPlans.length,4);assert.ok(review.shotPlans.every(s=>s.templateContractSha256&&s.steps.length===3));assert.equal(review.globalReview.executionDoesNotPassGate,true);
+  assert.equal(review.shotPlans.length,4);assert.ok(review.shotPlans.every(s=>s.templateContractSha256&&s.steps.length===4));assert.equal(review.globalReview.executionDoesNotPassGate,true);
+  assert.ok(map.templates.every(t=>t.handlers.includes('timing-completion')));
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json'))),shots);
  }finally{fs.rmSync(p,{recursive:true,force:true});}
 });

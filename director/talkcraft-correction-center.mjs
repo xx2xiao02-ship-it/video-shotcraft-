@@ -13,6 +13,7 @@ import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {libraryContractSnapshot} from './talkcraft-library-contract.mjs';
 import {materialCompletionPlan} from './talkcraft-material-completion.mjs';
+import {timingCompletionPlan} from './talkcraft-timing-completion.mjs';
 export {approveEditorialPunctuationCorrection} from './talkcraft-editorial-punctuation-correction.mjs';
 export {approveEditorialReuseCorrection} from './talkcraft-editorial-reuse-correction.mjs';
 
@@ -25,7 +26,7 @@ const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-template
  'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-punctuation-correction.mjs','talkcraft-editorial-reuse-correction.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs',
- 'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','talkcraft-source-content.mjs','talkcraft-source-ocr.ps1','talkcraft-source-archive.mjs','../console-server.mjs'];
+ 'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','talkcraft-source-content.mjs','talkcraft-source-ocr.ps1','talkcraft-source-archive.mjs','talkcraft-timing-completion.mjs','talkcraft-dependency-timeline.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
@@ -77,6 +78,8 @@ export function approveNodeCorrection(plan,context){
   if(!handler?.nodes.includes(plan.node)||handler.stage&&handler.stage!==body.stage)
     return deny('方案没有对应正式修正处理器，不执行未知动作');
   const legal=plan.action==='local-recheck'?body.stage===policy.freeStage&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='timing-completion'?plan.node==='storyboard-review'&&body.stage==='planning-check'&&Object.keys(body).every(k=>k==='stage')&&
+      !!plan.timingCompletionPlan?.operations?.length&&plan.governance?.caseSha256===context.governance?.caseSha256:
     plan.action==='material-completion'?body.stage==='material-completion'&&Object.keys(body).every(k=>k==='stage')&&
       !!plan.materialCompletionPlan?.needs?.length&&plan.governance?.caseSha256===context.governance?.caseSha256:
     plan.action==='rebuild-sample'?plan.node==='render-all'&&run.nextStage==='sample'&&body.stage==='sample'&&Object.keys(body).every(k=>k==='stage'):
@@ -128,7 +131,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     }catch(error){revisionPlanError=error.message;}
   }
   const repeatedPaidScope=repeatedPaidRepairScope(project,feedback,revisionPlan);
-  let governance,sourcePlan;
+  let governance,sourcePlan,timingPlan,timingPlanError;
   if(rulesVersionVerified&&fs.existsSync(path.join(project,'remotion/shots.json'))){
     const root=path.resolve(project,'../../../..'),index=read(path.join(resolveTalkcraftSkillRoot(root),'references/cards-index.json'));
     const catalog=loadTalkcraftGovernedCatalog(index),map=buildGovernanceMap(root,{index,catalog});
@@ -137,8 +140,10 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     governance={mapSha256:digest(map),caseSha256:digest(review),shotIds:review.shotPlans.map(s=>s.shotId)};
     if(['candidates','storyboard-review','preflight'].includes(correctionNode(run))&&fs.existsSync(path.join(project,'material-research-plan.json')))
       sourcePlan=materialCompletionPlan(project,catalog);
+    if(correctionNode(run)==='storyboard-review'&&feedback?.failedChecks?.some(i=>/^(?:TEXT_EFFECT_|NATIVE_TEXT_WINDOW)/u.test(i.code)))
+      try{timingPlan=timingCompletionPlan(project);}catch(error){timingPlanError=error.message;}
   }
-  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,governance,sourcePlan});
+  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,governance,sourcePlan,timingPlan,timingPlanError});
   const record={...decision,attempts,updatedAt:new Date(now).toISOString()};
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action

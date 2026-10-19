@@ -102,6 +102,17 @@ test('06已恢复后由07免费复检，不沿用历史素材失败重复06或�
  assert.equal(proposeNodeCorrection(incomplete).node,'candidates');
 });
 
+test('07可行时序提案先由中心批准免费执行，无可行操作仍保留原门禁',()=>{
+ const f=fixture();f.run.nextStage='planning-check';f.run.candidatesReady=true;
+ f.feedback.failedChecks=[{code:'TEXT_EFFECT_DEPENDENCY_EARLY',shotId:'s05'}];
+ f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];f.governance={caseSha256:'case'};
+ f.timingPlan={planId:'timing',operations:[{shotId:'s05'}],unresolved:[]};
+ const d=planNodeCorrection(f);assert.equal(d.action,'timing-completion');assert.equal(d.approved,true);assert.deepEqual(d.body,{stage:'planning-check'});
+ f.timingPlan.operations=[];assert.equal(planNodeCorrection(f).state,'waiting-authorization');
+ f.timingPlanError='当前字级证据失效';const failed=planNodeCorrection(f);
+ assert.equal(failed.action,null);assert.equal(failed.state,'needs-code-audit');assert.match(failed.reason,/不能误转付费/);
+});
+
 
 import fs from 'node:fs';
 import path from 'node:path';

@@ -239,5 +239,20 @@
     "parameterized-cards/gen/behind-text-title.tsx": "e3c7d8ebf1a8e6dd802160e8e50fd897ed8899011b16ee51ed0268f55e2df464",
     "parameterized-cards/types.ts": "888751010860aa048479a0e9afb5ec861f24fa9cf51c67467a4e6a7a1b343eeb",
     "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "stack-fan-out": {
+    "parameterized-cards/gen/stack-fan-out.tsx": "e818f051f1f026f9d2471f83efbcb437cd0ea96db468984ce30c2a95c86c09e5",
+    "cards/stack-fan-out.tsx": "0b2c8addeb2e2ea454e9b1ce6f2505434a00b4134cd3094230c1d84089038c0a",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "chip-grid-single-select": {
+    "parameterized-cards/gen/chip-grid-single-select.tsx": "81a0e72c6bd96e2435a8e362dfe0f8e530ef7fc7b488fcec3222d3e96678e8d8",
+    "cards/chip-grid-single-select.tsx": "8c902dca222138ffada7216fcc5b772dc963c8f9ca93f9837f97b13024c2638e",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
+  },
+  "danmu-bubble-praise": {
+    "parameterized-cards/gen/danmu-bubble-praise.tsx": "35a6c27c901c05c3e21e29df6132836b03ba800e816c3ee399a4430cfe3e1bd8",
+    "cards/danmu-bubble-praise.tsx": "ee624adbf1e0836bb5e6f643cb75e8084d0c249a4225314c21a2fbbd021c344a",
+    "parameterized-cards/shared.tsx": "2aaaa937af2ef34f887f002d8c909978ffeff0aea8e014d93bc1a488ff34d283"
   }
 }
