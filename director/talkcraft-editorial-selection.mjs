@@ -155,7 +155,17 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
         i.shotIds.every(id=>id===w.shotId||!request.editableShotIds.includes(id)));
       return issues.length?[{choiceId:choice.choiceId,shotIds:issues.map(i=>i.shotIds),code:'TEXT_VIDEO_CYCLE_REQUIRED'}]:[];
     })});
+  const jointChoiceConflicts=[];
+  for(const [i,left]of request.windows.entries())for(const right of request.windows.slice(i+1)){
+    const distance=Math.abs(request.baseProposal.shots.findIndex(s=>s.id===left.shotId)-request.baseProposal.shots.findIndex(s=>s.id===right.shotId));
+    if(distance>=30)continue;
+    for(const a of left.choices)for(const b of right.choices)if(a.slug===b.slug)
+      jointChoiceConflicts.push({leftShotId:left.shotId,leftChoiceId:a.choiceId,rightShotId:right.shotId,rightChoiceId:b.choiceId,cardId:a.slug});
+  }
   return {schema:'talkcraft-editorial-selection-input-v2',requestId:request.requestId,reviewedCount:request.reviewedCount,
+    jointSelectionContract:{windowSize:30,conflicts:jointChoiceConflicts,
+      instruction:'所有可编辑镜必须一起选卡。conflicts每对方案在30镜窗口内同卡冲突，不能各镜独立选择后重复。仅真实同一观点的templateContinuity承接合同可按原校验例外，不得虚构观点或理由；该输入合同不要回传。'},
+    wordAnchorPolicy:'wordEvents首尾位置必须来自本镜sentenceRef的characters.offset，标点没有有声锚点。含标点的文本只用本句有声首尾字符锚定；纯标点字段不得把标点offset当锚点，须明确本句合法有声锚点及展示角色依据。不得跨句、跨镜、补编号或自由填写时间。',
     editorialExpression:{openingExempt:film.openingExempt,maxTextShare:film.maxTextShare,textShotIds:film.textShotIds,
       count:film.count,total:film.total,textDuration:film.textDuration,duration:film.duration},
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
@@ -240,6 +250,14 @@ export function auditEditorialSelectionResponseBindings(response,request){
         ...(typeof event?.field==='string'?{field:event.field}:{}),message:error.message});
     }
   }
+  const selected=new Map((response.repairs||[]).flatMap(repair=>{
+    const choice=request.windows.find(w=>w.shotId===repair.shotId)?.choices.find(c=>c.choiceId===repair.choiceId);
+    return choice?[[repair.shotId,{shotCard:choice.slug,templateParams:repair.templateParams}]]:[];
+  }));
+  // Independent selection conflicts must not be hidden by a punctuation or
+  // anchor error. This is a read-only audit, never an automatic card choice.
+  const choices=(request.baseProposal?.shots||[]).map(shot=>selected.has(shot.id)?{...shot,...selected.get(shot.id)}:shot);
+  issues.push(...auditTemplateReuse(choices).filter(i=>selected.has(i.shotId)||selected.has(i.previousShotId)));
   return {passed:!issues.length,issues};
 }
 

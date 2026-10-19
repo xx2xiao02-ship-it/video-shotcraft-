@@ -21,6 +21,21 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
+
+test('联合范围发送明确同卡冲突对和标点锚点规则；锚点错误不掩盖重复选卡，原返回不修改',()=>{
+ const args=fixture();args.failedChecks=[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},{code:'NATIVE_EDITORIAL_PLAN',shotId:'s19'}];
+ const request=buildEditorialSelectionRequest(args);
+ const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ const conflict=model.jointSelectionContract.conflicts[0];assert.ok(conflict);
+ assert.equal(conflict.leftShotId,'s15');assert.equal(conflict.rightShotId,'s19');
+ assert.match(model.wordAnchorPolicy,/标点没有有声锚点/);
+ const raw={repairs:[{shotId:'s15',choiceId:conflict.leftChoiceId,templateParams:{},nativePresentation:{wordEvents:[{field:'title',text:'内容',sentenceRef:'跨镜',fromOffset:0,throughOffset:1}]}},
+  {shotId:'s19',choiceId:conflict.rightChoiceId,templateParams:{},nativePresentation:{wordEvents:[]}}]};
+ const before=structuredClone(raw),audit=auditEditorialSelectionResponseBindings(raw,request);
+ assert.ok(audit.issues.some(i=>i.code==='EDITORIAL_WORD_EVENT_SCOPE'));
+ assert.ok(audit.issues.some(i=>i.code==='template_window_reuse'&&i.shotId==='s19'&&i.previousShotId==='s15'));
+ assert.deepEqual(raw,before);
+});
 test('新增任务发送前排除普通论述不支持视频背景的文字卡，保留图形及真实资料选项',()=>{
  const args=fixture();args.failedChecks=[{code:'TEXT_VIDEO_TEMPLATE_REQUIRED',shotId:'s15'}];
  const openings=Array.from({length:3},(_,i)=>({id:'open'+i,firstSentence:0,lastSentence:0,subject:'other',shotCard:'keyword-pop-highlight',templateParams:{}}));
