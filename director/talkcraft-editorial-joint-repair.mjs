@@ -144,6 +144,11 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       const visual=visualContentContract(card);
       if(visual.placeholder)reasons.push('DEMO_VISUAL_NOT_REPLACEABLE');
       if(requireGraphicReplacement&&isTextDominant({shotCard:card.cardId},catalog))reasons.push('GRAPHIC_REPLACEMENT_REQUIRED');
+      const projected=auditFilmExpression(shots.map(s=>({...s,...(s.id===shot.id?{shotCard:card.cardId,templateParams:{}}:{}),
+        start:aligned[s.firstSentence]?.start,end:aligned[s.lastSentence]?.end})),catalog);
+      if(projected.total>=3&&(projected.count>Math.max(film.count,Math.floor(projected.total/2))||
+        projected.textDuration>Math.max(film.textDuration,projected.duration/2)+1e-6))
+        reasons.push('PROJECTED_TEXT_QUOTA_REGRESSION');
       if(range.requiredSubject==='person'&&visual.hostConflict)reasons.push('HOST_CONTENT_REGION_CONFLICT');
       if(capability?.illustrationOnlyWithoutAdapter===true&&capability.parameterizedContent===false&&capability.nativeMedia===false)
         reasons.push('AUTHORED_CONTENT_SLOT_UNAVAILABLE');

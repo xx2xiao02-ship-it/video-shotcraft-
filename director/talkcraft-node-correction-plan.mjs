@@ -13,12 +13,14 @@ export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
   return workflowNodeForTask(run.lastFailure?.task?.name||run.nextStage);
 }
-export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,now=Date.now()}){
+export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,now=Date.now()}){
   const node=correctionNode(run),policy=CORRECTION_NODE_POLICIES.find(p=>p.node===node);
   const base={schema:'talkcraft-correction-decision-v1',runId:run.runId,node,issues:feedback?.failedChecks||[],
     globalRules:['graphic-first','real-media-slots','word-time','text-capacity','host-content-separation','caption-outline'],
     fingerprint,approved:false,productionAdmitted:false,userAcceptance:false};
   if(run.activeTask)return {...base,state:'correcting',action:null,reason:'正式任务执行中，不重复调度'};
+  if(rulesVersionVerified===false)return {...base,state:'waiting-code-reload',action:null,
+    reason:'磁盘规则与服务已加载版本不一致；暂停自动修正调度，待验证并重启正式服务后继续，不在热修改期间计费'};
   if(!run.provenance?.verified)return {...base,state:'waiting-input',action:null,reason:'先核验本次管线身份，不串用历史任务'};
   if(['review','deliver'].includes(node)||['approve-final','deliver'].includes(run.nextStage))
     return {...base,state:'waiting-review',action:null,reason:'停在14等待用户，不代替人工审核'};

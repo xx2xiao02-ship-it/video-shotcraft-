@@ -33,6 +33,14 @@ test('存在任务时不重复启动；管线身份不符不能修正其他运�
  f.run.provenance.verified=true;f.run.nodeRepair={providerSubmitted:true,status:'blocked',node:'storyboard-review'};
  assert.equal(planNodeCorrection(f).action,'recover-response');
 });
+test('规则热修改后没有验证重载前不调度任何新任务，包括已有费用授权',()=>{
+ const f=fixture();f.rulesVersionVerified=false;
+ assert.equal(planNodeCorrection(f).state,'waiting-code-reload');assert.equal(planNodeCorrection(f).action,null);
+ f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'原用户授权'};
+ assert.equal(planNodeCorrection(f).action,null);f.rulesVersionVerified=true;
+ assert.equal(planNodeCorrection(f).action,'editorial-repair');
+});
 
 
 import {proposeNodeCorrection} from './talkcraft-node-correction-plan.mjs';

@@ -10,6 +10,12 @@ const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).di
 const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
 const identity=p=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3'].map(n=>[n,sha(path.join(p,n))]));
 const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true});fs.writeFileSync(path.join(p,n)+'.tmp',JSON.stringify(r,null,2));fs.renameSync(path.join(p,n)+'.tmp',path.join(p,n));return r;};
+const RULE_FILES=['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
+ 'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
+ 'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
+ 'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs'];
+const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
+const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
 // Model authorization is scoped to this run, provider, voice and expiry.
 export function authorizeCorrectionCenter(project,runId,{approval,expiresAt,now=Date.now()}={}){
@@ -55,9 +61,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const previous=correctionCenterSnapshot(project),attempts=previous?.runId===run.runId?previous.attempts||[]:[];
   const feedback=currentEditorialRepairFeedback(project);
   const inputs=identity(project);
-  const rules=Object.fromEntries(['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
-    'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs','talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs']
-    .map(n=>[n,sha(new URL(n,import.meta.url))]));
+  const rules=ruleSnapshot(),rulesVersionVerified=digest(rules)===digest(loadedRules);
   // Exclude timestamps/task IDs: re-reporting the same failure is not progress.
   const fingerprint=digest({inputs,rules,node:correctionNode(run),
     feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
@@ -67,9 +71,9 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     .map(i=>({code:i.code,shotId:i.shotId,field:i.field,shotIds:i.shotIds})).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))});
   const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
     !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code));
-  const provider=pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
+  const provider=rulesVersionVerified&&pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
   const unsubmitted=read(path.join(project,'qa/editorial-revision-authorization.json'));
-  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted});
+  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted,rulesVersionVerified});
   const record={...decision,attempts,updatedAt:new Date(now).toISOString()};
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action

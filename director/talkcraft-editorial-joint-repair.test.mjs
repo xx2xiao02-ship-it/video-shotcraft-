@@ -199,4 +199,8 @@ test('局部素材错误不能掩盖基稿仍超标的全局比例；当前文�
  const w=buildEditorialJointRepairContract(args).windows[0];
  assert.ok(w.rejected.GRAPHIC_REPLACEMENT_REQUIRED.includes('outline-box-title'));
  assert.ok(w.candidates.every(c=>!['tracking-in','soft-blur-in'].includes(c.slug)));
+ args.failedChecks=[{shotId:'s07',code:'local_material_unmatched',field:'src'}];
+ const material=buildEditorialJointRepairContract(args).windows.find(w=>w.shotId==='s07');
+ assert.ok(material.rejected.PROJECTED_TEXT_QUOTA_REGRESSION.includes('tracking-in'));
+ assert.ok(material.rejected.PROJECTED_TEXT_QUOTA_REGRESSION.includes('info-term-card'));
 });
