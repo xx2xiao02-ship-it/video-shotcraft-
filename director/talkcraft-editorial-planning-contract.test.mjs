@@ -40,12 +40,12 @@ test('模板可行表严格区分纯动效15%适配与内嵌视频1倍',()=>{
 test('可行性比较包含15%内减速参考，但不改模型明确的一倍速或冻结上限',()=>{
  const catalog={cards:[{cardId:'motion',duration:{frames:103,originalFrames:103,fps:30},policy:{media:{}}},
   {cardId:'video',duration:{frames:103,originalFrames:103,fps:30},policy:{media:{src:'video'}}}]};
- const aligned=[{start:10,end:15.5}];
+ const aligned=[{start:10,end:16.5}];
  const result=editorialRangeFeasibility({firstSentence:0,lastSentence:0,aligned,catalog});
  assert.deepEqual(result.cards.map(c=>c.slug),['motion']);
  assert.equal(result.cards[0].requestedPlaybackRate,.85);
  assert.ok(result.cards[0].rate.every(r=>r>=.85&&r<=1.15));
- assert.throws(()=>nativeEditorialTimeline(165,103,1,'内容驻留',1),/冻结|驻留/);
+ assert.throws(()=>nativeEditorialTimeline(195,103,1,'内容驻留',1),/冻结|驻留/);
  assert.deepEqual(editorialRangeFeasibility({firstSentence:0,lastSentence:0,
   aligned:[{start:10,end:20}],catalog}).cards,[]);
 });

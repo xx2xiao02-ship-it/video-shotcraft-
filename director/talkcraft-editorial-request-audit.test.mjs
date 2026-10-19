@@ -1,3 +1,4 @@
+import {NATIVE_MAX_HOLD_FRAMES} from './talkcraft-native-time-map.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
@@ -50,7 +51,7 @@ test('模型收到完整跨字段源码，折线衔接、图片数量和动态�
  assert.match(args.promptCatalog.textEffectTiming.evaluator,/line-highlight-/);
  assert.match(args.promptCatalog.textEffectTiming.validator,/textReadyFrame/);
  assert.ok(args.planningContract.timingDomains.every(c=>c.maxHoldAtNativeFrame===c.nativeFrames-2));
- assert.ok(args.planningContract.timingDomains.every(c=>c.maxExtraHoldFrames===(c.embeddedMediaRateLocked?0:60)));
+ assert.ok(args.planningContract.timingDomains.every(c=>c.maxExtraHoldFrames===(c.embeddedMediaRateLocked?0:NATIVE_MAX_HOLD_FRAMES)));
 });
 
 test('整片数值可行性先验：不移动口型、不卡死无可行短卡的句子、不替编导选卡',()=>{

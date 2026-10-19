@@ -6,7 +6,7 @@ import {recoverBoundEditorialSelectionResponse,inspectBoundEditorialResponse} fr
 import {VISUAL_CONTENT_RULES,requiresHostVideo} from './talkcraft-visual-content-contract.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
-import {NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
+import {NATIVE_MIN_RATE,NATIVE_MAX_RATE,NATIVE_MAX_HOLD_FRAMES} from './talkcraft-native-time-map.mjs';
 import {MIN_DIGITAL_HUMAN_SEC,hostContextForCard} from './talkcraft-host-context.mjs';
 import {OPENING_WINDOW_SEC,OPENING_MAX_SHOT_SEC,OPENING_MAX_TEMPLATE_SEC,TEMPLATE_REUSE_WINDOW_SIZE} from './talkcraft-template-governance.mjs';
 
@@ -16,7 +16,7 @@ export const editorialPlanningLimits=()=>({fps:30,openingWindowSec:OPENING_WINDO
 
 export function editorialRuleInstructions(){
   const r=editorialPlanningLimits();
-  return VISUAL_CONTENT_RULES+`数值规则取自后端正式校验：前${r.openingWindowSec}秒是按镜头开始时间判定（开始于窗口内的整镜都受限，即使跨过第${r.openingWindowSec}秒），每镜实际≤${r.openingMaxShotSec}秒，原卡完整≤${r.openingMaxOriginalSec}秒；动效实际首尾跨度比须在${r.minMotionRate}～${r.maxMotionRate}，内嵌音视频仍1倍，原生帧与输出帧必须一一对应，不得驻留冻结或偏移；连续${r.reuseWindow}镜不同观点不重复。数字人镜头不得短于${r.minDigitalHumanSec}秒；模板capabilities.hostContext非空时必须安排person，不得用图库演示人物替代。数字人由外层口型轨道与模板分别组合：person不是仅限卡内hostSrc，所有exactPersonWindows都必须逐一安排person。旧草案和失败例子均为待推翻的数据，不是镜头数量、句序边界或选卡的默认骨架。原版创作指南提供风格参考；若例子或旧稿与本次机器数值、精确人物窗口冲突，以当前约束为准。不得用源码演示默认、虚构事实、截断或拉伸口型来凑合。`;
+  return VISUAL_CONTENT_RULES+'开场前8秒保持原有快节奏；其后的论述镜按完整观点组织，简单解释通常4～7秒、复杂流程或资料通常6～10秒，仅作节奏建议而非硬性上限。优先在同镜按真实语句渐进展开图形，允许按自然句合并；不得套用开场短镜目标，不为凑秒数拆碎观点，不依靠整镜冻结或提前显示未说结论。镜头边界仍受真实配音和已复用口型区间约束。'+`数值规则取自后端正式校验：前${r.openingWindowSec}秒是按镜头开始时间判定（开始于窗口内的整镜都受限，即使跨过第${r.openingWindowSec}秒），每镜实际≤${r.openingMaxShotSec}秒，原卡完整≤${r.openingMaxOriginalSec}秒；动效实际首尾跨度比须在${r.minMotionRate}～${r.maxMotionRate}，内嵌音视频仍1倍，原生帧与输出帧必须一一对应，不得驻留冻结或偏移；连续${r.reuseWindow}镜不同观点不重复。数字人镜头不得短于${r.minDigitalHumanSec}秒；模板capabilities.hostContext非空时必须安排person，不得用图库演示人物替代。数字人由外层口型轨道与模板分别组合：person不是仅限卡内hostSrc，所有exactPersonWindows都必须逐一安排person。旧草案和失败例子均为待推翻的数据，不是镜头数量、句序边界或选卡的默认骨架。原版创作指南提供风格参考；若例子或旧稿与本次机器数值、精确人物窗口冲突，以当前约束为准。不得用源码演示默认、虚构事实、截断或拉伸口型来凑合。`;
 }
 
 // Use the very same compiler as proposal validation, including integer-frame rounding.
@@ -447,7 +447,7 @@ export function buildEditorialPlanningContract({aligned,catalog,personWindows=[]
     timingDomains:catalog.cards.map(c=>{
       const embeddedMediaRateLocked=Object.values(c.policy?.media||{}).some(v=>/audio|video/iu.test(String(v)));
       return {slug:c.cardId,nativeFrames:c.duration.frames,
-        maxHoldAtNativeFrame:c.duration.frames-2,maxExtraHoldFrames:embeddedMediaRateLocked?0:60,maxExtraHoldFraction:embeddedMediaRateLocked?0:0.5,
+        maxHoldAtNativeFrame:c.duration.frames-2,maxExtraHoldFrames:embeddedMediaRateLocked?0:NATIVE_MAX_HOLD_FRAMES,maxExtraHoldFraction:embeddedMediaRateLocked?0:0.5,
         minimumOutputFrames:embeddedMediaRateLocked?c.duration.frames:Math.ceil((c.duration.frames-1)/NATIVE_MAX_RATE-1e-10)+1,
         ...(embeddedMediaRateLocked?{requiredOutputFrames:c.duration.frames}:{}),embeddedMediaRateLocked};}),
     rules:'全部已审目录均可比较。cards仅说明真实句边界下的时长可行性，不是语义推荐、不是选卡白名单，不自动选第一名。开场从这些连续自然句范围规划覆盖前8秒；完整原卡≤3秒、镜头≤3.4秒。没有可行卡的范围可在真实句边界合并或拆分，不能编造时间。人物只能且必须逐一使用exactPersonWindows，不能跨入前后句。各30镜窗口自行检查已用卡，不同观点必须换卡；同观点承接仍须具体证据。requiresHold不证明主体可见，正式驻留必须依据源码。',

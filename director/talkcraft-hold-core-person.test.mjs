@@ -12,7 +12,7 @@ test('2秒边界通过，7秒额外冻结在生成、后端和运行时都阻断
  assert.ok(EDITORIAL_NATIVE_RULES.includes(NATIVE_HOLD_RULES));
 });
 test('拆成多个hold仍累计，短镜不能过半冻结',()=>{
- assert.throws(()=>assertNativeHoldBudget([...timeline(40),{kind:'hold',fromFrame:220,toFrame:249,nativeFromFrame:179,nativeToFrame:179}]),/累计/);
+ assert.throws(()=>assertNativeHoldBudget([...timeline(40),{kind:'hold',fromFrame:220,toFrame:279,nativeFromFrame:179,nativeToFrame:179}]),/累计/);
  assert.throws(()=>assertNativeHoldBudget(timeline(60),100),/50%/);
 });
 const person={kind:'identity',query:'Hall',entityType:'person',entityName:'Robert Hall'};

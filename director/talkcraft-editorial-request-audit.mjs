@@ -1,3 +1,4 @@
+import {NATIVE_MAX_HOLD_FRAMES} from './talkcraft-native-time-map.mjs';
 import {editorialRequiredParameterContracts} from './talkcraft-editorial-required-props.mjs';
 import {editorialNumericGrid,editorialReplacementBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import {createHash} from 'node:crypto';
@@ -33,7 +34,7 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
  for(const card of catalog.cards){
   const domain=planningContract.timingDomains?.find(c=>c.slug===card.cardId);
   const mediaLocked=Object.values(card.policy?.media||{}).some(v=>/audio|video/iu.test(String(v)));
-  if(!domain||domain.maxHoldAtNativeFrame!==card.duration.frames-2||domain.maxExtraHoldFrames!==(mediaLocked?0:60)||
+  if(!domain||domain.maxHoldAtNativeFrame!==card.duration.frames-2||domain.maxExtraHoldFrames!==(mediaLocked?0:NATIVE_MAX_HOLD_FRAMES)||
      domain.maxExtraHoldFraction!==(mediaLocked?0:0.5))issues.push(`${card.cardId} 驻留边界或冻结预算缺失/不一致`);
   const sent=promptCatalog.contracts.find(c=>c.slug===card.cardId);
   if(!sent){issues.push(`${card.cardId} 缺少模型契约`);continue;}

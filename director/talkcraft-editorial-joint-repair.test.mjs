@@ -59,15 +59,19 @@ function fixture(){
 }
 
 test('三个真实失败模式联合计算，不能让时长可行但无资料槽的卡再次混入',()=>{
-  const args=fixture(),before=structuredClone(args),report=buildEditorialJointRepairContract(args);
+  const args=fixture();
+  // 新驻留预算为90帧，用195帧正文镜继续覆盖确需减速的情形。
+  args.aligned[3].end=args.aligned[3].start+195/30;
+  args.personWindows[1].end=args.aligned[3].end;
+  const before=structuredClone(args),report=buildEditorialJointRepairContract(args);
   assert.deepEqual(args,before);assert.equal(report.reviewedCount,108);
   assert.deepEqual(report.windows.map(w=>w.shotId),['s14','s15','s21']);
   const [s14,s15,s21]=report.windows;
-  assert.equal(s14.frames,254);assert.equal(s15.frames,234);assert.equal(s21.frames,165);
+  assert.equal(s14.frames,254);assert.equal(s15.frames,234);assert.equal(s21.frames,195);
   assert.ok(s14.requiresSource&&s15.requiresSource);assert.equal(s21.requiresSource,false);
   assert.ok(s14.rejected.SOURCE_DISPLAY_SLOT_REQUIRED.includes('focus-dim-spotlight'));
   assert.ok(s15.rejected.SOURCE_DISPLAY_SLOT_REQUIRED.includes('callout-line-label'));
-  assert.ok(s15.rejected.TIMING_OR_SUBJECT_INCOMPATIBLE.includes('callout-line-label'));
+  assert.ok(!s15.candidates.some(c=>c.slug==='callout-line-label')); // 时长放宽不豁免真实资料槽
   for(const w of [s14,s15]){
     assert.ok(w.candidates.length>0);assert.ok(w.candidates.every(c=>c.sourceDisplayFields.length>0));
     assert.ok(w.selected.issues.some(i=>i.code==='MATERIAL_DISPLAY_SLOT_UNAVAILABLE'));
@@ -75,7 +79,7 @@ test('三个真实失败模式联合计算，不能让时长可行但无资料�
   assert.ok(s21.selected.issues.some(i=>i.code==='NATIVE_EDITORIAL_PLAN'));
   assert.equal(s21.selected.requestedPlaybackRate,1);assert.equal(s21.selected.timing,null);
   const slower=s21.candidates.find(c=>c.slug==='outline-box-title');
-  assert.equal(slower.timing.requestedPlaybackRate,.85);assert.ok(slower.timing.holdFrames<=60);
+  assert.equal(slower.timing.requestedPlaybackRate,.85);assert.ok(slower.timing.holdFrames<=90);
   assert.ok(slower.timing.actualRates.every(r=>r>=.85&&r<=1.15));
   assert.equal(slower.timing.visibilityVerified,false);assert.equal(report.productionAdmitted,false);
 });

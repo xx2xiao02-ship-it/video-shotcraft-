@@ -40,10 +40,12 @@ test('解释段按镜数和时长检查，背景及文字转场不能冒充图�
  assert.equal(auditFilmExpression(corrected,index).passed,true);
  corrected[3].end=30;assert.equal(auditFilmExpression(corrected,index).passed,false);
 });
-test('前三镜风格豁免，字幕细白边随画布等比且不覆盖填充字形',()=>{
+test('前三镜风格豁免，字幕软阴影随画布等比且没有描边',()=>{
  assert.equal(auditFilmExpression([shot('s01','soft-blur-in'),shot('s02','tracking-in'),shot('s03','ink-underline')],index).passed,true);
- assert.equal(captionOutlineStyle(2).WebkitTextStroke,'4px #ffffff');
- assert.equal(captionOutlineStyle(1).paintOrder,'stroke fill');
+ assert.equal(captionOutlineStyle(2).WebkitTextStroke,undefined);
+ assert.equal(captionOutlineStyle(1).paintOrder,undefined);
+ assert.match(captionOutlineStyle(2,'#ffffff').textShadow,/0 3px 6px rgba\(0,0,0/);
+ assert.match(captionOutlineStyle(1,'#1a1a1a').textShadow,/255,255,255/);
 });
 
 
