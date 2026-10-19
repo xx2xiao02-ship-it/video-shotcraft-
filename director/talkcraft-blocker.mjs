@@ -19,13 +19,22 @@ export function talkcraftBlocker(run) {
     /editorial/u.test(stage)&&run.editorialChecked===false&&center.state==='needs-repair'&&centerIssues.length>0&&
     run.blockers?.length===centerIssues.length&&centerIssues.every((i,index)=>
       run.blockers[index]===`${i.shotId||'全局'}：[${i.code}] ${i.message}`);
+  const materialCurrent=center&&center.runId===run.runId&&center.node==='candidates'&&stage==='candidates'&&
+    run.nextStage==='candidates'&&center.state==='needs-source-verification'&&center.materialCompletionPlan?.needs?.length>0&&
+    center.attempts?.some(a=>a.fingerprint===center.fingerprint&&a.action==='material-completion'&&a.status==='queued');
   const code=failure?.code || (provenance?'PIPELINE_PROVENANCE_INVALID':invalidPreflight?'TALKCRAFT_PREFLIGHT_FAILED':run.blockers?.[0]) || 'WORKFLOW_BLOCKED';
-  const reason=(centerCurrent?center.reason:null)||failure?.cause||node?.detail||(provenance?run.provenance.issues?.join('；'):null)||
+  const reason=(centerCurrent||materialCurrent?center.reason:null)||failure?.cause||node?.detail||(provenance?run.provenance.issues?.join('；'):null)||
     (invalidPreflight?run.preflightIssues?.join('；'):null)||run.automation?.error||run.waitingFor||'后端检查未通过，等待核对当前证据。';
   let owner='后端编导与运行维护',method,criteria;
   if(provenance){
     method=['对照已批准任务与上游主链，核对 B 模式、管线来源和实际音色。','恢复正确的后端输入与参数映射；保留原配音、历史视频和模型结果供对照。','重新通过来源核验后，从后端判定的失败节点继续。'];
     criteria=['模式、管线与音色来源核验通过','后端解除来源阻断，未跳过预检和审批'];
+  }else if(materialCurrent){
+    owner='06素材节点与来源核验';
+    method=['读取本次素材补全报告，区分库已连接、语义匹配、来源追溯、使用许可和内容核验。',
+      '复用已核验的原库文件及下载缓存；有用户使用权确认时按精确文件哈希记录依据，不伪造供应商许可证。',
+      '补齐当前真实缺项后由06重新执行原素材门禁，不重复计费，不以候选或已调度冒充通过。'];
+    criteria=['本次全部真实素材槽绑定且来源与使用依据有效','原06检查通过；14仍由用户审核'];
   }else if(stage==='materials'||stage==='media-preflight'){
     owner='素材输入与原版体检';
     const generated=run.digitalHumanGenerationPlanned===true;
@@ -61,5 +70,5 @@ export function talkcraftBlocker(run) {
     reason,owner,method,criteria,failedChecks:centerCurrent?[...run.blockers]:run.failureReport?.failedChecks||run.preflightIssues||[],
     recoveryAction:run.nextStage==='editorial-recover'?{label:failure?.task?.name==='talkcraft-editorial-recover'?'修改后重新校验（不调用模型）':'恢复已保存分镜（不调用模型）'}:null,
     baseline:{label:'video-talkcraft 上游规则与已确认的 B 模式治理约束',url:'https://github.com/Vincentwei1021/video-talkcraft/blob/main/SKILL.md'},
-    preservation:centerCurrent?'已有配音、模型结果和成功素材保留；已执行免费恢复与复检，剩余问题按当前清单治理，不代表节点已通过。':'已有配音、模型结果和成功素材保留；治理方案尚未执行，不代表问题已解决。'};
+    preservation:centerCurrent||materialCurrent?'已有配音、模型结果和成功素材保留；已执行免费恢复与复检，剩余问题按当前清单治理，不代表节点已通过。':'已有配音、模型结果和成功素材保留；治理方案尚未执行，不代表问题已解决。'};
 }

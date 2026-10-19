@@ -6,8 +6,10 @@ import {fileURLToPath} from 'node:url';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {withMaterialBindingTransaction} from './talkcraft-material-binding-transaction.mjs';
 import {TEXT_VIDEO_CARDS,darkBackgroundContrast,hasVideoBackground} from './talkcraft-text-video.mjs';
+import {loadLibraryContract,resolveLibrarySource,libraryContractSnapshot} from './talkcraft-library-contract.mjs';
 import {probeMedia} from '../docs/audits/b-talkcraft-target3/validation.mjs';
 
+const LIBRARY_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const sha=x=>createHash('sha256').update(x).digest('hex');
 const digest=x=>sha(JSON.stringify(x));
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
@@ -62,7 +64,7 @@ export function sourceSearchContract(query,concepts=[]){
    (!institution||/people.s bank of china|中国人民银行/iu.test(value)),
   matched:value=>required.filter(([,q,r])=>r.test(value)).flatMap(([,q])=>q)};
 }
-export function materialCompletionPlan(project,catalog){
+export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
  const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
  const originalText=fs.readFileSync(path.join(project,'input.txt'),'utf8');
  const economicsAward=/诺贝尔经济学奖/u.test(originalText)&&!/诺贝尔(?:物理|化学|生理|医学|文学|和平)/u.test(originalText);
@@ -84,7 +86,7 @@ export function materialCompletionPlan(project,catalog){
   }
  }
  const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,
-  policy:'commons-explicit-free-license-v1',paidCalls:0,productionAdmitted:false};
+  policy:'commons-explicit-free-license-v1',librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
  return {...plan,planId:digest(plan)};
 }
 const plain=x=>String(x||'').replace(/<[^>]*>/gu,' ').replace(/&(?:nbsp|amp|quot);/gu,' ').replace(/\s+/gu,' ').trim();
@@ -131,23 +133,28 @@ export async function discoverCompletionSources(project,need,{fetchImpl=fetch}={
  return {candidates:rows,errors};
 }
 export function discoverLocalCompletionSources(root,need){
- const file=path.join(root,'materials/_index.json');if(!fs.existsSync(file))return {candidates:[],rejected:[]};
- const match=sourceSearchContract(need.query,need.concepts),candidates=[],rejected=[];
- for(const item of read(file)){
-  if(!match.matches([item.path,item.category,...item.tags||[]].join(' ')))continue;
-  if(item.licenseVerified!==true||!item.license||!item.licenseUrl||!item.sourceUrl){
-   rejected.push({path:item.path,code:'LOCAL_LICENSE_EVIDENCE_REQUIRED'});continue;
-  }
-  try{const base=fs.realpathSync(path.join(root,'materials/_scenes')),source=fs.realpathSync(path.resolve(base,item.path)),rel=path.relative(base,source);
-   if(!rel||rel==='..'||rel.startsWith('..'+path.sep)||path.isAbsolute(rel))throw Error('素材库路径越界');
-   const meta=probeMedia(source);if(need.kind==='video'&&(meta.kind!=='video'||meta.durationSeconds<need.durationSeconds))continue;
-   if(item.sha256!==meta.sha256)throw Error('素材库文件与已核验授权哈希不一致');
-   candidates.push({sourceId:item.sourceId||item.sourceUrl,sourceFile:source,meta,title:item.path,sourceUrl:item.sourceUrl,
-    license:item.license,licenseUrl:item.licenseUrl,author:item.author,sha256:meta.sha256,
-    attribution:[item.path,item.author,item.license,item.sourceUrl].filter(Boolean).join(' | '),matchedConcepts:match.matched(item.tags.join(' '))});
+ const contract=loadLibraryContract(root),match=sourceSearchContract(need.query,need.concepts),candidates=[],rejected=[];
+ for(const item of contract.items){
+  if(!match.matches([item.path,item.category,...item.tags].join(' ')))continue;
+  try{
+   const resolved=resolveLibrarySource(contract,item,{probeMedia});
+   if(!resolved.accepted){rejected.push({path:item.path,code:resolved.code,message:resolved.message,
+    sha256:resolved.sha256,trace:resolved.trace});continue;}
+   const {meta,rights}=resolved;
+   if(need.kind==='video'&&(meta.kind!=='video'||meta.durationSeconds<need.durationSeconds))continue;
+   candidates.push({sourceId:rights.sourceId||rights.sourceUrl,sourceFile:resolved.sourceFile,meta,title:item.path,
+    sourceUrl:rights.sourceUrl,license:rights.license,licenseUrl:rights.licenseUrl,author:rights.author,
+    sha256:meta.sha256,sourceTrace:resolved.trace,licenseEvidence:resolved.evidence,
+    sourceKind:rights.sourceKind||'existing-user-library',rightsBasis:rights.rightsBasis||'verified-library-record',
+    sourceVerified:true,licenseVerified:true,
+    recordsFile:resolved.recordsFile,recordsSha256:resolved.recordsSha256,libraryPath:item.path,
+    ...(rights.contentLanguage?{contentLanguage:rights.contentLanguage}:{}),
+    attribution:[item.path,rights.author,rights.license,rights.sourceUrl].filter(Boolean).join(' | '),
+    matchedConcepts:match.matched([item.path,...item.tags].join(' '))});
   }catch(e){rejected.push({path:item.path,code:'LOCAL_SOURCE_INVALID',message:e.message});}
  }
- return {candidates,rejected};
+ return {candidates,rejected,library:{connected:contract.items.length>0,indexed:contract.items.length,
+  ...contract.snapshot,matching:candidates.length+rejected.length,rightsVerified:candidates.length}};
 }
 async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
  if(!/^https:\/\/upload\.wikimedia\.org\//u.test(candidate.mediaUrl))throw Error('素材下载站点不在来源合同内');
@@ -170,10 +177,10 @@ async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
  const meta=probeMedia(path.join(project,'remotion/public',localPath));
  const result={...candidate,originalSha256:hash,localPath,sha256:meta.sha256,meta};save(project,manifest,result);return result;
 }
-export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch,plan=materialCompletionPlan(project,catalog),approval,root=path.resolve(project,'../../../..')}={}){
+export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch,root=LIBRARY_ROOT,plan=materialCompletionPlan(project,catalog,{root}),approval}={}){
  if(!approval||approval.planId!==plan.planId||approval.inputSha256!==digest(plan.inputs)||approval.productionAdmitted!==false)
   throw Error('素材补全必须由中心批准当前具体方案');
- if(digest(materialCompletionPlan(project,catalog))!==digest(plan))throw Error('素材补全方案与当前输入不同');
+ if(digest(materialCompletionPlan(project,catalog,{root}))!==digest(plan))throw Error('素材补全方案与当前输入不同');
  const report={schema:'talkcraft-material-completion-v1',planId:plan.planId,inputs:plan.inputs,approval,
   operations:[],unresolved:[],paidCalls:0,productionAdmitted:false,userAcceptance:false};
  const saveReport=()=>save(project,'qa/material-completion.json',report);
@@ -191,6 +198,11 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
    try{
     let downloaded;
     if(candidate.sourceFile){
+     const currentLibrary=loadLibraryContract(root),item=currentLibrary.items.find(i=>i.path===candidate.libraryPath);
+     if(!item)throw Error('本次素材索引项已变化');
+     const verified=resolveLibrarySource(currentLibrary,item,{probeMedia});
+     if(!verified.accepted||verified.sha256!==candidate.sha256||digest(verified.evidence)!==digest(candidate.licenseEvidence)||
+       verified.rights.sourceUrl!==candidate.sourceUrl||verified.rights.license!==candidate.license)throw Error('执行前来源或许可证据变化');
      const bytes=fs.readFileSync(candidate.sourceFile),hash=sha(bytes);if(hash!==candidate.sha256)throw Error('素材库来源变化');
      const localPath='verified-sources/'+hash+path.extname(candidate.sourceFile).toLowerCase(),target=path.join(project,'remotion/public',localPath);
      fs.mkdirSync(path.dirname(target),{recursive:true});if(!fs.existsSync(target))fs.writeFileSync(target,bytes,{flag:'wx'});
@@ -221,9 +233,10 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
   }
   if(operation)report.operations.push(operation);
   else report.unresolved.push({...need,code:'SOURCE_COMPLETION_REQUIRED',candidates:discovery.candidates.length,errors:discovery.errors,
-    localSearch:{candidates:local?.candidates.length||0,rejected:local?.rejected||[]}});
+    localSearch:{candidates:local?.candidates.length||0,rejected:local?.rejected||[],library:local?.library||null}});
   saveReport();
  }
+ if(digest(libraryContractSnapshot(root))!==digest(plan.librarySnapshot))throw Error('素材库索引或来源档案已变化，须重新审批完整方案');
  if(digest(inputs(project))!==digest(plan.inputs))throw Error('素材采集期间输入变化，不应用旧方案');
  withMaterialBindingTransaction(project,tx=>{
   const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
@@ -248,7 +261,7 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
     p.cardProps[op.field]='remotion/public/'+source.localPath;
     row.materialBindings??=[];row.materialBindings.push({field:op.field,localPath:source.localPath,sha256:source.sha256,
      sourceUrl:source.sourceUrl,sourceVerified:true,licenseVerified:true,license:source.license,licenseUrl:source.licenseUrl,
-     identityReason:op.matchReason,contentLanguage:'und',languageReviewRequired:true,attribution:source.attribution,sourceEvidence:source.evidence});
+     identityReason:op.matchReason,contentLanguage:source.contentLanguage||'und',languageReviewRequired:!source.contentLanguage,attribution:source.attribution,sourceEvidence:source.evidence});
    }
   }
   tx.commit({'remotion/shots.json':shots,'material-research-plan.json':research});

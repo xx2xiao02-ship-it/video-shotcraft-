@@ -101,3 +101,32 @@ test('下载许可合规图片后仍要求真实内容核验；不把未知语�
  assert.ok(report.unresolved[0].errors.some(e=>e.code==='SOURCE_CONTENT_REVIEW_REQUIRED'));
  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0].templateParams.cardProps,{});
 });
+
+test('正式补全优先联网，随后复用旧库与独立许可档案；变更来源合同使旧审批失效',async t=>{
+ const {p}=fixture(t),root=path.join(p,'library');
+ const write=(n,v)=>{fs.mkdirSync(path.dirname(path.join(root,n)),{recursive:true});fs.writeFileSync(path.join(root,n),typeof v==='string'?v:JSON.stringify(v));};
+ const rel='city-street.mp4',source=path.join(root,'materials/_scenes',rel);
+ fs.mkdirSync(path.dirname(source),{recursive:true});
+ execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=blue:s=1280x720:r=30:d=2','-an','-c:v','libx264','-pix_fmt','yuv420p',source],{windowsHide:true,timeout:30000});
+ const hash=x=>createHash('sha256').update(x).digest('hex');
+ write('materials/_index.json',[{path:rel,tags:['城市街景'],duration_sec:2}]);
+ write('materials/rights/grant.txt','offline fixture verified grant');
+ const records={schema:'talkcraft-library-sources-v1',records:[{path:rel,sha256:hash(fs.readFileSync(source)),
+  sourceUrl:'https://stock.example/city-street',license:'Test grant',licenseUrl:'https://stock.example/terms',licenseVerified:true,
+  evidence:[{path:'rights/grant.txt',sha256:hash('offline fixture verified grant')}]}]};
+ write('materials/_source-records.json',records);
+ const originalIndex=fs.readFileSync(path.join(root,'materials/_index.json'),'utf8');
+ const plan=materialCompletionPlan(p,catalog,{root}),approval={planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false};
+ let calls=0;const fetchImpl=async url=>{assert.ok(String(url).includes('/w/api.php'));calls++;return new Response(JSON.stringify({query:{pages:{}}}));};
+ // A newly changed registry cannot be applied under a previously approved plan.
+ records.records[0].author='Updated attribution';write('materials/_source-records.json',records);
+ await assert.rejects(executeMaterialCompletion(p,catalog,{root,plan,approval,fetchImpl}),/方案与当前输入不同/);assert.equal(calls,0);
+ const current=materialCompletionPlan(p,catalog,{root});
+ const report=await executeMaterialCompletion(p,catalog,{root,plan:current,approval:{planId:current.planId,inputSha256:digest(current.inputs),productionAdmitted:false},fetchImpl});
+ assert.ok(calls>0);assert.equal(report.operations.length,1);assert.equal(report.unresolved.length,0);assert.equal(report.paidCalls,0);
+ assert.equal(report.operations[0].source.sourceTrace.licenseVerified,false); // historical lead makes no rights claim
+ assert.equal(report.operations[0].source.licenseEvidence.length,1);
+ assert.equal(fs.readFileSync(path.join(root,'materials/_index.json'),'utf8'),originalIndex);
+ const shot=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0];
+ assert.equal(shot.templateParams.materialSha256,records.records[0].sha256);
+});

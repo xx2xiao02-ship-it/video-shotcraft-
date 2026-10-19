@@ -20,3 +20,12 @@ test('其它任务、过期清单、已通过节点和执行中不能套用中�
  }
  const running=fixture();running.activeTask={status:'running'};assert.equal(talkcraftBlocker(running),null);
 });
+
+
+test('06已执行素材补全后不再误报尚未执行；跨任务中心记录不套用',()=>{
+ const run={runId:'current',nextStage:'candidates',lastFailure:{cause:'具体素材缺项',task:{name:'talkcraft-candidates'}},
+  correctionCenter:{runId:'current',node:'candidates',state:'needs-source-verification',reason:'仍缺真实素材',fingerprint:'now',
+   materialCompletionPlan:{needs:[{shotId:'s12',field:'@background'}]},attempts:[{fingerprint:'now',action:'material-completion',status:'queued'}]}};
+ const result=talkcraftBlocker(run);assert.equal(result.reason,'仍缺真实素材');assert.match(result.preservation,/已执行免费恢复与复检/);
+ run.correctionCenter.runId='old';assert.equal(talkcraftBlocker(run).reason,'具体素材缺项');
+});

@@ -1,3 +1,4 @@
+import {fileURLToPath} from 'node:url';
 export {approvePresentationCorrection} from './talkcraft-presentation-approval.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +11,7 @@ import {proposeInstitutionSourceRepair} from './talkcraft-institution-source-rep
 import {buildGovernanceMap,buildGovernanceCase,GOVERNANCE_HANDLERS} from './talkcraft-governance-map.mjs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
+import {libraryContractSnapshot} from './talkcraft-library-contract.mjs';
 import {materialCompletionPlan} from './talkcraft-material-completion.mjs';
 export {approveEditorialPunctuationCorrection} from './talkcraft-editorial-punctuation-correction.mjs';
 export {approveEditorialReuseCorrection} from './talkcraft-editorial-reuse-correction.mjs';
@@ -23,7 +25,7 @@ const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-template
  'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-punctuation-correction.mjs','talkcraft-editorial-reuse-correction.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs',
- 'talkcraft-governance-map.mjs','talkcraft-material-completion.mjs','../console-server.mjs'];
+ 'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
@@ -47,7 +49,8 @@ export function currentApprovedEditorialCorrection(project,runId,approval,now=Da
     r.proposal.action!=='editorial-repair'||r.proposal.node!==r.node||digest(r.body)!==digest(r.proposal.body)||r.proposal.body?.authorizationNote!==approval||!r.revisionPlan?.requestId||
     digest(r.revisionPlan)!==digest(r.proposal.revisionPlan))return null;
   const feedback=currentEditorialRepairFeedback(project),inputs=identity(project),rules=ruleSnapshot();
-  const fingerprint=digest({inputs,rules,node:r.node,feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
+  const fingerprint=digest({inputs,rules,node:r.node,
+    library:['candidates','storyboard-review','preflight'].includes(r.node)?libraryContractSnapshot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')):null,feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
     shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
   if(a?.schema!=='talkcraft-correction-authorization-v1'||a.provider?.provider!=='acctoken'||a.provider?.model!=='deepseek-v4.1-flash'||fingerprint!==r.fingerprint||digest(rules)!==digest(loadedRules)||a?.runId!==runId||
     a.approval!==approval||Date.parse(a.expiresAt)<=now||!a.scope?.includes(r.node)||
@@ -105,6 +108,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const rules=ruleSnapshot(),rulesVersionVerified=digest(rules)===digest(loadedRules);
   // Exclude timestamps/task IDs: re-reporting the same failure is not progress.
   const fingerprint=digest({inputs,rules,node:correctionNode(run),
+    library:['candidates','storyboard-review','preflight'].includes(correctionNode(run))?libraryContractSnapshot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')):null,
     feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
     shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
