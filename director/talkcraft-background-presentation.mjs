@@ -1,5 +1,6 @@
 export const BACKGROUND_PRESENTATION_RULES='真实背景视频必须登记materialRole=background、materialSrc、原始素材身份与匹配理由，并声明已核对的backgroundPresentation，通过原卡公开透明底色参数或已核对的text-video-v1最外底板适配露出；禁止视频在实色卡片下面被完全遮住。当前theme-wash-v1仅对应chapter-progress-list公开bg=#ffffff00能力；text-video-v1支持soft-blur-in、type-contrast-emphasis、per-character-rise、quote-bracket-pull和line-by-line-slide，保留原源码、几何和时序，仅将最外底板透明化并用公开文字色参数提供浅色；其他外置背景须先核对原卡能力，不能默默套底。真实视频背景统一用72%黑色遮罩压暗，前景正文和独立字幕用浅色保证可读，不用白色主题色洗亮背景。该呈现保留原卡构图，背景只承接语境，不能冒充事实证据。编号必须有文案或明确章节/步骤依据，禁止沿用模板演示编号；并列条目可使用原卡DSL空编号，结语使用有意义的标题。';
 import {TEXT_VIDEO_VERSION,assertTextVideoColors,hasVideoBackground} from './talkcraft-text-video.mjs';
+import {chooseReadableText,parseColor,compositeColor} from './talkcraft-color-contrast.mjs';
 export function backgroundPresentation(shot,theme={}){
  const p=shot.templateParams||{};
  if(p.backgroundPresentation===TEXT_VIDEO_VERSION){
@@ -30,6 +31,17 @@ export function checkPresentationSemantics(shots){
 
 export function backgroundCaptionTheme(shot,theme){
  const p=shot?.templateParams||{};
+ // Freeze one palette across the native transition, holds and playback rates.
+ // Channel bounds cover A/B overlap over white and the source flash envelope.
+ if(['black-slam-transition','particle-weld-transition','overexpose-flip-transition'].includes(shot?.shotCard)){
+  const props=p.cardProps||{},base=[props.bgA||'#ffffff',props.bgB||'#f1f1f4','#ffffff'].map(parseColor);
+  const lower=[0,1,2].map(i=>Math.min(...base.map(c=>c[i]))),upper=[0,1,2].map(i=>Math.max(...base.map(c=>c[i])));
+  const peak=shot.shotCard==='black-slam-transition'?.34:shot.shotCard==='overexpose-flip-transition'?.10:0;
+  const backgrounds=[lower,upper];
+  if(peak)backgrounds.push(...[lower,upper].map(bg=>compositeColor(props.flashColor||'#141418',bg,peak)));
+  const selected=chooseReadableText(theme.text||'#1a1a1a',backgrounds);
+  return {...theme,text:selected.color,captionBackground:selected.backgroundColor||'transparent'};
+ }
  // Reviewed gallery source: fixed #0f0f13 stage and #26262e radial wall.
  // The independent subtitle area is dark even when the film theme is light.
  return shot?.shotCard==='gallery-wall-dolly'||p.materialRole==='background'&&['theme-wash-v1',TEXT_VIDEO_VERSION].includes(p.backgroundPresentation)

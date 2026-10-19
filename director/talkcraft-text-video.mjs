@@ -27,6 +27,19 @@ export function hasVideoBackground(shot){
   (p.backgroundPresentation==='theme-wash-v1'&&shot.shotCard==='chapter-progress-list'&&p.cardProps?.bg==='#ffffff00'||
    p.backgroundPresentation===TEXT_VIDEO_VERSION&&!!TEXT_VIDEO_CARDS[shot.shotCard]);
 }
+// Code-owned purpose from this shot's current sentence records. A broad
+// '论点' or need='强调' label alone cannot exempt ordinary narration.
+export function textVideoRequirement({shot,sentences=[],position,considerBackground}){
+ const rows=sentences.filter((s,i)=>s.shot===shot.id||!s.shot&&i>=shot.firstSentence&&i<=shot.lastSentence);
+ const dedicated=rows.length>0&&rows.every(s=>
+  (s.sem||[]).some(t=>['观点','金句'].includes(t))&&
+  !(s.sem||[]).some(t=>['机制','定义','例证','数据','列举','时间地点','过程演示'].includes(t)));
+ const opening=Number.isInteger(position)&&position<3;
+ return {required:!!considerBackground&&!opening&&!dedicated,
+  purpose:!considerBackground?'visual-content':opening?'opening':dedicated?'opinion-emphasis':'narration',
+  sentenceIndexes:rows.map(s=>s.i).filter(Number.isInteger),
+  supported:!!TEXT_VIDEO_CARDS[shot.shotCard]||shot.shotCard==='chapter-progress-list'};
+}
 export function checkTextVideoCycle(shots,demands,{openingShotCount=3}={}){
  const issues=[],windows=[];let chain=[];
  const ordered=shots.every(s=>Number.isFinite(Number(s.start??s.startSec)))?[...shots].sort((a,b)=>Number(a.start??a.startSec)-Number(b.start??b.startSec)):shots;

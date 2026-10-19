@@ -38,7 +38,13 @@ export function buildEditorialSelectionRequest(inputs){
   const proposal=structuredClone(inputs.proposal);
   delete proposal.editorialSelectionRejection;
   const windows=joint.windows.map(w=>{
-    if(!w.candidates.length)throw fail(`${w.shotId}没有固定句范围的可行方案，须先治理重排范围，不能发起相同选卡请求`,w.shotId);
+    const index={cards:inputs.catalog.cards.map(c=>({...c,slug:c.cardId}))};
+    const candidates=w.candidates.filter(c=>{
+      const shots=proposal.shots.map(s=>s.id===w.shotId?{...s,shotCard:c.slug,templateParams:{}}:s);
+      const demand=materialDemand({shots,semantics:{sentences:proposal.sentences},index}).find(d=>d.shotId===w.shotId);
+      return !demand.textVideo.required||demand.textVideo.supported;
+    });
+    if(!candidates.length)throw fail(`${w.shotId}没有固定句范围内同时满足真实视频背景、语义和时长的方案，须先治理重排范围，不能发起相同选卡请求`,w.shotId);
     return {shotId:w.shotId,firstSentence:w.firstSentence,lastSentence:w.lastSentence,
       actualCandidateSemantics:[...editorialShotSemantics(proposal.sentences,proposal.shots.find(s=>s.id===w.shotId))],
       quantitativeInput:editorialQuantitativeInput(proposal,proposal.shots.find(s=>s.id===w.shotId)),
@@ -47,7 +53,7 @@ export function buildEditorialSelectionRequest(inputs){
       ...(w.reuseMediaBudget?{reuseMediaBudget:w.reuseMediaBudget}:{}),
       anchorScope:buildEditorialAnchorScope({...w,sentences:proposal.sentences,aligned:inputs.aligned,inputSha256:joint.inputSha256,
         projectRoot:inputs.projectRoot,includeTiming:inputs.anchorTiming!==false}),
-      choices:w.candidates.map(c=>({...c,choiceId:digest({input:joint.inputSha256,shotId:w.shotId,choice:c})}))};
+      choices:candidates.map(c=>({...c,choiceId:digest({input:joint.inputSha256,shotId:w.shotId,choice:c})}))};
   });
   const editableShotIds=windows.map(w=>w.shotId);
   const materialShotIds=(proposal.materialResearch?.shots||[]).filter(r=>editableShotIds.includes(r.shotId)||
@@ -156,9 +162,11 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           const shot=request.baseProposal.shots.find(s=>s.id===w.shotId);
           const [demand]=materialDemand({shots:[{...shot,shotCard:choice.slug,templateParams:{}}],
             semantics:{sentences:request.baseProposal.sentences},index:promptCatalog});
-          return {choiceId:choice.choiceId,category:demand.category,requiredWithoutSourceDisplay:demand.considerBackground};
+          const position=request.baseProposal.shots.findIndex(s=>s.id===w.shotId);
+          const [current]=materialDemand({shots:request.baseProposal.shots.map((s,i)=>i===position?{...s,shotCard:choice.slug,templateParams:{}}:s),semantics:{sentences:request.baseProposal.sentences},index:promptCatalog}).filter(d=>d.shotId===w.shotId);
+          return {choiceId:choice.choiceId,category:demand.category,requiredWithoutSourceDisplay:demand.considerBackground,textVideo:current.textVideo};
         }),
-        instruction:'按所选choiceId的requiredWithoutSourceDisplay执行：无真实资料展示的字幕花字、强调标注及指定章节卡都属于背景决策范围，人物出现不豁免。backgroundDecision最终只能use或omit；omit时pureTextReason必须是本次非空具体理由，backgroundReason不能替代；use须有backgroundQuery并由正式素材流程核验绑定。compare、空理由或搜索候选不能通过；三镜视频背景规则仍独立检查。'},
+        instruction:'按所选choiceId的textVideo执行：required=true时backgroundDecision必须use并填写具体backgroundQuery，由06正式采集和绑定；不支持视频背景的普通论述文字卡已在发送前排除，不能用omit理由、色块或纸背景恢复。观点强调例外仍受图形占比和原三镜周期约束。按所选choiceId的requiredWithoutSourceDisplay执行：无真实资料展示的字幕花字、强调标注及指定章节卡都属于背景决策范围，人物出现不豁免。backgroundDecision最终只能use或omit；omit时pureTextReason必须是本次非空具体理由，backgroundReason不能替代；use须有backgroundQuery并由正式素材流程核验绑定。compare、空理由或搜索候选不能通过；三镜视频背景规则仍独立检查。'},
       anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.filter(r=>!request.batch||[r.shotId,r.displayShotId].some(id=>request.editableShotIds.includes(id)))
       .map(r=>pick(r,['code','shotId','displayShotId','field','effectId','targetEventId','effectFrame','textReadyFrame',

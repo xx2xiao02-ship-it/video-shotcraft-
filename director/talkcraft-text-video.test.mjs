@@ -6,6 +6,36 @@ import {MATERIAL_POLICY_VERSION,checkMaterialPolicy} from './talkcraft-material-
 import {auditTextVideoFiles} from './talkcraft-text-video-audit.mjs';
 import {materialDemand,MATERIAL_RESEARCH_RULES} from './talkcraft-material-research.mjs';
 import {VISUAL_PREFERENCE_RULES} from './talkcraft-visual-preference.mjs';
+import {textVideoRequirement} from './talkcraft-text-video.mjs';
+import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
+test('普通论述逐镜必须视频，论点标签和强调need及omit理由不能豁免',()=>{
+ const shot=shots(1)[0],sentences=[{i:4,shot:shot.id,text:'这就是今年诺奖要回答的问题。',sem:['论点'],need:['强调']}];
+ const req=textVideoRequirement({shot,sentences,position:4,considerBackground:true});assert.equal(req.required,true);
+ const d=[{shotId:shot.id,considerBackground:true,textVideo:req}];
+ const p={shots:[{shotId:shot.id,backgroundDecision:'omit',pureTextReason:'保持统一纯色风格'}]};
+ assert.ok(checkMaterialPolicy(p,d,[shot]).issues.some(i=>i.code==='TEXT_VIDEO_REQUIRED'));
+ bind(shot);assert.ok(!checkMaterialPolicy(p,d,[shot]).issues.some(i=>i.code==='TEXT_VIDEO_REQUIRED'));
+});
+test('真正独立金句和前三镜可保留简洁背景，混入机制解释或他镜金句不能获得例外',()=>{
+ const shot=shots(1)[0],args={shot,position:5,considerBackground:true};
+ const sentence={i:2,shot:shot.id,text:'信心本身就是经济的组成部分。',sem:['金句'],need:['强调']};
+ assert.equal(textVideoRequirement({...args,sentences:[sentence]}).required,false);
+ assert.equal(textVideoRequirement({...args,sentences:[{...sentence,shot:'another'}]}).required,true);
+ assert.equal(textVideoRequirement({...args,sentences:[sentence,{...sentence,sem:['机制']}]}).required,true);
+ assert.equal(textVideoRequirement({...args,position:2,sentences:[]}).required,false);
+ assert.equal(textVideoRequirement({...args,considerBackground:false,sentences:[]}).required,false);
+});
+test('04提前检查真实视频背景能力及use计划，06仍要求真实文件绑定',()=>{
+ const original=shots(4),sentences=original.map((s,i)=>({i,shot:s.id,sem:['机制'],text:'解释消费与收入关系'}));
+ const catalog={cards:[{cardId:'soft-blur-in',category:'字幕花字',policy:{media:{}},fields:[]}]};
+ const rows=original.map(s=>({shotId:s.id,backgroundDecision:'omit',pureTextReason:'纯色过渡',research:[]}));
+ const run=()=>auditEditorialMaterialContract({shots:original,sentences,researchPlan:{shots:rows},catalog});
+ assert.deepEqual(run().issues.filter(i=>i.code==='TEXT_VIDEO_PLAN_REQUIRED').map(i=>i.shotId),['s3']);
+ Object.assign(rows[3],{backgroundDecision:'use',backgroundQuery:'消费者 银行 储蓄 日常生活 视频'});
+ assert.ok(!run().issues.some(i=>i.code.startsWith('TEXT_VIDEO_')));
+ original[3].shotCard='black-slam-transition';catalog.cards.push({cardId:'black-slam-transition',category:'转场结构',fields:[],policy:{media:{}}});
+ assert.ok(run().issues.some(i=>i.code==='TEXT_VIDEO_TEMPLATE_REQUIRED'));
+});
 const checkTextVideoCycle=(s,d)=>rawCheckTextVideoCycle(s,d,{openingShotCount:0});
 const shots=n=>Array.from({length:n},(_,i)=>({id:'s'+i,shotCard:'soft-blur-in',start:i*3,end:i*3+3,templateParams:{cardProps:{textColor:'#ffffff'}}}));
 const demands=s=>s.map(x=>({shotId:x.id,considerBackground:true,graphicCardIds:['info-term-card']}));

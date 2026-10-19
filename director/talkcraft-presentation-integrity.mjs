@@ -15,7 +15,7 @@ const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const clean=s=>String(s||'').replace(/[\s\p{P}]/gu,'');
 const protectedInputs=['source-run.json','input.txt','aligned-sentences.json','audio/full.mp3','remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json','material-research-plan.json'];
-const rulesSha=()=>hash(['talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-color-contrast.mjs','talkcraft-title-presentation.mjs'].map(n=>fs.readFileSync(new URL(n,import.meta.url))).reduce((a,b)=>Buffer.concat([a,b]),Buffer.alloc(0)));
+const rulesSha=()=>hash(['talkcraft-background-presentation.mjs','talkcraft-keyword-caption.tsx','talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-color-contrast.mjs','talkcraft-title-presentation.mjs'].map(n=>fs.readFileSync(new URL(n,import.meta.url))).reduce((a,b)=>Buffer.concat([a,b]),Buffer.alloc(0)));
 export function integrityInputs(project){return Object.fromEntries(protectedInputs.map(n=>[n,hash(fs.readFileSync(path.join(project,n)))]));}
 export function insidePublic(project,name){
  if(typeof name!=='string'||/^(?:[a-z]+:|[/\\])/iu.test(name))throw Error('素材必须是当前工程内相对路径');

@@ -1,6 +1,31 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {backgroundPresentation,backgroundCaptionTheme,checkPresentationSemantics} from './talkcraft-background-presentation.mjs';
 import fs from 'node:fs';
+import {contrastRatio,crossfadeBackground,compositeColor} from './talkcraft-color-contrast.mjs';
+test('新任务转场字幕覆盖浅深背景和闪光，固定填色与必要底衬不依赖镜头编号或播放帧',()=>{
+ for(const shotCard of ['black-slam-transition','particle-weld-transition','overexpose-flip-transition']){
+  for(const [bgA,bgB] of [['#f7f5f0','#0a2a5a'],['#ffffff','#eeeeee'],['#010101','#171717']]){
+   const shot={id:'new-task-unrelated',shotCard,templateParams:{cardProps:{bgA,bgB,flashColor:'#1a4a8a'}}},before=JSON.stringify(shot);
+   const theme={text:'#1a1a1a',captionColor:'#ffffff',accentPrimary:'#1a4a8a'},result=backgroundCaptionTheme(shot,theme);
+   for(let i=0;i<=100;i++){
+    const a=i/100,bg=shotCard==='black-slam-transition'?(a<.5?bgA:bgB):crossfadeBackground(bgA,bgB,a);
+    for(const flash of [0,shotCard==='black-slam-transition'?.34:shotCard==='overexpose-flip-transition'?.1:0]){
+     const effective=result.captionBackground==='transparent'?compositeColor('#1a4a8a',bg,flash):result.captionBackground;
+     assert.ok(contrastRatio(result.text,effective)>=4.5);
+    }
+   }
+   assert.equal(JSON.stringify(shot),before);assert.equal(theme.text,'#1a1a1a');
+   assert.deepEqual(backgroundCaptionTheme(shot,theme),result);
+  }
+ }
+});
+test('独立字幕实际应用选色和底衬，保持阴影且无描边',()=>{
+ const runtime=fs.readFileSync(new URL('./talkcraft-keyword-caption.tsx',import.meta.url),'utf8');
+ assert.match(runtime,/backgroundCaptionTheme\(shot,THEME\)/);
+ assert.match(runtime,/captionTheme\(captionBackground\)/);
+ assert.match(runtime,/background:captionBackground.captionBackground/);
+ assert.match(runtime,/captionOutlineStyle/);assert.doesNotMatch(runtime,/WebkitTextStroke/);
+});
 test('照片墙原生暗幕底使用浅色独立字幕，不改变模板构图或全片主题',()=>{
  const theme={text:'#1a1a1a',accentPrimary:'#1a4a8a'};
  assert.equal(backgroundCaptionTheme({shotCard:'gallery-wall-dolly',templateParams:{}},theme).text,'#ffffff');

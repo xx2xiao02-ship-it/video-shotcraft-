@@ -7,7 +7,7 @@ const localStages={input:'recover-timing','word-timing':'recover-alignment',sema
 export const CORRECTION_NODE_POLICIES=MANAGED_WORKFLOW_NODES.map(n=>({node:n.id,
   freeStage:localStages[n.id],supportsCorrection:true,automaticApproval:false,
   rule:n.id==='review'?'用户审核决定；不得代批':n.id==='deliver'?'仅导出已审核版本，不自动发布':'本节点先恢复、补全、复检；不能重写程序或绕过原门禁'}));
-export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_CYCLE_REQUIRED|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|TEXT_EFFECT_(?:DEPENDENCY_EARLY|INCOMPLETE|TARGET_MISSING)$|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
+export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_(?:CYCLE_REQUIRED|REQUIRED|PLAN_REQUIRED|TEMPLATE_REQUIRED)|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|TEXT_EFFECT_(?:DEPENDENCY_EARLY|INCOMPLETE|TARGET_MISSING)$|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
 
 export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
@@ -40,6 +40,12 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
+  const videoNeeded=node==='candidates'&&feedback?.failedChecks?.some(i=>i.code==='TEXT_VIDEO_REQUIRED'&&i.repair==='material-binding');
+  if(videoNeeded){
+    if(!used('source-discovery'))return {...base,state:'ready-to-correct',action:'source-discovery',body:{stage:'material-research'},reason:'普通论述缺真实背景：06先免费检索和恢复当前来源，不以付费换卡替代素材补全'};
+    if(!used('source-recheck'))return {...base,state:'ready-to-correct',action:'source-recheck',body:{stage:'candidates'},reason:'06检索后执行既有绑定恢复与真实文件复检，不把候选链接当已绑定'};
+    if(feedback.failedChecks.every(i=>i.code==='TEXT_VIDEO_REQUIRED'))return {...base,state:'needs-source-verification',action:null,reason:'当前真实视频尚未通过来源与绑定核验；保留可恢复结果，不重复计费或用色块替代'};
+  }
   const sourceNeeded=node==='candidates'&&feedback?.failedChecks?.some(i=>i.code==='REAL_SOURCE_NOT_BOUND');
   if(sourceNeeded){
     if(institutionRepair?.alternatives?.length&&!used('institution-source-reuse'))return {...base,

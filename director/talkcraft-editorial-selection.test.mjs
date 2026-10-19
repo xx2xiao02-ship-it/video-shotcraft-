@@ -20,6 +20,16 @@ import {EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATI
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json'));
 const catalog=loadTalkcraftGovernedCatalog(index);
+test('新增任务发送前排除普通论述不支持视频背景的文字卡，保留图形及真实资料选项',()=>{
+ const args=fixture();args.failedChecks=[{code:'TEXT_VIDEO_TEMPLATE_REQUIRED',shotId:'s15'}];
+ const openings=Array.from({length:3},(_,i)=>({id:'open'+i,firstSentence:0,lastSentence:0,subject:'other',shotCard:'keyword-pop-highlight',templateParams:{}}));
+ args.proposal.shots.unshift(...openings);
+ const req=buildEditorialSelectionRequest(args),model=editorialSelectionModelInput(req,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ assert.ok(req.windows[0].choices.length>0);
+ for(const row of model.windows[0].backgroundDecisionContract.choices)assert.ok(!row.textVideo.required||row.textVideo.supported);
+ assert.ok(req.windows[0].choices.some(c=>c.sourceDisplayFields.length));
+ assert.match(model.windows[0].backgroundDecisionContract.instruction,/不支持视频背景的普通论述文字卡已在发送前排除/);
+});
 
 test('正式局部编导按镜分批，延后镜头锁定并参与去重，完整失败范围留存且发送前同源复核',()=>{
  const args=fixture();args.failedChecks=[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},{code:'NATIVE_EDITORIAL_PLAN',shotId:'s19'}];
