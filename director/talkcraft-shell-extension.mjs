@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {assertFilmBackgroundSnapshot} from './talkcraft-film-background.mjs';
 import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
+import {assertPresentationIntegrity} from './talkcraft-presentation-integrity.mjs';
 
 const source=path.dirname(fileURLToPath(import.meta.url));
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -14,6 +15,12 @@ export function assertReviewedShellExtension(project,shell,target){
     if(!fs.existsSync(file)||!fs.readFileSync(file).equals(original))
       throw Error('受控渲染扩展源码变化或缺失：'+name);
   };
+  if(shell==='NativePresentationRoot.tsx'&&target==='./talkcraft-presentation-runtime'){
+    exact('talkcraft-presentation-runtime.tsx',fs.readFileSync(path.join(source,'talkcraft-presentation-runtime.tsx')));
+    exact('talkcraft-color-contrast.mjs',fs.readFileSync(path.join(source,'talkcraft-color-contrast.mjs')));
+    assertPresentationIntegrity(project);
+    return true;
+  }
   const film=(shell==='Main.tsx'&&['./film-background','./film-background-config'].includes(target))||
     (shell==='scenes/scene-shared.tsx'&&target==='../film-background');
   if(film){

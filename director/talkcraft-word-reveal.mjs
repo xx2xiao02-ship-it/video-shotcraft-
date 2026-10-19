@@ -234,7 +234,7 @@ export function wordRevealSourceBinding(project){
   walk(path.join(remotion,'src'));
   const bridgeProof=path.join(project,'qa/visual-timeline-bridges.json');
   if(fs.existsSync(bridgeProof))files.push(bridgeProof);
-  for(const name of ['caption-emphasis-plan.json','caption-emphasis.json','word-reveals.json','word-reveal-plan.json','reveal-units.json','visual-beats.json','native-presentation.json','shots.json','overrides.json','qa-repair-props.json','text-readability.json'])if(fs.existsSync(path.join(remotion,name)))files.push(path.join(remotion,name));
+  for(const name of ['presentation-integrity.json','caption-emphasis-plan.json','caption-emphasis.json','word-reveals.json','word-reveal-plan.json','reveal-units.json','visual-beats.json','native-presentation.json','shots.json','overrides.json','qa-repair-props.json','text-readability.json'])if(fs.existsSync(path.join(remotion,name)))files.push(path.join(remotion,name));
   // Background/media file replacement at the same path must invalidate color proof.
   const assets=new Set(),collect=value=>{if(value&&typeof value==='object'){if(typeof value.src==='string')assets.add(value.src);for(const child of Object.values(value))collect(child);}};
   const beatFile=path.join(remotion,'visual-beats.json');
@@ -244,6 +244,8 @@ export function wordRevealSourceBinding(project){
     for(const [key,value] of Object.entries(shot.templateParams?.cardProps||{}))if(/^src|src$/iu.test(key)&&typeof value==='string')
       for(const s of value.split('\n').filter(Boolean))assets.add(s.replace(/^remotion\/public\//u,''));
   }
+  const integrity=path.join(remotion,'presentation-integrity.json');
+  if(fs.existsSync(integrity))for(const row of read(integrity).shots||[])if(row.media?.localPath)assets.add(row.media.localPath);
   for(const asset of assets){const f=path.resolve(remotion,'public',asset),relative=path.relative(path.join(remotion,'public'),f);if(relative.startsWith('..')||path.isAbsolute(relative)||!fs.existsSync(f))throw Error('背景/素材绑定失效：'+asset);files.push(f);}
   return Object.fromEntries(files.sort().map(f=>[path.relative(remotion,f).replaceAll('\\','/'),sha(f)]));
 }

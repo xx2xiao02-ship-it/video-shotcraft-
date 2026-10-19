@@ -87,7 +87,7 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     implementationSha256:catalog.cards.find(card=>card.cardId===cardId)?.implementation.sha256,
     props:shot.templateParams?.cardProps,evidence:[]}; });
   const validation=validateCalls({schema:'b-talkcraft-call-v1',calls},{catalog,projectRoot});
-  const errors=[...auditHostContext(shots),...auditVisualContent(shots,{catalog}).issues],pending=[],sourceCapabilities=[];
+  const errors=[...auditHostContext(shots),...auditVisualContent(shots,{catalog,projectRoot}).issues],pending=[],sourceCapabilities=[];
   for(const [i,call]of calls.entries()){
     const card=catalog.cards.find(c=>c.cardId===call.cardId);
     for(const field of card?.fields||[])if(field.valueConstraint?.format==='one-based-index-list'&&Object.hasOwn(call.props||{},field.key)){

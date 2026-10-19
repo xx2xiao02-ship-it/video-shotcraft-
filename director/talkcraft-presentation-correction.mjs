@@ -1,13 +1,14 @@
 import {approvePresentationCorrection} from './talkcraft-presentation-approval.mjs';
+import {upgradePresentationSource} from './talkcraft-presentation-upgrade-source.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 const hash=x=>createHash('sha256').update(x).digest('hex');
-export const PRESENTATION_REPAIR_VERSION='presentation-repair-v1';
+export const PRESENTATION_REPAIR_VERSION='presentation-repair-v3';
 const once=(s,a,b)=>{if(s.split(a).length!==2)throw Error('展示源码修正合同不匹配：'+a.slice(0,70));return s.replace(a,b);};
 // Only remove an entire, standalone demo host shell. Never hide a container
 // with business siblings, labels, footage or animated content.
-export function repairPresentationSource(source,relative,{legacyTitle=false}={}){
+export function repairPresentationSource(source,relative,{legacyTitle=false,legacyV1=false,legacyV2=false}={}){
  let s=source;
  if(relative.startsWith('gen/'))s=s.replace(/<div className="([\w-]+)"><HostSilhouette \/><\/div>/gu,'{/* production: demo-only host shell removed */}');
  if(relative==='gen/host-shrink-to-chip.tsx'){
@@ -37,7 +38,7 @@ export function repairPresentationSource(source,relative,{legacyTitle=false}={})
   s=once(s,'inset: 0, display: "flex", alignItems: "center", justifyContent: "center"','inset: 0, right: hasHost ? "36%" : 0, display: "flex", alignItems: "center", justifyContent: "center"');
   s=once(s,'fontSize, fontWeight: 600,','fontSize: safeLineSize, fontWeight: 600,');
  }
- return s;
+ return legacyV1?s:upgradePresentationSource(s,relative,{legacyCrossfade:legacyV2});
 }
 export function presentationRepairFiles(skillRoot,src){
  const files=[];
@@ -51,7 +52,9 @@ export function presentationRepairFiles(skillRoot,src){
    const file=path.join(src,relative.startsWith('gen/')?'parameterized-cards':'cards',relative);
    const current=fs.existsSync(file)?fs.readFileSync(file,'utf8'):null;
    const previous=relative==='gen/behind-text-title.tsx'?repairPresentationSource(base,relative,{legacyTitle:true}):null;
-   if(current!==base&&current!==expected&&current!==previous)throw Error('自定义运行源码不能被展示修正覆盖：'+file);
+   const previousV1=repairPresentationSource(base,relative,{legacyV1:true});
+   const previousV2=repairPresentationSource(base,relative,{legacyV2:true});
+   if(current!==base&&current!==expected&&current!==previous&&current!==previousV1&&current!==previousV2)throw Error('自定义运行源码不能被展示修正覆盖：'+file);
    files.push({file,relative,beforeSha256:hash(current),afterSha256:hash(expected),source:expected});
   }
  }
@@ -75,6 +78,7 @@ export function installPresentationCorrections(skillRoot,src){
  }
  fs.writeFileSync(path.join(qa,'plan.json'),JSON.stringify({proposal,approval},null,2));
  fs.copyFileSync(new URL('./talkcraft-layout-context.tsx',import.meta.url),path.join(src,'talkcraft-layout-context.tsx'));
+ fs.copyFileSync(new URL('./talkcraft-presentation-runtime.tsx',import.meta.url),path.join(src,'talkcraft-presentation-runtime.tsx'));
  const adapter=path.join(src,'talkcraft-template-adapter.tsx');
  let s=fs.readFileSync(adapter,'utf8');
  if(!s.includes('PresentationHostProvider')){

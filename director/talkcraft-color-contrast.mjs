@@ -8,6 +8,12 @@ export function parseColor(value){
  throw Error('不支持的颜色：'+value);
 }
 export function compositeColor(foreground,background,opacity=1){const f=parseColor(foreground),b=parseColor(background),a=(f[3]??1)*opacity;return f.slice(0,3).map((v,i)=>v*a+b[i]*(1-a));}
+// A and B overlap over the source's white base. The cut is the beginning,
+// not the completion, of that alpha transition.
+export function crossfadeBackground(a,b,alpha){
+ if(!Number.isFinite(alpha)||alpha<0||alpha>1)throw Error('转场透明度必须在0到1之间');
+ return compositeColor(b,compositeColor(a,'#ffffff',1-alpha),alpha);
+}
 export function contrastRatio(foreground,background){
  const l=c=>{const x=parseColor(c).slice(0,3).map(v=>{const s=v/255;return s<=.04045?s/12.92:((s+.055)/1.055)**2.4;});return x[0]*.2126+x[1]*.7152+x[2]*.0722;};
  const a=l(foreground),b=l(background);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
@@ -25,6 +31,15 @@ export function chooseReadableText(foreground,backgrounds,{opacity=1,brightness=
   if(ratio>=minimum)return {color,backgroundColor,ratio,changed:true};
  }
  throw Error('文字透明度过低，换字色和底衬仍无法达到对比度要求');
+}
+export function readableInkOnSingleBackground(foreground,background){
+ const picked=chooseReadableText(foreground,[background]);
+ if(!picked.backgroundColor)return picked.color;
+ // Do not discard a required plate and return its white ink alone. A single
+ // opaque backdrop always permits pure black or white at this threshold.
+ const bare=['#000000','#ffffff'].map(color=>({color,ratio:contrastRatio(color,background)})).sort((a,b)=>b.ratio-a.ratio)[0];
+ if(bare.ratio<4.5)throw Error('单色背景文字对比度不足');
+ return bare.color;
 }
 export function backgroundsUnderGlyphs(row,normal,background,width,height){
  const r=row.rect,colors=new Map();

@@ -54,8 +54,8 @@ test('新任务同样核验容量与人物安全区，不依赖本次镜号',()=
  assert.equal(auditVisualContent([s('behind-text-title',{title:'经济不是冰冷机器'})],{catalog}).passed,true);
  assert.ok(auditVisualContent([s('behind-text-title',{title:'这是非常非常非常非常非常长的标题'})],{catalog}).issues.some(i=>i.code==='TEXT_LAYOUT_CAPACITY'));
  assert.ok(auditVisualContent([s('map-route-pin',{pinsDsl:'40|300|会被人物挡住'},'person')],{catalog}).issues.some(i=>i.code==='HOST_CONTENT_REGION_CONFLICT'));
- assert.equal(hostStageStyle('source-converge').left,0);assert.ok(parseFloat(hostStageStyle('source-converge').width)*9.6 < 136);
- assert.equal(hostStageStyle('scanline-annotate').left,0);assert.ok(parseFloat(hostStageStyle('scanline-annotate').width)*9.6 < 80);
+ assert.equal(hostStageStyle('source-converge').display,'none');
+ assert.equal(hostStageStyle('scanline-annotate').display,'none');
 });
 
 test('前端只提交当前待审片修正意图，后端选择免费阶段，不能指定阶段或带费用',()=>{
@@ -64,4 +64,14 @@ test('前端只提交当前待审片修正意图，后端选择免费阶段，�
  assert.equal(selectTalkcraftContinuation({...run,qaPassed:false,final:true,nextStage:'qa',lastFailure:{code:'TASK_FAILED'}},{intent:'continue',repairPresentation:true}),'presentation-repair');
  for(const patch of [{activeTask:{id:1}},{reviewPassed:true},{qaPassed:false}])assert.throws(()=>selectTalkcraftContinuation({...run,...patch},{intent:'continue',repairPresentation:true}),/展示修正/);
  assert.throws(()=>selectTalkcraftContinuation(run,{intent:'continue',repairPresentation:true,approveModelCost:true}),/费用/);
+ const recover={...run,qaPassed:false,final:true,nextStage:'editorial-check',correctionCenter:{issues:[{code:'ATTENTION_TARGET_BOUNDS',repair:'presentation-integrity'}]}};
+ assert.equal(selectTalkcraftContinuation(recover,{intent:'continue',repairPresentation:true}),'presentation-repair');
+ for(const correctionCenter of [{issues:[]},{issues:[{code:'OTHER',repair:'presentation-integrity'}]},{issues:[...recover.correctionCenter.issues,{code:'MISSING_CONTENT'}]}])
+  assert.throws(()=>selectTalkcraftContinuation({...recover,correctionCenter},{intent:'continue',repairPresentation:true}),/展示修正/);
+});
+
+test('渲染中规则版本过期可回免费正式修正，其他渲染错误不得借此跳过',()=>{
+ const run={provenance:{verified:true},reviewPassed:false,nextStage:'render-all',lastFailure:{task:{name:'talkcraft-render-all'},cause:'展示修正合同缺失、过期或未通过治理中心审批'}};
+ assert.equal(selectTalkcraftContinuation(run,{intent:'continue',repairPresentation:true}),'presentation-repair');
+ assert.throws(()=>selectTalkcraftContinuation({...run,lastFailure:{...run.lastFailure,cause:'OTHER'}},{intent:'continue',repairPresentation:true}));
 });

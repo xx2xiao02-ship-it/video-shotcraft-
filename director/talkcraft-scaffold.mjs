@@ -230,7 +230,7 @@ import {FilmBackgroundProvider,type FilmBackgroundConfig} from './film-backgroun
 import {FILM_BACKGROUND} from './film-background-config';
 import {Subtitles} from './Subtitles';
 import {SHOTS, shotSequence, type Shot} from './shots';
-import {hostStageStyle} from './talkcraft-host-context.mjs';
+import {hostStageStyle,shouldRenderHost} from './talkcraft-host-context.mjs';
 import {SCENES} from './scenes';
 import {CUES} from './sfx';
 import {CSS_VARS} from './theme';
@@ -248,7 +248,7 @@ export const Main: React.FC<{sfxSolo?:boolean; bgm?:{src:string; volume:number}|
     return <Sequence key={shot.id} from={range.from} durationInFrames={range.duration}>
       <CameraRig path={shot.path} impulses={shot.impulses} durationSec={shot.durationSec} leadFrames={shot.lead}>
         <Scene shot={shot} />
-        {shot.subject === 'person' && <div style={hostStageStyle(shot.shotCard) as React.CSSProperties}>
+        {shouldRenderHost(shot) && <div style={hostStageStyle(shot.shotCard) as React.CSSProperties}>
           <OffthreadVideo src={staticFile('digital-human/'+shot.id+${JSON.stringify(source.workflowPath==='recorded-host'?'.mp4':'-transparent.webm')})} muted transparent={${source.workflowPath!=='recorded-host'}} style={{width:'100%',height:'100%',objectFit:'contain'}} />
         </div>}
       </CameraRig>

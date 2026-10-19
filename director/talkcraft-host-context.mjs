@@ -26,7 +26,15 @@ export function auditHostContext(shots,{requireAssets=false,assetExists=()=>fals
   return issues;
 }
 // Independent real host track only; never alter the original card geometry.
+export function hostPresentationDecision(cardId){
+ // Only these audited layouts have a usable full-size independent host lane.
+ // A tiny gutter is not a presenter lane. Other cards keep the paid asset but
+ // omit its overlay during the diagram, instead of obscuring key information.
+ const safe=['type-contrast-emphasis','keyword-pop-highlight','line-by-line-slide','behind-text-title','lower-third-nameplate','hand-drawn-ellipse'];
+ return safe.includes(cardId)?{mode:'reserved-region',reason:'源码有独立人物列或已安装正文避让'}:{mode:'suppressed',reason:'没有足够宽的独立人物安全区，演示信息优先；不裁人物或缩为细条'};
+}
 export function hostStageStyle(cardId) {
+  if(hostPresentationDecision(cardId).mode==='suppressed')return {position:'absolute',display:'none'};
   // The source image starts at x=80 and annotations at x=712. Keep the
   // independent host inside x=0..67.2, outside both content regions.
   if(cardId==='scanline-annotate')return {position:'absolute',left:0,bottom:'14%',width:'7%',height:'68%',overflow:'hidden'};
@@ -39,3 +47,5 @@ export function hostStageStyle(cardId) {
     placement==='center'?{left:'29%',bottom:'27%',width:'42%',height:'65%'}:
     {right:'2%',bottom:'8%',width:'38%',height:'84%'}),overflow:'hidden',borderRadius:6};
 }
+
+export const shouldRenderHost = shot => shot?.subject === 'person' && hostPresentationDecision(shot.shotCard).mode !== 'suppressed';

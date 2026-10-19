@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import path from 'node:path';
 
-export const VISUAL_CONTENT_RULES='正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先复用本任务与已授权本地库。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。无业务意义的序号不显示，原卡必填列不能用空列绕过；没有真实序列语义时重选无需编号的模板。';
+export const VISUAL_CONTENT_RULES='正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先联网检索可访问且授权合规的内容；没有合适的再查独立素材库，已有合法绑定不重复采集。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。无业务意义的序号不显示，原卡必填列不能用空列绕过；没有真实序列语义时重选无需编号的模板。';
 
 // These are source-backed defects, not a competing template whitelist. The
 // original audited catalog remains complete and available for comparison.
@@ -12,6 +13,14 @@ export function visualContentContract(card){
  const bytes=fs.readFileSync(card.implementation.file);
  if(createHash('sha256').update(bytes).digest('hex')!==card.implementation.sha256)throw Error(`${id} 展示容量契约源码指纹不一致`);
  const source=bytes.toString();
+ if(['cursor-actor-demo','tilt-3d-page','host-shrink-to-chip'].includes(id)){
+  contract.presentationMedia={required:true,adapter:'presentation-integrity-v1',role:'context',
+   searchOrder:['online','independent-local-library'],rule:'原卡图标/灰块不是素材；节点须生成真实素材补全方案，核对来源、许可和本地文件，中心审批后安装具名素材入口并复检。不得只改文字后放行。'};
+ }
+ if(id==='scanline-annotate')contract.attention={slot:{width:600,height:396},minimumSide:4,
+  proofRequired:true,rule:'每个资料引用框须对应当前截图中的唯一原文DOM/OCR区域，并经过裁切和缩放坐标换算。不得用框高度凑字级时间。隐喻不当原文引用：节点须提出独立口播说明方案，经中心审批后与资料分开展示。'};
+ if(['black-slam-transition','particle-weld-transition','overexpose-flip-transition'].includes(id))contract.continuity={
+  required:true,rule:'逐阶段核对背景字色和原生文字窗口与真实字级锚点的交集。下一句未到锚点时保留已说出的上一句，不提前下一句、隐藏全部正文或改配音。'};
  if(id==='color-slam-beat-card'){
   if(!source.includes('shot-bars')||!source.includes('Shot1')||!source.includes('Shot2'))throw Error('纯色节拍卡演示区域契约已变化，须重新审计');
   contract.placeholder=true;
@@ -51,12 +60,24 @@ export function visualContentContract(card){
  return {...contract,implementationSha256:card.implementation.sha256};
 }
 
-export function auditVisualContent(shots,{catalog}){
+export function auditVisualContent(shots,{catalog,projectRoot=null}){
  const issues=[],rows=[];
  for(const shot of shots||[]){
   const card=catalog.cards.find(c=>c.cardId===shot.shotCard);if(!card)continue;
   const contract=visualContentContract(card),props=shot.templateParams?.cardProps||{};
   rows.push({shotId:shot.id,cardId:shot.shotCard,contract});
+  let approved=null;
+  if(projectRoot)try{
+   const plan=JSON.parse(fs.readFileSync(path.join(projectRoot,'remotion/presentation-integrity.json'))),approval=JSON.parse(fs.readFileSync(path.join(projectRoot,'qa/presentation-integrity-approval.json')));
+   const planSha=createHash('sha256').update(JSON.stringify(plan)).digest('hex');
+   const shotSha=createHash('sha256').update(fs.readFileSync(path.join(projectRoot,'remotion/shots.json'))).digest('hex');
+   if(approval.approved&&approval.planSha256===planSha&&plan.inputs['remotion/shots.json']===shotSha)approved=plan.shots.find(r=>r.shotId===shot.id&&r.cardId===shot.shotCard);
+  }catch{}
+  if(contract.attention&&!approved?.attention){
+   const boxes=String(props.targets||'').split('\n').filter(Boolean).map(s=>s.split(/[,，\s]+/u).map(Number));
+   if(!boxes.length||boxes.some(b=>b.length!==4||!b.every(Number.isFinite)||b[0]<0||b[1]<0||b[2]<4||b[3]<4||b[0]+b[2]>600||b[1]+b[3]>396))
+    issues.push({shotId:shot.id,code:'ATTENTION_TARGET_BOUNDS',field:'targets',repair:'presentation-integrity',message:'资料定位框越界或退化，必须按来源坐标重建或改为明确的非引用说明，不能钳坐标强过'});
+  }
   if(contract.requiresPerson&&shot.subject!=='person')issues.push({shotId:shot.id,code:'HOST_SUBJECT_REQUIRED',message:'原卡必填人物视频槽没有非人物替代入口；本镜不在原口型窗口内，必须重选卡，不能虚构人物或留空素材'});
   if(contract.placeholder)issues.push({shotId:shot.id,code:'DEMO_VISUAL_NOT_REPLACEABLE',message:contract.reason});
   if(contract.meaningfulItems&&String(props[contract.meaningfulItems.field]||'').split('\n').filter(s=>s.trim()).length<contract.meaningfulItems.minimum)

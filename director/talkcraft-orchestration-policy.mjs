@@ -6,7 +6,14 @@ export function selectTalkcraftContinuation(run, body = {}) {
   if (run.provenance?.verified !== true)
     throw new Error('B 模式管线来源未核验，请先由编导核对运行记录');
   if(body.repairPresentation===true){
-    const repairable=run.qaPassed&&run.nextStage==='approve-final'||run.final===true&&run.nextStage==='qa';
+    // A new source-coordinate rule can invalidate an old final's editorial
+    // report. Admit only its explicit, deterministic presentation repair;
+    // scaffold and all original gates still run after the plan is approved.
+    const presentationIssues=run.correctionCenter?.issues||[];
+    const coordinateRecovery=run.final===true&&run.nextStage==='editorial-check'&&presentationIssues.length>0&&
+      presentationIssues.every(i=>i.code==='ATTENTION_TARGET_BOUNDS'&&i.repair==='presentation-integrity');
+    const renderRecovery=run.nextStage==='render-all'&&run.lastFailure?.task?.name==='talkcraft-render-all'&&run.lastFailure?.cause==='展示修正合同缺失、过期或未通过治理中心审批';
+    const repairable=renderRecovery||run.qaPassed&&run.nextStage==='approve-final'||run.final===true&&run.nextStage==='qa'||coordinateRecovery;
     if(run.activeTask||body.approveModelCost||body.approveDigitalHumanCost||!repairable||run.reviewPassed)throw Error(`展示修正只允许当前待审成片或成片质检阶段的免费修正，不接受并发、费用或已验收版本；当前节点=${run.nextStage||'无'}，成片=${run.final===true}，质检=${run.qaPassed===true}，活动任务=${!!run.activeTask}`);
     return 'presentation-repair';
   }

@@ -18,7 +18,7 @@ export const WordRevealRoot:React.FC<{beatId:string;hiddenTexts?:string[];mobile
       const chars:{node:Text;offset:number;ch:string}[]=[];
       const literalChars:{node:Text;offset:number;ch:string}[]=[];
       for(let node=walker.nextNode();node;node=walker.nextNode()){
-        const text=node as Text;if(text.parentElement?.closest('style,script,[data-digital-human],[data-word-reveal],[data-word-suppressed]'))continue;
+        const text=node as Text;if(text.parentElement?.closest('style,script,[data-digital-human],[data-word-reveal],[data-word-suppressed],[data-presentation-continuity]'))continue;
         if(text.parentElement?.closest('svg')&&!text.parentElement.closest('text,tspan'))continue;
         if(hiddenTexts.some(s=>clean(s)===clean(text.data))){const span=wrapText(text);span.dataset.wordSuppressed='true';span.style.visibility='hidden';text.parentNode!.insertBefore(span,text);span.appendChild(text);continue;}
         // DOM splitText offsets are UTF-16 positions, including surrogate pairs.

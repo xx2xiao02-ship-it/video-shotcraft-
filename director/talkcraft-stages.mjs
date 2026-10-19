@@ -17,6 +17,7 @@ import {installHostContextRuntime} from './talkcraft-host-context-install.mjs';
 import {readWordAlignment} from './talkcraft-word-alignment.mjs';
 import {planNativeCueLevelRepair} from './talkcraft-cue-level-repair.mjs';
 import {alignNativeShotBoundaries,prepareNativeProduction,installNativeCues} from './talkcraft-native-preparation.mjs';
+import {assertPresentationIntegrity} from './talkcraft-presentation-integrity.mjs';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, renameSync, constants} from 'node:fs';
@@ -118,6 +119,7 @@ function run(command, args, cwd) {
 }
 
 function checkTextBindings(project,runId,{only}={}){
+  if(existsSync(path.join(project,'remotion/presentation-integrity.json')))assertPresentationIntegrity(project);
   runTalkcraftStage('word-reveal',runId);
   return assertMachineTextRules(project,{only});
 }
@@ -683,6 +685,7 @@ function runTalkcraftStageInternal(stage, runId) {
   }
   if (stage === 'presentation-repair') {
     assertPipelineProvenance(project);
+    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-presentation-integrity.mjs'),project],ROOT);
     const correction=installPresentationCorrections(SKILL,path.join(project,'remotion/src'));
     installHostContextRuntime(project);
     const rebuilt=runTalkcraftStage('scaffold',runId);
@@ -720,6 +723,8 @@ function runTalkcraftStageInternal(stage, runId) {
     const gate=readTalkcraftStatus(ROOT,runId);
     if(!gate.preflightPassed||!gate.storyboardApproved)throw Error('原版全量预检及分镜审核通过后才能实现场景');
     requireRenderTiming(project);
+    // Every new run gets the same correction contract before source admission.
+    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-presentation-integrity.mjs'),project],ROOT);
     // A prior failure may leave the generated project intact. Resume validation
     // and cue installation without overwriting existing scenes or user work.
     const result = existsSync(path.join(project,'remotion/src/index.ts'))

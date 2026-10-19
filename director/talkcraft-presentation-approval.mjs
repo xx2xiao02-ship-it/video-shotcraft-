@@ -8,3 +8,9 @@ export function approvePresentationCorrection(plan,recomputed){
   throw Error('展示修正方案未通过治理中心核验');
  return {approved:true,planSha256:hash(plan),action:'deterministic-presentation-install',stopAt:'review',externalRequests:0,userAcceptance:false};
 }
+export function approvePresentationIntegrity(plan,{inputs,rulesSha256,audit}){
+ if(plan?.schema!=='presentation-integrity-v1'||!plan.runId||plan.paidCalls!==0||plan.userAcceptance!==false||
+   !audit?.passed||hash(plan.inputs)!==hash(inputs)||plan.rulesSha256!==rulesSha256||plan.shots.some(r=>r.media&&r.media.role!=='context'))
+  throw Error('综合治理中心拒绝展示修正方案：输入、规则、来源或费用边界不符');
+ return {schema:'presentation-integrity-approval-v1',planSha256:hash(plan),runId:plan.runId,paidCalls:0,userAcceptance:false,approved:true,stopAt:'review'};
+}
