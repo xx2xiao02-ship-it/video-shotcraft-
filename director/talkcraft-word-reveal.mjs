@@ -80,7 +80,15 @@ export function resolveReveal(timing, beat, event, fps=30) {
   }
   const rows=sentence.chars.filter(c=>normalizeText(c.ch));
   const content=rows.map(c=>normalizeText(c.ch)).join(''),query=normalizeText(event.anchor);
-  if(!query||!normalizeText(event.text))throw Error('文字或锚词不能只有标点:'+event.id);
+  // Punctuation has no spoken clock. A standalone punctuation field may only
+  // attach to an unambiguous literal source anchor immediately before it.
+  // This matches the editorial attachment contract; no time is estimated and
+  // arbitrary punctuation or an unrelated anchor still fails the original gate.
+  const source=sentence.chars.map(c=>c.ch).join(''),anchorStart=source.indexOf(event.anchor);
+  const sourcePunctuation=/^\p{P}+$/u.test(event.text)&&anchorStart>=0&&
+    source.indexOf(event.anchor,anchorStart+1)===-1&&
+    source.slice(anchorStart+event.anchor.length,anchorStart+event.anchor.length+event.text.length)===event.text;
+  if(!query||!normalizeText(event.text)&&!sourcePunctuation)throw Error('文字或锚词不能只有标点:'+event.id);
   const matches=[];for(let pos=content.indexOf(query);pos>=0;pos=content.indexOf(query,pos+1))matches.push(pos);
   if(!matches.length)throw Error('配音中找不到锚词:'+event.id+'/'+event.anchor);
   if(matches.length>1&&!Number.isInteger(event.occurrence))throw Error('锚词重复，须指定 occurrence:'+event.id);

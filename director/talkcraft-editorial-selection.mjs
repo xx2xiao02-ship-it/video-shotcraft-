@@ -3,6 +3,7 @@ import {repairEditorialSourceSlotAliases,repairEditorialRetainedSourceAliases} f
 import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {editorialRequiredParameterContracts,auditEditorialRequiredProps} from './talkcraft-editorial-required-props.mjs';
 import {repairEditorialStructure} from './talkcraft-editorial-structure-repair.mjs';
+import {proposeEditorialReuseCorrection,approveEditorialReuseCorrection} from './talkcraft-editorial-reuse-correction.mjs';
 import {auditEditorialParameterBudget} from './talkcraft-editorial-parameter-budget.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -166,6 +167,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
     jointSelectionContract:{windowSize:30,conflicts:jointChoiceConflicts,
       instruction:'所有可编辑镜必须一起选卡。conflicts每对方案在30镜窗口内同卡冲突，不能各镜独立选择后重复。仅真实同一观点的templateContinuity承接合同可按原校验例外，不得虚构观点或理由；该输入合同不要回传。'},
     wordAnchorPolicy:'wordEvents首尾位置必须来自本镜sentenceRef的characters.offset，标点没有有声锚点。含标点的文本只用本句有声首尾字符锚定；纯标点字段不得把标点offset当锚点，须明确本句合法有声锚点及展示角色依据。不得跨句、跨镜、补编号或自由填写时间。',
+    punctuationAttachmentPolicy:'展示文字保留原标点，首尾锚点仅使用本句characters中的有声字符。单独标点字段应挂载同一句紧邻前文的最后一个有声字符，且该前文须有唯一有效的spoken事件并与源文完全一致；不能为标点创造发音时刻，不能靠修改句引用或任意挪动编号修复。服务端只恢复有完整源文证据且通过中心审批的确定性挂载，不推断创作意图。',
     editorialExpression:{openingExempt:film.openingExempt,maxTextShare:film.maxTextShare,textShotIds:film.textShotIds,
       count:film.count,total:film.total,textDuration:film.textDuration,duration:film.duration},
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
@@ -319,6 +321,11 @@ export function compileEditorialSelection(response,request,inputs){
     .map(binding=>({shotId:row.shotId,field:binding.field,bindingRef:binding.bindingRef})));
   response=resolveEditorialMaterialRefs(response,request);
   const bindings=auditEditorialSelectionResponseBindings(response,request);
+  const reusePlan=proposeEditorialReuseCorrection(response,request);
+  const reuseApproval=approveEditorialReuseCorrection(reusePlan,response,request);
+  if(!reuseApproval.approved)throw fail('重复选卡联合修正方案未通过当前请求审批');
+  if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json')))
+    fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-reuse-correction.json'),JSON.stringify({proposal:reusePlan,approval:reuseApproval},null,2));
   const materials=prepareEditorialMaterialUpdates(response,request);
   const initialIssues=[...parameterIssues,...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
   if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});

@@ -7,6 +7,8 @@ import {workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
 import {currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
 import {proposeInstitutionSourceRepair} from './talkcraft-institution-source-repair.mjs';
+export {approveEditorialPunctuationCorrection} from './talkcraft-editorial-punctuation-correction.mjs';
+export {approveEditorialReuseCorrection} from './talkcraft-editorial-reuse-correction.mjs';
 
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).digest('hex'):null;
@@ -14,7 +16,7 @@ const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
 const identity=p=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3'].map(n=>[n,sha(path.join(p,n))]));
 const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true});fs.writeFileSync(path.join(p,n)+'.tmp',JSON.stringify(r,null,2));fs.renameSync(path.join(p,n)+'.tmp',path.join(p,n));return r;};
 const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-templates.mjs','talkcraft-graphic-relation.mjs','talkcraft-text-video.mjs','talkcraft-material-policy.mjs','talkcraft-material-research.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-background-presentation.mjs','talkcraft-keyword-caption.tsx','talkcraft-title-presentation.mjs','talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-correction.mjs','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-runtime-fidelity.mjs','talkcraft-paid-scope-history.mjs','talkcraft-template-material-resolver.mjs','talkcraft-node-repair.mjs','talkcraft-editorial-planning-contract.mjs','talkcraft-native-governance.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json','talkcraft-stages.mjs','talkcraft-auto-advance.mjs','talkcraft-native-preparation.mjs','talkcraft-editorial-selection-replay.mjs','talkcraft-editorial-source-slot-repair.mjs','talkcraft-editorial-bound-slots.mjs','talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
- 'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
+ 'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-punctuation-correction.mjs','talkcraft-editorial-reuse-correction.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));

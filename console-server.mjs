@@ -470,8 +470,9 @@ function withTalkcraftWorkbench(run) {
       task:{id:'execution:'+recentExecution.executionId,name:recentExecution.name},
       actions:['已有成果保留；核对本次本地执行记录和具体校验错误，不自动重复付费调用。']} : null;
   const activeFailure = currentFailure(run, localFailure || failureReport);
-  const control = talkcraftControlState(run, activeFailure, taskExecution);
-  const status={...run, correctionCenter:correctionCenterSnapshot(project), automation:readTalkcraftAutoRecord(run.runId), workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
+  const correctionCenter=correctionCenterSnapshot(project);
+  const control = talkcraftControlState({...run,correctionCenter}, activeFailure, taskExecution);
+  const status={...run, correctionCenter, automation:readTalkcraftAutoRecord(run.runId), workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
     operationLog:[...[...tasks.values()].filter(t=>t.runId===run.runId).map(t=>({id:t.id,name:t.name,
       cmd:t.cmd || null,cwd:t.cwd || null,status:t.status,exitCode:t.exitCode ?? null,startedAt:t.startedAt,finishedAt:t.finishedAt || null})),
       ...executions.map(item=>({id:'execution:'+item.executionId,name:item.name,status:item.status,

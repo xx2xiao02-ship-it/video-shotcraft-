@@ -2,6 +2,17 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {talkcraftControlState,currentFailure} from './talkcraft-control-state.mjs';
 import {selectTalkcraftContinuation} from './talkcraft-orchestration-policy.mjs';
+test('04使用同任务中心的完整待修清单，不把修复缺项误报为费用授权',()=>{
+ const run={runId:'current',inputReady:true,wordTimingReady:true,semanticPassed:true,shotbook:false,editorialRepairReady:true,
+  correctionCenter:{runId:'current',node:'editorial',state:'needs-repair',reason:'联合选卡设计缺失',
+   issues:[{shotId:'s16',code:'template_window_reuse',message:'与s12重复'}]}};
+ const state=talkcraftControlState(run,null);assert.equal(state.nextStage,null);
+ assert.match(state.waitingFor,/联合选卡设计缺失/);assert.doesNotMatch(state.waitingFor,/费用授权/);
+ assert.deepEqual(state.blockers,['s16：[template_window_reuse] 与s12重复']);
+ assert.deepEqual(talkcraftControlState({...run,correctionCenter:{...run.correctionCenter,runId:'old'}},null).blockers,['EDITORIAL_REVISION_REQUIRED']);
+ assert.deepEqual(talkcraftControlState({...run,runId:undefined,correctionCenter:undefined},null).blockers,['EDITORIAL_REVISION_REQUIRED']);
+ assert.equal(talkcraftControlState({...run,activeTask:{name:'talkcraft-editorial-recover',status:'running'}},null).waitingFor,'任务执行中');
+});
 
 test('07显示已核验事务的最新补全问题，旧规划报告不能覆盖成功修复后的范围',()=>{
   const run={inputReady:true,wordTimingReady:true,semanticPassed:true,shotbook:true,editorialChecked:true,candidatesReady:true,

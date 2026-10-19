@@ -40,6 +40,10 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
+  if(feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>i.code==='template_window_reuse'))
+    return {...base,state:'needs-repair',action:null,
+      jointRepairShotIds:[...new Set(feedback.failedChecks.flatMap(i=>[i.previousShotId,i.shotId]).filter(Boolean))],
+      reason:`仍有${feedback.failedChecks.length}组重复选卡冲突，须按完整联合方案补齐替代设计；当前返回没有完整备选参数、素材及锚点，不自动换卡或追加付费`};
   const videoNeeded=node==='candidates'&&feedback?.failedChecks?.some(i=>i.code==='TEXT_VIDEO_REQUIRED'&&i.repair==='material-binding');
   if(videoNeeded){
     if(!used('source-discovery'))return {...base,state:'ready-to-correct',action:'source-discovery',body:{stage:'material-research'},reason:'普通论述缺真实背景：06先免费检索和恢复当前来源，不以付费换卡替代素材补全'};

@@ -5,6 +5,16 @@ import {MANAGED_WORKFLOW_NODES} from './talkcraft-workflow-contract.mjs';
 const run={runId:'current',provenance:{verified:true},lastFailure:{task:{name:'talkcraft-candidates'}},nextStage:'candidates'};
 const fixture=()=>({run:structuredClone(run),fingerprint:'same-input',attempts:[],inputs:{voice:'current'},provider:{provider:'acctoken',model:'deepseek-v4.1-flash'},
   feedback:{failedChecks:[{code:'FILM_TEXT_DOMINANCE',shotId:'s08'},{code:'local_material_unmatched',shotId:'s14'}]},now:1000});
+
+test('仅剩重复选卡时保留联合修正范围，不自动付费、换卡或宣称通过',()=>{
+ const f=fixture();f.feedback.failedChecks=[{code:'template_window_reuse',previousShotId:'s12',shotId:'s16'},
+  {code:'template_window_reuse',previousShotId:'s05',shotId:'s20'}];
+ assert.equal(planNodeCorrection(f).action,'local-recheck');
+ f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ const plan=planNodeCorrection(f);assert.equal(plan.action,null);assert.equal(plan.state,'needs-repair');
+ assert.deepEqual(plan.jointRepairShotIds,['s12','s16','s05','s20']);
+ assert.equal(plan.approved,false);assert.equal(plan.productionAdmitted,false);
+});
 test('15个正式节点均有修正政策；14人工审查和15发布不能自动批准',()=>{
  assert.deepEqual(CORRECTION_NODE_POLICIES.map(p=>p.node),MANAGED_WORKFLOW_NODES.map(p=>p.id));
  assert.ok(CORRECTION_NODE_POLICIES.every(p=>p.supportsCorrection&&!p.automaticApproval));
