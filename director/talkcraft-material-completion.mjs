@@ -43,8 +43,8 @@ export function sourceSearchContract(query,concepts=[]){
  // Named awards/institutions cannot be replaced by generic money footage.
  const special=groups.filter(([r])=>r.source.startsWith('诺贝尔')||r.source.startsWith('央行'));
  const required=special.length?special:
-  /钱包|口袋|钱/u.test(query)?groups.filter(([r])=>r.source.startsWith('钱')):
-  /收入|工资|存款|存钱|储蓄/u.test(query)&&!/城市|街景/u.test(query)?groups.filter(([r])=>r.source.startsWith('收入')):groups;
+  /收入|工资|存款|存钱|储蓄/u.test(query)&&!/城市|街景/u.test(query)?groups.filter(([r])=>r.source.startsWith('收入')):
+  /钱包|口袋|钱/u.test(query)?groups.filter(([r])=>r.source.startsWith('钱')):groups;
  const ceremony=/颁奖|ceremony|award stage/iu.test(text);
  const institution=/中国.*(?:央行|人民银行)|人民银行/u.test(text);
  const economics=/经济学奖|经济学.*诺贝尔|nobel.*economic/iu.test(text);

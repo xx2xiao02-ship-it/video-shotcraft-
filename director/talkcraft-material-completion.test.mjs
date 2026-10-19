@@ -22,6 +22,8 @@ const page=(title='File:City street.webm')=>({pageid:1,title,imageinfo:[{url:'ht
 test('检索合同保留中文优先；奖项与机构不被泛化配图冒充',()=>{
  const c=sourceSearchContract('诺贝尔奖 颁奖典礼',['Nobel ceremony']);assert.equal(c.queries[0],'诺贝尔奖 颁奖典礼');
  assert.equal(c.matches('Autophagy Nobel Prize'),false);assert.equal(c.matches('Nobel prize ceremony'),true);
+ assert.equal(sourceSearchContract('普通人 存钱 消费 规划未来 生活 实拍视频').matches('客户 银行 办公 实景'),true);
+ assert.equal(sourceSearchContract('普通人 存钱 消费 规划未来 生活 实拍视频').matches('banknote fire'),false);
  const b=sourceSearchContract('中国人民银行 央行');assert.equal(b.matches('Central bank of England'),false);
  assert.equal(b.matches("People's Bank of China central bank"),true);
  const e=sourceSearchContract('诺贝尔经济学奖 颁奖典礼');
