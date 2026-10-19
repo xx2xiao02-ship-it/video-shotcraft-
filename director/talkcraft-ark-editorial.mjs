@@ -458,6 +458,7 @@ export function checkEditorialSelectionInput(root,runId,{skillRoot=resolveTalkcr
     writeFileSync(path.join(dir,'prompt.txt'),prepared.prompt,{flag:'wx'});
     const receipt={schema:'talkcraft-editorial-input-preflight-v2',runId,passed:prepared.requestAudit.passed,
       requestId:prepared.selectionRequest.requestId,editableShotIds:prepared.selectionRequest.editableShotIds,
+      ...(prepared.selectionRequest.batch?{batch:prepared.selectionRequest.batch}:{}),
       externalRequests:0,authorizationConsumed:false,productionAdmitted:false,userAcceptance:false,
       output:path.relative(project,dir)};
     writeFileSync(path.join(dir,'receipt.json'),JSON.stringify(receipt,null,2),{flag:'wx'});

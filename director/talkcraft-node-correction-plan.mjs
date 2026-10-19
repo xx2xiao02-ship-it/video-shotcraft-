@@ -13,7 +13,7 @@ export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
   return workflowNodeForTask(run.lastFailure?.task?.name||run.nextStage);
 }
-export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,now=Date.now()}){
+export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,now=Date.now()}){
   const node=correctionNode(run),policy=CORRECTION_NODE_POLICIES.find(p=>p.node===node);
   const base={schema:'talkcraft-correction-decision-v1',runId:run.runId,node,issues:feedback?.failedChecks||[],
     globalRules:['graphic-first','real-media-slots','word-time','text-capacity','host-content-separation','caption-outline'],
@@ -34,6 +34,9 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
   const sourceNeeded=node==='candidates'&&feedback?.failedChecks?.some(i=>i.code==='REAL_SOURCE_NOT_BOUND');
   if(sourceNeeded){
+    if(institutionRepair?.alternatives?.length&&!used('institution-source-reuse'))return {...base,
+      state:'ready-to-correct',action:'institution-source-reuse',sourcePlan:institutionRepair,
+      body:{stage:'institution-source-repair'},reason:'同一机构的已有已核验官方原件可替代未绑定的身份素材；保留原检索记录，不授权徽标或肖像，不替代数据和证据'};
     if(!used('source-discovery'))return {...base,state:'ready-to-correct',action:'source-discovery',
       body:{stage:'material-research'},reason:'存在真实来源缺项：由06先免费检索资料，不用付费重选卡代替来源核验'};
     if(!used('source-recheck'))return {...base,state:'ready-to-correct',action:'source-recheck',
@@ -44,11 +47,12 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};
+  if(creative&&revisionPlanError)return {...base,state:'needs-repair',action:null,reason:'正式发送前合同未通过：'+revisionPlanError};
   if(creative&&['editorial','candidates','storyboard-review','preflight'].includes(node)&&!used('editorial-repair')){
     const grant=authorization?.schema==='talkcraft-correction-authorization-v1'&&authorization.runId===run.runId&&
       Date.parse(authorization.expiresAt)>now&&authorization.scope?.includes(node)&&
       digest(authorization.inputs)===digest(inputs)&&digest(authorization.provider)===digest(provider);
-    if(grant)return {...base,state:'ready-to-correct',approved:false,action:'editorial-repair',
+    if(grant)return {...base,...(revisionPlan?{revisionPlan}:{}),state:'ready-to-correct',approved:false,action:'editorial-repair',
       body:{stage:'editorial-revision',approveModelCost:true,authorizationNote:authorization.approval},reason:'按本次有效授权修订完整失败范围；原始返回、锁定内容及全部门禁保留'};
     return {...base,state:'waiting-authorization',action:null,reason:'创作修订需要本次有效费用授权，不能自行扩大授权'};
   }

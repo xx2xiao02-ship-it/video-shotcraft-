@@ -16,4 +16,6 @@ test('各节点免费修正及来源采集阶段必须贯通正式入口白名�
  }
  assert.ok(stages.includes('material-research'));
  assert.equal(workflowNodeForTask('material-research'),'candidates');
+ assert.ok(stages.includes('institution-source-repair'));
+ assert.equal(workflowNodeForTask('institution-source-repair'),'candidates');
 });

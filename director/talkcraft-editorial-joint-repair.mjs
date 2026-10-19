@@ -43,7 +43,7 @@ export function editorialRequiredNumericFields(card){
 
 // This is a comparison contract, not a new selector. Keep semantic matching,
 // source acquisition, business props and actual visibility in their own gates.
-export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot,repairBatch}){
+export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot,repairBatch},dependencyExpansion=null){
   if(!proposal?.shots?.length)return null;
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
   const film=auditFilmExpression(shots.map(s=>({...s,start:aligned[s.firstSentence]?.start,end:aligned[s.lastSentence]?.end})),catalog);
@@ -87,7 +87,8 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     (aligned[b.lastSentence].end-aligned[b.firstSentence].start)-(aligned[a.lastSentence].end-aligned[a.firstSentence].start));
   if(repairBatch&&(!Number.isInteger(repairBatch.maxShots)||repairBatch.maxShots<1||repairBatch.maxShots>2))
     throw Error('局部修订批量必须是1或2镜');
-  const targets=repairBatch?pending.slice(0,repairBatch.maxShots):pending;
+  const targets=dependencyExpansion?shots.filter(s=>[dependencyExpansion.triggerShotId,dependencyExpansion.partnerShotId].includes(s.id)):
+    repairBatch?pending.slice(0,repairBatch.maxShots):pending;
   // Deferred shots are LOCKED during this request. Recompute all candidate
   // conflicts against that smaller editable set, not the original failure set.
   if(repairBatch){ids.clear();targets.forEach(s=>ids.add(s.id));}
@@ -110,7 +111,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     // verified bindings and pending source identity constraints together.
     const partiallyBound=!!row?.bindings?.length&&(row.research||[]).some(r=>
       !row.bindings.some(b=>b.kind===r.kind&&b.query===r.query));
-    const reuseMediaBudget=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound?
+    const reuseMediaBudget=dependencyExpansion||failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound?
       {available:availableReuseMedia(row,projectRoot).length,mode:'existing-files-only'}:null;
     const missingKinds=requiredKinds.filter(kind=>!row?.research?.some(r=>r.kind===kind));
     // A core person cannot evade the local slot requirement by an invalid
@@ -193,9 +194,38 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
         timing:selectedTiming,issues:selectedIssues},candidates,rejected,
       nextAction:candidates.length?'编导比较可行卡并同时重写参数、资料展示字段和原生展示计划':'按真实自然句边界重排；已生成口型窗口仍精确保留'};
   });
+  // A single-shot dead end may be caused solely by a valid fixed neighbour
+  // occupying a feasible card. Unlock exactly that dependency, never the film.
+  if(repairBatch?.maxShots===1&&!dependencyExpansion&&windows.length===1&&!windows[0].candidates.length){
+    const w=windows[0],blocked=(w.rejected.FIXED_SHOT_REUSE_CONFLICT||[]).filter(slug=>
+      Object.entries(w.rejected).every(([code,list])=>code==='FIXED_SHOT_REUSE_CONFLICT'||!list.includes(slug)));
+    const partners=new Set();
+    for(const slug of blocked){
+      const replacement=shots.map(s=>s.id===w.shotId?{...s,shotCard:slug}:s);
+      for(const i of auditTemplateReuse(replacement).filter(i=>i.shotId===w.shotId||i.previousShotId===w.shotId))
+        partners.add(i.shotId===w.shotId?i.previousShotId:i.shotId);
+    }
+    if(partners.size===1){
+      const dependency={triggerShotId:w.shotId,partnerShotId:[...partners][0],blockedCardIds:blocked,
+        reason:'单镜无解的技术兼容卡仅被固定镜去重占用；申请两镜联合比较，保留全部原校验'};
+      const joint=buildEditorialJointRepairContract({proposal,failedChecks:reportedChecks,aligned,catalog,personWindows,projectRoot,repairBatch},dependency);
+      if(joint.windows.length===2&&joint.windows.every(v=>v.candidates.length)){
+        const [a,b]=joint.windows,legal=[];
+        for(const ca of a.candidates)for(const cb of b.candidates){
+          const replacements=shots.map(s=>s.id===a.shotId?{...s,shotCard:ca.slug}:s.id===b.shotId?{...s,shotCard:cb.slug}:s);
+          if(!auditTemplateReuse(replacements).some(i=>[a.shotId,b.shotId].includes(i.shotId)||[a.shotId,b.shotId].includes(i.previousShotId)))
+            legal.push([ca.slug,cb.slug]);
+        }
+        if(legal.length){
+          for(const [i,v]of joint.windows.entries())v.candidates=v.candidates.filter(c=>legal.some(pair=>pair[i]===c.slug));
+          joint.batch.legalCardPairs=legal;return joint;
+        }
+      }
+    }
+  }
   return {schema:'talkcraft-editorial-joint-repair-v1',
     inputSha256:digest({proposal,failedChecks:reportedChecks,aligned,personWindows,...(repairBatch?{repairBatch}:{})}),reviewedCount:catalog.cards.length,
-    ...(repairBatch?{batch:{maxShots:repairBatch.maxShots,pendingShotIds:pending.map(s=>s.id),
+    ...(repairBatch?{batch:{maxShots:dependencyExpansion?2:repairBatch.maxShots,...(dependencyExpansion?{dependencyExpansion}:{}),pendingShotIds:pending.map(s=>s.id),
       deferredShotIds:pending.filter(s=>!ids.has(s.id)).map(s=>s.id)}}:{}),
     windows,materialIssues:materials.issues,
     rules:'全108张已审卡仍可比较，排除项是后端硬约束而非语义白名单。candidates只证明当前句范围的时长/人物、真实资料槽能力及与固定镜头的去重可行性，不代替语义、参数、来源授权、实际槽位绑定或文字可见性检查；修订镜之间仍须联合去重。requestedPlaybackRate=null表示正式字段省略，绝非填1；参考驻留点只用于算容量，正式驻留须依据源码重新计算并通过全部原门禁。换卡必须同步重写cardProps、templateMaterialQueries、research的displayShotId/displayField、personDisplays的姓名字段和nativePresentation；不得复用旧卡方案或用理由豁免硬约束。无可行卡时按真实句边界重排，不自动选第一名、不改原配音或口型、不触发付费调用。',

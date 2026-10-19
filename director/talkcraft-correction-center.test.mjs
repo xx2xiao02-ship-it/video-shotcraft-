@@ -112,3 +112,14 @@ test('返回形式变化但失败范围未收敛时拒绝重复计费，真实�
  assert.equal(planNodeCorrection(f).action,null);assert.match(planNodeCorrection(f).reason,/没有收敛/);
  f.progressKey='fewer-failures';assert.equal(planNodeCorrection(f).action,'editorial-repair');
 });
+
+
+test('修订方案绑定正式免费自检范围；合同失败不进入费用调度',()=>{
+ const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'原用户授权'};
+ f.revisionPlan={requestId:'verified-request',editableShotIds:['s11','s14'],externalRequests:0};
+ const plan=planNodeCorrection(f);assert.equal(plan.approved,true);assert.deepEqual(plan.revisionPlan,f.revisionPlan);
+ const bad=structuredClone(plan.proposal);bad.revisionPlan.editableShotIds.push('s01');
+ assert.equal(approveNodeCorrection(bad,f).approved,false);
+ f.revisionPlanError='无联合可行域';assert.equal(planNodeCorrection(f).action,null);
+});

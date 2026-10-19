@@ -1,3 +1,4 @@
+import {currentApprovedEditorialCorrection} from './talkcraft-correction-center.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -85,6 +86,11 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
   for(const f of ['qa/storyboard-adjustment-request.json','qa/semantics-before-ark.json',
     'qa/ark-editorial-response.json',...(rejected?[]:['SHOTBOOK.md','remotion/shots.json'])])
     if(!fs.existsSync(path.join(project,f)))throw Error('正式修订输入缺失：'+f);
+  const center=currentApprovedEditorialCorrection(project,runId,approval);
+  if(center){
+    const checked=checkEditorialSelectionInput(root,runId);
+    if(checked.requestId!==center.revisionPlan.requestId)throw Error('中心批准的重排合同已变化，未调用模型');
+  }
   const requestFile=path.join(project,'qa/storyboard-adjustment-request.json');
   const request=read(requestFile);
   const matches=request.request&&request.inputs&&!Object.entries(request.inputs).some(([n,h])=>
@@ -96,7 +102,7 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
     const prior=fs.existsSync(authFile(project))?read(authFile(project)):null;
     const current=currentRejectedEditorialFeedback(project)||currentEditorialRepairFeedback(project);
     if(!request.request||!current||prior?.schema!=='talkcraft-editorial-revision-authorization-v1'||
-      prior.runId!==runId||!prior.startedAt||prior.inputs?.['qa/storyboard-adjustment-request.json']!==sha(requestFile)||
+      prior.runId!==runId||(!prior.startedAt&&!center)||prior.inputs?.['qa/storyboard-adjustment-request.json']!==sha(requestFile)||
       ['input.txt','aligned-sentences.json','audio/full.mp3'].some(n=>prior.inputs?.[n]!==sha(path.join(project,n))))
       throw Error('修订要求与当前分镜不一致');
     const history=path.join(project,'qa/storyboard-adjustment-history');fs.mkdirSync(history,{recursive:true});
@@ -126,13 +132,18 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
     const file=authFile(project);
     if(fs.existsSync(file)){
       const previousAuthorization=read(file);
+      const centerRebindUnused=!!center&&!previousAuthorization.startedAt&&!previousAuthorization.completedAt&&
+        previousAuthorization.maxTasks===1&&previousAuthorization.approval===approval&&
+        previousAuthorization.inputs?.['qa/editorial-single-submission.json']===record.inputs['qa/editorial-single-submission.json']&&
+        ['input.txt','aligned-sentences.json','audio/full.mp3'].every(n=>previousAuthorization.inputs?.[n]===record.inputs[n]);
       const rebindUnused=!previousAuthorization.startedAt&&!previousAuthorization.completedAt&&
         previousAuthorization.maxTasks===1&&previousAuthorization.approval===record.approval&&
         JSON.stringify(previousAuthorization.inputs)===JSON.stringify(record.inputs)&&
         previousAuthorization.repairScopeSha256!==record.repairScopeSha256;
-      if(previousAuthorization.schema!==record.schema||previousAuthorization.runId!==runId||!previousAuthorization.startedAt&&!rebindUnused)
+      if(previousAuthorization.schema!==record.schema||previousAuthorization.runId!==runId||!previousAuthorization.startedAt&&!rebindUnused&&!centerRebindUnused)
         throw Error('已有未消费或无法核验的修订授权，禁止覆盖');
-      if(rebindUnused)record.reboundUnsubmittedAuthorization=true;
+      if(rebindUnused||centerRebindUnused)record.reboundUnsubmittedAuthorization=true;
+      if(centerRebindUnused)record.centerPlanSha256=center.approval.planSha256;
       const directory=path.join(project,'qa/editorial-revision-authorization-history');
       fs.mkdirSync(directory,{recursive:true});
       const archived=path.join(directory,sha(file)+'.json');

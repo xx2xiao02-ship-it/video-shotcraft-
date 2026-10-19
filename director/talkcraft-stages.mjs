@@ -48,6 +48,7 @@ import {assertTalkcraftCardCallsBound, assertTalkcraftCardCallsQaEvidence,
 import {loadMaterialIndex, matchSceneVideos} from './b-mode-material-match.mjs';
 import {auditMaterialResearch} from './talkcraft-material-research.mjs';
 import {prepareResearchBindings} from './talkcraft-research-binding.mjs';
+import {executeInstitutionSourceRepair} from './talkcraft-institution-source-repair.mjs';
 import {assertBModeGoverned} from './talkcraft-b-mode-governance.mjs';
 import {normalizeTalkcraftBindings, syncTalkcraftShotSource} from './talkcraft-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
@@ -535,6 +536,7 @@ function runTalkcraftStageInternal(stage, runId) {
   if (stage === 'semantic-apply') {
     return applySemanticDecisions(project, SKILL);
   }
+  if(stage==='institution-source-repair')return executeInstitutionSourceRepair(project);
   if(stage==='material-research'){
     run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-research.mjs'),project,path.join(SKILL,'references/cards-index.json'),'--search'],project);
     return {project,artifact:'qa/material-search-results.json',audit:'qa/material-research-audit.json',status:'awaiting_material_binding',paidCalls:0};

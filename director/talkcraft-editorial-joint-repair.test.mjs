@@ -204,3 +204,30 @@ test('局部素材错误不能掩盖基稿仍超标的全局比例；当前文�
  assert.ok(material.rejected.PROJECTED_TEXT_QUOTA_REGRESSION.includes('tracking-in'));
  assert.ok(material.rejected.PROJECTED_TEXT_QUOTA_REGRESSION.includes('info-term-card'));
 });
+
+
+test('单镜仅被唯一固定镜去重占用时提出两镜联合可行域，文件预算及全片去重不豁免',t=>{
+ const args=fixture(),dir=fs.mkdtempSync(path.resolve('.tmp/joint-dependency-'));
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));args.projectRoot=dir;args.repairBatch={maxShots:1};
+ fs.mkdirSync(path.join(dir,'remotion/public'),{recursive:true});
+ const bindings=[1,2,3].map(i=>{const data='verified-'+i,file=i+'.png';fs.writeFileSync(path.join(dir,'remotion/public',file),data);
+  return {localPath:file,sha256:createHash('sha256').update(data).digest('hex')};});
+ args.proposal.shots[0].shotCard='gallery-wall-dolly';args.proposal.shots[1].shotCard='stack-fan-out';
+ args.proposal.materialResearch.shots[1]={shotId:'s14',research:[],bindings:[{...bindings[0],kind:'identity',query:'原机构资料'}],
+  materialBindings:bindings.slice(1).map((b,i)=>({...b,field:'src'+(i+2)}))};
+ args.proposal.materialResearch.shots[0]={shotId:'s07',research:[],bindings:bindings.slice(0,1),
+  materialBindings:bindings.slice(1).map((b,i)=>({...b,field:'src'+(i+2)}))};
+ args.failedChecks=[{shotId:'s14',code:'local_material_unmatched',field:'src5'}];
+ const before=structuredClone(args.proposal),joint=buildEditorialJointRepairContract(args);
+ assert.deepEqual(args.proposal,before);assert.deepEqual(joint.windows.map(w=>w.shotId),['s07','s14']);
+ assert.equal(joint.batch.maxShots,2);assert.equal(joint.batch.dependencyExpansion.partnerShotId,'s07');
+ assert.ok(joint.batch.legalCardPairs.length);assert.ok(joint.windows.every(w=>w.reuseMediaBudget.available===3));
+ assert.ok(joint.windows[1].candidates.some(c=>c.slug==='gallery-wall-dolly'));
+ assert.ok(!joint.batch.legalCardPairs.some(([a,b])=>a===b));
+ assert.deepEqual(auditEditorialJointRepairContract(joint,args),[]);
+ const request=buildEditorialSelectionRequest(args);assert.deepEqual(request.editableShotIds,['s07','s14']);
+ assert.equal(request.batch.dependencyExpansion.triggerShotId,'s14');
+ // A second fixed occupier makes the dependency ambiguous: do not unlock more shots.
+ args.proposal.shots[2].shotCard='gallery-wall-dolly';
+ assert.equal(buildEditorialJointRepairContract(args).batch.dependencyExpansion,undefined);
+});
