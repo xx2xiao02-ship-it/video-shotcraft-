@@ -3,6 +3,10 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 
 export const EDITORIAL_MATERIAL_CONTRACT_VERSION='editorial-material-display-v1';
+export const EDITORIAL_RESEARCH_KINDS=['identity','evidence','data'];
+export const EDITORIAL_NEW_RESEARCH_CONTRACT={type:'object',required:['kind','query','reason'],
+  properties:{kind:{type:'string',enum:EDITORIAL_RESEARCH_KINDS},query:{type:'string',minLength:1},reason:{type:'string',minLength:1}},
+  instruction:'research仅登记身份、论据、数据的核验要求，kind不是文件类型，禁止image/video/background。普通语境配图只在templateParams.templateMaterialQueries按真实槽查询，无核验需求时research:[]；不可将语境图改称证据。已有research必须使用本次researchRef保留。'};
 export const EDITORIAL_MATERIAL_DISPLAY_RULES='选卡与素材展示同时规划：身份/证据/量化需求不能只给检索词。每条research使用displayShotId和displayField指定原卡真实图片/视频槽位；本镜只有一个可用槽时可省略displayField。多槽须逐条明确，不能把数字人hostSrc、背景或文字字段当证据槽。跨镜展示须有当前稿件与音频绑定的用户集中来源批准，核心人物介绍不得移到别镜。没有可展示槽应重选已审模板，不能加覆盖层、缩卡或伪造媒体路径。每个选中的必需媒体槽须填写真实本地路径或逐槽templateMaterialQueries；搜索词只能表示待采集，不能算素材已齐。选用媒体模板时不得同时声明无外部素材。data论断须保留待核验来源要求；作者观点只有在明确创作决定下才改标，不能自动降级事实要求。04检查规划一致性，06仍逐项核验真实文件、身份、许可、内容语言和实际绑定；结构通过不代表采集通过。';
 
 export function editorialSourceDisplayFields(card){
@@ -80,7 +84,7 @@ export function auditEditorialMaterialContract({shots=[],sentences=[],researchPl
       if(!hasValue(props[field]))pending.push({shotId:shot.id,field,code:'MATERIAL_ACQUISITION_PENDING'});
     }
     for(const research of researchRows){
-      if(!research||!['identity','evidence','data'].includes(research.kind)||!nonempty(research.query)||!nonempty(research.reason)){
+      if(!research||!EDITORIAL_RESEARCH_KINDS.includes(research.kind)||!nonempty(research.query)||!nonempty(research.reason)){
         add(shot.id,'MATERIAL_RESEARCH_PLAN_INVALID','每条资料须提供合法kind、具体query和reason');continue;
       }
       const binding=(row.bindings||[]).find(b=>b.kind===research.kind&&b.query===research.query);

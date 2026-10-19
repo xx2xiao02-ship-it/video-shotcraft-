@@ -108,3 +108,10 @@ test('模型侧素材规则与108卡真实媒体槽逐项自检，遗漏或篡�
   const wrong=make();wrong.promptCatalog.contracts.find(c=>c.slug==='tracking-in').sourceDisplayFields=['src'];
   assert.equal(auditEditorialRequestContract(wrong).passed,false);
 });
+
+test('资料核验种类不接受文件类型，语境配图留在真实媒体槽规划且不自动升格证据',()=>{
+ const args=fixture('split-compare-slider','对比');args.researchPlan.shots[0].research=[{kind:'image',query:'现金实拍',reason:'语境图片'}];
+ args.shots[0].templateParams.templateMaterialQueries={srcBefore:'现金实拍',srcAfter:'银行实拍'};
+ const before=structuredClone(args);assert.ok(codes(args).includes('MATERIAL_RESEARCH_PLAN_INVALID'));assert.deepEqual(args,before);
+ args.researchPlan.shots[0].research=[];assert.equal(auditEditorialMaterialContract(args).passed,true);
+});

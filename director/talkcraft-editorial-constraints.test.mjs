@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {editorialResponseContract,auditEditorialConstraintInput,auditEditorialMaterialOwnership,
   SOURCE_FACT_KEYS,editorialMaterialRefs,resolveEditorialMaterialRefs,editorialMaterialDesignFields} from './talkcraft-editorial-constraints.mjs';
+import {EDITORIAL_NEW_RESEARCH_CONTRACT} from './talkcraft-editorial-material-contract.mjs';
 
 const binding={kind:'identity',query:'央行官方资料',field:'src',localPath:'sources/central-bank.png',
   sha256:'a'.repeat(64),license:'原许可',verified:true,sourceUrl:'https://example.org/official'};
@@ -19,6 +20,8 @@ function fixture(){
       research:[{kind:research.kind,query:research.query,entityType:research.entityType,entityName:research.entityName}],
       bindings:[{kind:binding.kind,query:binding.query,field:'src'}]}]};
   const response={materialResearchUpdates:[{shotId:'s04',research:[]},{shotId:'s07',research:[structuredClone(research)]}]};
+  modelInput.materials[0].newResearchContract=null;
+  modelInput.materials[1].newResearchContract=structuredClone(EDITORIAL_NEW_RESEARCH_CONTRACT);
   modelInput.materials[1].research[0].researchRef=editorialMaterialRefs(request,'s07','research')[0].ref;
   modelInput.materials[1].bindings[0].bindingRef=editorialMaterialRefs(request,'s07','bindings')[0].ref;
   return {request,catalog,modelInput,response};
@@ -28,6 +31,7 @@ test('实际发送前独立检查资料覆盖、只读任务和原卡槽；合�
   const good=fixture();assert.deepEqual(auditEditorialConstraintInput(good.request,good),{passed:true,issues:[]});
   for(const mutate of [
     a=>delete a.modelInput.responseContract,
+    a=>a.modelInput.materials[1].newResearchContract.properties.kind.enum.push('image'),
     a=>a.modelInput.responseContract.repairs[0].choicesPath='windows[其他镜].choices',
     a=>a.modelInput.materials.pop(),
     a=>a.modelInput.materials[0].rewriteFields.push('backgroundReason'),

@@ -1,5 +1,6 @@
 import {isDeepStrictEqual} from 'node:util';
 import {createHash} from 'node:crypto';
+import {EDITORIAL_NEW_RESEARCH_CONTRACT} from './talkcraft-editorial-material-contract.mjs';
 
 // Model-facing rules and response enforcement share these field definitions.
 export const MATERIAL_CREATIVE_KEYS=['background','backgroundQuery','backgroundDecision','backgroundConcepts',
@@ -89,6 +90,7 @@ export function editorialResponseContract(request){
     materials:request.materialShotIds.map(shotId=>{
       const row=rows.find(r=>r.shotId===shotId),editable=request.editableShotIds.includes(shotId);
       return {shotId,mode:editable?'replace-design':'retarget-only',
+        newResearchContract:editable?structuredClone(EDITORIAL_NEW_RESEARCH_CONTRACT):null,
         designFields:editorialMaterialDesignFields(request,shotId),
         requiredFields:['shotId','research',...(editable?MATERIAL_CREATIVE_KEYS.filter(k=>Object.hasOwn(row||{},k)):[]),
           ...(row?.personDisplays?['personDisplays']:[])],
@@ -118,6 +120,7 @@ export function auditEditorialConstraintInput(request,{catalog,modelInput}){
     if(row?.mode!==spec.mode||spec.mode==='retarget-only'&&row?.rewriteFields?.length)
       add(`${spec.shotId}锁定换槽与创意重写任务冲突`);
     if(!isDeepStrictEqual(row?.designFields,spec.designFields))add(`${spec.shotId}实际输入缺少逐字段类型及填写说明`);
+    if(!isDeepStrictEqual(row?.newResearchContract,spec.newResearchContract))add(`${spec.shotId}实际输入缺少同源的新增资料种类与语境配图区分合同`);
     if(!isDeepStrictEqual(row?.requiredArrays,spec.requiredFields.filter(k=>['research','personDisplays'].includes(k)))||
       !isDeepStrictEqual(row?.rewriteFields,spec.requiredFields.filter(k=>MATERIAL_CREATIVE_KEYS.includes(k))))
       add(`${spec.shotId}输入必填数组或创意字段与执行合同不一致`);
