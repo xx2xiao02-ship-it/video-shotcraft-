@@ -185,7 +185,7 @@ export function recordCandidateComparison(project,options={}) {
       perSemantic:Object.fromEntries(groups.map(([sem,list])=>[sem,list.map(c=>c.slug)])),
       recommended:recommendations.includes(shot.shotCard),semanticDeviation:entry.waived||{},
       expressionPreference:visualPreference(recommendations.map(id=>index.cards.find(c=>c.slug===id)).filter(Boolean),
-        {semantics:groups.map(([sem])=>sem),mediaAvailable:/V|图|截图/u.test(entry.media||'')}),
+        {semantics:groups.map(([sem])=>sem),mediaAvailable:/V|图|截图/u.test(entry.media||''),videoAvailable:/V/u.test(entry.media||'')}),
       recentWindow:recent,unusedRecommendations:recommendations.filter(id=>!recent.some(s=>s.cardId===id)),
       templateContinuity:shot.templateParams?.templateContinuity||null};
   });

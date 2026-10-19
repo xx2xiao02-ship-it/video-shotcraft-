@@ -16,10 +16,10 @@ test('普通论述逐镜必须视频，论点标签和强调need及omit理由不
  assert.ok(checkMaterialPolicy(p,d,[shot]).issues.some(i=>i.code==='TEXT_VIDEO_REQUIRED'));
  bind(shot);assert.ok(!checkMaterialPolicy(p,d,[shot]).issues.some(i=>i.code==='TEXT_VIDEO_REQUIRED'));
 });
-test('真正独立金句和前三镜可保留简洁背景，混入机制解释或他镜金句不能获得例外',()=>{
+test('观点金句也必须视频，仅真实前三镜保持简洁背景',()=>{
  const shot=shots(1)[0],args={shot,position:5,considerBackground:true};
  const sentence={i:2,shot:shot.id,text:'信心本身就是经济的组成部分。',sem:['金句'],need:['强调']};
- assert.equal(textVideoRequirement({...args,sentences:[sentence]}).required,false);
+ assert.equal(textVideoRequirement({...args,sentences:[sentence]}).required,true);
  assert.equal(textVideoRequirement({...args,sentences:[{...sentence,shot:'another'}]}).required,true);
  assert.equal(textVideoRequirement({...args,sentences:[sentence,{...sentence,sem:['机制']}]}).required,true);
  assert.equal(textVideoRequirement({...args,position:2,sentences:[]}).required,false);
@@ -48,7 +48,7 @@ test('图片、线上候选及未知适配不能冒充实际视频背景',()=>{f
 test('历史版本及omit理由均不能豁免三镜窗口',()=>{const s=shots(6),p={editorialPolicy:'zh-background-v1',shots:s.map(x=>({shotId:x.id,backgroundDecision:'omit',pureTextReason:'保留文字'}))};assert.ok(checkMaterialPolicy(p,demands(s),s).issues.some(x=>x.code==='TEXT_VIDEO_CYCLE_REQUIRED'));});
 test('图形优先比较需要真实图形卡及具体理由，加背景不能替代',()=>{const s=shots(1),p={editorialPolicy:MATERIAL_POLICY_VERSION,shots:[{shotId:s[0].id,backgroundDecision:'omit',pureTextReason:'短开篇聚焦完整问题'}]};const check=()=>checkMaterialPolicy(p,demands(s),s);assert.equal(check().issues[0].code,'GRAPHIC_COMPARISON_REQUIRED');p.shots[0].graphicAlternatives=[{cardId:'invented',reason:'不适合当前钩子'}];assert.equal(check().issues[0].code,'GRAPHIC_COMPARISON_REQUIRED');p.shots[0].graphicAlternatives[0].cardId='info-term-card';assert.equal(check().issues.length,0);});
 test('只改外底板，不改几何、文字窗口与嵌套信息；浅字黑压与独立字幕一致',()=>{const s=shots(1)[0];bind(s);assert.equal(backgroundPresentation(s).overlay,'#000000b8');assert.match(textVideoSkin(s),/> div \{ background: transparent/);assert.doesNotMatch(textVideoSkin(s),/transform|font|color|position|opacity/);assert.equal(backgroundCaptionTheme(s,{text:'#111111'}).text,'#ffffff');s.templateParams.cardProps.textColor='#111111';assert.throws(()=>backgroundPresentation(s),/对比度/);assert.throws(()=>textVideoSkin(s),/对比度/);delete s.templateParams.backgroundPresentation;assert.equal(textVideoSkin(s),'');});
-test('适配记录严格绑定原模板源码，不冒称任意模板可改造',()=>{const root=process.env.TALKCRAFT_SKILL_ROOT||'E:/video-shotcraft/_audit/video-talkcraft';for(const spec of Object.values(TEXT_VIDEO_CARDS)){const src=fs.readFileSync(path.join(root,'workbench/src/cards',spec.source));assert.equal(createHash('sha256').update(src).digest('hex'),spec.sha256);assert.equal((src.toString().match(/background: "#ffffff"/gu)||[]).length,1);}});
+test('适配记录严格绑定原模板源码，不冒称任意模板可改造',()=>{const root=process.env.TALKCRAFT_SKILL_ROOT||'E:/video-shotcraft/_audit/video-talkcraft';for(const spec of Object.values(TEXT_VIDEO_CARDS)){const src=fs.readFileSync(path.join(root,'workbench/src/cards',spec.source));assert.equal(createHash('sha256').update(src).digest('hex'),spec.sha256);assert.equal((src.toString().match(/background: "#ffffff"/gu)||[]).length,spec.backgroundPlates||1);}});
 test('不存在或伪造的视频文件不能因为路径正确而通过素材审核',t=>{const p=fs.mkdtempSync(path.join(os.tmpdir(),'text-video-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));fs.mkdirSync(p+'/remotion/public/broll',{recursive:true});const s=shots(1);bind(s[0]);assert.equal(auditTextVideoFiles(p,s).passed,false);fs.writeFileSync(p+'/remotion/public/broll/city.mp4','not video');assert.equal(auditTextVideoFiles(p,s).issues[0].code,'TEXT_VIDEO_FILE_INVALID');});
 
 test('前三镜不强制背景，第四镜起仍检查每个重叠三镜窗口',()=>{const s=shots(6);assert.equal(rawCheckTextVideoCycle(s.slice(0,3),demands(s)).passed,true);assert.deepEqual(rawCheckTextVideoCycle(s,demands(s)).issues.map(x=>x.shotIds),[['s3','s4','s5']]);bind(s[4]);assert.equal(rawCheckTextVideoCycle(s,demands(s)).passed,true);});
@@ -67,4 +67,13 @@ test('新任务乱序分镜仍只豁免真实前三镜，04与06一致且不重�
   assert.deepEqual(report.issues.filter(i=>i.code==='TEXT_VIDEO_PLAN_REQUIRED').map(i=>i.shotId),['s4','s3']);
  }
  assert.deepEqual(input,before);
+});
+
+
+test('字距收拢仅清除两层已核对整屏底板，不改spring、字号、字级或开场',()=>{
+ const s={...shots(1)[0],shotCard:'tracking-in'};bind(s);s.templateParams.cardProps={textColor:'#ffffff'};
+ const skin=textVideoSkin(s);assert.match(skin,/> div, .* > div > div/);
+ assert.doesNotMatch(skin,/span|transform|letter|filter|font|opacity|position/);
+ assert.equal(backgroundPresentation(s).overlay,'#000000b8');
+ delete s.templateParams.backgroundPresentation;assert.equal(textVideoSkin(s),'');
 });

@@ -11,6 +11,11 @@ import {visualContentContract,isTextDominant,auditFilmExpression} from './talkcr
 
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
+// A row owns research identity; the actual display target owns its slot.
+const localBindings=(row,shotId)=>(row?.bindings||[]).filter(b=>{
+ const research=row?.research?.find(r=>r.kind===b.kind&&r.query===b.query);
+ return (b.displayShotId||research?.displayShotId||row.shotId)===shotId;
+});
 const unavailableMediaCode=c=>['local_material_unmatched','reviewed_source_binding_required','REAL_SOURCE_NOT_BOUND'].includes(c);
 function availableReuseMedia(row,projectRoot){
   if(!projectRoot)return [];
@@ -69,17 +74,17 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   const graphicDomains=new Map();
   const graphicDomain=shot=>{
    if(graphicDomains.has(shot.id))return graphicDomains.get(shot.id);
-   const row=rows.find(r=>r.shotId===shot.id),internal=row?.materialBindings||[];
+   const row=rows.find(r=>r.shotId===shot.id),internal=row?.materialBindings||[],boundHere=localBindings(row,shot.id);
    const requiresSource=materials.checks.some(c=>c.displayShotId===shot.id)||internal.length||
      (proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1).some(s=>(s.need||[]).some(n=>kindFor[n]));
    const partiallyBound=!!row?.bindings?.length&&(row.research||[]).some(r=>!row.bindings.some(b=>b.kind===r.kind&&b.query===r.query));
    const limited=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound;
-   const available=limited?availableReuseMedia(row,projectRoot).length:Infinity;
+   const available=limited?availableReuseMedia({...row,bindings:localBindings(row,shot.id)},projectRoot).length:Infinity;
    const possible=editorialRangeFeasibility({...shot,aligned,catalog,personWindows}).cards.some(c=>{
     const card=catalog.cards.find(k=>k.cardId===c.slug);
     if(!card||isTextDominant({shotCard:card.cardId},catalog)||visualContentContract(card).placeholder)return false;
     const fields=editorialSourceDisplayFields(card);
-    if(requiresSource&&!fields.length||row?.bindings?.length&&!fields.some(f=>['image','image-or-video'].includes(card.policy?.media?.[f]))||
+    if(requiresSource&&!fields.length||boundHere.length&&!fields.some(f=>['image','image-or-video'].includes(card.policy?.media?.[f]))||
        requiredNonHostMediaCount(card)>available||internal.some(b=>!['image','image-or-video'].includes(card.policy?.media?.[b.field])))return false;
     if(shot.subject==='person'&&visualContentContract(card).hostConflict)return false;
     return !auditTemplateReuse(shots.map(s=>s.id===shot.id?{...s,shotCard:card.cardId}:s)).some(i=>i.shotId===shot.id||i.previousShotId===shot.id);
@@ -103,7 +108,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       sourceShotId:c.shotId,kind:c.kind,query:c.query,previousField:c.field}));
     const requiredKinds=[...new Set((proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1)
       .flatMap(s=>(s.need||[]).map(n=>kindFor[n]).filter(Boolean)))];
-    const row=rows.find(r=>r.shotId===shot.id);
+    const row=rows.find(r=>r.shotId===shot.id),boundHere=localBindings(rows.find(r=>r.shotId===shot.id),shot.id);
     // A failed acquisition is not a new usable asset. This repair round must
     // fit the files that actually survived the original binding checks.
     // Source/identity obligations below remain mandatory; this is a capacity
@@ -114,7 +119,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     const partiallyBound=!!row?.bindings?.length&&(row.research||[]).some(r=>
       !row.bindings.some(b=>b.kind===r.kind&&b.query===r.query));
     const reuseMediaBudget=dependencyExpansion||failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound?
-      {available:availableReuseMedia(row,projectRoot).length,mode:'existing-files-only'}:null;
+      {available:availableReuseMedia({...row,bindings:localBindings(row,shot.id)},projectRoot).length,mode:'existing-files-only'}:null;
     const missingKinds=requiredKinds.filter(kind=>!row?.research?.some(r=>r.kind===kind));
     // A core person cannot evade the local slot requirement by an invalid
     // cross-shot plan. The unchanged material gate still checks approval.
@@ -140,7 +145,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       // index inside a list. Do not offer a list-only retarget that the formal
       // recovery contract cannot execute without guessing an image position.
       const scalarSourceFields=sourceDisplayFields.filter(f=>['image','image-or-video'].includes(card.policy?.media?.[f]));
-      if(row?.bindings?.length&&!scalarSourceFields.length)reasons.push('BOUND_SOURCE_SCALAR_SLOT_REQUIRED');
+      if(boundHere.length&&!scalarSourceFields.length)reasons.push('BOUND_SOURCE_SCALAR_SLOT_REQUIRED');
       if(reuseMediaBudget&&requiredNonHostMediaCount(card)>reuseMediaBudget.available)
         reasons.push('AVAILABLE_MEDIA_CAPACITY_EXCEEDED');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');

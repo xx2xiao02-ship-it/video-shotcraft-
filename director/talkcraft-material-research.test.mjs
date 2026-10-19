@@ -69,3 +69,12 @@ test('比较背景不会强制每个文字镜铺视频，明确选用才校验�
  const p=fixture(t),v=plan();v.shots[0].research=[];v.shots[0].backgroundQuery='city';v.shots[0].backgroundReason='比较语境';fs.writeFileSync(p+'/material-research-plan.json',JSON.stringify(v));
  assert.equal(auditMaterialResearch(p,index).issues.some(i=>i.code==='BACKGROUND_NOT_BOUND'),false);v.shots[0].backgroundDecision='use';fs.writeFileSync(p+'/material-research-plan.json',JSON.stringify(v));assert.equal(auditMaterialResearch(p,index).issues.some(i=>i.code==='BACKGROUND_NOT_BOUND'),true);
 });
+
+// 图片可用与视频可用不可混同，偏好不能冒充已核验素材。
+test('实景视频入口优先普通截图，只有图片时不宣称已有视频',()=>{
+ const cards=[{slug:'document',category:'素材呈现',inputs:[{type:'图'}]},{slug:'real-video',category:'素材呈现',inputs:[{type:'V'}]}];
+ assert.equal(visualPreference(cards,{mediaAvailable:true})[0].cardId,'document');
+ const r=visualPreference(cards,{mediaAvailable:true,videoAvailable:true});
+ assert.equal(r[0].cardId,'real-video');assert.equal(r.length,2);assert.match(r[0].reason,/仍须素材节点核验/u);
+ assert.deepEqual(cards.map(c=>c.slug),['document','real-video']);
+});

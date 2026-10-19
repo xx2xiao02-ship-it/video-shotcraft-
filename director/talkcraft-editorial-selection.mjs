@@ -145,8 +145,12 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
       count:film.count,total:film.total,textDuration:film.textDuration,duration:film.duration},
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
       graphicRelations:w.choices.flatMap(c=>{const relation=graphicRelationContract(c.slug);return relation?[{choiceId:c.choiceId,relation}]:[];}),
-      visualPreference:{comparisonOrder:[...w.choices].sort((a,b)=>Number(preferred.has(b.slug))-Number(preferred.has(a.slug))).map(c=>c.choiceId),
-        instruction:'先比较语义适配的结构、关系、流程及真实资料卡，再考虑文字卡。comparisonOrder仅为比较次序，不能盲选首项，不改变choices的编号。全片解释段文字数量和时长均须不超过一半；铺背景不计图形，不虚构数据。'},
+      visualPreference:{comparisonOrder:[...w.choices].sort((a,b)=>{
+        const video=c=>promptCatalog.cards.find(k=>k.slug===c.slug)?.inputs?.some(i=>i.type==='V');
+        const tier=c=>!w.requiresSource&&video(c)?0:preferred.has(c.slug)?1:2;
+        return tier(a)-tier(b);
+      }).map(c=>c.choiceId),
+        instruction:'普通论述先比较语境匹配的实景视频方案；需要展示关系时比较结构、关系和流程卡，需要证明数据或引用时才展示原始资料。非开场文字镜头一律配黑色压暗的视频背景。comparisonOrder仅为比较次序，不能盲选首项，不改变choices的编号。全片解释段文字数量和时长均须不超过一半；铺背景不计图形，不虚构数据。'},
       selectionReasonContract:{path:'templateParams.semanticDeviations',requiredWhen:'outside-upstream-recommendations',
         allowedSemanticKeys:[...w.actualCandidateSemantics],minimumNonWhitespaceCharacters:4,
         choices:w.choices.map(c=>({choiceId:c.choiceId,
@@ -163,7 +167,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
           const [current]=materialDemand({shots:request.baseProposal.shots.map((s,i)=>i===position?{...s,shotCard:choice.slug,templateParams:{}}:s),semantics:{sentences:request.baseProposal.sentences},index:promptCatalog}).filter(d=>d.shotId===w.shotId);
           return {choiceId:choice.choiceId,category:demand.category,requiredWithoutSourceDisplay:demand.considerBackground,textVideo:current.textVideo};
         }),
-        instruction:'按所选choiceId的textVideo执行：required=true时backgroundDecision必须use并填写具体backgroundQuery，由06正式采集和绑定；不支持视频背景的普通论述文字卡已在发送前排除，不能用omit理由、色块或纸背景恢复。观点强调例外仍受图形占比和原三镜周期约束。按所选choiceId的requiredWithoutSourceDisplay执行：无真实资料展示的字幕花字、强调标注及指定章节卡都属于背景决策范围，人物出现不豁免。backgroundDecision最终只能use或omit；omit时pureTextReason必须是本次非空具体理由，backgroundReason不能替代；use须有backgroundQuery并由正式素材流程核验绑定。compare、空理由或搜索候选不能通过；三镜视频背景规则仍独立检查。'},
+        instruction:'按所选choiceId的textVideo执行：required=true时backgroundDecision必须use并填写具体backgroundQuery，由06正式采集和绑定；不支持视频背景的普通论述文字卡已在发送前排除，不能用omit理由、色块或纸背景恢复。观点、金句和强调也不豁免；仅前三镜开场保持不动。按所选choiceId的requiredWithoutSourceDisplay执行：无真实资料展示的字幕花字、强调标注及指定章节卡都属于背景决策范围，人物出现不豁免。backgroundDecision最终只能use或omit；omit时pureTextReason必须是本次非空具体理由，backgroundReason不能替代；use须有backgroundQuery并由正式素材流程核验绑定。compare、空理由或搜索候选不能通过；三镜视频背景规则仍独立检查。'},
       anchorScope:editorialAnchorModelScope(w.anchorScope,w.shotId)})),
     failedChecks:request.failedChecks.filter(r=>!request.batch||[r.shotId,r.displayShotId].some(id=>request.editableShotIds.includes(id)))
       .map(r=>pick(r,['code','shotId','displayShotId','field','effectId','targetEventId','effectFrame','textReadyFrame',

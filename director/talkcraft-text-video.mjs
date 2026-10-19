@@ -1,6 +1,7 @@
 // Only audited outer plates are skinned. Original source, geometry and clocks stay intact.
 export const TEXT_VIDEO_VERSION='text-video-v1';
 export const TEXT_VIDEO_CARDS={
+ 'tracking-in':{source:'gen/tracking-in.tsx',sha256:'caa9b80a94df45df9e5856add729d33bfadcc62bd2b0b5c451ced6095da8c854',colors:{textColor:'#171717'},backgroundPlates:2},
  'ink-underline':{source:'gen/ink-underline.tsx',sha256:'69b7dbab1e42b756c2fc0425f6272f2bcc17ac794a1a84bfb8a22c4368ee932d',colors:{ink:'#1d1d1f',inkColor:'#6f7f35'}},
  'line-by-line-slide':{source:'gen/line-by-line-slide.tsx',sha256:'57b55474d521ab5219287bc03a9f06e2461fd1e0c522718ef97e698153db7304',colors:{ink:'#171717'}},
  'per-character-rise':{source:'gen/per-character-rise.tsx',sha256:'3c4e65d8064892dc0a15a2b03c45a4f82d5d3e95201145cbedd4908125f14386',colors:{ink:'#171717'}},
@@ -18,7 +19,9 @@ export function textVideoSkin(shot){
  if(shot?.templateParams?.backgroundPresentation!==TEXT_VIDEO_VERSION)return '';
  if(!TEXT_VIDEO_CARDS[shot.shotCard])throw Error(`${shot.id} 模板尚未核对视频背景改造能力，请比较其他已审模板`);
  assertTextVideoColors(shot);
- return '[data-talkcraft-text-video="text-video-v1"] > div { background: transparent !important; }';
+ const root='[data-talkcraft-text-video="text-video-v1"] > div';
+ const selectors=TEXT_VIDEO_CARDS[shot.shotCard].backgroundPlates===2?`${root}, ${root} > div`:root;
+ return `${selectors} { background: transparent !important; }`;
 }
 export function hasVideoBackground(shot){
  const p=shot?.templateParams||{};
@@ -36,16 +39,13 @@ export function textVideoPositions(shots){
  const ordered=key?[...shots].sort((a,b)=>key(a)-key(b)):shots;
  return new Map(ordered.map((s,i)=>[s.id,i]));
 }
-// Code-owned purpose from this shot's current sentence records. A broad
-// '论点' or need='强调' label alone cannot exempt ordinary narration.
+// The opening is fixed; every later text scene requires real video, including
+// opinions, quotations and emphasis. Semantic labels cannot waive the rule.
 export function textVideoRequirement({shot,sentences=[],position,considerBackground}){
  const rows=sentences.filter((s,i)=>s.shot===shot.id||!s.shot&&i>=shot.firstSentence&&i<=shot.lastSentence);
- const dedicated=rows.length>0&&rows.every(s=>
-  (s.sem||[]).some(t=>['观点','金句'].includes(t))&&
-  !(s.sem||[]).some(t=>['机制','定义','例证','数据','列举','时间地点','过程演示'].includes(t)));
  const opening=Number.isInteger(position)&&position<3;
- return {required:!!considerBackground&&!opening&&!dedicated,
-  purpose:!considerBackground?'visual-content':opening?'opening':dedicated?'opinion-emphasis':'narration',
+ return {required:!!considerBackground&&!opening,
+  purpose:!considerBackground?'visual-content':opening?'opening':'text-with-video',
   sentenceIndexes:rows.map(s=>s.i).filter(Number.isInteger),
   supported:!!TEXT_VIDEO_CARDS[shot.shotCard]||shot.shotCard==='chapter-progress-list'};
 }

@@ -60,8 +60,6 @@ function fixture(){
 
 test('三个真实失败模式联合计算，不能让时长可行但无资料槽的卡再次混入',()=>{
   const args=fixture();
-  // 本例仅核验原生时长；独立金句保留无视频能力文字卡选项。
-  args.proposal.sentences[3].sem=['金句'];
   // 新驻留预算为90帧，用195帧正文镜继续覆盖确需减速的情形。
   args.aligned[3].end=args.aligned[3].start+195/30;
   args.personWindows[1].end=args.aligned[3].end;
@@ -80,10 +78,12 @@ test('三个真实失败模式联合计算，不能让时长可行但无资料�
   }
   assert.ok(s21.selected.issues.some(i=>i.code==='NATIVE_EDITORIAL_PLAN'));
   assert.equal(s21.selected.requestedPlaybackRate,1);assert.equal(s21.selected.timing,null);
-  const slower=s21.candidates.find(c=>c.slug==='outline-box-title');
-  assert.equal(slower.timing.requestedPlaybackRate,.85);assert.ok(slower.timing.holdFrames<=90);
-  assert.ok(slower.timing.actualRates.every(r=>r>=.85&&r<=1.15));
-  assert.equal(slower.timing.visibilityVerified,false);assert.equal(report.productionAdmitted,false);
+  assert.ok(s21.rejected.TEXT_VIDEO_TEMPLATE_REQUIRED.includes('outline-box-title'));
+  for(const option of s21.candidates){
+    assert.ok(option.timing.actualRates.every(r=>r>=.85&&r<=1.15));
+    assert.equal(option.timing.visibilityVerified,false);
+  }
+  assert.equal(report.productionAdmitted,false);
 });
 
 test('完整108卡比较仍保留原去重门禁，修订组内冲突不得误当固定占用或自动承接',()=>{
@@ -238,4 +238,21 @@ test('单镜仅被唯一固定镜去重占用时提出两镜联合可行域，�
  // A second fixed occupier makes the dependency ambiguous: do not unlock more shots.
  args.proposal.shots[2].shotCard='gallery-wall-dolly';
  assert.equal(buildEditorialJointRepairContract(args).batch.dependencyExpansion,undefined);
+});
+
+
+test('资料安排在后镜展示时，不向研究引用镜强加本地媒体槽；目标镜义务与跨镜审批检查保留',()=>{
+ const args=fixture();args.failedChecks=[{shotId:'s07',code:'TEXT_VIDEO_TEMPLATE_REQUIRED'},{shotId:'s14',code:'MATERIAL_DISPLAY_SLOT_REQUIRED'}];
+ const row=args.proposal.materialResearch.shots.find(r=>r.shotId==='s07');
+ row.research=[{kind:'evidence',query:'原报告',reason:'引用机构原始说明',displayShotId:'s14',displayField:'src'}];
+ row.bindings=[{kind:'evidence',query:'原报告',displayShotId:'s14',field:'src',localPath:'pages/report.png',sha256:'unchanged'}];
+ const before=structuredClone(args),report=buildEditorialJointRepairContract(args);
+ const source=report.windows.find(w=>w.shotId==='s07'),target=report.windows.find(w=>w.shotId==='s14');
+ assert.ok(!source.rejected.BOUND_SOURCE_SCALAR_SLOT_REQUIRED?.length);
+ assert.ok(source.candidates.some(c=>c.sourceDisplayFields.length===0));
+ assert.ok(target.obligations.some(o=>o.sourceShotId==='s07'&&o.query==='原报告'));
+ assert.ok(target.candidates.every(c=>c.sourceDisplayFields.length>0));
+ const audit=auditEditorialMaterialContract({shots:args.proposal.shots,sentences:args.proposal.sentences,researchPlan:args.proposal.materialResearch,catalog});
+ assert.ok(audit.issues.some(i=>i.code==='MATERIAL_DEFERRED_DISPLAY_NOT_APPROVED'));
+ assert.deepEqual(args,before);
 });
