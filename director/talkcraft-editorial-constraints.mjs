@@ -1,6 +1,7 @@
 import {isDeepStrictEqual} from 'node:util';
 import {createHash} from 'node:crypto';
 import {EDITORIAL_NEW_RESEARCH_CONTRACT} from './talkcraft-editorial-material-contract.mjs';
+import {editorialSourceDisplayFields} from './talkcraft-editorial-material-contract.mjs';
 
 // Model-facing rules and response enforcement share these field definitions.
 export const MATERIAL_CREATIVE_KEYS=['background','backgroundQuery','backgroundDecision','backgroundConcepts',
@@ -134,8 +135,7 @@ export function auditEditorialConstraintInput(request,{catalog,modelInput}){
   }
   for(const window of request.windows)for(const choice of window.choices){
     const card=catalog.cards.find(c=>c.cardId===choice.slug);
-    const fields=Object.entries(card?.policy?.media||{}).filter(([k,v])=>k!=='hostSrc'&&
-      ['image','image-list','image-or-video','video','portrait-video'].includes(v)).map(([k])=>k);
+    const fields=editorialSourceDisplayFields(card);
     if(!card||!isDeepStrictEqual(fields,choice.sourceDisplayFields)||window.requiresSource&&!fields.length)
       add(`${window.shotId}方案的真实资料槽与模板源码合同不一致`);
   }

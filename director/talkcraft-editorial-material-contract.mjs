@@ -11,7 +11,7 @@ export const EDITORIAL_MATERIAL_DISPLAY_RULES='选卡与素材展示同时规划
 
 export function editorialSourceDisplayFields(card){
   return Object.entries(card?.policy?.media||{})
-    .filter(([field,kind])=>field!=='hostSrc'&&['image','image-list','image-or-video','video','portrait-video'].includes(kind))
+    .filter(([field,kind])=>!['hostSrc','handSrc'].includes(field)&&['image','image-list','image-or-video','video','portrait-video'].includes(kind))
     .map(([field])=>field);
 }
 

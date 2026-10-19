@@ -147,6 +147,10 @@ test('没有联合可行卡时明确返回重排，不用第一卡、虚构媒�
   assert.deepEqual(result.candidates,[]);assert.match(result.nextAction,/真实自然句/);
   assert.equal(args.proposal.shots[1].shotCard,'focus-dim-spotlight');
 });
+test('无明确失败镜范围不能默认为首镜或全片修订',()=>{
+ const args=fixture();args.failedChecks=[{code:'EDITORIAL_REPAIR_SELECTION_INVALID'}];
+ assert.throws(()=>buildEditorialJointRepairContract(args),/没有本次明确镜头范围/);
+});
 
 test('固定示意卡没有本片内容与媒体入口时不能作为可执行修订方案',()=>{
   const args=fixture(),report=buildEditorialJointRepairContract(args);

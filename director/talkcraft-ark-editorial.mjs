@@ -625,7 +625,8 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
             compiledSha256:createHash('sha256').update(JSON.stringify(result)).digest('hex'),
             productionAdmitted:false,userAcceptance:false},null,2));
         }catch(error){
-          const issues=error.issues||[{code:'EDITORIAL_REPAIR_SELECTION_INVALID',message:error.message}];
+          const issues=(error.issues||[{code:'EDITORIAL_REPAIR_SELECTION_INVALID',message:error.message}]).flatMap(issue=>
+            issue.shotId?[issue]:selectionRequest.editableShotIds.map(shotId=>({...issue,shotId})));
           const rejection={schema:'talkcraft-editorial-selection-audit-v1',requestId:selectionRequest.requestId,
             passed:false,compiled:false,issues,rawResponse:path.relative(project,rawFile),productionAdmitted:false};
           writeFileSync(path.join(qa,'editorial-selection-audit.json'),JSON.stringify(rejection,null,2));

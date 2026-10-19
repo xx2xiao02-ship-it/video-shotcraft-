@@ -25,6 +25,13 @@ test('有资料要求却没有原卡媒体槽，在04结构检查中拒绝，不
     assert.deepEqual(args,before);
   }
 });
+test('绘画用的手部素材不是资料展示槽，不能把官方文件塞入handSrc',()=>{
+ const args=fixture('pencil-sketch-draw');
+ args.researchPlan.shots[0].research[0].displayField='handSrc';
+ assert.ok(codes(args).includes('MATERIAL_DISPLAY_SLOT_UNAVAILABLE'));
+ const prompt=compactTalkcraftEditorialCatalog(index,catalog);
+ assert.deepEqual(prompt.contracts.find(c=>c.slug==='pencil-sketch-draw').sourceDisplayFields,[]);
+});
 test('双图模板不能声明无外部素材；检索词仅是采集待办，不是素材验收',()=>{
   const args=fixture('split-compare-slider');args.researchPlan.shots[0].research=[];args.sentences[0].need=['对比'];
   args.shots[0].templateParams.materialRole='无外部素材，原卡解释信息';

@@ -47,6 +47,8 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   if(!proposal?.shots?.length)return null;
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
   const film=auditFilmExpression(shots.map(s=>({...s,start:aligned[s.firstSentence]?.start,end:aligned[s.lastSentence]?.end})),catalog);
+  const reportedChecks=failedChecks;
+  failedChecks=[...failedChecks,...film.issues.filter(i=>!failedChecks.some(old=>old.code===i.code&&old.shotId===i.shotId))];
   const materials=auditEditorialMaterialContract({shots,sentences:proposal.sentences,
     researchPlan:proposal.materialResearch,catalog,projectRoot});
   // A reuse issue names both ends; repair an independently failing end first,
@@ -55,7 +57,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     .flatMap(i=>[i.shotId,i.displayShotId,...(i.shotIds||[])]).filter(Boolean));
   for(const issue of failedChecks.filter(i=>i.code==='template_window_reuse'))
     if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
-  if(!ids.size)shots.forEach(s=>ids.add(s.id));
+  if(!ids.size)throw Error('失败清单没有本次明确镜头范围，禁止扩大到全片或默认首镜；先修复失败证据');
   const pending=shots.filter(s=>ids.has(s.id));
   // A film-wide quota does not require EVERY text shot to become graphics.
   // Prefer ranges that actually have a graphic duration domain; short text
@@ -63,9 +65,20 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   const graphicDomains=new Map();
   const graphicDomain=shot=>{
    if(graphicDomains.has(shot.id))return graphicDomains.get(shot.id);
+   const row=rows.find(r=>r.shotId===shot.id),internal=row?.materialBindings||[];
+   const requiresSource=materials.checks.some(c=>c.displayShotId===shot.id)||internal.length||
+     (proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1).some(s=>(s.need||[]).some(n=>kindFor[n]));
+   const partiallyBound=!!row?.bindings?.length&&(row.research||[]).some(r=>!row.bindings.some(b=>b.kind===r.kind&&b.query===r.query));
+   const limited=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound;
+   const available=limited?availableReuseMedia(row,projectRoot).length:Infinity;
    const possible=editorialRangeFeasibility({...shot,aligned,catalog,personWindows}).cards.some(c=>{
     const card=catalog.cards.find(k=>k.cardId===c.slug);
-    return card&&!isTextDominant({shotCard:card.cardId},catalog)&&!visualContentContract(card).placeholder;
+    if(!card||isTextDominant({shotCard:card.cardId},catalog)||visualContentContract(card).placeholder)return false;
+    const fields=editorialSourceDisplayFields(card);
+    if(requiresSource&&!fields.length||row?.bindings?.length&&!fields.some(f=>['image','image-or-video'].includes(card.policy?.media?.[f]))||
+       requiredNonHostMediaCount(card)>available||internal.some(b=>!['image','image-or-video'].includes(card.policy?.media?.[b.field])))return false;
+    if(shot.subject==='person'&&visualContentContract(card).hostConflict)return false;
+    return !auditTemplateReuse(shots.map(s=>s.id===shot.id?{...s,shotCard:card.cardId}:s)).some(i=>i.shotId===shot.id||i.previousShotId===shot.id);
    });graphicDomains.set(shot.id,possible);return possible;
   };
   if(failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'))pending.sort((a,b)=>Number(graphicDomain(b))-Number(graphicDomain(a))||
@@ -174,7 +187,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       nextAction:candidates.length?'编导比较可行卡并同时重写参数、资料展示字段和原生展示计划':'按真实自然句边界重排；已生成口型窗口仍精确保留'};
   });
   return {schema:'talkcraft-editorial-joint-repair-v1',
-    inputSha256:digest({proposal,failedChecks,aligned,personWindows,...(repairBatch?{repairBatch}:{})}),reviewedCount:catalog.cards.length,
+    inputSha256:digest({proposal,failedChecks:reportedChecks,aligned,personWindows,...(repairBatch?{repairBatch}:{})}),reviewedCount:catalog.cards.length,
     ...(repairBatch?{batch:{maxShots:repairBatch.maxShots,pendingShotIds:pending.map(s=>s.id),
       deferredShotIds:pending.filter(s=>!ids.has(s.id)).map(s=>s.id)}}:{}),
     windows,materialIssues:materials.issues,
