@@ -22,12 +22,17 @@ test('素材恢复失败后的重选按真实已存在文件限制必需媒体�
  assert.ok(w.candidates.every(c=>!c.sourceDisplayFields.length));
  fs.mkdirSync(path.join(dir,'remotion/public/pages'),{recursive:true});
  fs.writeFileSync(path.join(dir,'remotion/public/pages/a.png'),'source');
- row.bindings=[{localPath:'pages/a.png',sha256:createHash('sha256').update('source').digest('hex')}];
+ row.bindings=[{kind:'identity',query:'原机构资料',localPath:'pages/a.png',sha256:createHash('sha256').update('source').digest('hex')}];
  row.research=[{kind:'identity',query:'原机构资料',reason:'身份',displayShotId:'s07',displayField:'src'}];
  w=buildEditorialJointRepairContract(args).windows[0];assert.equal(w.reuseMediaBudget.available,1);
  assert.equal(w.requiresSource,true);assert.ok(w.candidates.every(c=>c.sourceDisplayFields.length));
  assert.ok(w.rejected.AVAILABLE_MEDIA_CAPACITY_EXCEEDED.includes('douyin-follow-card'));
+ assert.ok(w.rejected.BOUND_SOURCE_SCALAR_SLOT_REQUIRED.includes('word-relay-filmstrip'));
  assert.ok(w.rejected.SOURCE_DISPLAY_SLOT_REQUIRED.includes('source-converge'));
+ row.research.push({kind:'identity',query:'尚未核验的头像',reason:'不得冒充已采集',displayShotId:'s07',displayField:'src'});
+ args.failedChecks=[{shotId:'s07',code:'FILM_TEXT_DOMINANCE',shotIds:['s07']}];
+ w=buildEditorialJointRepairContract(args).windows[0];assert.equal(w.reuseMediaBudget.available,1);
+ assert.ok(w.rejected.AVAILABLE_MEDIA_CAPACITY_EXCEEDED.includes('douyin-follow-card'));
  row.bindings[0].sha256='bad';
  w=buildEditorialJointRepairContract(args).windows[0];assert.equal(w.reuseMediaBudget.available,0);
  assert.equal(w.candidates.length,0);
@@ -174,4 +179,16 @@ test('全片文字占比失败的修订不再向模型提供另一张纯文字�
  assert.ok(w.candidates.length>0);assert.ok(!w.candidates.some(c=>c.slug==='tracking-in'||c.slug==='soft-blur-in'));
  assert.equal(new Set([...w.candidates.map(c=>c.slug),...Object.values(w.rejected).flat()]).size,108);
  assert.deepEqual(args,before);assert.equal(w.selected.slug,'outline-box-title');
+});
+
+test('局部素材错误不能掩盖基稿仍超标的全局比例；当前文字目标须同时满足图形替换',()=>{
+ const args=fixture();args.failedChecks=[{shotId:'s21',code:'MATERIAL_BOUND_FIELD_MISMATCH'}];
+ args.proposal.shots.forEach(s=>{s.firstSentence+=3;s.lastSentence+=3;});
+ args.aligned.unshift({start:0,end:1},{start:1,end:2},{start:2,end:3});
+ args.personWindows.forEach(w=>{w.firstSentence+=3;w.lastSentence+=3;});
+ args.proposal.sentences.unshift(...[0,1,2].map(i=>({i,text:'开场'})));
+ args.proposal.shots.unshift(...[0,1,2].map(i=>({id:`o${i}`,firstSentence:i,lastSentence:i,shotCard:'soft-blur-in'})));
+ const w=buildEditorialJointRepairContract(args).windows[0];
+ assert.ok(w.rejected.GRAPHIC_REPLACEMENT_REQUIRED.includes('outline-box-title'));
+ assert.ok(w.candidates.every(c=>!['tracking-in','soft-blur-in'].includes(c.slug)));
 });

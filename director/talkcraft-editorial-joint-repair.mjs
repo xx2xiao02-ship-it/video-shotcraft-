@@ -6,7 +6,7 @@ import {auditEditorialMaterialContract,editorialSourceDisplayFields} from './tal
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock,assertNativeHoldBudget} from './talkcraft-native-time-map.mjs';
-import {visualContentContract,isTextDominant} from './talkcraft-visual-content-contract.mjs';
+import {visualContentContract,isTextDominant,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
@@ -46,6 +46,7 @@ export function editorialRequiredNumericFields(card){
 export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot,repairBatch}){
   if(!proposal?.shots?.length)return null;
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
+  const film=auditFilmExpression(shots.map(s=>({...s,start:aligned[s.firstSentence]?.start,end:aligned[s.lastSentence]?.end})),catalog);
   const materials=auditEditorialMaterialContract({shots,sentences:proposal.sentences,
     researchPlan:proposal.materialResearch,catalog,projectRoot});
   // A reuse issue names both ends; repair an independently failing end first,
@@ -89,7 +90,12 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     // fit the files that actually survived the original binding checks.
     // Source/identity obligations below remain mandatory; this is a capacity
     // restriction, never permission to replace evidence with a context image.
-    const reuseMediaBudget=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))?
+    // An unresolved source does not become available merely because a local
+    // revision moved on to the film-wide quota gate. Keep the current row's
+    // verified bindings and pending source identity constraints together.
+    const partiallyBound=!!row?.bindings?.length&&(row.research||[]).some(r=>
+      !row.bindings.some(b=>b.kind===r.kind&&b.query===r.query));
+    const reuseMediaBudget=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))||partiallyBound?
       {available:availableReuseMedia(row,projectRoot).length,mode:'existing-files-only'}:null;
     const missingKinds=requiredKinds.filter(kind=>!row?.research?.some(r=>r.kind===kind));
     // A core person cannot evade the local slot requirement by an invalid
@@ -100,13 +106,18 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       sourceUrl:b.sourceUrl||b.url,identityReason:b.identityReason||b.reason||b.matchReason,
       matchReason:b.matchReason,contentLanguage:b.contentLanguage}));
     const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length||retainedInternalSlots.length);
-    const requireGraphicReplacement=graphicDomain(shot)&&failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&
-      (i.shotId===shot.id||i.shotIds?.includes(shot.id)));
+    const requireGraphicReplacement=graphicDomain(shot)&&(film.textShotIds.includes(shot.id)&&!film.passed||
+      failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&(i.shotId===shot.id||i.shotIds?.includes(shot.id))));
     const rejected={},candidates=[];
     const reject=(code,slug)=>(rejected[code]??=[]).push(slug);
     for(const card of catalog.cards){
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
+      // The typed binding reference identifies a scalar image slot, not an
+      // index inside a list. Do not offer a list-only retarget that the formal
+      // recovery contract cannot execute without guessing an image position.
+      const scalarSourceFields=sourceDisplayFields.filter(f=>['image','image-or-video'].includes(card.policy?.media?.[f]));
+      if(row?.bindings?.length&&!scalarSourceFields.length)reasons.push('BOUND_SOURCE_SCALAR_SLOT_REQUIRED');
       if(reuseMediaBudget&&requiredNonHostMediaCount(card)>reuseMediaBudget.available)
         reasons.push('AVAILABLE_MEDIA_CAPACITY_EXCEEDED');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');
