@@ -36,3 +36,13 @@ test('没有英文虚词的完整图表标签可由真实OCR与固定词典交�
   'Les ménages épargnent leurs revenus et les entreprises empruntent auprès des banques pour financer leurs investissements'])
   assert.equal(classifyRecognizedSourceText({text:invalid}),null);
 });
+
+
+test('中文OCR字间空白只用于连续性判定；不补字，不合并数字标点，不降低字数比例门槛',()=>{
+ const text='温 馨 提 示 ： 为 了 您 和 他 人 的 健 康 安 全 请 勿 用 手 直 接 触 摸 商 品';
+ const result=classifyRecognizedSourceText({text,language:'zh-Hans-CN'});
+ assert.equal(result.contentLanguage,'zh-CN');assert.equal(result.recognizedText,text);
+ assert.equal(result.languageEvidence.normalizedInterglyphWhitespace,true);
+ for(const text of ['可 马 大 字','中 1 文 2 测 3 试 4 资 5 料 6 图 7 片 8 显 9 示 0 识 1 别',
+  'the with market many shopping for food cash receipt 中 文 字 体 检 测 噪 声'])assert.equal(classifyRecognizedSourceText({text}),null);
+});

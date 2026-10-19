@@ -13,7 +13,12 @@ export function classifyRecognizedSourceText(result){
  const text=String(result?.text||'').trim(),han=(text.match(/\p{Script=Han}/gu)||[]).length;
  const latin=(text.match(/[a-z]{3,}/giu)||[]).length;
  // An empty OCR result is not proof that an image contains no text.
- if(han>=12&&/[\p{Script=Han}]{4}/u.test(text)&&han/(han+latin*5)>=0.6)return {contentLanguage:'zh-CN',recognizedText:text};
+ // Windows OCR may insert a space between every Chinese glyph. Remove only
+ // that whitespace for the continuity check; preserve every recognized glyph,
+ // punctuation and the raw OCR evidence, with unchanged count/ratio thresholds.
+ const hanContinuity=text.replace(/(?<=\p{Script=Han})\s+(?=\p{Script=Han})/gu,'');
+ if(han>=12&&/[\p{Script=Han}]{4}/u.test(hanContinuity)&&han/(han+latin*5)>=0.6)return {contentLanguage:'zh-CN',recognizedText:text,
+  languageEvidence:{method:'ocr-han-continuity',hanCharacters:han,normalizedInterglyphWhitespace:hanContinuity!==text}};
  const english=new Set((text.toLowerCase().match(/\b(?:the|and|with|from|this|that|for|are|was|have|which)\b/gu)||[]));
  const words=text.toLowerCase().match(/[a-z]{3,}/gu)||[],known=words.filter(w=>englishSpelling.correct(w));
  const distinctKnownWords=new Set(known).size,coverage=known.length/Math.max(words.length,1);

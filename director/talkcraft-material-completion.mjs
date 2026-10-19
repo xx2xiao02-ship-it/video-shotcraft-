@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {createHash} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
+import {setTimeout as delay} from 'node:timers/promises';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
@@ -13,6 +14,7 @@ import {probeMedia} from '../docs/audits/b-talkcraft-target3/validation.mjs';
 
 const LIBRARY_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const sha=x=>createHash('sha256').update(x).digest('hex');
+export const SOURCE_DOWNLOAD_BUDGET=Object.freeze({image:100*1024*1024,video:192*1024*1024});
 const digest=x=>sha(JSON.stringify(x));
 const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const save=(p,n,v)=>{const f=path.join(p,n);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f+'.tmp',JSON.stringify(v,null,2)+'\n');fs.renameSync(f+'.tmp',f);};
@@ -53,7 +55,7 @@ export function sourceSearchContract(query,concepts=[],alternatives=[]){
  const institution=/中国.*(?:央行|人民银行)|人民银行/u.test(text);
  const economics=/经济学奖|经济学.*诺贝尔|nobel.*economic/iu.test(text);
  const document=/公告.*页面|页面.*截图/u.test(query);
- const incompatible=/(?:burn(?:ing|t)?|fire|subprime|mortgage|crisis|protest|war|military|congress|election|candidate for|politician|public money.{0,8}public code|software|programming|恐怖|焚烧|火灾|危机)/iu;
+ const incompatible=/(?:burn(?:ing|t)?|fire|subprime|mortgage|crisis|protest|war|military|congress|election|candidate for|politician|police|bodycam|theft|stealing|suspect|cannabis|cocaine|public money.{0,8}public code|software|programming|恐怖|焚烧|火灾|危机)/iu;
  const differentAward=/chemistry|medicine|physiology|literature|peace prize|化学|医学|生理|文学|和平奖/iu;
  const approvedAlternatives=alternatives.filter(a=>a.kind==='declared-academic-context'&&a.query==='经济学 学术现场 讲座 视频'&&a.basis&&a.contextOnly===true).map(a=>sourceSearchContract(a.query,a.concepts));
  const matchesPrimary=value=>required.length>0&&required.some(([,q,r])=>r.test(value))&&
@@ -102,15 +104,15 @@ export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
  }
  let providerState;try{providerState=read(path.join(project,'qa/source-discovery/commons-provider-state.json'));}catch{}
  const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,invalidBindings,
-  ...(providerState?{transportRetry:{token:digest(providerState),notBefore:providerState.retryAt,failures:providerState.failures||1,maxFailures:3}}:{}),
-  policy:'commons-adaptive-source-v2',strategy:{maxQueriesPerNeed:12,maxCandidates:24,steps:['current-reviewed-source','online-exact','online-keywords','independent-library','local-content-review','transactional-bind','original-gates'],negativeCacheVersion:2},librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
+  ...([429,503].includes(providerState?.status)?{transportRetry:{token:digest(providerState),notBefore:providerState.retryAt,failures:providerState.failures||1,maxFailures:3}}:{}),
+  policy:'commons-adaptive-source-v2',strategy:{maxQueriesPerNeed:12,maxCandidates:24,downloadBudget:SOURCE_DOWNLOAD_BUDGET,steps:['current-reviewed-source','online-exact','online-keywords','independent-library','local-content-review','transactional-bind','original-gates'],negativeCacheVersion:2},librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
  return {...plan,planId:digest(plan)};
 }
 const plain=x=>String(x||'').replace(/<[^>]*>/gu,' ').replace(/&(?:nbsp|amp|quot);/gu,' ').replace(/\s+/gu,' ').trim();
 export function commonsCandidate(page,{kind,query,match}){
  const i=page.imageinfo?.[0],e=i?.extmetadata||{};
  if(!i||!/^https:\/\/upload\.wikimedia\.org\//u.test(i.url||'')||
-   !/^https:\/\/commons\.wikimedia\.org\/wiki\/File[:%]/u.test(i.descriptionurl||'')||i.size>100*1024*1024)return null;
+   !/^https:\/\/commons\.wikimedia\.org\/wiki\/File[:%]/u.test(i.descriptionurl||'')||i.size>SOURCE_DOWNLOAD_BUDGET[kind==='video'?'video':'image'])return null;
  const license=plain(e.LicenseShortName?.value),licenseUrl=e.LicenseUrl?.value;
  if(!/^(CC0|CC BY(?:-SA)?(?: [\d.]+)?|Public domain|PD)$/iu.test(license)||
    !/^https?:\/\/(?:creativecommons\.org|commons\.wikimedia\.org)\//u.test(licenseUrl||'')||
@@ -232,10 +234,15 @@ export function discoverReviewedCompletionSources(project,need){
 }
 export function auditCompletionBindings(project){
  const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json')),invalid=[];
+ const backgroundSources=new Map();
  for(const row of research.shots){
   const shot=shots.find(s=>s.id===row.shotId);if(!shot)continue;
   const b=row.backgroundBinding;
   if(b?.evidence?.startsWith('qa/source-discovery/')&&b.title&&b.sha256===shot.templateParams?.materialSha256){
+   const keys=['hash:'+b.sha256,...(b.originalSha256?['original:'+b.originalSha256]:[]),...(b.sourceId?['identity:'+String(b.sourceId).toLowerCase()]:[])];
+   const duplicate=keys.map(k=>backgroundSources.get(k)).find(Boolean);
+   for(const key of keys)backgroundSources.set(key,backgroundSources.get(key)||row.shotId);
+   if(duplicate){invalid.push({shotId:row.shotId,field:'@background',sha256:b.sha256,sourceId:b.sourceId,reason:'自动背景与'+duplicate+'使用同一来源，须保留首镜并重新采集，不放宽全片排他门禁',binding:b});continue;}
    const match=sourceSearchContract(row.backgroundQuery,row.backgroundConcepts,declaredBackgroundAlternatives(row));
    if(!match.matches(b.title+' '+String(b.description||'').slice(0,600)))invalid.push({shotId:row.shotId,field:'@background',sha256:b.sha256,sourceId:b.sourceId,reason:'来源主体与本镜语境不匹配',binding:b});
   }
@@ -266,6 +273,11 @@ async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
  const commons=['upload.wikimedia.org','thumb.wikimedia.org'].includes(new URL(candidate.mediaUrl).hostname),stateFile='qa/source-discovery/commons-provider-state.json';
  let state;try{state=read(path.join(project,stateFile));}catch{}
  if(commons&&Date.parse(state?.retryAt)>Date.now())throw Error('SOURCE_PROVIDER_COOLDOWN: '+state.retryAt);
+ // Space real downloads across slots and processes. Cached files never wait.
+ if(commons&&fetchImpl===fetch){
+  await delay(Math.min(2000,Math.max(0,Date.parse(state?.nextDownloadAt)-Date.now()||0)));
+  state={...state,nextDownloadAt:new Date(Date.now()+1500).toISOString()};save(project,stateFile,state);
+ }
  let targetUrl=candidate.mediaUrl,r;
  for(let redirects=0;redirects<4;redirects++){
   r=await fetchImpl(targetUrl,{signal:AbortSignal.timeout(120000),redirect:'manual'});
@@ -277,16 +289,26 @@ async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
  if(commons&&[429,503].includes(r.status)){
   const failures=(state?.failures||0)+1,delay=Number(r.headers.get('retry-after'));
   const retryAt=new Date(Date.now()+(Number.isFinite(delay)&&delay>0?Math.min(delay,3600):120*failures)*1000).toISOString();
-  save(project,stateFile,{status:r.status,failures,retryAt});throw Error('SOURCE_PROVIDER_COOLDOWN: HTTP_'+r.status+' '+retryAt);
+  save(project,stateFile,{status:r.status,failures,retryAt,nextDownloadAt:state?.nextDownloadAt});throw Error('SOURCE_PROVIDER_COOLDOWN: HTTP_'+r.status+' '+retryAt);
  }
  if(!r.ok)throw Error('SOURCE_DOWNLOAD_HTTP_'+r.status);
- if(Number(r.headers.get('content-length'))>100*1024*1024)throw Error('素材超出100MB预算');
- const parts=[];let bytes=0;
- try{for await(const chunk of r.body){bytes+=chunk.length;if(bytes>100*1024*1024)throw Error('素材超出100MB预算');parts.push(chunk);}}
- catch(e){await r.body?.cancel?.().catch(()=>{});throw e;}
- const data=Buffer.concat(parts),hash=sha(data),ext=path.extname(new URL(candidate.mediaUrl).pathname).toLowerCase();
- const raw='verified-sources/'+hash+ext,full=path.join(project,'remotion/public',raw);fs.mkdirSync(path.dirname(full),{recursive:true});
- if(!fs.existsSync(full))fs.writeFileSync(full,data,{flag:'wx'});else if(sha(fs.readFileSync(full))!==hash)throw Error('下载文件哈希冲突');
+ const budget=SOURCE_DOWNLOAD_BUDGET[candidate.kind==='video'?'video':'image'];
+ if(Number(r.headers.get('content-length'))>budget){await r.body?.cancel?.().catch(()=>{});throw Error('素材超出传输预算');}
+ const directory=path.join(project,'remotion/public/verified-sources');fs.mkdirSync(directory,{recursive:true});
+ const partial=path.join(directory,'.download-'+randomUUID()+'.part'),hashState=createHash('sha256');
+ let bytes=0,fd;
+ try{
+  fd=fs.openSync(partial,'wx');
+  for await(const chunk of r.body){bytes+=chunk.length;if(bytes>budget)throw Error('素材超出传输预算');hashState.update(chunk);let offset=0;while(offset<chunk.length)offset+=fs.writeSync(fd,chunk,offset,chunk.length-offset);}
+ }catch(e){if(fd!==undefined){fs.closeSync(fd);fd=undefined;}if(fs.existsSync(partial))fs.unlinkSync(partial);await r.body?.cancel?.().catch(()=>{});throw e;}
+ finally{if(fd!==undefined)fs.closeSync(fd);}
+ const hash=hashState.digest('hex'),ext=path.extname(new URL(candidate.mediaUrl).pathname).toLowerCase();
+ const raw='verified-sources/'+hash+ext,full=path.join(project,'remotion/public',raw);
+ try{
+  if(!fs.existsSync(full))fs.renameSync(partial,full);
+  else if(sha(fs.readFileSync(full))!==hash)throw Error('下载文件哈希冲突');
+ }finally{if(fs.existsSync(partial))fs.unlinkSync(partial);}
+ if(commons)save(project,stateFile,{status:200,failures:0,retryAt:null,nextDownloadAt:state?.nextDownloadAt});
  let localPath=raw;
  if(ext==='.ogv'){
   localPath='verified-sources/'+hash+'.mp4';const target=path.join(project,'remotion/public',localPath);

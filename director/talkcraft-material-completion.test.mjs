@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired,discoverReviewedCompletionSources,discoverCompletionSources} from './talkcraft-material-completion.mjs';
+import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired,discoverReviewedCompletionSources,discoverCompletionSources,SOURCE_DOWNLOAD_BUDGET} from './talkcraft-material-completion.mjs';
 import {planNodeCorrection,approveNodeCorrection} from './talkcraft-correction-center.mjs';
 import {dueSourceRetryToken} from './talkcraft-node-correction-plan.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -279,4 +279,52 @@ test('语言核验先于事务复制；丢失的自动绑定经中心精确撤�
  assert.equal(JSON.parse(fs.readFileSync(path.join(p,'qa/material-quarantine/'+recovery.planId+'.json'))).invalidBindings[0].binding.contentLanguage,'und');
  await apply(materialCompletionPlan(p,catalog));assert.equal(downloads,1);assert.equal(reviews,2);
  assert.deepEqual(fs.readFileSync(path.join(p,'audio/full.mp3')),originalAudio);assert.equal(restored.paidCalls,0);
+});
+
+
+test('视频流式预算不降质量或许可；钱币语境排除盗窃和警务记录',()=>{
+ const args={kind:'video',query:'钱包 钱',match:sourceSearchContract('钱包 钱')};
+ const p=page('File:Banknotes printing.webm');Object.assign(p.imageinfo[0],{size:130259347});p.imageinfo[0].extmetadata.ImageDescription.value='Banknote production';
+ assert.ok(commonsCandidate(p,args));
+ p.imageinfo[0].size=SOURCE_DOWNLOAD_BUDGET.video+1;assert.equal(commonsCandidate(p,args),null);
+ p.imageinfo[0].size=130259347;p.imageinfo[0].height=480;assert.equal(commonsCandidate(p,args),null);
+ const m=args.match;assert.equal(m.matches('Bodycam Catches Deputy Stealing Money From Wallet'),false);
+ assert.equal(m.matches('CCTV footage of wallet theft at a shop'),false);
+ assert.equal(m.matches('Police Found Cocaine Guns and Cash'),false);
+});
+
+test('流式传输中断清理临时分片，保留已有文件，不写失败下载缓存和绑定',async t=>{
+ const {p}=fixture(t),preserved=path.join(p,'remotion/public/preserved.txt');fs.writeFileSync(preserved,'successful asset');
+ let pulls=0;
+ const fetchImpl=async url=>String(url).includes('/w/api.php')?new Response(JSON.stringify({query:{pages:{1:page()}}})):new Response(new ReadableStream({pull(controller){if(pulls++===0)controller.enqueue(new Uint8Array([1,2,3]));else controller.error(new Error('fixture interrupted stream'));}}));
+ const plan=materialCompletionPlan(p,catalog),report=await executeMaterialCompletion(p,catalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false},fetchImpl});
+ assert.equal(report.operations.length,0);assert.equal(report.unresolved.length,1);assert.equal(report.paidCalls,0);
+ assert.deepEqual(fs.readdirSync(path.join(p,'remotion/public/verified-sources')),[]);
+ assert.equal(fs.readFileSync(preserved,'utf8'),'successful asset');assert.equal(fs.existsSync(path.join(p,'qa/source-downloads')),false);
+});
+
+import {assertExclusiveBackgrounds} from './talkcraft-background-exclusivity.mjs';
+test('重复自动背景经精确撤回后采集不同原始源，并通过真实全片排他门禁',async t=>{
+ const {p,write}=fixture(t),firstFile=path.join(p,'first.webm'),secondFile=path.join(p,'second.webm');
+ for(const [file,color]of [[firstFile,'blue'],[secondFile,'red']])execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c='+color+':s=1280x720:r=30:d=2','-an','-c:v','libvpx-vp9','-b:v','100k',file],{windowsHide:true,timeout:30000});
+ const apply=async(plan,fetchImpl)=>executeMaterialCompletion(p,catalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false},fetchImpl});
+ await apply(materialCompletionPlan(p,catalog),async url=>String(url).includes('/w/api.php')?new Response(JSON.stringify({query:{pages:{1:page()}}})):new Response(fs.readFileSync(firstFile)));
+ const shots=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json'))),research=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json')));
+ const first=structuredClone(shots[0]);shots.push({...structuredClone(first),id:'s10',start:2,end:3});
+ research.shots.push({...structuredClone(research.shots[0]),shotId:'s10',backgroundQuery:'城市 街景 视频'});
+ write('remotion/shots.json',shots);write('material-research-plan.json',research);
+ assert.throws(()=>assertExclusiveBackgrounds(p,shots),/全片唯一排他/);
+ const plan=materialCompletionPlan(p,catalog);assert.equal(plan.invalidBindings.length,1);assert.equal(plan.invalidBindings[0].shotId,'s10');
+ const second=page('File:Different city street.webm');second.pageid=2;second.imageinfo[0].url=second.imageinfo[0].url.replace('City_street','Different_city_street');
+ const result=await apply(plan,async url=>String(url).includes('/w/api.php')?new Response(JSON.stringify({query:{pages:{2:second}}})):new Response(fs.readFileSync(secondFile)));
+ assert.equal(result.operations.length,1);assert.equal(result.unresolved.length,0);
+ const final=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')));assert.deepEqual(final[0],first);
+ assert.notEqual(final[1].templateParams.materialSha256,first.templateParams.materialSha256);
+ assert.equal(assertExclusiveBackgrounds(p,final).exclusive,true);
+ assert.equal(materialCompletionPlan(p,catalog).invalidBindings.length,0);assert.equal(materialCompletionPlan(p,catalog).needs.length,0);
+ const finalResearch=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json')));
+ finalResearch.shots[1].backgroundBinding.sourceId=finalResearch.shots[0].backgroundBinding.sourceId;
+ final[1].templateParams.materialSourceId=final[0].templateParams.materialSourceId;
+ write('remotion/shots.json',final);write('material-research-plan.json',finalResearch);
+ assert.equal(materialCompletionPlan(p,catalog).invalidBindings[0].shotId,'s10');
 });
