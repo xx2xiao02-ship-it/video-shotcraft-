@@ -70,7 +70,9 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       // A fixed illustration with no authored content or media inlet cannot
       // implement a new content design under the existing native text gate.
       const capability=card.policy?.capabilities;
-      if(visualContentContract(card).placeholder)reasons.push('DEMO_VISUAL_NOT_REPLACEABLE');
+      const visual=visualContentContract(card);
+      if(visual.placeholder)reasons.push('DEMO_VISUAL_NOT_REPLACEABLE');
+      if(range.requiredSubject==='person'&&visual.hostConflict)reasons.push('HOST_CONTENT_REGION_CONFLICT');
       if(capability?.illustrationOnlyWithoutAdapter===true&&capability.parameterizedContent===false&&capability.nativeMedia===false)
         reasons.push('AUTHORED_CONTENT_SLOT_UNAVAILABLE');
       if(editorialRequiredNumericFields(card).length&&!editorialQuantitativeInput(proposal,shot))

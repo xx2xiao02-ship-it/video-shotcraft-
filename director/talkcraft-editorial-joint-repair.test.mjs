@@ -58,8 +58,9 @@ test('完整108卡比较仍保留原去重门禁，修订组内冲突不得误�
   }
   args.failedChecks.push({shotId:'s07',code:'GROUP_REPLAN'});
   const group=buildEditorialJointRepairContract(args).windows.find(w=>w.shotId==='s14');
-  const reusable=group.candidates.find(c=>c.slug==='info-card-assemble');
-  assert.ok(reusable);assert.ok(reusable.requiresGroupReuseCheck.includes('s07'));
+  assert.ok(!group.rejected.FIXED_SHOT_REUSE_CONFLICT?.includes('info-card-assemble'));
+  assert.ok(group.rejected.HOST_CONTENT_REGION_CONFLICT.includes('info-card-assemble'));
+  assert.ok(!group.candidates.some(c=>c.slug==='info-card-assemble')); // 去重解锁不豁免空间冲突
   assert.equal(args.proposal.shots[1].shotCard,'focus-dim-spotlight');
 });
 

@@ -3,7 +3,7 @@ import {editorialNumericGrid,editorialReplacementBudget} from './talkcraft-edito
 import {createHash} from 'node:crypto';
 import {editorialPlanningLimits} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialDslLocks} from './talkcraft-editorial-params.mjs';
-import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
+import {crossFieldChecks,validateDsl} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 import {editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
 import {auditEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {auditEditorialSelectionRequest,editorialSelectionModelInput} from './talkcraft-editorial-selection.mjs';
@@ -22,6 +22,7 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
    issues.push(...auditEditorialConstraintInput(selectionRequest,{catalog,modelInput:selectionModelInput}).issues);
  }catch(error){issues.push(error.message);}
  else if(planningContract.jointRepair)issues.push('联合修订契约缺少原始提案与当前输入，不能只信缓存');
+ if(promptCatalog.dslValidator!==validateDsl.toString())issues.push('模型DSL执行规则与正式校验源码不一致');
  if(promptCatalog.crossFieldChecks!==crossFieldChecks.toString())issues.push('模型跨字段规则与正式校验源码不一致');
  if(promptCatalog.materialDisplayRules!==EDITORIAL_MATERIAL_DISPLAY_RULES)issues.push('模型素材展示规则与正式校验不一致');
  if(!same(promptCatalog.textEffectTiming,editorialTextEffectInput()))issues.push('模型文字窗口与装饰帧数合同和正式校验不一致');

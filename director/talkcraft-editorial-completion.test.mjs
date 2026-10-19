@@ -71,3 +71,19 @@ test('修订可以免费重验，绑定当前要求通过后只准备到人审�
   }
   fs.writeFileSync(request,'新的调整要求');assert.equal(editorialCompletionCurrent(p),false);
 });
+
+
+test('新任务必须绑定当前校验源码，旧通过记录和旧计划不能跳过新规则',t=>{
+ const p=fixture(t);fs.writeFileSync(path.join(p,'source-run.json'),JSON.stringify({pipeline:'video-talkcraft'}));
+ saveEditorialCompletion(p);assert.equal(editorialCompletionCurrent(p),true);
+ const file=path.join(p,'qa/editorial-completion.json'),record=JSON.parse(fs.readFileSync(file));
+ assert.ok(record.validationRules['talkcraft-visual-content-contract.mjs']);
+ record.validationRules['talkcraft-visual-content-contract.mjs']='older-source';
+ fs.writeFileSync(file,JSON.stringify(record));assert.equal(editorialCompletionCurrent(p),false);
+ delete record.validationRules;fs.writeFileSync(file,JSON.stringify(record));
+ assert.equal(editorialCompletionCurrent(p),false);
+ fs.unlinkSync(file);
+ fs.writeFileSync(path.join(p,'qa/native-editorial-plan.json'),JSON.stringify({structuralDraftReady:true,responseSha256:createHash('sha256').update('{}').digest('hex')}));
+ for(const name of ['native-presentation.json','word-reveal-plan.json'])fs.writeFileSync(path.join(p,'remotion',name),'{}');
+ assert.equal(editorialCompletionCurrent(p),false);
+});

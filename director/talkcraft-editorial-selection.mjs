@@ -170,7 +170,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
     parameterContracts:editorialRequiredParameterContracts(request,{contracts:promptCatalog.contracts}),
     catalog:{comparisonOrder:(promptCatalog.comparisonOrder||[]).filter(id=>slugs.has(id)),cards:promptCatalog.cards.filter(c=>slugs.has(c.slug)),
       contracts:promptCatalog.contracts.filter(c=>slugs.has(c.slug)).map(c=>{const {dslExamples,...contract}=c;return contract;}),
-      crossFieldChecks:promptCatalog.crossFieldChecks,materialDisplayRules:promptCatalog.materialDisplayRules,
+      crossFieldChecks:promptCatalog.crossFieldChecks,dslValidator:promptCatalog.dslValidator,materialDisplayRules:promptCatalog.materialDisplayRules,
       textEffectTiming:structuredClone(promptCatalog.textEffectTiming)},
     theme:structuredClone(theme||{})};
 }
@@ -257,10 +257,16 @@ export function compileEditorialSelection(response,request,inputs){
   };
   exact(response.repairs,'shotId',request.editableShotIds,'修订镜头');
   exact(response.materialResearchUpdates,'shotId',request.materialShotIds,'资料规划');
+  const parameterIssues=response.repairs.flatMap(repair=>{
+    const choice=request.windows.find(w=>w.shotId===repair.shotId)?.choices.find(c=>c.choiceId===repair.choiceId);
+    const card=inputs.catalog.cards.find(c=>c.cardId===choice?.slug);
+    return card?[...auditEditorialRequiredProps(card,repair.templateParams?.cardProps,repair.shotId).issues,
+      ...(object(repair.templateParams?.cardProps)?auditEditorialParameterBudget(card,repair.templateParams.cardProps,repair.shotId).issues:[])]:[];
+  });
   const structure=repairEditorialStructure(response,request);
   if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json')))
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-structure-repair.json'),JSON.stringify(structure.report,null,2));
-  if(!structure.report.passed)throw Object.assign(Error('局部修订结构冲突，不能自动修复'),{issues:structure.report.issues});
+  if(!structure.report.passed)throw Object.assign(Error('局部修订结构冲突，不能自动修复'),{issues:[...structure.report.issues,...parameterIssues]});
   response=structure.response;
   // Keep the exact current-request source selection before reference expansion.
   const bindingSelections=response.materialResearchUpdates.flatMap(row=>(row.bindings||[])
@@ -269,15 +275,8 @@ export function compileEditorialSelection(response,request,inputs){
   response=resolveEditorialMaterialRefs(response,request);
   const bindings=auditEditorialSelectionResponseBindings(response,request);
   const materials=prepareEditorialMaterialUpdates(response,request);
-  const initialIssues=[...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
+  const initialIssues=[...parameterIssues,...bindings.issues,...materials.issues,...auditEditorialMaterialOwnership(response,request).issues];
   if(initialIssues.length)throw Object.assign(new Error(initialIssues.map(issue=>issue.message).join('；')),{issues:initialIssues});
-  const parameterIssues=response.repairs.flatMap(repair=>{
-    const choice=request.windows.find(w=>w.shotId===repair.shotId)?.choices.find(c=>c.choiceId===repair.choiceId);
-    const card=inputs.catalog.cards.find(c=>c.cardId===choice?.slug);
-    return card?[...auditEditorialRequiredProps(card,repair.templateParams?.cardProps,repair.shotId).issues,
-      ...(object(repair.templateParams?.cardProps)?auditEditorialParameterBudget(card,repair.templateParams.cardProps,repair.shotId).issues:[])]:[];
-  });
-  if(parameterIssues.length)throw Object.assign(Error(parameterIssues.map(i=>i.message).join('；')),{issues:parameterIssues});
   const result=structuredClone(request.baseProposal);
   for(const repair of response.repairs){
     const id=repair.shotId,w=request.windows.find(w=>w.shotId===id);

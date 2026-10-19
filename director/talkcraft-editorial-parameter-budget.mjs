@@ -1,3 +1,4 @@
+import {validateDsl} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 import {replacementSchedule} from '../docs/audits/b-talkcraft-target3/schedule.mjs';
 
 export function editorialNumericGrid(field){
@@ -21,6 +22,11 @@ export function auditEditorialParameterBudget(card,props={},shotId){
     if(!grid||typeof value!=='number'||!Number.isFinite(value))continue; // Original type/range gates remain authoritative.
     if(Math.abs((value-grid.base)/grid.step-Math.round((value-grid.base)/grid.step))>1e-7)
       issues.push({shotId,field:key,code:'PROP_STEP',message:`${shotId}.${key}=${value}不满足原卡步进：基点${grid.base}、步长${grid.step}，不得自动取整`,base:grid.base,step:grid.step});
+  }
+  for(const [field,rule]of Object.entries(card.policy?.dsl||{})){
+    if(!Object.hasOwn(props,field))continue;
+    for(const code of validateDsl(field,props[field],rule,card.fields.find(f=>f.key===field)?.default))
+      issues.push({shotId,field,code,message:`${shotId}.${field}不满足原卡${rule.syntax}格式：${code}；不得补造缺失内容或空列绕过`});
   }
   const merged={...Object.fromEntries(card.fields.map(f=>[f.key,f.default])),...props};
   let schedule;

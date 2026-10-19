@@ -2,6 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 
+const validationRules=()=>Object.fromEntries(['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs',
+  'talkcraft-editorial-parameter-budget.mjs','talkcraft-editorial-required-props.mjs'].map(name=>
+  [name,sha(new URL(name,import.meta.url))]));
 const inputs=['qa/ark-editorial-response.json','aligned-sentences.json','input.txt'];
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const binding=project=>Object.fromEntries([...inputs,
@@ -11,7 +14,7 @@ const binding=project=>Object.fromEntries([...inputs,
 // A partially written SHOTBOOK is not a completed node. Later stages may add
 // card/material bindings, so bind this checkpoint to the actual editorial input.
 export function saveEditorialCompletion(project){
-  const report={schema:'talkcraft-editorial-completion-v1',passed:true,binding:binding(project)};
+  const report={schema:'talkcraft-editorial-completion-v1',passed:true,binding:binding(project),validationRules:validationRules()};
   fs.writeFileSync(path.join(project,'qa/editorial-completion.json'),JSON.stringify(report,null,2));
   return report;
 }
@@ -37,8 +40,11 @@ export function editorialCompletionCurrent(project){
     if(fs.existsSync(file)){
       const report=JSON.parse(fs.readFileSync(file,'utf8'));
       return report.schema==='talkcraft-editorial-completion-v1'&&report.passed===true&&
+        JSON.stringify(report.validationRules)===JSON.stringify(validationRules())&&
         JSON.stringify(report.binding)===JSON.stringify(binding(project));
     }
+    const sourceFile=path.join(project,'source-run.json');
+    if(fs.existsSync(sourceFile)&&JSON.parse(fs.readFileSync(sourceFile)).pipeline==='video-talkcraft')return false;
     // Compatible evidence from successful runs before explicit checkpoints.
     const native=JSON.parse(fs.readFileSync(path.join(project,'qa/native-editorial-plan.json'),'utf8'));
     return native.structuralDraftReady===true&&native.responseSha256===sha(response)&&

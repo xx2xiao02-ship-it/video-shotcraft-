@@ -27,7 +27,7 @@ import {reusedEditorialWindows,auditEditorialReuse,buildEditorialPlanningContrac
 import {reconcileEditorialCoverage,EDITORIAL_COVERAGE_RULES} from './talkcraft-editorial-coverage.mjs';
 import {normalizeEditorialParams,normalizeSavedEditorialParams,editorialDslLocks,EDITORIAL_PARAM_RULES} from './talkcraft-editorial-params.mjs';
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
-import {crossFieldChecks} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
+import {crossFieldChecks,validateDsl} from '../docs/audits/b-talkcraft-target3/dsl-validation.mjs';
 import {saveEditorialCompletion,saveEditorialFailure} from './talkcraft-editorial-completion.mjs';
 import {restoreRejectedRevisionBase} from './talkcraft-editorial-cache-recovery.mjs';
 import {auditEditorialMaterialContract,editorialSourceDisplayFields,EDITORIAL_MATERIAL_DISPLAY_RULES} from './talkcraft-editorial-material-contract.mjs';
@@ -125,7 +125,7 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
   const comparisonOrder=[...cards].sort((a,b)=>Number(preferred.has(b.slug))-Number(preferred.has(a.slug))).map(c=>c.slug);
   // These constraints execute in the locked validator. Send that same function,
   // rather than maintaining another partial prose list beside the compiler.
-  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES,
+  return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),dslValidator:validateDsl.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES,
     textEffectTiming:editorialTextEffectInput()};
 }
 export function editorialSelectionNotes(shot,semanticWords) {
@@ -377,8 +377,11 @@ export function generateEditorial(root,runId,options={}) {
 export function recoverCachedEditorial(root,runId,options={}) {
   const project=talkcraftProject(root,runId);
   if(!existsSync(path.join(project,'qa/ark-editorial-response.json')))throw Error('没有已保存的分镜结果；本地恢复不会调用模型');
+  const selection=existsSync(path.join(project,'qa/editorial-selection-request.json'))&&
+    existsSync(path.join(project,'qa/editorial-selection-audit.json'));
   return trackTalkcraftExecution(project,'editorial-recover',()=>generateEditorialInternal(root,runId,
-    {config:{},...options,recoverExisting:true,call:async()=>{throw Error('本地分镜恢复禁止外部模型请求');}}));
+    {config:{},...options,...(selection?{recoverProviderOnly:true}:{recoverExisting:true}),
+      call:async()=>{throw Error('本地分镜恢复禁止外部模型请求');}}));
 }
 export function recoverProviderEditorial(root,runId,options={}){
   return generateEditorialInternal(root,runId,{...options,config:{},recoverProviderOnly:true,
@@ -504,7 +507,12 @@ async function generateEditorialInternal(root, runId, {call = talkcraftEditorial
     const qa = path.join(project,'qa'); mkdirSync(qa, {recursive:true});
     const responseFile = path.join(qa,'ark-editorial-response.json');
     if(recoverProviderOnly){
-      const replay=replayExistingEditorialProviderResult(project,{runId,aligned,catalog,personWindows:reusedEditorialWindows(project,aligned)});
+      let replay;
+      try{replay=replayExistingEditorialProviderResult(project,{runId,aligned,catalog,personWindows:reusedEditorialWindows(project,aligned)});}
+      catch(error){
+        if(error.issues?.length)saveEditorialRepairFeedback(project,json(responseFile),{issues:error.issues});
+        throw error;
+      }
       writeFileSync(path.join(qa,'editorial-selection-audit.json'),JSON.stringify({schema:'talkcraft-editorial-selection-audit-v1',
         requestId:replay.request.requestId,passed:true,compiled:true,editableShotIds:replay.request.editableShotIds,
         compiledSha256:createHash('sha256').update(JSON.stringify(replay.result)).digest('hex'),
@@ -562,6 +570,7 @@ subject 只能取 person 或 other；${sourceRun.isDigitalHuman === true ? '本�
 每个 shots 项还须增加 nativePresentation：{"mobileMinTextPx":12,"holdAtNativeFrame":整数,"holdReason":"内容仍可见的驻留依据","textFields":[{"key":"对应 cardProps 的文字字段","visibility":"visible 或 hidden","reason":"隐藏必须说明"}],"wordEvents":[{"field":"对应可见字段","text":"按顺序覆盖该字段展示文字","sentenceIndex":0,"anchor":"本句原文真实词语","role":"spoken 或 context","reason":"摘要、背景说明或前文延续须说明"}]}。句序从零计，程序用真实字级记录求出现时刻，禁止编造秒数。口播大字只在说到锚词后出现；context 仅用于明确有依据的背景说明。所有实际可见文字均须登记，不能拿标题事件代表整张卡。完整原卡首尾与动作顺序必须保留，仅动效允许0.85～1.15倍速；内嵌hostSrc或其他音视频的卡不能变速，须重新选卡，独立人物层仍1倍。配音和逐字锚点使用原输出时间；若口播更长，在原卡主体仍完整可见、尚未退场的帧驻留并说明，随后完整播放余下动作。卡比镜头长时先检查15%内能否完整播放，超限重新选卡，禁止裁切动作或改写配音时间。驻留计划是待实际帧检查的设计，不能宣称视觉验收通过。本片无人物时不得留下演示人物占位；正文以 390 像素宽手机画面至少 12 像素为目标。
 背景素材必须全片唯一排他，每个背景源只供一个镜头；改名、裁切或转码不能当作新素材。templateParams 中声明 materialRole 和每镜独立 materialQuery（具体画面检索描述），未知真实路径时不得编造 materialSrc，由采集匹配层解决。
 模板内部图片/视频需求与背景分开：在 templateParams.templateMaterialQueries 中按真实素材字段名填写具体对象检索词；例如 srcs 对应图片列表的主题。不要把背景的办公/商务/科技风格描述当作内部素材查询；联网查询优先给出 2～3 个英文视觉概念词，涉及证据时标明真实来源需求。hostSrc 必须绑定与本镜配音时间范围一致的成功数字人，不能从图库代替。
+DSL格式执行源码（含必填列，不得用空列隐藏原卡字段）：${promptCatalog.dslValidator}
 图形优先比较顺序（先比较适配图形，不能跳过语义、时长与素材检查；原目录和参数契约仍按原顺序对应）：${JSON.stringify(promptCatalog.comparisonOrder)}
 完整 GitHub 模板目录（108 卡的名称、语义与输入能力）：${JSON.stringify(promptCatalog.cards)}
 逐卡业务字段、范围、素材槽位和 DSL（完整契约仍由程序验证）：${JSON.stringify(promptCatalog.contracts)}

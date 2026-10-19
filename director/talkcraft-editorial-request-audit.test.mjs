@@ -29,6 +29,7 @@ test('模型输入漏用途、空值政策、容量或伪造时长时，自检�
   a=>{a.promptCatalog.contracts[0].originalFrames=1;},
   a=>{a.planningContract.limits.openingMaxShotSec=5;}
   ,a=>{delete a.promptCatalog.crossFieldChecks;}
+  ,a=>{delete a.promptCatalog.dslValidator;}
   ,a=>{delete a.promptCatalog.textEffectTiming;}
   ,a=>{a.promptCatalog.textEffectTiming.evaluator='return null';}
   ,a=>{a.promptCatalog.crossFieldChecks='function crossFieldChecks(){return [];}';}
@@ -41,6 +42,8 @@ test('模型输入漏用途、空值政策、容量或伪造时长时，自检�
 
 test('模型收到完整跨字段源码，折线衔接、图片数量和动态选项范围不能被精简丢失',()=>{
  const args=make();
+ assert.match(args.promptCatalog.dslValidator,/p.every\(Boolean\)/);
+ assert.match(args.promptCatalog.dslValidator,/CHAPTER_CURRENT_COUNT/);
  assert.match(args.promptCatalog.crossFieldChecks,/LINE_CONTINUITY/);
  assert.match(args.promptCatalog.crossFieldChecks,/MEDIA_TEXT_CARDINALITY/);
  assert.match(args.promptCatalog.crossFieldChecks,/SELECTION_RANGE/);

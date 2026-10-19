@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 
-export const VISUAL_CONTENT_RULES='正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先复用本任务与已授权本地库。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。';
+export const VISUAL_CONTENT_RULES='正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先复用本任务与已授权本地库。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。无业务意义的序号不显示，原卡必填列不能用空列绕过；没有真实序列语义时重选无需编号的模板。';
 
 // These are source-backed defects, not a competing template whitelist. The
 // original audited catalog remains complete and available for comparison.
@@ -17,6 +17,17 @@ export function visualContentContract(card){
   contract.placeholder=true;
   contract.reason='原卡Shot1灰条及Shot2固定柱高为不可替换演示主体，没有真实图片或视频输入槽';
   contract.hostConflict='独立居中人物覆盖原卡左标题及右素材区域';
+ }
+ if(['rack-focus-pair','info-card-assemble','still-layout-relay'].includes(id)){
+  const dep=card.implementation.dependencies?.find(d=>d.file.replaceAll('\\','/').endsWith(`/template/cards/${id}.tsx`));
+  if(!dep)throw Error(`${id} 缺少原卡空间布局依赖证据`);
+  const layout=fs.readFileSync(dep.file);
+  if(createHash('sha256').update(layout).digest('hex')!==dep.sha256)throw Error(`${id} 原卡空间布局指纹不一致`);
+  const code=layout.toString();
+  const marker={'rack-focus-pair':'.rfp-pb','info-card-assemble':'.ica-pc','still-layout-relay':'.slr-photo'}[id];
+  if(!code.includes(marker))throw Error(`${id} 原卡空间契约已变化`);
+  contract.hostConflict='原卡资料主体占据独立人物默认右侧区域，未预留独立人物列；须重选有专用人物区且兼容资料槽的模板';
+  contract.layoutSha256=dep.sha256;
  }
  if(['soft-blur-in','tracking-in'].includes(id)){
   if(!/whiteSpace:\s*["']nowrap["']/u.test(source)||!source.includes('fontSize'))throw Error(`${id} 单行容量源码契约已变化`);
@@ -47,7 +58,7 @@ export function auditVisualContent(shots,{catalog}){
 }
 
 const textCategories=new Set(['字幕花字','强调标注','转场结构']);
-const structured=new Set(['step-timeline-vertical','numbered-step-stack','source-converge','map-route-pin','chip-grid-single-select','chapter-progress-list','parallel-items-with-host','chat-message-flow','ui-flow-theater']);
+const structured=new Set(['step-timeline-vertical','numbered-step-stack','source-converge','map-route-pin','chip-grid-single-select','parallel-items-with-host','chat-message-flow','ui-flow-theater']);
 export function graphicCandidateIds(index){
  return index.cards.filter(c=>structured.has(c.slug)||c.category==='素材呈现'||c.category==='数据信息图'&&!isTextDominant({shotCard:c.slug},index)).map(c=>c.slug);
 }

@@ -45,3 +45,16 @@ test('前三镜风格豁免，字幕细白边随画布等比且不覆盖填充�
  assert.equal(captionOutlineStyle(2).WebkitTextStroke,'4px #ffffff');
  assert.equal(captionOutlineStyle(1).paintOrder,'stroke fill');
 });
+
+
+test('真实资料槽不等于人物布局兼容，源依赖指纹与冲突一同检查且不挪动画面',()=>{
+ for(const id of ['rack-focus-pair','info-card-assemble','still-layout-relay']){
+  const s={...shot('different-task-scene',id),subject:'person'},before=structuredClone(s);
+  assert.ok(auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_CONTENT_REGION_CONFLICT'));
+  assert.deepEqual(s,before);s.subject='other';
+  assert.ok(!auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_CONTENT_REGION_CONFLICT'));
+ }
+ const card=structuredClone(catalog.cards.find(c=>c.cardId==='rack-focus-pair'));
+ card.implementation.dependencies.find(d=>d.file.replaceAll('\\','/').endsWith('/template/cards/rack-focus-pair.tsx')).sha256='bad';
+ assert.throws(()=>visualContentContract(card),/布局指纹/);
+});

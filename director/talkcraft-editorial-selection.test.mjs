@@ -608,3 +608,17 @@ test('局部输入保留全片表达统计与结构图优先比较顺序，不�
  if(source>=0&&text>=0)assert.ok(source<text);
  assert.deepEqual(model.catalog.comparisonOrder,promptCatalog.comparisonOrder.filter(id=>w.choices.some(c=>c.slug===id)));
 });
+
+
+test('结构错误不掩盖独立参数错误，一次收集全部本次问题而不编造修复',()=>{
+ const args=fixture(),request=buildEditorialSelectionRequest(args),raw=response(request);
+ raw.repairs[0].templateParams.templateMaterialQueries=[{field:'same',queryZh:'错误层级'},{field:'same',queryZh:'重复目标'}];
+ raw.repairs[0].templateParams.cardProps={};const before=structuredClone(raw);
+ assert.throws(()=>compileEditorialSelection(raw,request,args),error=>{
+  assert.ok(error.issues.some(i=>i.code==='EDITORIAL_STRUCTURE_INVALID'));
+  assert.ok(error.issues.some(i=>i.code==='REQUIRED_PROP'));return true;
+ });assert.deepEqual(raw,before);
+ const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ assert.equal(model.parameterContracts[0].choices[0].materialQueryContract.type,'object');
+ assert.match(model.parameterContracts[0].choices[0].materialQueryContract.instruction,/重复字段/);
+});
