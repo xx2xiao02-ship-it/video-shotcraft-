@@ -11,7 +11,7 @@ const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).di
 const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
 const identity=p=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3'].map(n=>[n,sha(path.join(p,n))]));
 const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true});fs.writeFileSync(path.join(p,n)+'.tmp',JSON.stringify(r,null,2));fs.renameSync(path.join(p,n)+'.tmp',path.join(p,n));return r;};
-const RULE_FILES=['talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
+const RULE_FILES=['talkcraft-stages.mjs','talkcraft-auto-advance.mjs','talkcraft-native-preparation.mjs','talkcraft-editorial-selection-replay.mjs','talkcraft-editorial-source-slot-repair.mjs','talkcraft-editorial-bound-slots.mjs','talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
  'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs','../console-server.mjs'];
@@ -64,8 +64,10 @@ export function approveNodeCorrection(plan,context){
   const legal=plan.action==='local-recheck'?body.stage===policy.freeStage&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='institution-source-reuse'?plan.node==='candidates'&&body.stage==='institution-source-repair'&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='source-discovery'?plan.node==='candidates'&&body.stage==='material-research'&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='candidate-recheck'?plan.node==='storyboard-review'&&body.stage==='candidates'&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='source-recheck'?plan.node==='candidates'&&body.stage==='candidates'&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='restore-unsubmitted'?body.stage==='editorial-recover'&&body.restoreUnsubmitted===true&&Object.keys(body).every(k=>['stage','restoreUnsubmitted'].includes(k)):
+    plan.action==='recover-editorial-response'?plan.node==='editorial'&&body.stage==='editorial-recover'&&Object.keys(body).every(k=>k==='stage'):
     plan.action==='recover-response'?body.stage==='planning-repair'&&body.recoverProviderResponse===true&&Object.keys(body).every(k=>['stage','recoverProviderResponse'].includes(k)):
     plan.action==='editorial-repair'?body.stage==='editorial-revision'&&body.approveModelCost===true&&Object.keys(body).every(k=>['stage','approveModelCost','authorizationNote'].includes(k)):false;
   if(!legal)return deny('方案超出节点修正执行合同，拒绝修改业务值或绕过门禁');

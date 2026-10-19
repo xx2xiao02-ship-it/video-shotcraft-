@@ -111,6 +111,14 @@ export function alignNativeShotBoundaries(project) {
   return changes;
 }
 
+export function nativeCardSfxCues(map,cardId){
+  if(!map||!Object.hasOwn(map,cardId)||!Array.isArray(map[cardId]))
+    throw Error('主卡没有可核验的原音效表：'+cardId);
+  // An explicitly published empty array means a silent source card. It is
+  // different from a missing table; do not invent cues to make it nonempty.
+  return map[cardId];
+}
+
 // A preparation plan is derived from the existing voice and the selected cards.
 // It never replaces provider timing, card content, or the user's overrides.
 export function prepareNativeProduction(project,skillRoot) {
@@ -124,7 +132,7 @@ export function prepareNativeProduction(project,skillRoot) {
   new Function('window',fs.readFileSync(path.join(skillRoot,'demos/_lib/sfx-map.js'),'utf8'))(window);
   const samples={};
   new Function('window',fs.readFileSync(path.join(skillRoot,'demos/_lib/sfx-samples.js'),'utf8'))(samples);
-  const beats=[],cues=[],excludedCues=[];
+  const beats=[],cues=[],excludedCues=[],silentCards=[];
   for(const [i,s] of timing.sentences.entries()) {
     const w=s.words.find(w=>/[\p{L}\p{N}]/u.test(w.text));
     const shot=shots.find(s=>s.start<=w.start&&w.start<s.end);
@@ -134,8 +142,8 @@ export function prepareNativeProduction(project,skillRoot) {
   }
   const usedFrames=new Set();
   for(const shot of shots) {
-    const original=window.SFX_MAP?.[shot.shotCard];
-    if(!Array.isArray(original) || !original.length) throw Error('主卡没有可核验的原音效表：'+shot.shotCard);
+    const original=nativeCardSfxCues(window.SFX_MAP,shot.shotCard);
+    if(!original.length)silentCards.push({shotId:shot.id,sourceCard:shot.shotCard,reason:'authoritative-empty-map'});
     for(const cue of original) {
       const row=presentation?.shots?.find(s=>s.shotId===shot.id);
       const position=nativeCuePosition(cue,row);
@@ -162,7 +170,7 @@ export function prepareNativeProduction(project,skillRoot) {
   alignBoundaryCuesToSpeechGaps(cues,shots,timing,{minimum:4,voiceDbForGap:gap=>gapVoiceDb.get(gap.start.toFixed(6))});
   const plan={schema:'talkcraft-native-production-v1',fps:30,unit:'seconds',
     inputs:Object.fromEntries([path.relative(project,wordTimingFile(project)).replaceAll('\\','/'),'remotion/shots.json',...(presentation?['remotion/native-presentation.json']:[])].map(f=>[f,hash(path.join(project,f))])),
-    beats,cues,excludedCues,userAcceptance:false};
+    beats,cues,excludedCues,silentCards,sourceSfxMap:{sha256:hash(path.join(skillRoot,'demos/_lib/sfx-map.js'))},userAcceptance:false};
   fs.mkdirSync(path.join(project,'qa'),{recursive:true});
   write(path.join(project,'qa/native-production-plan.json'),plan);
   write(path.join(project,'remotion/beats.json'),beats);

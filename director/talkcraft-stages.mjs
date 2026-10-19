@@ -1,3 +1,4 @@
+import {syncShotbookMaterials} from './talkcraft-shotbook-materials.mjs';
 import {ACCEPTANCE_POLICY,assertMachineTextRules,bindMachineVideo,assertMachineVideo,inspectTechnicalMedia,queueHumanVisualReview,humanVisualApprovalCurrent} from './talkcraft-acceptance-policy.mjs';
 import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection,recordCandidateComparison} from './talkcraft-reviewed-templates.mjs';
 import {alignExistingVoice,recoverExistingAlignment} from './talkcraft-word-alignment.mjs';
@@ -571,6 +572,7 @@ function runTalkcraftStageInternal(stage, runId) {
     saveCandidateMaterialRepairFeedback(project,readiness);
     if(materialIssues.length)throw Error('选卡前真实素材规划未完成：'+materialIssues.map(i=>`${i.shotId||'全片'} ${i.code}${i.message?'：'+i.message:''}`).join('；'));
     alignNativeShotBoundaries(project);
+    adjustments.push(...syncShotbookMaterials(project).adjustments);
     const generate=()=>{
       const indexFile=prepareReviewedCandidates(project,{skillRoot:SKILL});
       const index=JSON.parse(readFileSync(indexFile,'utf8'));

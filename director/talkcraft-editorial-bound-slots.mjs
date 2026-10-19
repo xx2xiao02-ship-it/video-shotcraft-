@@ -6,7 +6,7 @@ import {editorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 const local=v=>typeof v==='string'?v.replace(/^remotion\/public\//u,''):v;
 // Only source facts bound to this exact request may materialize an empty slot.
 // Card choice, target, labels, reasons and word clocks remain model-authored.
-export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,slotRetargets=[],bindingSelections=[]}){
+export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,slotRetargets=[],bindingSelections=[],sourceSlotAliases=[]}){
   const repairs=[],rejected=[];
   if(!projectRoot)return {repairs,rejected};
   // Internal source records have no research kind/query. They are immutable
@@ -63,7 +63,9 @@ export function restoreEditorialBoundSlots(result,request,{catalog,projectRoot,s
           JSON.stringify(ref.item)===JSON.stringify(source)));
       // A verified explicit source reference identifies the file. A discovery
       // query alone never proves identity and cannot authorize this recovery.
-      if(query&&query!==source.query&&!selectedRef)throw Error('本次槽位检索身份与已核验文件不一致');
+      const canonical=sourceSlotAliases.some(r=>r.requestId===request.requestId&&r.shotId===row.shotId&&r.displayShotId===targetId&&
+        r.kind===binding.kind&&r.query===binding.query&&r.field===field&&r.localPath===source.localPath&&r.sha256===source.sha256);
+      if(query&&query!==source.query&&!selectedRef&&!canonical)throw Error('本次槽位检索身份与已核验文件不一致');
       if(source.localPath!==binding.localPath||source.sha256!==binding.sha256)throw Error('本次来源文件记录被改写');
       if(!source.localPath||path.isAbsolute(source.localPath)||/^(?:[a-z]+:|[/\\])/iu.test(source.localPath))throw Error('来源不是相对本地路径');
       const publicRoot=fs.realpathSync(path.join(projectRoot,'remotion/public'));

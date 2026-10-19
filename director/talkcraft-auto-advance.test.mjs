@@ -88,3 +88,15 @@ test('正式自动推进把失败交给统一修正中心，保留校验结果�
   queueStage:()=>{queued++;},correct:async()=>{called++;return {handled:true,decision:{state:'correcting',reason:'当前节点补全'}};}});
  auto.restore('current');await auto.tick();assert.equal(called,1);assert.equal(queued,0);assert.equal(record.state,'correcting');
 });
+
+
+test('修正调度接管阶段标记，恢复后不被此前同名节点的旧任务阻塞；无推进仍不重复',async()=>{
+ let record={schema:'talkcraft-auto-advance-v1',enabled:true,port:18866,lastStage:'candidates',lastTaskId:12};
+ let run={provenance:{verified:true},lastFailure:{cause:'当前素材问题'},nextStage:null};let queued=0;
+ const auto=createTalkcraftAutoAdvance({port:18866,readRecord:()=>record,writeRecord:(_id,r)=>record=r,readRun:()=>run,
+  correct:()=>({handled:true,task:{id:15},decision:{state:'ready-to-correct',body:{stage:'editorial-recover'}}}),
+  queueStage:({stage})=>{assert.equal(stage,'candidates');queued++;return {id:16};}});
+ auto.restore('current');await auto.advance('current');assert.equal(record.lastStage,'editorial-recover');assert.equal(record.lastTaskId,15);
+ run={provenance:{verified:true},nextStage:'candidates',editorialChecked:true};
+ await auto.advance('current');assert.equal(queued,1);await auto.advance('current');assert.equal(queued,1);assert.equal(record.state,'blocked');
+});

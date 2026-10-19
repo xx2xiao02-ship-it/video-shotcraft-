@@ -8,6 +8,20 @@ import {compileEditorialSelection,auditEditorialSelectionRequest,prepareEditoria
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const fail=message=>Object.assign(Error(message),{code:'EDITORIAL_SELECTION_REPLAY_INVALID'});
 
+export function editorialReplayBatch(request){
+  const batch=request.batch;if(!batch)return undefined;
+  if(batch.dependencyExpansion){
+    const d=batch.dependencyExpansion;
+    if(batch.maxShots!==2||request.editableShotIds?.length!==2||
+      d.triggerShotId===d.partnerShotId||![d.triggerShotId,d.partnerShotId].every(id=>request.editableShotIds.includes(id)))
+      throw fail('联合依赖范围与本次请求不一致');
+    // The sender started from ONE failing shot and derived its fixed partner.
+    // maxShots=2 describes the approved output, not the original input recipe.
+    return {maxShots:1};
+  }
+  return {maxShots:batch.maxShots};
+}
+
 // This operation has no provider callback, config, authorization reservation or
 // directory scan. It accepts only this transaction's explicitly rejected result.
 export function recompileRetainedEditorialSelection(project,{runId,aligned,catalog,personWindows}){
@@ -49,7 +63,7 @@ export function recompileRetainedEditorialSelection(project,{runId,aligned,catal
   // under every CURRENT content/timing gate without re-signing its anchor IDs.
   const inputs={proposal:request.baseProposal,failedChecks:request.failedChecks,aligned,catalog,personWindows,projectRoot:project,
     anchorTiming:request.windows.some(w=>w.anchorScope?.sentences.some(s=>Array.isArray(s.clock))),
-    ...(request.batch?{repairBatch:{maxShots:request.batch.maxShots}}:{})};
+    ...(request.batch?{repairBatch:editorialReplayBatch(request)}:{})};
   const outdated=auditEditorialSelectionRequest(request,inputs);
   if(outdated.length)throw fail(outdated.join('；'));
   const material=prepareEditorialMaterialUpdates(response,request);

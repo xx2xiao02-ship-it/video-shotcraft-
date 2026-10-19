@@ -48,7 +48,8 @@ export function createTalkcraftAutoAdvance({readRun, readRecord, writeRecord, qu
       if(correct&&!run.activeTask&&(run.lastFailure||run.failureReport)){
         const correction=await correct(runId,run);
         save(runId,record,{state:correction.decision?.state||'needs-repair',waitingFor:correction.decision?.reason||run.waitingFor,
-          correction:correction.decision,error:correction.decision?.state==='needs-repair'?correction.decision.reason:null});
+          correction:correction.decision,error:correction.decision?.state==='needs-repair'?correction.decision.reason:null,
+          ...(correction.task?.id!=null?{lastStage:correction.decision.body.stage,lastTaskId:correction.task.id}:{})});
         return;
       }
       if(prepareParallel&&parallelPreparationAllowed(run)){

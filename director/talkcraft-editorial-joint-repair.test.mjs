@@ -1,3 +1,5 @@
+import {editorialReplayBatch} from './talkcraft-editorial-selection-replay.mjs';
+import {auditEditorialSelectionRequest} from './talkcraft-editorial-selection.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

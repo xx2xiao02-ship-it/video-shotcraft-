@@ -1,3 +1,4 @@
+import {repairEditorialSourceSlotAliases} from './talkcraft-editorial-source-slot-repair.mjs';
 import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {editorialRequiredParameterContracts,auditEditorialRequiredProps} from './talkcraft-editorial-required-props.mjs';
 import {repairEditorialStructure} from './talkcraft-editorial-structure-repair.mjs';
@@ -338,14 +339,15 @@ export function compileEditorialSelection(response,request,inputs){
        !row.research?.some(r=>r.entityType==='person'&&r.entityName===person))
       throw fail(`${window.shotId}不能删除或降级原核心人物资料需求`,window.shotId);
   }
+  const sourceSlotAliases=repairEditorialSourceSlotAliases(result,request,inputs);
   const slotRetargets=response.materialResearchUpdates.flatMap(row=>(row.bindings||[])
     .filter(binding=>typeof binding.field==='string')
     .map(binding=>({shotId:row.shotId,kind:binding.kind,query:binding.query,field:binding.field})));
-  const sourceSlots=restoreEditorialBoundSlots(result,request,{...inputs,slotRetargets,bindingSelections});
+  const sourceSlots=restoreEditorialBoundSlots(result,request,{...inputs,slotRetargets:[...slotRetargets,...sourceSlotAliases],bindingSelections,sourceSlotAliases});
   if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json'))&&
     (sourceSlots.repairs.length||sourceSlots.rejected.length)){
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-transaction-binding-recovery.json'),JSON.stringify({
-      schema:'talkcraft-editorial-transaction-binding-recovery-v1',requestId:request.requestId,
+      schema:'talkcraft-editorial-transaction-binding-recovery-v1',requestId:request.requestId,sourceSlotAliases,
       ...sourceSlots,externalRequests:0,productionAdmitted:false},null,2));
   }
   const internalRejections=sourceSlots.rejected.filter(r=>r.internal).map(r=>({...r,code:'EDITORIAL_INTERNAL_SOURCE_CONFLICT'}));

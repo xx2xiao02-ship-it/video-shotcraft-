@@ -123,3 +123,23 @@ test('修订方案绑定正式免费自检范围；合同失败不进入费用�
  assert.equal(approveNodeCorrection(bad,f).approved,false);
  f.revisionPlanError='无联合可行域';assert.equal(planNodeCorrection(f).action,null);
 });
+
+
+test('04有本次拒绝响应但未落地分镜时先免费重编译，不能直接再次付费',()=>{
+ const f=fixture();f.run.nextStage='editorial';f.run.lastFailure={task:{name:'talkcraft-editorial-revision'}};
+ f.run.editorialResponseSaved=true;f.run.shotbook=false;
+ f.feedback.proposal={editorialSelectionRejection:{requestId:'this-request'}};
+ const plan=planNodeCorrection(f);assert.equal(plan.action,'recover-editorial-response');assert.equal(plan.approved,true);
+ assert.deepEqual(plan.body,{stage:'editorial-recover'});
+ f.attempts=[{fingerprint:f.fingerprint,action:'recover-editorial-response'}];assert.notEqual(planNodeCorrection(f).action,'recover-editorial-response');
+});
+
+
+test('07发现候选依据过期可提出免费重建依赖方案，不能直接重签或重复空转',()=>{
+ const f=fixture();f.run.lastFailure={task:{name:'talkcraft-planning-check'}};f.run.nextStage='candidates';f.run.candidatesReady=false;
+ f.run.candidateIssues=['候选依据已变化，请重新生成候选：SHOTBOOK.md'];
+ const d=planNodeCorrection(f);assert.equal(d.node,'storyboard-review');assert.equal(d.action,'candidate-recheck');assert.equal(d.approved,true);
+ assert.deepEqual(d.body,{stage:'candidates'});
+ f.attempts=[{fingerprint:f.fingerprint,action:d.action}];assert.notEqual(planNodeCorrection(f).action,'candidate-recheck');
+ f.run.candidateIssues=['其他未核验问题'];f.attempts=[];assert.notEqual(planNodeCorrection(f).action,'candidate-recheck');
+});
