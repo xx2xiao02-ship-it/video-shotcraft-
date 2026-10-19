@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {auditHostContext,hostContextForCard} from './talkcraft-host-context.mjs';
 import {correctAnchoredSpeechTimes} from './talkcraft-anchored-time-contract.mjs';
+import {auditVisualContent,visualContentContract} from './talkcraft-visual-content-contract.mjs';
 
 const CARD_ALIASES = Object.freeze({
   'lead-word-zoom-assemble': 'typography/lead-word-zoom-assemble',
@@ -67,6 +68,7 @@ export function talkcraftEditorialContract(catalog) {
       required:card.policy.required,media:card.policy.media,
       mediaAlternatives:card.policy.mediaAlternatives,
       capabilities:{nativeMedia:card.policy.capabilities.nativeMedia,
+        visualContent:visualContentContract(card),
         hostContext:hostContextForCard(card.cardId),
         materialDifference:card.policy.capabilities.materialDifference,
         illustrationOnlyWithoutAdapter:card.policy.capabilities.illustrationOnlyWithoutAdapter},
@@ -80,7 +82,7 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     implementationSha256:catalog.cards.find(card=>card.cardId===cardId)?.implementation.sha256,
     props:shot.templateParams?.cardProps,evidence:[]}; });
   const validation=validateCalls({schema:'b-talkcraft-call-v1',calls},{catalog,projectRoot});
-  const errors=auditHostContext(shots),pending=[],sourceCapabilities=[];
+  const errors=[...auditHostContext(shots),...auditVisualContent(shots,{catalog}).issues],pending=[],sourceCapabilities=[];
   for(const [i,call]of calls.entries()){
     const card=catalog.cards.find(c=>c.cardId===call.cardId);
     for(const field of card?.fields||[])if(field.valueConstraint?.format==='one-based-index-list'&&Object.hasOwn(call.props||{},field.key)){

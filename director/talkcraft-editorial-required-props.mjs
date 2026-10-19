@@ -1,4 +1,5 @@
 // Same explicit-presence rule as the original validator; media remains owned
+import {visualContentContract,auditVisualContent} from './talkcraft-visual-content-contract.mjs';
 // by the existing binding stage. Never substitute source/demo defaults.
 export function editorialRequiredBusinessFields(card){
  const required=card.policy?.required??card.required??[],media=card.policy?.media??card.media??{};
@@ -12,12 +13,12 @@ export function editorialRequiredParameterContracts(request,catalog){
  return request.windows.map(w=>({shotId:w.shotId,choices:w.choices.map(choice=>{
   const card=(catalog.cards??catalog.contracts).find(c=>(c.cardId??c.slug)===choice.slug);
   if(!card)throw Error(`缺少${choice.slug}原卡参数合同`);
-  return {choiceId:choice.choiceId,slug:choice.slug,requiredBusinessFields:editorialRequiredBusinessFields(card),
+  return {choiceId:choice.choiceId,slug:choice.slug,visualContent:visualContentContract(card),requiredBusinessFields:editorialRequiredBusinessFields(card),
     rule:'cardProps must explicitly contain every required business field of the selected choice; empty object is invalid when fields are required; no demo fallback'};
  })}));
 }
 export function auditEditorialRequiredProps(card,props,shotId){
- const issues=[];
+ const issues=auditVisualContent([{id:shotId,shotCard:card.cardId,templateParams:{cardProps:props}}],{catalog:{cards:[card]}}).issues;
  if(!props||typeof props!=='object'||Array.isArray(props))return {passed:false,issues:[{shotId,code:'PROPS_OBJECT_REQUIRED',message:`${shotId}.cardProps必须是完整JSON对象`}]};
  for(const f of editorialRequiredBusinessFields(card)){
   const v=props[f.key];

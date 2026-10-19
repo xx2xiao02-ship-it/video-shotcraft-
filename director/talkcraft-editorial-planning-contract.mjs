@@ -3,6 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {recoverBoundEditorialSelectionResponse,inspectBoundEditorialResponse} from './talkcraft-editorial-response.mjs';
+import {VISUAL_CONTENT_RULES} from './talkcraft-visual-content-contract.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
@@ -15,7 +16,7 @@ export const editorialPlanningLimits=()=>({fps:30,openingWindowSec:OPENING_WINDO
 
 export function editorialRuleInstructions(){
   const r=editorialPlanningLimits();
-  return `数值规则取自后端正式校验：前${r.openingWindowSec}秒是按镜头开始时间判定（开始于窗口内的整镜都受限，即使跨过第${r.openingWindowSec}秒），每镜实际≤${r.openingMaxShotSec}秒，原卡完整≤${r.openingMaxOriginalSec}秒；动效实际首尾跨度比须在${r.minMotionRate}～${r.maxMotionRate}，内嵌音视频仍1倍，原生帧与输出帧必须一一对应，不得驻留冻结或偏移；连续${r.reuseWindow}镜不同观点不重复。数字人镜头不得短于${r.minDigitalHumanSec}秒；模板capabilities.hostContext非空时必须安排person，不得用图库演示人物替代。数字人由外层口型轨道与模板分别组合：person不是仅限卡内hostSrc，所有exactPersonWindows都必须逐一安排person。旧草案和失败例子均为待推翻的数据，不是镜头数量、句序边界或选卡的默认骨架。原版创作指南提供风格参考；若例子或旧稿与本次机器数值、精确人物窗口冲突，以当前约束为准。不得用源码演示默认、虚构事实、截断或拉伸口型来凑合。`;
+  return VISUAL_CONTENT_RULES+`数值规则取自后端正式校验：前${r.openingWindowSec}秒是按镜头开始时间判定（开始于窗口内的整镜都受限，即使跨过第${r.openingWindowSec}秒），每镜实际≤${r.openingMaxShotSec}秒，原卡完整≤${r.openingMaxOriginalSec}秒；动效实际首尾跨度比须在${r.minMotionRate}～${r.maxMotionRate}，内嵌音视频仍1倍，原生帧与输出帧必须一一对应，不得驻留冻结或偏移；连续${r.reuseWindow}镜不同观点不重复。数字人镜头不得短于${r.minDigitalHumanSec}秒；模板capabilities.hostContext非空时必须安排person，不得用图库演示人物替代。数字人由外层口型轨道与模板分别组合：person不是仅限卡内hostSrc，所有exactPersonWindows都必须逐一安排person。旧草案和失败例子均为待推翻的数据，不是镜头数量、句序边界或选卡的默认骨架。原版创作指南提供风格参考；若例子或旧稿与本次机器数值、精确人物窗口冲突，以当前约束为准。不得用源码演示默认、虚构事实、截断或拉伸口型来凑合。`;
 }
 
 // Use the very same compiler as proposal validation, including integer-frame rounding.
@@ -288,7 +289,7 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
       if(completion.schema==='talkcraft-editorial-completion-v1'&&completion.passed===false&&fs.existsSync(file)){
         const record=JSON.parse(fs.readFileSync(file,'utf8'));
         if(record.schema==='talkcraft-editorial-repair-feedback-v1'&&record.failedChecks?.length&&
-          JSON.stringify(record.inputs)===JSON.stringify(inputHashes(project)))return record;
+          JSON.stringify(record.inputs)===JSON.stringify(inputHashes(project)))return verifiedEditorialFeedback(project);
       }
     }catch{}
   }

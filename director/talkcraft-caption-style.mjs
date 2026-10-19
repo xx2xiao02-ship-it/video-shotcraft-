@@ -1,6 +1,11 @@
 // B-mode only. Adapt the approved keyword card's typography and pop curve to
 // the subtitle layer; do not move the scene, audio or native character clock.
 export const B_CAPTION_STYLE={id:'keyword-pop-highlight',name:'关键词色块字幕'};
+// Stroke is painted behind the fill, so small counters and source glyph
+// shapes stay intact. Applies to the independent caption, never card titles.
+export function captionOutlineStyle(scale=1){
+ return {WebkitTextStroke:`${2*scale}px #ffffff`,paintOrder:'stroke fill',textShadow:`0 ${scale}px ${2*scale}px rgba(0,0,0,.45)`};
+}
 export function captionTheme(theme){
  // These are the frozen film tokens, never the desktop UI theme or gallery demo.
  return {text:theme.text||'#1a1a1a',keyword:theme.captionColor||theme.surface||'#ffffff',

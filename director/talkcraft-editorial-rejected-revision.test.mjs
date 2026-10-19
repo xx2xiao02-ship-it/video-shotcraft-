@@ -138,3 +138,27 @@ test('显式已有结果恢复意图不会转换为新付费调用，也不能�
   assert.throws(()=>selectTalkcraftContinuation({...run,...change},{intent:'continue',recoverExisting:true}));
  assert.throws(()=>selectTalkcraftContinuation(run,{intent:'continue',recoverExisting:true,approveModelCost:true}));
 });
+
+
+test('分批修订的新合法拒绝结果可续用同一用户要求，保留指纹历史；要求被改写时拒绝',async t=>{
+ const f=fixture(t);requestTalkcraftStoryboardAdjustment(f.root,id,'按本轮要求逐批修复，不重写锁定镜');
+ authorizeEditorialRevision(f.root,id,{approval:'本次第一批授权'});
+ await assert.rejects(()=>executeEditorialRevision(f.root,id,{stage:()=>({passed:true}),generate:()=>{
+   f.write('qa/editorial-single-submission.json',{...f.read('qa/editorial-single-submission.json'),submittedAt:'current-response',outcome:'response-saved'});
+   const proposal={shots:[{id:'s14',shotCard:'new-source-card'},{id:'s15',shotCard:'still-invalid'}]};
+   f.write('qa/ark-editorial-response.json',proposal);
+   saveEditorialRepairFeedback(f.p,proposal,{issues:[{shotId:'s15',code:'CURRENT_NEXT_BATCH'}]});
+   throw Error('保留本次结果，下一批仍需修');
+ }}),/下一批/);
+ const instruction=f.read('qa/storyboard-adjustment-request.json');
+ const instructionBytes=fs.readFileSync(path.join(f.p,'qa/storyboard-adjustment-request.json'));
+ f.write('qa/storyboard-adjustment-request.json',{...instruction,request:'被改写的要求'});
+ assert.throws(()=>authorizeEditorialRevision(f.root,id,{approval:'本次第二批授权'}),/不一致/);
+ fs.writeFileSync(path.join(f.p,'qa/storyboard-adjustment-request.json'),instructionBytes);
+ const next=authorizeEditorialRevision(f.root,id,{approval:'本次第二批授权'});
+ assert.equal(next.feedbackStage,'editorial');
+ assert.equal(f.read('qa/storyboard-adjustment-request.json').request,instruction.request);
+ const history=fs.readdirSync(path.join(f.p,'qa/storyboard-adjustment-history'));
+ assert.equal(history.length,1);assert.deepEqual(f.read('qa/storyboard-adjustment-history/'+history[0]),instruction);
+ assert.equal(currentEditorialRepairFeedback(f.p).failedChecks[0].code,'CURRENT_NEXT_BATCH');
+});

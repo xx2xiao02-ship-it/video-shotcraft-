@@ -13,6 +13,7 @@ import {applySemanticDecisions,validateSemanticDecisions} from './talkcraft-sema
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC, OPENING_MAX_SHOT_SEC, OPENING_TARGET_SHOT_SEC} from './talkcraft-template-governance.mjs';
 import {loadTalkcraftGovernedCatalog, talkcraftEditorialContract, validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
+import {graphicCandidateIds} from './talkcraft-visual-content-contract.mjs';
 import {nativeEditorialTimeline,prepareEditorialNativePlans,assertEditorialTextPlan,EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
@@ -120,7 +121,8 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
       lockedDsl:editorialDslLocks(catalog.cards.find(c=>c.cardId===card.slug)),
     };
   });
-  const comparisonOrder=[...cards].sort((a,b)=>Number(b.category==='数据信息图')-Number(a.category==='数据信息图')).map(c=>c.slug);
+  const preferred=new Set(graphicCandidateIds({cards}));
+  const comparisonOrder=[...cards].sort((a,b)=>Number(preferred.has(b.slug))-Number(preferred.has(a.slug))).map(c=>c.slug);
   // These constraints execute in the locked validator. Send that same function,
   // rather than maintaining another partial prose list beside the compiler.
   return {cards, contracts, comparisonOrder,crossFieldChecks:crossFieldChecks.toString(),materialDisplayRules:EDITORIAL_MATERIAL_DISPLAY_RULES,
@@ -197,10 +199,10 @@ function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=re
     researchPlan:existsSync(researchFile)?json(researchFile):json(path.join(project,'qa/ark-editorial-response.json')).materialResearch,
     catalog,projectRoot:project});
   writeFileSync(path.join(project,'qa/editorial-material-contract.json'),JSON.stringify(materials,null,2));
-  if(!materials.passed)throw Error('分镜素材展示规划不一致：'+materials.issues.map(i=>`${i.shotId||'全片'} [${i.code}] ${i.message}`).join('；'));
+  if(!materials.passed)throw Object.assign(Error('分镜素材展示规划不一致：'+materials.issues.map(i=>`${i.shotId||'全片'} [${i.code}] ${i.message}`).join('；')),{issues:materials.issues});
   const contractCheck = validateTalkcraftDesignProps(shots,{catalog,projectRoot:project});
   writeFileSync(path.join(project,'qa/ark-template-design-validation.json'),JSON.stringify(contractCheck,null,2));
-  if (!contractCheck.passed) throw new Error(`已保存分镜的模板参数不符合治理契约：\n${contractCheck.errors.map(issue=>`${issue.shotId || '分镜'} [${issue.code}] ${issue.at} ${issue.message}`).join('\n')}`);
+  if (!contractCheck.passed) throw Object.assign(new Error(`已保存分镜的模板参数不符合治理契约：\n${contractCheck.errors.map(issue=>`${issue.shotId || '分镜'} [${issue.code}] ${issue.at||''} ${issue.message}`).join('\n')}`),{issues:contractCheck.errors});
   const file = path.join(project,'semantics.json');
   const updated = bindEditorialTiming(json(file),json(path.join(project,'audio/timestamps.json')),shots);
   writeFileSync(file,JSON.stringify(updated,null,2));
@@ -414,8 +416,10 @@ export function prepareEditorialRepairInput({previousFailures,aligned,catalog,pe
   const selectionModelInput=selectionRequest?editorialSelectionModelInput(selectionRequest,{promptCatalog,theme}):null;
   const requestAudit=auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs,selectionRequest,selectionModelInput,theme});
   if(!requestAudit.passed)throw Error(`生成输入契约检查未通过，未提交方舟：${requestAudit.issues.join('；')}`);
+  const adjustmentFile=projectRoot?path.join(projectRoot,'qa/storyboard-adjustment-request.json'):null;
+  const adjustment=adjustmentFile&&existsSync(adjustmentFile)?json(adjustmentFile).request:'';
   const prompt=selectionRequest?editorialSelectionPrompt(selectionRequest,{promptCatalog,theme,modelInput:selectionModelInput,
-    rules:[editorialRuleInstructions(),EDITORIAL_PARAM_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES].join('\n')}):null;
+    rules:[editorialRuleInstructions(),EDITORIAL_PARAM_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES,adjustment?`本次用户整改要求（按锁定范围逐批落实）：${adjustment}`:''].join('\n')}):null;
   return {planningContract,repairInputs,selectionRequest,selectionModelInput,requestAudit,prompt};
 }
 
@@ -428,7 +432,7 @@ export function checkEditorialSelectionInput(root,runId,{skillRoot=resolveTalkcr
   try{
     const rejected=currentRejectedEditorialFeedback(project);
     const retained=rejected?null:currentEditorialRepairFeedback(project);
-    const previousFailures=rejected||(retained?.retainedTransaction?retained:null);
+    const previousFailures=rejected||(retained?.retainedTransaction||retained?.schema==='talkcraft-editorial-repair-feedback-v1'?retained:null);
     if(!previousFailures)throw Error('没有与当前输入、原始返回及提案完全对应的拒绝记录，不回退到旧工作记录');
     const aligned=json(path.join(project,'aligned-sentences.json')),index=json(path.join(skillRoot,'references/cards-index.json'));
     const catalog=loadTalkcraftGovernedCatalog(index),reviewed=loadReviewedTemplates({skillRoot});

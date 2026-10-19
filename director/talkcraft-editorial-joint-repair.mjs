@@ -4,6 +4,7 @@ import {auditEditorialMaterialContract,editorialSourceDisplayFields} from './tal
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock,assertNativeHoldBudget} from './talkcraft-native-time-map.mjs';
+import {visualContentContract} from './talkcraft-visual-content-contract.mjs';
 
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
@@ -28,7 +29,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
   // A reuse issue names both ends; repair an independently failing end first,
   // rather than unlocking its otherwise valid counterpart as collateral work.
   const ids=new Set(failedChecks.filter(i=>i.code!=='template_window_reuse')
-    .flatMap(i=>[i.shotId,i.displayShotId]).filter(Boolean));
+    .flatMap(i=>[i.shotId,i.displayShotId,...(i.shotIds||[])]).filter(Boolean));
   for(const issue of failedChecks.filter(i=>i.code==='template_window_reuse'))
     if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
   if(!ids.size)shots.forEach(s=>ids.add(s.id));
@@ -69,6 +70,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       // A fixed illustration with no authored content or media inlet cannot
       // implement a new content design under the existing native text gate.
       const capability=card.policy?.capabilities;
+      if(visualContentContract(card).placeholder)reasons.push('DEMO_VISUAL_NOT_REPLACEABLE');
       if(capability?.illustrationOnlyWithoutAdapter===true&&capability.parameterizedContent===false&&capability.nativeMedia===false)
         reasons.push('AUTHORED_CONTENT_SLOT_UNAVAILABLE');
       if(editorialRequiredNumericFields(card).length&&!editorialQuantitativeInput(proposal,shot))

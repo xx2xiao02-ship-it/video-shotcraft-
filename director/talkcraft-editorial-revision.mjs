@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {talkcraftProject,prepareTalkcraftStoryboardRevision} from './talkcraft-status.mjs';
+import {talkcraftProject,prepareTalkcraftStoryboardRevision,requestTalkcraftStoryboardAdjustment} from './talkcraft-status.mjs';
 import {currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {generateEditorial,checkEditorial,recoverProviderEditorial} from './talkcraft-ark-editorial.mjs';
@@ -79,9 +79,26 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
   for(const f of ['qa/storyboard-adjustment-request.json','qa/semantics-before-ark.json',
     'qa/ark-editorial-response.json',...(rejected?[]:['SHOTBOOK.md','remotion/shots.json'])])
     if(!fs.existsSync(path.join(project,f)))throw Error('正式修订输入缺失：'+f);
-  const request=read(path.join(project,'qa/storyboard-adjustment-request.json'));
-  if(!request.request||!request.inputs||Object.entries(request.inputs).some(([n,h])=>
-    !fs.existsSync(path.join(project,n))||sha(path.join(project,n))!==h))throw Error('修订要求与当前分镜不一致');
+  const requestFile=path.join(project,'qa/storyboard-adjustment-request.json');
+  const request=read(requestFile);
+  const matches=request.request&&request.inputs&&!Object.entries(request.inputs).some(([n,h])=>
+    !fs.existsSync(path.join(project,n))||sha(path.join(project,n))!==h);
+  if(!matches){
+    // A completed local compile can leave another locked shot failing. Bind
+    // the SAME user instruction to that verified new result, never an older
+    // snapshot or an edited instruction. This records ancestry, not content.
+    const prior=fs.existsSync(authFile(project))?read(authFile(project)):null;
+    const current=currentRejectedEditorialFeedback(project);
+    if(!request.request||!current||prior?.schema!=='talkcraft-editorial-revision-authorization-v1'||
+      prior.runId!==runId||!prior.startedAt||prior.inputs?.['qa/storyboard-adjustment-request.json']!==sha(requestFile)||
+      ['input.txt','aligned-sentences.json','audio/full.mp3'].some(n=>prior.inputs?.[n]!==sha(path.join(project,n))))
+      throw Error('修订要求与当前分镜不一致');
+    const history=path.join(project,'qa/storyboard-adjustment-history');fs.mkdirSync(history,{recursive:true});
+    const archived=path.join(history,sha(requestFile)+'.json');
+    if(!fs.existsSync(archived))fs.copyFileSync(requestFile,archived,fs.constants.COPYFILE_EXCL);
+    if(sha(archived)!==sha(requestFile))throw Error('原整改要求归档校验失败');
+    requestTalkcraftStoryboardAdjustment(root,runId,request.request);
+  }
   const previous=read(path.join(project,'qa/editorial-single-submission.json'));
   const originalInputs=Object.fromEntries(['input.txt','aligned-sentences.json'].map(n=>[n,sha(path.join(project,n))]));
   if(previous.schema!=='talkcraft-editorial-single-submission-v1'||previous.approved!==true||

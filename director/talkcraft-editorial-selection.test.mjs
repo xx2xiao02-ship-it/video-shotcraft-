@@ -75,14 +75,15 @@ test('图形比较失败时发送真实图形分类目录与理由合同，不�
  const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
  const model=editorialSelectionModelInput(request,{promptCatalog});
  const contract=model.materials.find(r=>r.shotId===request.editableShotIds[0]).graphicComparisonContract;
- assert.deepEqual(contract.cards.map(c=>c.slug),promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug));
+ assert.ok(contract.cards.some(c=>c.slug==='source-converge'));
+ assert.ok(contract.cards.some(c=>c.slug==='info-card-assemble'));
+ assert.ok(!contract.cards.some(c=>c.slug==='number-counter'));
  assert.ok(contract.cards.length>0);assert.equal(contract.minimumReasonCharacters,4);
  assert.ok(!contract.cards.some(c=>c.slug==='soft-blur-in'));
  assert.ok(model.materials.filter(r=>r.shotId!==request.editableShotIds[0]).every(r=>!r.graphicComparisonContract));
   request.failedChecks=[];request.windows[0].choices=[{choiceId:'new-text',slug:'soft-blur-in'}];
   const proactive=editorialSelectionModelInput(request,{promptCatalog});
-  assert.deepEqual(proactive.materials[0].graphicComparisonContract.cards.map(c=>c.slug),
-    promptCatalog.cards.filter(c=>c.category==='数据信息图').map(c=>c.slug));
+  assert.deepEqual(proactive.materials[0].graphicComparisonContract.cards,contract.cards);
 });
 
 test('圈注强调卡按正式素材分类明确背景必填条件，人物不豁免且不自动编写理由',()=>{
@@ -589,4 +590,21 @@ test('215同类漏填不能恢复旧设计，发送投影逐字段说明且错�
   const prompt=editorialSelectionPrompt(request,{promptCatalog,modelInput:model});
   assert.match(prompt,/即使research为空也不能省略背景和图形决定/);
   assert.match(prompt,/materialResearchUpdates行顶层返回/);
+});
+
+
+test('局部输入保留全片表达统计与结构图优先比较顺序，不篡改原选项编号或跨镜口播',()=>{
+ const request=buildEditorialSelectionRequest(fixture());
+ const promptCatalog=compactTalkcraftEditorialCatalog(index,catalog);
+ const before=structuredClone(request.windows[0].choices);
+ const model=editorialSelectionModelInput(request,{promptCatalog});
+ assert.deepEqual(request.windows[0].choices,before);
+ assert.equal(model.editorialExpression.maxTextShare,.5);
+ const w=model.windows[0];
+ assert.deepEqual(new Set(w.visualPreference.comparisonOrder),new Set(w.choices.map(c=>c.choiceId)));
+ const ranks=w.visualPreference.comparisonOrder.map(id=>w.choices.find(c=>c.choiceId===id).slug);
+ const source=ranks.findIndex(id=>id==='split-compare-slider');
+ const text=ranks.findIndex(id=>id==='info-term-card');
+ if(source>=0&&text>=0)assert.ok(source<text);
+ assert.deepEqual(model.catalog.comparisonOrder,promptCatalog.comparisonOrder.filter(id=>w.choices.some(c=>c.slug===id)));
 });

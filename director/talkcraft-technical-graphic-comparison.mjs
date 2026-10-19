@@ -1,6 +1,7 @@
 import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 
 const reasons={TIMING_OR_SUBJECT_INCOMPATIBLE:'真实时长、开场完整动作或人物窗口不兼容',
+  DEMO_VISUAL_NOT_REPLACEABLE:'固定演示主体没有真实素材入口',
   SOURCE_DISPLAY_SLOT_REQUIRED:'缺少本镜所需真实资料展示槽',AUTHORED_CONTENT_SLOT_UNAVAILABLE:'只有固定演示，没有业务内容入口',
   QUANTITATIVE_INPUT_REQUIRED:'需要本镜未提供的真实量化数据',FIXED_SHOT_REUSE_CONFLICT:'与锁定镜头重复且没有同观点承接授权'};
 export function prepareTechnicalGraphicComparisons({shots,research,sentences,aligned,catalog,graphicCardIds,eligibleShotIds,personWindows=[],projectRoot}){
