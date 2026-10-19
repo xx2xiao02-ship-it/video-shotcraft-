@@ -5,9 +5,16 @@ import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion} from './talkcraft-material-completion.mjs';
+import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired} from './talkcraft-material-completion.mjs';
 import {planNodeCorrection,approveNodeCorrection} from './talkcraft-correction-center.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+test('素材指纹复检读取正式原始状态，不能依赖仅HTTP控制层存在的nextStage',()=>{
+ assert.equal(materialInputRecheckRequired({digitalHumanGenerationPlanned:true,mediaPreparationPassed:false}),true);
+ assert.equal(materialInputRecheckRequired({digitalHumanGenerationPlanned:true,mediaPreparationPassed:true,mediaPreflightPassed:false}),false);
+ assert.equal(materialInputRecheckRequired({workflowPath:'recorded-host',mediaPreflightPassed:false}),true);
+ assert.equal(materialInputRecheckRequired({workflowPath:'recorded-host',mediaPreflightPassed:true}),false);
+ assert.equal(materialInputRecheckRequired({workflowPath:'legacy'}),false);
+});
 const catalog={cards:[{cardId:'tracking-in',policy:{media:{}}},{cardId:'stack-fan-out',policy:{media:{src1:'image',src2:'image'}}}]};
 const page=(title='File:City street.webm')=>({pageid:1,title,imageinfo:[{url:'https://upload.wikimedia.org/wikipedia/commons/a/a1/City_street.webm',
  descriptionurl:'https://commons.wikimedia.org/wiki/File:City_street.webm',width:1280,height:720,size:1000,

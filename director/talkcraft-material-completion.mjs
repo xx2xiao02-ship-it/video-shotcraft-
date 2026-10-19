@@ -14,6 +14,10 @@ const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const save=(p,n,v)=>{const f=path.join(p,n);fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f+'.tmp',JSON.stringify(v,null,2)+'\n');fs.renameSync(f+'.tmp',f);};
 const names=['input.txt','audio/full.mp3','aligned-sentences.json','semantics.json','remotion/shots.json','material-research-plan.json'];
 const inputs=p=>Object.fromEntries(names.map(n=>[n,sha(fs.readFileSync(path.join(p,n)))]));
+export function materialInputRecheckRequired(state){
+ return state.digitalHumanGenerationPlanned===true?state.mediaPreparationPassed!==true:
+  state.workflowPath==='recorded-host'&&state.mediaPreflightPassed!==true;
+}
 const publicFile=(project,name)=>{
  if(typeof name!=='string'||!/^verified-sources\/[a-f0-9]{64}(?:-frame)?\.(?:webm|ogv|mp4|png|jpe?g|webp)$/u.test(name))throw Error('下载缓存路径不合法');
  const root=fs.realpathSync(path.join(project,'remotion/public')),full=fs.realpathSync(path.join(root,name)),rel=path.relative(root,full);

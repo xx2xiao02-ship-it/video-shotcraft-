@@ -52,6 +52,7 @@ import {loadMaterialIndex, matchSceneVideos} from './b-mode-material-match.mjs';
 import {auditMaterialResearch} from './talkcraft-material-research.mjs';
 import {prepareResearchBindings} from './talkcraft-research-binding.mjs';
 import {executeInstitutionSourceRepair} from './talkcraft-institution-source-repair.mjs';
+import {materialInputRecheckRequired} from './talkcraft-material-completion.mjs';
 import {assertBModeGoverned} from './talkcraft-b-mode-governance.mjs';
 import {normalizeTalkcraftBindings, syncTalkcraftShotSource} from './talkcraft-binding.mjs';
 import {allocateTemplateMaterials} from './talkcraft-template-materials.mjs';
@@ -546,7 +547,7 @@ function runTalkcraftStageInternal(stage, runId) {
     run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-completion.mjs'),project,path.join(SKILL,'references/cards-index.json')],project);
     // A binding transaction changes the input fingerprint. Revalidate the
     // original input gate rather than leaving UI at an obsolete 05 receipt.
-    if(readTalkcraftStatus(ROOT,runId).nextStage==='media-preflight')runTalkcraftStage('media-preflight',runId);
+    if(materialInputRecheckRequired(readTalkcraftStatus(ROOT,runId)))runTalkcraftStage('media-preflight',runId);
     // Acquiring a file never marks 06/07/09 passed by itself.
     const result=runTalkcraftStage('candidates',runId);
     if(approvedCorrection.node==='storyboard-review')return runTalkcraftStage('planning-check',runId);
