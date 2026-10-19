@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {textVideoRequirement,hasVideoBackground} from './talkcraft-text-video.mjs';
+import {textVideoRequirement,textVideoPositions,hasVideoBackground} from './talkcraft-text-video.mjs';
 import {isTextDominant} from './talkcraft-visual-content-contract.mjs';
 import {createHash} from 'node:crypto';
 
@@ -33,6 +33,7 @@ function concentratedDisplayAllowed(project,shotId){
 // responsibility of the unchanged material audit in node 06.
 export function auditEditorialMaterialContract({shots=[],sentences=[],researchPlan,catalog,projectRoot}){
   const issues=[],pending=[],checks=[];
+  const positions=textVideoPositions(shots);
   const add=(shotId,code,message,extra={})=>issues.push({shotId,code,message,...extra});
   const needKind={身份:'identity',证据:'evidence',量化:'data'};
   const rows=researchPlan?.shots;
@@ -46,7 +47,7 @@ export function auditEditorialMaterialContract({shots=[],sentences=[],researchPl
     const row=Array.isArray(rows)?rows.find(r=>r?.shotId===shot.id):null;
     const sentenceRows=(Array.isArray(sentences)?sentences:[]).filter((s,i)=>s?.shot===shot.id||s&&!s.shot&&i>=shot.firstSentence&&i<=shot.lastSentence);
     const sourceDisplay=['evidence','subject'].includes(params.materialRole)&&!!params.materialSrc||editorialSourceDisplayFields(card).some(field=>hasValue(props[field])||hasValue(params.templateMaterialQueries?.[field]));
-    const textVideo=textVideoRequirement({shot,sentences,position:shots.indexOf(shot),considerBackground:isTextDominant(shot,catalog)&&!sourceDisplay});
+    const textVideo=textVideoRequirement({shot,sentences,position:positions.get(shot.id),considerBackground:isTextDominant(shot,catalog)&&!sourceDisplay});
     if(textVideo.required&&!hasVideoBackground(shot)){
       if(!textVideo.supported)add(shot.id,'TEXT_VIDEO_TEMPLATE_REQUIRED','普通论述文字的原卡不支持已审视频底板，须在04比较并选择兼容模板；不得用色块或纸底代替');
       else if(row?.backgroundDecision!=='use'||!nonempty(row?.backgroundQuery))add(shot.id,'TEXT_VIDEO_PLAN_REQUIRED','普通论述文字须在04明确use及本镜视频检索词，由06采集绑定；omit理由不能豁免');

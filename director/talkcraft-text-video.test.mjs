@@ -52,3 +52,19 @@ test('适配记录严格绑定原模板源码，不冒称任意模板可改造',
 test('不存在或伪造的视频文件不能因为路径正确而通过素材审核',t=>{const p=fs.mkdtempSync(path.join(os.tmpdir(),'text-video-'));t.after(()=>fs.rmSync(p,{recursive:true,force:true}));fs.mkdirSync(p+'/remotion/public/broll',{recursive:true});const s=shots(1);bind(s[0]);assert.equal(auditTextVideoFiles(p,s).passed,false);fs.writeFileSync(p+'/remotion/public/broll/city.mp4','not video');assert.equal(auditTextVideoFiles(p,s).issues[0].code,'TEXT_VIDEO_FILE_INVALID');});
 
 test('前三镜不强制背景，第四镜起仍检查每个重叠三镜窗口',()=>{const s=shots(6);assert.equal(rawCheckTextVideoCycle(s.slice(0,3),demands(s)).passed,true);assert.deepEqual(rawCheckTextVideoCycle(s,demands(s)).issues.map(x=>x.shotIds),[['s3','s4','s5']]);bind(s[4]);assert.equal(rawCheckTextVideoCycle(s,demands(s)).passed,true);});
+
+
+test('新任务乱序分镜仍只豁免真实前三镜，04与06一致且不重排原数组',()=>{
+ const original=shots(5).map((s,i)=>({...s,firstSentence:i,lastSentence:i}));
+ const input=[original[4],original[0],original[3],original[2],original[1]],before=structuredClone(input);
+ const sentences=original.map((s,i)=>({i,shot:s.id,text:'消费影响经济',sem:['机制']}));
+ const index={cards:[{slug:'soft-blur-in',cardId:'soft-blur-in',category:'字幕花字',fields:[],policy:{media:{}}}]};
+ for(const rows of [input,input.map(({start,end,...s})=>s)]){
+  const demands=materialDemand({shots:rows,semantics:{sentences},index});
+  assert.deepEqual(demands.filter(d=>d.textVideo.required).map(d=>d.shotId),['s4','s3']);
+  const plan={shots:original.map(s=>({shotId:s.id,backgroundDecision:'omit',research:[]}))};
+  const report=auditEditorialMaterialContract({shots:rows,sentences,researchPlan:plan,catalog:index});
+  assert.deepEqual(report.issues.filter(i=>i.code==='TEXT_VIDEO_PLAN_REQUIRED').map(i=>i.shotId),['s4','s3']);
+ }
+ assert.deepEqual(input,before);
+});

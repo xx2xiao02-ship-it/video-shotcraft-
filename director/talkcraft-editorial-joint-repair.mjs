@@ -1,3 +1,4 @@
+import {textVideoRequirement,textVideoPositions} from './talkcraft-text-video.mjs';
 import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,6 +47,7 @@ export function editorialRequiredNumericFields(card){
 export function buildEditorialJointRepairContract({proposal,failedChecks=[],aligned,catalog,personWindows=[],projectRoot,repairBatch},dependencyExpansion=null){
   if(!proposal?.shots?.length)return null;
   const shots=proposal.shots,rows=proposal.materialResearch?.shots||[];
+  const positions=textVideoPositions(shots);
   const film=auditFilmExpression(shots.map(s=>({...s,start:aligned[s.firstSentence]?.start,end:aligned[s.lastSentence]?.end})),catalog);
   const reportedChecks=failedChecks;
   failedChecks=[...failedChecks,...film.issues.filter(i=>!failedChecks.some(old=>old.code===i.code&&old.shotId===i.shotId))];
@@ -129,6 +131,11 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     for(const card of catalog.cards){
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
+      // Filter inside the shared domain so dependency expansion sees the same
+      // video constraints as the eventual model request, not a later projection.
+      const video=textVideoRequirement({shot:{...shot,shotCard:card.cardId},sentences:proposal.sentences,
+        position:positions.get(shot.id),considerBackground:isTextDominant({shotCard:card.cardId},catalog)});
+      if(video.required&&!video.supported)reasons.push('TEXT_VIDEO_TEMPLATE_REQUIRED');
       // The typed binding reference identifies a scalar image slot, not an
       // index inside a list. Do not offer a list-only retarget that the formal
       // recovery contract cannot execute without guessing an image position.

@@ -38,12 +38,7 @@ export function buildEditorialSelectionRequest(inputs){
   const proposal=structuredClone(inputs.proposal);
   delete proposal.editorialSelectionRejection;
   const windows=joint.windows.map(w=>{
-    const index={cards:inputs.catalog.cards.map(c=>({...c,slug:c.cardId}))};
-    const candidates=w.candidates.filter(c=>{
-      const shots=proposal.shots.map(s=>s.id===w.shotId?{...s,shotCard:c.slug,templateParams:{}}:s);
-      const demand=materialDemand({shots,semantics:{sentences:proposal.sentences},index}).find(d=>d.shotId===w.shotId);
-      return !demand.textVideo.required||demand.textVideo.supported;
-    });
+    const candidates=w.candidates;
     if(!candidates.length)throw fail(`${w.shotId}没有固定句范围内同时满足真实视频背景、语义和时长的方案，须先治理重排范围，不能发起相同选卡请求`,w.shotId);
     return {shotId:w.shotId,firstSentence:w.firstSentence,lastSentence:w.lastSentence,
       actualCandidateSemantics:[...editorialShotSemantics(proposal.sentences,proposal.shots.find(s=>s.id===w.shotId))],

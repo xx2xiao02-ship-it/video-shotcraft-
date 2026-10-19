@@ -27,6 +27,15 @@ export function hasVideoBackground(shot){
   (p.backgroundPresentation==='theme-wash-v1'&&shot.shotCard==='chapter-progress-list'&&p.cardProps?.bg==='#ffffff00'||
    p.backgroundPresentation===TEXT_VIDEO_VERSION&&!!TEXT_VIDEO_CARDS[shot.shotCard]);
 }
+// Use actual timeline/real sentence order while preserving caller array order.
+export function textVideoPositions(shots){
+ const time=s=>s.start??s.startSec;
+ const numeric=v=>v!==undefined&&v!==null&&Number.isFinite(Number(v));
+ const key=shots.every(s=>numeric(time(s)))?s=>Number(time(s)):
+  shots.every(s=>Number.isInteger(s.firstSentence))?s=>s.firstSentence:null;
+ const ordered=key?[...shots].sort((a,b)=>key(a)-key(b)):shots;
+ return new Map(ordered.map((s,i)=>[s.id,i]));
+}
 // Code-owned purpose from this shot's current sentence records. A broad
 // '论点' or need='强调' label alone cannot exempt ordinary narration.
 export function textVideoRequirement({shot,sentences=[],position,considerBackground}){

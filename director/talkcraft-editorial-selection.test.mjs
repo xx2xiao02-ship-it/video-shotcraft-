@@ -24,7 +24,10 @@ test('新增任务发送前排除普通论述不支持视频背景的文字卡�
  const args=fixture();args.failedChecks=[{code:'TEXT_VIDEO_TEMPLATE_REQUIRED',shotId:'s15'}];
  const openings=Array.from({length:3},(_,i)=>({id:'open'+i,firstSentence:0,lastSentence:0,subject:'other',shotCard:'keyword-pop-highlight',templateParams:{}}));
  args.proposal.shots.unshift(...openings);
+ const joint=buildEditorialJointRepairContract(args);
+ assert.ok(joint.windows[0].rejected.TEXT_VIDEO_TEMPLATE_REQUIRED.length>0);
  const req=buildEditorialSelectionRequest(args),model=editorialSelectionModelInput(req,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ assert.deepEqual(req.windows[0].choices.map(c=>c.slug),joint.windows[0].candidates.map(c=>c.slug));
  assert.ok(req.windows[0].choices.length>0);
  for(const row of model.windows[0].backgroundDecisionContract.choices)assert.ok(!row.textVideo.required||row.textVideo.supported);
  assert.ok(req.windows[0].choices.some(c=>c.sourceDisplayFields.length));

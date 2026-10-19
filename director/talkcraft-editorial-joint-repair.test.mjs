@@ -60,6 +60,8 @@ function fixture(){
 
 test('三个真实失败模式联合计算，不能让时长可行但无资料槽的卡再次混入',()=>{
   const args=fixture();
+  // 本例仅核验原生时长；独立金句保留无视频能力文字卡选项。
+  args.proposal.sentences[3].sem=['金句'];
   // 新驻留预算为90帧，用195帧正文镜继续覆盖确需减速的情形。
   args.aligned[3].end=args.aligned[3].start+195/30;
   args.personWindows[1].end=args.aligned[3].end;
