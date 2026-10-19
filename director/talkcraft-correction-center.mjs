@@ -59,7 +59,7 @@ export function currentApprovedEditorialCorrection(project,runId,approval,now=Da
 }
 
 export {CORRECTION_NODE_POLICIES} from './talkcraft-node-correction-plan.mjs';
-import {proposeNodeCorrection,CORRECTION_NODE_POLICIES,correctionNode,creativeCode} from './talkcraft-node-correction-plan.mjs';
+import {proposeNodeCorrection,CORRECTION_NODE_POLICIES,correctionNode,creativeCode,dueSourceRetryToken} from './talkcraft-node-correction-plan.mjs';
 
 // Approval binds the node's concrete plan, all current issues and its input
 // fingerprint. It never changes business content or marks a gate as passed.
@@ -143,7 +143,8 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action
   // after process death or an unknown provider result.
-  const attempt={action:decision.action,fingerprint,progressKey,...(decision.action==='material-completion'?{materialPlanId:decision.materialCompletionPlan.planId}:{}),...(decision.action==='editorial-repair'?{authorizationSha256:digest(authorization)}:{}),startedAt:new Date(now).toISOString(),status:'dispatching'};
+  const sourceRetryToken=dueSourceRetryToken(decision.materialCompletionPlan,now);
+  const attempt={action:decision.action,fingerprint,progressKey,dispatcherPid:process.pid,...(decision.action==='material-completion'?{materialPlanId:decision.materialCompletionPlan.planId,...(sourceRetryToken?{sourceRetryToken}:{})}:{}),...(decision.action==='editorial-repair'?{authorizationSha256:digest(authorization)}:{}),startedAt:new Date(now).toISOString(),status:'dispatching'};
   record.attempts=[...attempts,attempt];record.state='correcting';save(project,'qa/correction-center.json',record);
   try{const task=await queueStage({runId:run.runId,...decision.body});attempt.status='queued';attempt.taskId=task.id;
     save(project,'qa/correction-center.json',record);return {handled:true,decision,task};

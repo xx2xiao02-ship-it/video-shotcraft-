@@ -1,6 +1,10 @@
 import {createHash} from 'node:crypto';
 import {MANAGED_WORKFLOW_NODES,workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x??null)).digest('hex');
+export function dueSourceRetryToken(plan,now=Date.now()){
+  const retry=plan?.transportRetry;
+  return retry?.token&&retry.failures<retry.maxFailures&&Date.parse(retry.notBefore)<=now?retry.token:null;
+}
 const localStages={input:'recover-timing','word-timing':'recover-alignment',semantics:'semantic-check',editorial:'editorial-check',
   'generation-input':'media-preflight',candidates:'candidates','storyboard-review':'planning-check','digital-human':'host-preflight',
   preflight:'preflight',scaffold:'scaffold',sample:'sample','render-all':'render-all',qa:'qa',review:null,deliver:null};
@@ -41,8 +45,12 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
   const sourceRetry=sourcePlan?.transportRetry;
-  const recoverTransport=sourceRetry&&sourceRetry.failures<sourceRetry.maxFailures&&Date.parse(sourceRetry.notBefore)<=now&&
-    !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='material-completion'&&a.materialPlanId===sourcePlan.planId);
+  const retryToken=dueSourceRetryToken(sourcePlan,now);
+  const retryAttempts=attempts.filter(a=>a.action==='material-completion'&&a.sourceRetryToken===retryToken);
+  const beforeLaunchFailure=a=>a.status==='dispatch-failed'&&/无法启动任务子进程（EPERM）/u.test(a.error||'');
+  if(retryToken&&retryAttempts.some(a=>beforeLaunchFailure(a)&&a.dispatcherPid===process.pid))
+    return {...base,state:'waiting-code-reload',action:null,reason:'操作台尚不能启动节点子进程；保留素材与重试凭据，正常重启服务后免费恢复，不在同一受限进程内循环。'};
+  const recoverTransport=retryToken&&!retryAttempts.some(a=>!beforeLaunchFailure(a)||a.dispatcherPid===process.pid);
   if(sourcePlan?.needs?.length&&governance&&['candidates','storyboard-review','preflight'].includes(node)&&(!used('material-completion')||recoverTransport))
     return {...base,state:'ready-to-correct',action:'material-completion',body:{stage:'material-completion'},materialCompletionPlan:sourcePlan,
       reason:'中心核对逐镜模板、素材槽与完整缺项后，调度正式采集绑定处理器；保留原稿和已有素材，补齐后继续原门禁复检，不以付费换卡代替采集'};

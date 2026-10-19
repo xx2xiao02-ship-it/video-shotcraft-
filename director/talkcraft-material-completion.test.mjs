@@ -7,6 +7,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired,discoverReviewedCompletionSources,discoverCompletionSources} from './talkcraft-material-completion.mjs';
 import {planNodeCorrection,approveNodeCorrection} from './talkcraft-correction-center.mjs';
+import {dueSourceRetryToken} from './talkcraft-node-correction-plan.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 test('素材指纹复检读取正式原始状态，不能依赖仅HTTP控制层存在的nextStage',()=>{
  assert.equal(materialInputRecheckRequired({digitalHumanGenerationPlanned:true,mediaPreparationPassed:false}),true);
@@ -168,10 +169,26 @@ test('来源限流按中心批准方案退避恢复；到期只预留一次，�
  const f={now:10000,run:{runId:'run',provenance:{verified:true},nextStage:'candidates',lastFailure:{task:{name:'talkcraft-candidates'}}},
   fingerprint:'current',attempts:[{fingerprint:'current',action:'local-recheck'},{fingerprint:'current',action:'material-completion',materialPlanId:'old'}],
   feedback:{failedChecks:[{shotId:'s04',code:'TEXT_VIDEO_REQUIRED'}]},governance:{caseSha256:'case',mapSha256:'map'},
-  sourcePlan:{needs:[{shotId:'s04',field:'@background'}],planId:'retry',transportRetry:{notBefore:new Date(20000).toISOString(),failures:1,maxFailures:3}}};
+  sourcePlan:{needs:[{shotId:'s04',field:'@background'}],planId:'retry',transportRetry:{token:'rate-limit-1',notBefore:new Date(20000).toISOString(),failures:1,maxFailures:3}}};
  assert.equal(planNodeCorrection(f).state,'waiting-source-retry');
+ assert.equal(dueSourceRetryToken(f.sourcePlan,f.now),null);
  f.now=21000;assert.equal(planNodeCorrection(f).action,'material-completion');
- f.attempts.push({fingerprint:'current',action:'material-completion',materialPlanId:'retry'});assert.equal(planNodeCorrection(f).action,null);
+ assert.equal(dueSourceRetryToken(f.sourcePlan,f.now),'rate-limit-1');
+ // The same plan may already have run while cooling down to recover cache.
+ // That execution must not consume the subsequent network retry.
+ f.attempts.push({fingerprint:'current',action:'material-completion',materialPlanId:'retry'});
+ assert.equal(planNodeCorrection(f).action,'material-completion');
+ f.attempts.push({fingerprint:'current',action:'material-completion',materialPlanId:'retry',sourceRetryToken:'rate-limit-1'});
+ assert.equal(planNodeCorrection(f).action,null);
+ const reserved=f.attempts.at(-1);
+ reserved.status='dispatch-failed';reserved.error='操作台无法启动任务子进程（EPERM）。';reserved.dispatcherPid=process.pid;
+ assert.equal(planNodeCorrection(f).state,'waiting-code-reload');
+ reserved.dispatcherPid=-1;assert.equal(planNodeCorrection(f).action,'material-completion');
+ reserved.status='dispatching';assert.equal(planNodeCorrection(f).action,null);
+ f.fingerprint='recovered-input';f.attempts.push({fingerprint:f.fingerprint,action:'local-recheck'},{fingerprint:f.fingerprint,action:'material-completion'});
+ assert.equal(planNodeCorrection(f).action,null);
+ f.sourcePlan.transportRetry.token='rate-limit-2';f.sourcePlan.transportRetry.failures=2;
+ assert.equal(planNodeCorrection(f).action,'material-completion');
  f.sourcePlan.transportRetry.failures=3;f.sourcePlan.planId='third';assert.equal(planNodeCorrection(f).action,null);
 });
 
