@@ -74,6 +74,12 @@ test('本次已编译结果的两处失败覆盖旧五镜清单，归档后仍�
  assert.deepEqual(currentEditorialRepairFeedback(p).proposal,proposal);
  assert.deepEqual(currentEditorialRepairFeedback(p).failedChecks,issues);
  assert.equal(fs.existsSync(path.join(w,'qa/editorial-free-selection-replay.json')),false);
+ // A copied old-request replay is only a diagnostic, never this response's receipt.
+ write(w,'qa/editorial-free-selection-replay.json',{requestId:'prior-request',runId:'prior-run',passed:true});
+ assert.deepEqual(currentEditorialRepairFeedback(p).proposal,proposal);
+ write(w,'qa/editorial-free-selection-replay.json',{requestId:request.requestId,runId:'wrong-run',passed:true,externalRequests:0,productionAdmitted:false});
+ assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
+
  write(w,'qa/editorial-selection-audit.json',audit);write(p,'qa/node-repair.json',journal);
  write(w,'qa/editorial-free-selection-replay.json',{requestId:request.requestId,runId:'current',passed:false,productionAdmitted:false,externalRequests:0,rawResponse,issues});
  write(w,'qa/ark-editorial-response.json',{...proposal,tampered:true});

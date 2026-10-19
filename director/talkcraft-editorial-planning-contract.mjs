@@ -233,10 +233,14 @@ function retainedNodeEditorialFeedback(project){
   // A paid response already has the same hash-bound successful compiler audit.
   // It need not run a second, nominally free replay just to retain its design.
   // This is a read-only evidence projection, not a fabricated replay artifact.
-  const directCompiled=!fs.existsSync(reportFile)&&a.passed===true&&a.compiled===true&&typeof a.rawResponse==='string';
-  if(!fs.existsSync(reportFile)&&!directCompiled)return null;
+  const replay=fs.existsSync(reportFile)?read(reportFile):null;
+  // A transaction inherits diagnostics from its base. A replay for a DIFFERENT
+  // request must not shadow this request's hash-bound successful compiler audit.
+  // Same-request replay evidence remains authoritative and is checked below.
+  const directCompiled=(!replay||replay.requestId!==a.requestId)&&a.passed===true&&a.compiled===true&&typeof a.rawResponse==='string';
+  if(!replay&&!directCompiled)return null;
   const r=directCompiled?{runId:j.runId,requestId:a.requestId,passed:true,externalRequests:0,
-    productionAdmitted:false,rawResponse:a.rawResponse.replaceAll('\\','/')}:read(reportFile);
+    productionAdmitted:false,rawResponse:a.rawResponse.replaceAll('\\','/')}:replay;
   if(a.compiled!==true)return null;
   // A free compile may succeed while the subsequent candidate/native gates
   // fail. Keep that exact compiled proposal and its hash-bound full feedback.
