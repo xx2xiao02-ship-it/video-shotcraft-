@@ -11,7 +11,11 @@ const sha=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 const files=['source-run.json','input.txt','audio/full.mp3','remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json','remotion/src/timing.json'];
 const snapshot=project=>{
  const result=Object.fromEntries(files.map(f=>[f,sha(path.join(project,f))]));
- for(const file of ['talkcraft-timing-completion.mjs','talkcraft-dependency-timeline.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json'])result[file]=sha(new URL(file,import.meta.url));
+ // A replay must not accept a changed provider record or newly installed ASR
+ // proof just because its render copy and audio bytes stayed unchanged.
+ for(const file of ['script.json','audio/timestamps.json','audio/word-timestamps.json','audio/voice-timing.json','audio/voice-timing.boundary.jsonl','qa/word-alignment.json','remotion/timing.json'])
+  result[file]=fs.existsSync(path.join(project,file))?sha(path.join(project,file)):null;
+ for(const file of ['talkcraft-timing-completion.mjs','talkcraft-dependency-timeline.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json','talkcraft-native-governance.mjs','talkcraft-native-time-map.mjs','talkcraft-word-reveal.mjs','talkcraft-native-timing.mjs','talkcraft-word-alignment.mjs'])result[file]=sha(new URL(file,import.meta.url));
  return result;
 };
 const save=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file+'.tmp',JSON.stringify(value,null,2)+'\n');fs.renameSync(file+'.tmp',file);};
@@ -52,6 +56,9 @@ export function executeApprovedTimingCompletion(project){
   const prior=read(resultFile);
   if(prior.planId===plan.planId&&digest(prior.afterInputs)===digest(snapshot(project))){
    const native=checkNativeGovernance(project);if(!native.passed)throw Error('恢复后的时序计划未通过原门禁');
+   const presentation=read(path.join(project,'remotion/native-presentation.json'));
+   const report=checkTextEffectDependencies(read(path.join(project,'remotion/shots.json')),presentation,compileWordReveals(project,{write:false}));
+   if(report.issues.some(i=>plan.operations.some(o=>o.shotId===i.shotId)))throw Error('恢复后的修正镜头未通过原时序复检');
    return {...prior,reused:true};
   }
  }
