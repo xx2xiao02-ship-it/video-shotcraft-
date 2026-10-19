@@ -1,3 +1,4 @@
+import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -6,7 +7,7 @@ import os from 'node:os';
 import {captureEditorialResponse} from './talkcraft-editorial-response.mjs';
 import {recompileRetainedEditorialSelection} from './talkcraft-editorial-selection-replay.mjs';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
-import {buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings,prepareEditorialMaterialUpdates} from './talkcraft-editorial-selection.mjs';
+import {partitionDeferredEditorialIssues,buildEditorialSelectionRequest,auditEditorialSelectionRequest,compileEditorialSelection,editorialSelectionPrompt,editorialSelectionModelInput,auditEditorialSelectionContent,preservedEditorialSelectionShots,auditEditorialSelectionResponseBindings,prepareEditorialMaterialUpdates} from './talkcraft-editorial-selection.mjs';
 import {buildEditorialAnchorScope} from './talkcraft-editorial-anchor-scope.mjs';
 import {editorialMaterialRefs} from './talkcraft-editorial-constraints.mjs';
 import {createHash} from 'node:crypto';
@@ -645,4 +646,34 @@ test('汇聚选项发送前明确多对一关系和节点约束，不靠机制�
  assert.equal(model.windows[0].graphicRelations[0].relation.type,'many-to-one');
  assert.match(model.windows[0].graphicRelations[0].relation.instruction,/前后流程/);
  assert.match(model.windows[0].graphicRelations[0].relation.instruction,/不得把/);
+});
+
+test('分批只暂存原样锁定镜的已知失败，新问题、跨镜影响和全局问题仍拒绝',()=>{
+ const old={shotId:'s08',code:'GRAPHIC_RELATION_INVALID',field:'sources',message:'连接词不是来源'};
+ const request={editableShotIds:['s04'],batch:{deferredShotIds:['s08']},failedChecks:[old]};
+ const before=structuredClone(request),baseline=[old];
+ let r=partitionDeferredEditorialIssues([old],baseline,request);
+ assert.deepEqual(r.deferredIssues,[old]);assert.deepEqual(r.blockingIssues,[]);assert.equal(r.productionAdmitted,false);
+ for(const issue of [{...old,message:'新增错误'},{...old,shotId:'s04'},{...old,displayShotId:'s04'},{...old,previousShotId:'s04'},{...old,shotIds:['s04']},{code:'FILM_TEXT_DOMINANCE'}]){
+  r=partitionDeferredEditorialIssues([issue],baseline,request);assert.equal(r.blockingIssues.length,1);assert.equal(r.deferredIssues.length,0);
+ }
+ assert.equal(partitionDeferredEditorialIssues([old],baseline,{...request,failedChecks:[]}).blockingIssues.length,1);
+ assert.equal(partitionDeferredEditorialIssues([old],baseline,{...request,batch:undefined}).blockingIssues.length,1);
+ assert.deepEqual(request,before);
+});
+
+test('真实编译保存当前镜增量，后镜原有图形错误仍被完整素材门禁拒绝',()=>{
+ const args=fixture();args.repairBatch={maxShots:1};
+ const locked=args.proposal.shots[1];locked.shotCard='source-converge';
+ locked.templateParams={cardProps:{sources:'可\n现实',hub:'打脸',title:'转折'}};
+ const audit=p=>auditEditorialMaterialContract({shots:p.shots,sentences:p.sentences,researchPlan:p.materialResearch,catalog});
+ const prior=audit(args.proposal).issues.filter(i=>i.shotId==='s19');
+ assert.ok(prior.some(i=>i.code==='GRAPHIC_RELATION_INVALID'));
+ args.failedChecks=[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},...prior];
+ const req=buildEditorialSelectionRequest(args);assert.deepEqual(req.batch.deferredShotIds,['s19']);
+ const result=compileEditorialSelection(response(req),req,args);
+ assert.equal(result.shots[0].shotCard,'doc-park-left-pill-deal');assert.deepEqual(result.shots[1],locked);
+ const final=audit(result);assert.equal(final.passed,false);assert.ok(final.issues.some(i=>i.code==='GRAPHIC_RELATION_INVALID'&&i.shotId==='s19'));
+ const bad=response(req);bad.repairs[0].templateParams.cardProps.docTitle='';
+ assert.throws(()=>compileEditorialSelection(bad,req,args));
 });

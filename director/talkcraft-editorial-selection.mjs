@@ -84,6 +84,21 @@ export function preservedEditorialSelectionShots(result,request){
   return locked;
 }
 
+// Preserve a verified local increment without admitting the whole storyboard.
+// Only identical pre-existing failures on explicitly deferred, locked shots qualify.
+export function partitionDeferredEditorialIssues(issues,baseline,request){
+ const deferred=new Set(request.batch?.deferredShotIds||[]),editable=new Set(request.editableShotIds||[]);
+ const known=i=>(request.failedChecks||[]).some(b=>b.code===i.code&&b.shotId===i.shotId&&(b.field||'')===(i.field||''));
+ const deferredIssues=[],blockingIssues=[];
+ for(const issue of issues){
+  const affected=[issue.shotId,issue.displayShotId,issue.previousShotId,...(issue.shotIds||[])].filter(Boolean);
+  const unchanged=affected.length&&affected.every(id=>deferred.has(id)&&!editable.has(id))&&known(issue)&&
+   baseline.some(b=>isDeepStrictEqual(b,issue));
+  (unchanged?deferredIssues:blockingIssues).push(issue);
+ }
+ return {blockingIssues,deferredIssues,productionAdmitted:false};
+}
+
 export function auditEditorialSelectionContent(result,request,{catalog}){
   preservedEditorialSelectionShots(result,request);
   const issues=[];
@@ -363,6 +378,11 @@ export function compileEditorialSelection(response,request,inputs){
   const internalRejections=sourceSlots.rejected.filter(r=>r.internal).map(r=>({...r,code:'EDITORIAL_INTERNAL_SOURCE_CONFLICT'}));
   const issues=[...internalRejections,...auditEditorialSelectionContent(result,request,inputs).issues,...auditTemplateReuse(result.shots),...auditEditorialMaterialContract({shots:result.shots,
     sentences:result.sentences,researchPlan:result.materialResearch,catalog:inputs.catalog,projectRoot:inputs.projectRoot}).issues];
-  if(issues.length)throw Object.assign(new Error(issues.map(i=>i.message).join('；')),{issues});
+  const baseline=[...auditTemplateReuse(request.baseProposal.shots),...auditEditorialMaterialContract({shots:request.baseProposal.shots,
+    sentences:request.baseProposal.sentences,researchPlan:request.baseProposal.materialResearch,catalog:inputs.catalog,projectRoot:inputs.projectRoot}).issues];
+  const {blockingIssues}=partitionDeferredEditorialIssues(issues,baseline,request);
+  if(blockingIssues.length)throw Object.assign(new Error(blockingIssues.map(i=>i.message).join('；')),{issues:blockingIssues});
+  // Full proposal preflight still runs in the sender/recovery path and retains
+  // every deferred failure. This return is compilation, never node completion.
   return result;
 }
