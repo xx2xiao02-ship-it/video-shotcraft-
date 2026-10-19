@@ -13,8 +13,12 @@ const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 export const governedVisibleText=(card,key,value)=>{
   const syntax=card?.policy?.dsl?.[key]?.syntax;
-  if(syntax==='anchored-words')return clean(String(value??'').split(/\r?\n/u)
-    .map(line=>line.split(/[|｜]/u)[0].trim()).filter(Boolean).join(''));
+  // Read only the text columns used by the locked source parser. Numeric
+  // geometry and toggle state are not rendered prose. Unknown DSLs still use
+  // strict whole-value coverage rather than silently dropping columns.
+  const columns=syntax==='anchored-words'?[0]:syntax==='toggle-rows'?[0,1]:syntax==='pins'?[2]:null;
+  if(columns)return clean(String(value??'').split(/\r?\n/u).filter(line=>line.trim())
+    .map(line=>{const parts=line.split('|');return columns.map(i=>(parts[i]??'').trim()).join('');}).join(''));
   return clean(value);
 };
 // DSL-backed text fields (for example cursor-actor-demo.rows) contain

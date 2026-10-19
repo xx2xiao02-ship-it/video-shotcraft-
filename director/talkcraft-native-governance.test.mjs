@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {checkNativeGovernance,governedVisibleText,nativeGovernanceStatus,validateNativeTimeline,nativeFrameAt} from './talkcraft-native-governance.mjs';
 import {readTalkcraftStatus,recordPreflightResult} from './talkcraft-status.mjs';
+import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
+import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import {outputFrameForNativeFrame} from './talkcraft-native-time-map.mjs';
 const base=path.resolve('tmp');fs.mkdirSync(base,{recursive:true});
 function fixture(t){const root=fs.mkdtempSync(path.join(base,'native-governance-test-')),id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',project=path.join(root,'director/b-mode-runs',id,'talkcraft');
@@ -56,4 +58,34 @@ test('正式字级编译入口未显式传目录时也使用同一已审DSL规�
  const result=checkNativeGovernance(f.project);assert.equal(result.passed,true,JSON.stringify(result.issues));
  f.put('remotion/word-reveal-plan.json',{...f.words,events:[{...f.words.events[0],field:'words',text:'很多国际大奖'}]});
  assert.ok(checkNativeGovernance(f.project).issues.some(i=>i.code==='NATIVE_WORD_COVERAGE'));
+});
+
+
+test('界面开关和图钉DSL只要求完整且按序覆盖实际文字列',t=>{
+ for(const [syntax,key,value,text] of [
+  ['toggle-rows','rows','为什么刺激政策|有时候效果不如预期|on','为什么刺激政策有时候效果不如预期'],
+  ['pins','pinsDsl','200|400|微小选择\n760|300|汇聚|480|350','微小选择汇聚']]){
+  const f=fixture(t),card={cardId:'card',duration:{frames:90},fields:[{key,role:'content',type:'textarea'}],policy:{dsl:{[key]:{syntax}}}};
+  f.put('remotion/shots.json',[{id:'s01',start:0,end:5,shotCard:'card',templateParams:{cardProps:{[key]:value}}}]);
+  f.put('remotion/native-presentation.json',{schema:'talkcraft-native-presentation-v1',fps:30,shots:[{...f.row,textFields:[{key,visibility:'visible'}]}]});
+  const save=text=>f.put('remotion/word-reveal-plan.json',{...f.words,events:[{...f.words.events[0],field:key,text}]});
+  save(text);assert.equal(checkNativeGovernance(f.project,{catalog:{cards:[card]}}).passed,true);
+  for(const invalid of [text.slice(1),text+'on',text.split('').reverse().join('')]){
+   save(invalid);assert.ok(checkNativeGovernance(f.project,{catalog:{cards:[card]}}).issues.some(i=>i.code==='NATIVE_WORD_COVERAGE'));
+  }
+ }
+ assert.equal(governedVisibleText({policy:{dsl:{rows:{syntax:'unknown'}}}},'rows','甲|乙|on'),'甲乙on');
+});
+
+
+test('DSL文字投影对应已审源码解析器，不能凭字段名猜测',()=>{
+ const root=path.resolve(new URL('..',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/u,'$1'));
+ const skill=resolveTalkcraftSkillRoot(root),catalog=loadTalkcraftGovernedCatalog(JSON.parse(fs.readFileSync(path.join(skill,'references/cards-index.json'))));
+ const cursor=catalog.cards.find(c=>c.cardId==='cursor-actor-demo'),map=catalog.cards.find(c=>c.cardId==='map-route-pin');
+ assert.equal(cursor.policy.dsl.rows.syntax,'toggle-rows');assert.equal(map.policy.dsl.pinsDsl.syntax,'pins');
+ const cursorSource=fs.readFileSync(cursor.implementation.file,'utf8'),mapSource=fs.readFileSync(map.implementation.file,'utf8');
+ assert.match(cursorSource,/b: \(parts\[0\]/u);assert.match(cursorSource,/s: \(parts\[1\]/u);
+ assert.match(mapSource,/label: p\[2\]/u);
+ assert.equal(governedVisibleText(cursor,'rows','甲|乙|on\n丙|丁'),'甲乙丙丁');
+ assert.equal(governedVisibleText(map,'pinsDsl','200|400|甲\n760|300|乙|480|350'),'甲乙');
 });
