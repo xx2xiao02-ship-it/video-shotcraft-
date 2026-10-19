@@ -16,7 +16,7 @@ test('06先免费补全复检，宏观图形和素材问题同时保留；重复
  const f=fixture(),d=planNodeCorrection(f);assert.equal(d.action,'local-recheck');assert.equal(d.body.stage,'candidates');
  assert.equal(d.issues.length,2);assert.equal(d.productionAdmitted,false);
  f.attempts=[{fingerprint:f.fingerprint,action:d.action}];assert.equal(planNodeCorrection(f).state,'waiting-authorization');
- f.feedback.failedChecks=[{code:'local_material_unmatched',shotId:'s08'}];assert.equal(planNodeCorrection(f).state,'needs-repair');
+ f.feedback.failedChecks=[{code:'local_material_unmatched',shotId:'s08'}];assert.equal(planNodeCorrection(f).state,'waiting-authorization');
 });
 test('只有本次任务、输入、模型和有效期全部一致的授权可调度模型；不自动扩大费用',()=>{
  const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];

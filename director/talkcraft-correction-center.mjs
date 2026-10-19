@@ -56,7 +56,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const feedback=currentEditorialRepairFeedback(project);
   const inputs=identity(project);
   const rules=Object.fromEntries(['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
-    'talkcraft-editorial-constraints.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs','talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs']
+    'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs','talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs']
     .map(n=>[n,sha(new URL(n,import.meta.url))]));
   // Exclude timestamps/task IDs: re-reporting the same failure is not progress.
   const fingerprint=digest({inputs,rules,node:correctionNode(run),

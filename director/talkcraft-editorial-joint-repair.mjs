@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 import {editorialRangeFeasibility} from './talkcraft-editorial-planning-contract.mjs';
 import {auditEditorialMaterialContract,editorialSourceDisplayFields} from './talkcraft-editorial-material-contract.mjs';
 import {auditTemplateReuse} from './talkcraft-template-governance.mjs';
@@ -8,6 +10,26 @@ import {visualContentContract,isTextDominant} from './talkcraft-visual-content-c
 
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const kindFor={身份:'identity',证据:'evidence',量化:'data'};
+const unavailableMediaCode=c=>['local_material_unmatched','reviewed_source_binding_required','REAL_SOURCE_NOT_BOUND'].includes(c);
+function availableReuseMedia(row,projectRoot){
+  if(!projectRoot)return [];
+  const base=path.resolve(projectRoot,'remotion/public'),found=new Set();
+  for(const b of [...(row?.bindings||[]),...(row?.materialBindings||[])]){
+    if(!b.localPath||!b.sha256)continue;
+    const file=path.resolve(base,String(b.localPath).replace(/^remotion\/public\//u,'')),rel=path.relative(base,file);
+    try{if(!rel.startsWith('..')&&!path.isAbsolute(rel)&&fs.statSync(file).isFile()&&
+      createHash('sha256').update(fs.readFileSync(file)).digest('hex')===b.sha256)found.add(b.localPath);}catch{}
+  }
+  return [...found];
+}
+export function requiredNonHostMediaCount(card){
+  const required=new Set((card.policy?.required||[]).filter(f=>card.policy?.media?.[f]&&!/host/iu.test(f)));
+  for(const group of card.policy?.mediaAlternatives||[]){
+    if(group.some(f=>/host/iu.test(f)))continue;
+    if(!group.some(f=>required.has(f))&&group.length)required.add(group[0]);
+  }
+  return required.size;
+}
 
 export function editorialQuantitativeInput(proposal,shot){
   return (proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1)
@@ -63,6 +85,12 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     const requiredKinds=[...new Set((proposal.sentences||[]).slice(shot.firstSentence,shot.lastSentence+1)
       .flatMap(s=>(s.need||[]).map(n=>kindFor[n]).filter(Boolean)))];
     const row=rows.find(r=>r.shotId===shot.id);
+    // A failed acquisition is not a new usable asset. This repair round must
+    // fit the files that actually survived the original binding checks.
+    // Source/identity obligations below remain mandatory; this is a capacity
+    // restriction, never permission to replace evidence with a context image.
+    const reuseMediaBudget=failedChecks.some(i=>i.shotId===shot.id&&unavailableMediaCode(i.code))?
+      {available:availableReuseMedia(row,projectRoot).length,mode:'existing-files-only'}:null;
     const missingKinds=requiredKinds.filter(kind=>!row?.research?.some(r=>r.kind===kind));
     // A core person cannot evade the local slot requirement by an invalid
     // cross-shot plan. The unchanged material gate still checks approval.
@@ -79,6 +107,8 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     for(const card of catalog.cards){
       const reasons=[],offer=range.cards.find(c=>c.slug===card.cardId),sourceDisplayFields=editorialSourceDisplayFields(card);
       if(!offer)reasons.push('TIMING_OR_SUBJECT_INCOMPATIBLE');
+      if(reuseMediaBudget&&requiredNonHostMediaCount(card)>reuseMediaBudget.available)
+        reasons.push('AVAILABLE_MEDIA_CAPACITY_EXCEEDED');
       if(requiresSource&&!sourceDisplayFields.length)reasons.push('SOURCE_DISPLAY_SLOT_REQUIRED');
       if(retainedInternalSlots.some(b=>!b.field||!['image','image-or-video'].includes(card.policy?.media?.[b.field])||/host/iu.test(b.field)))
         reasons.push('RETAINED_INTERNAL_SOURCE_SLOT_REQUIRED');
@@ -127,6 +157,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       ...auditTemplateReuse(shots).filter(i=>i.shotId===shot.id||i.previousShotId===shot.id));
     return {shotId:shot.id,firstSentence:shot.firstSentence,lastSentence:shot.lastSentence,frames:range.frames,
       requiredSubject:range.requiredSubject,requiresSource,requiredKinds,missingKinds,corePeople,obligations,retainedInternalSlots,
+      ...(reuseMediaBudget?{reuseMediaBudget}:{}),
       selected:{slug:shot.shotCard,requestedPlaybackRate:shot.nativePresentation?.playbackRate??null,
         timing:selectedTiming,issues:selectedIssues},candidates,rejected,
       nextAction:candidates.length?'编导比较可行卡并同时重写参数、资料展示字段和原生展示计划':'按真实自然句边界重排；已生成口型窗口仍精确保留'};

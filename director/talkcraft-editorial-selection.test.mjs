@@ -63,7 +63,7 @@ test('单镜修订发送前逐选项核对锁定相邻镜头的纯文字三连�
  request.editableShotIds=[w.shotId];
  const args={promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)};
  const model=editorialSelectionModelInput(request,args);
- assert.deepEqual(model.windows[0].backgroundCycleContract.incompatibleChoices.map(c=>c.choiceId),['text-choice']);
+ assert.deepEqual(model.windows[0].backgroundCycleContract.incompatibleChoices.map(c=>c.choiceId),['text-choice','title-choice']);
  assert.deepEqual(model.windows[0].backgroundCycleContract.incompatibleChoices[0].shotIds,[['locked1','locked2',w.shotId]]);
  request.baseProposal.shots=request.baseProposal.shots.slice(3);
  assert.deepEqual(editorialSelectionModelInput(request,args).windows[0].backgroundCycleContract.incompatibleChoices,[]);

@@ -43,6 +43,7 @@ export function buildEditorialSelectionRequest(inputs){
       quantitativeInput:editorialQuantitativeInput(proposal,proposal.shots.find(s=>s.id===w.shotId)),
       frames:w.frames,requiredSubject:w.requiredSubject,requiresSource:w.requiresSource,
       corePeople:w.corePeople,obligations:w.obligations,retainedInternalSlots:w.retainedInternalSlots,
+      ...(w.reuseMediaBudget?{reuseMediaBudget:w.reuseMediaBudget}:{}),
       anchorScope:buildEditorialAnchorScope({...w,sentences:proposal.sentences,aligned:inputs.aligned,inputSha256:joint.inputSha256,
         projectRoot:inputs.projectRoot,includeTiming:inputs.anchorTiming!==false}),
       choices:w.candidates.map(c=>({...c,choiceId:digest({input:joint.inputSha256,shotId:w.shotId,choice:c})}))};

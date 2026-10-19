@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
 import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {buildEditorialJointRepairContract,auditEditorialJointRepairContract} from './talkcraft-editorial-joint-repair.mjs';
 import {auditEditorialMaterialContract} from './talkcraft-editorial-material-contract.mjs';
@@ -8,6 +10,28 @@ import {buildEditorialPlanningContract} from './talkcraft-editorial-planning-con
 import {auditEditorialRequestContract} from './talkcraft-editorial-request-audit.mjs';
 import {compactTalkcraftEditorialCatalog} from './talkcraft-ark-editorial.mjs';
 import {buildEditorialSelectionRequest} from './talkcraft-editorial-selection.mjs';
+
+test('素材恢复失败后的重选按真实已存在文件限制必需媒体容量，不再选缺同样素材的卡',t=>{
+ const args=fixture(),dir=fs.mkdtempSync(path.resolve('.tmp/reuse-capacity-'));
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));args.projectRoot=dir;
+ args.failedChecks=[{shotId:'s07',code:'local_material_unmatched',field:'src1'}];
+ const row=args.proposal.materialResearch.shots.find(r=>r.shotId==='s07');
+ let w=buildEditorialJointRepairContract(args).windows[0];
+ assert.equal(w.reuseMediaBudget.available,0);
+ assert.ok(w.rejected.AVAILABLE_MEDIA_CAPACITY_EXCEEDED.includes('filmstrip-conveyor'));
+ assert.ok(w.candidates.every(c=>!c.sourceDisplayFields.length));
+ fs.mkdirSync(path.join(dir,'remotion/public/pages'),{recursive:true});
+ fs.writeFileSync(path.join(dir,'remotion/public/pages/a.png'),'source');
+ row.bindings=[{localPath:'pages/a.png',sha256:createHash('sha256').update('source').digest('hex')}];
+ row.research=[{kind:'identity',query:'原机构资料',reason:'身份',displayShotId:'s07',displayField:'src'}];
+ w=buildEditorialJointRepairContract(args).windows[0];assert.equal(w.reuseMediaBudget.available,1);
+ assert.equal(w.requiresSource,true);assert.ok(w.candidates.every(c=>c.sourceDisplayFields.length));
+ assert.ok(w.rejected.AVAILABLE_MEDIA_CAPACITY_EXCEEDED.includes('douyin-follow-card'));
+ assert.ok(w.rejected.SOURCE_DISPLAY_SLOT_REQUIRED.includes('source-converge'));
+ row.bindings[0].sha256='bad';
+ w=buildEditorialJointRepairContract(args).windows[0];assert.equal(w.reuseMediaBudget.available,0);
+ assert.equal(w.candidates.length,0);
+});
 
 const index=JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json','utf8'));
 const catalog=loadTalkcraftGovernedCatalog(index);
