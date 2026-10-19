@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 
-const validationRules=()=>Object.fromEntries(['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs',
+const validationRules=()=>Object.fromEntries(['talkcraft-graphic-relation.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs',
   'talkcraft-editorial-parameter-budget.mjs','talkcraft-editorial-required-props.mjs','talkcraft-ark-editorial.mjs',
   'talkcraft-editorial-material-contract.mjs','talkcraft-material-research.mjs','talkcraft-material-policy.mjs',
   'talkcraft-text-video.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-selection.mjs'].map(name=>

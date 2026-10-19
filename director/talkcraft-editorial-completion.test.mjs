@@ -92,7 +92,7 @@ test('新任务必须绑定当前校验源码，旧通过记录和旧计划不�
 test('视频背景及选卡合同独立更新会使04旧通过凭证失效',t=>{
  const p=fixture(t);saveEditorialCompletion(p);
  const file=path.join(p,'qa/editorial-completion.json'),record=JSON.parse(fs.readFileSync(file));
- for(const name of ['talkcraft-editorial-material-contract.mjs','talkcraft-text-video.mjs',
+ for(const name of ['talkcraft-graphic-relation.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-text-video.mjs',
    'talkcraft-material-research.mjs','talkcraft-material-policy.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-selection.mjs']){
   assert.match(record.validationRules[name],/^[a-f0-9]{64}$/u);
   const stale=structuredClone(record);stale.validationRules[name]='old';

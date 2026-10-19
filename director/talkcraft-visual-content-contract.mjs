@@ -1,8 +1,9 @@
+import {GRAPHIC_RELATION_RULES,graphicRelationContract,auditGraphicRelations} from './talkcraft-graphic-relation.mjs';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 
-export const VISUAL_CONTENT_RULES='普通论述文字须逐镜匹配真实视频背景，不能用色块代替；只有本镜全部语句明确为观点或金句、且不夹杂机制/定义/例证/数据/列举等论述时才作为观点强调例外，不能仅凭论点标签或need=强调豁免。前三镜沿用简洁开场。正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先联网检索可访问且授权合规的内容；没有合适的再查独立素材库，已有合法绑定不重复采集。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。无业务意义的序号不显示，原卡必填列不能用空列绕过；没有真实序列语义时重选无需编号的模板。';
+export const VISUAL_CONTENT_RULES=GRAPHIC_RELATION_RULES+'普通论述文字须逐镜匹配真实视频背景，不能用色块代替；只有本镜全部语句明确为观点或金句、且不夹杂机制/定义/例证/数据/列举等论述时才作为观点强调例外，不能仅凭论点标签或need=强调豁免。前三镜沿用简洁开场。正式选卡必须表达本镜内容，固定灰条、演示截图、演示柱形图不算真实素材或图解。存在不可替换的演示主体时重新选卡，不补虚构数据。前三镜可保留简洁文字；其余解释段文字主导镜头按镜数和时长均不得超过一半。文字转场、下三分之一姓名条、装饰划线及给文字铺视频不算图形表达。优先关系、流程、结构图或有来源的真实资料模板；素材先联网检索可访问且授权合规的内容；没有合适的再查独立素材库，已有合法绑定不重复采集。字号和文本按原卡单行容量核验，不裁字、缩卡或更改真实字级时间。人物轨道必须与标题/资料主体区域分离；无法兼容则重选模板。无业务意义的序号不显示，原卡必填列不能用空列绕过；没有真实序列语义时重选无需编号的模板。';
 
 // These are source-backed defects, not a competing template whitelist. The
 // original audited catalog remains complete and available for comparison.
@@ -38,6 +39,7 @@ export function visualContentContract(card){
   contract.reason='原卡绘制固定车身轮廓，公开参数只能改标签和笔具；不能把车身演示图充当经济机制或真实资料';
  }
  if(id==='behind-text-title')contract.adaptiveText={field:'title',maxCharacters:10,maxLines:2,reason:'安全内容宽864，保留原文及动效时钟，最多两行；不能用默认235像素塞任意长度标题'};
+ if(graphicRelationContract(id))contract.relation=graphicRelationContract(id);
  if(id==='source-converge')contract.adaptiveText={field:'caption',maxCharacters:54,maxLines:3,reason:'原卡说明行沿x700至480移动，按最小边距最多18字三行，保留字级锚点'};
  if(id==='line-by-line-slide')contract.adaptiveText={field:'lines',maxCharactersPerLine:18,maxLines:4,reason:'有人物时保留右侧独立人物区，正文在510像素安全宽内适配且字号不少于28'};
  if(id==='numbered-step-stack')contract.meaningfulItems={field:'stepsDsl',minimum:2};
@@ -61,7 +63,7 @@ export function visualContentContract(card){
 }
 
 export function auditVisualContent(shots,{catalog,projectRoot=null}){
- const issues=[],rows=[];
+ const issues=[...auditGraphicRelations(shots).issues],rows=[];
  for(const shot of shots||[]){
   const card=catalog.cards.find(c=>c.cardId===shot.shotCard);if(!card)continue;
   const contract=visualContentContract(card),props=shot.templateParams?.cardProps||{};

@@ -1,3 +1,4 @@
+import {auditGraphicRelations} from './talkcraft-graphic-relation.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {textVideoRequirement,textVideoPositions,hasVideoBackground} from './talkcraft-text-video.mjs';
@@ -32,7 +33,7 @@ function concentratedDisplayAllowed(project,shotId){
 // Pure structural checks. Files, licensing and factual support remain the
 // responsibility of the unchanged material audit in node 06.
 export function auditEditorialMaterialContract({shots=[],sentences=[],researchPlan,catalog,projectRoot}){
-  const issues=[],pending=[],checks=[];
+  const issues=[...auditGraphicRelations(shots).issues],pending=[],checks=[];
   const positions=textVideoPositions(shots);
   const add=(shotId,code,message,extra={})=>issues.push({shotId,code,message,...extra});
   const needKind={身份:'identity',证据:'evidence',量化:'data'};

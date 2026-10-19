@@ -1,3 +1,4 @@
+import {graphicRelationContract} from './talkcraft-graphic-relation.mjs';
 import {repairEditorialSourceSlotAliases,repairEditorialRetainedSourceAliases} from './talkcraft-editorial-source-slot-repair.mjs';
 import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {editorialRequiredParameterContracts,auditEditorialRequiredProps} from './talkcraft-editorial-required-props.mjs';
@@ -143,6 +144,7 @@ export function editorialSelectionModelInput(request,{promptCatalog,theme}={}){
     editorialExpression:{openingExempt:film.openingExempt,maxTextShare:film.maxTextShare,textShotIds:film.textShotIds,
       count:film.count,total:film.total,textDuration:film.textDuration,duration:film.duration},
     editableShotIds:request.editableShotIds,materialShotIds:request.materialShotIds,windows:request.windows.map(w=>({...structuredClone(w),
+      graphicRelations:w.choices.flatMap(c=>{const relation=graphicRelationContract(c.slug);return relation?[{choiceId:c.choiceId,relation}]:[];}),
       visualPreference:{comparisonOrder:[...w.choices].sort((a,b)=>Number(preferred.has(b.slug))-Number(preferred.has(a.slug))).map(c=>c.choiceId),
         instruction:'先比较语义适配的结构、关系、流程及真实资料卡，再考虑文字卡。comparisonOrder仅为比较次序，不能盲选首项，不改变choices的编号。全片解释段文字数量和时长均须不超过一半；铺背景不计图形，不虚构数据。'},
       selectionReasonContract:{path:'templateParams.semanticDeviations',requiredWhen:'outside-upstream-recommendations',

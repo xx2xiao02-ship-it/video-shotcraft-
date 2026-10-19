@@ -635,3 +635,14 @@ test('结构错误不掩盖独立参数错误，一次收集全部本次问题�
  assert.equal(model.parameterContracts[0].choices[0].materialQueryContract.type,'object');
  assert.match(model.parameterContracts[0].choices[0].materialQueryContract.instruction,/重复字段/);
 });
+
+
+test('汇聚选项发送前明确多对一关系和节点约束，不靠机制标签代替',()=>{
+ const request=buildEditorialSelectionRequest(fixture());
+ request.windows[0].choices=[{slug:'source-converge',choiceId:'relation-option'}];
+ const model=editorialSelectionModelInput(request,{promptCatalog:compactTalkcraftEditorialCatalog(index,catalog)});
+ assert.equal(model.windows[0].graphicRelations[0].choiceId,'relation-option');
+ assert.equal(model.windows[0].graphicRelations[0].relation.type,'many-to-one');
+ assert.match(model.windows[0].graphicRelations[0].relation.instruction,/前后流程/);
+ assert.match(model.windows[0].graphicRelations[0].relation.instruction,/不得把/);
+});
