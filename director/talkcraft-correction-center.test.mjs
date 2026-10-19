@@ -117,7 +117,7 @@ test('返回形式变化但失败范围未收敛时拒绝重复计费，真实�
 test('修订方案绑定正式免费自检范围；合同失败不进入费用调度',()=>{
  const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
  f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'原用户授权'};
- f.revisionPlan={requestId:'verified-request',editableShotIds:['s11','s14'],externalRequests:0};
+ f.revisionPlan={requestId:'verified-request',editableShotIds:['s08','s14'],externalRequests:0};
  const plan=planNodeCorrection(f);assert.equal(plan.approved,true);assert.deepEqual(plan.revisionPlan,f.revisionPlan);
  const bad=structuredClone(plan.proposal);bad.revisionPlan.editableShotIds.push('s01');
  assert.equal(approveNodeCorrection(bad,f).approved,false);
@@ -199,4 +199,16 @@ test('调整要求已处理时不批准付费动作；发送前拒绝不冒充�
  f.attempts.push({action:'editorial-repair',progressKey:f.progressKey,status:'dispatch-failed',error:'正式入口尚未就绪'});
  const failed=planNodeCorrection(f);assert.equal(failed.action,null);assert.equal(failed.state,'needs-code-audit');assert.match(failed.reason,/正式入口尚未就绪/u);
  f.attempts.at(-1).status='queued';assert.match(planNodeCorrection(f).reason,/没有收敛/u);
+});
+
+test('中心按完整失败范围审批，单镜或延后子集不消耗授权；包含资料框问题',()=>{
+ const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'一次完整范围授权'};
+ f.feedback.failedChecks.push({shotId:'s07',code:'ATTENTION_TARGET_BOUNDS'});
+ f.revisionPlan={editableShotIds:['s08'],batch:{deferredShotIds:['s14','s07']}};
+ assert.equal(planNodeCorrection(f).action,null);assert.equal(planNodeCorrection(f).state,'needs-code-audit');
+ f.revisionPlan={editableShotIds:['s08','s14']};assert.equal(planNodeCorrection(f).action,null);
+ f.revisionPlan={editableShotIds:['s07','s08','s14'],scopeMode:'all-current-failures',deferredShotIds:[]};
+ assert.equal(planNodeCorrection(f).action,'editorial-repair');
+ f.attempts.push({fingerprint:f.fingerprint,action:'editorial-repair'});assert.equal(planNodeCorrection(f).action,null);
 });

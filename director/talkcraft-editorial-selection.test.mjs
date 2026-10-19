@@ -35,7 +35,7 @@ test('新增任务发送前排除普通论述不支持视频背景的文字卡�
  assert.match(model.windows[0].backgroundDecisionContract.instruction,/不支持视频背景的普通论述文字卡已在发送前排除/);
 });
 
-test('正式局部编导按镜分批，延后镜头锁定并参与去重，完整失败范围留存且发送前同源复核',()=>{
+test('正式发送完整失败范围；历史分批仅供回放，延后镜头锁定并参与去重',()=>{
  const args=fixture();args.failedChecks=[{code:'NATIVE_EDITORIAL_PLAN',shotId:'s15'},{code:'NATIVE_EDITORIAL_PLAN',shotId:'s19'}];
  args.repairBatch={maxShots:1};
  const request=buildEditorialSelectionRequest(args);
@@ -59,7 +59,9 @@ test('正式局部编导按镜分批，延后镜头锁定并参与去重，完�
  for(const shot of ready.proposal.shots){shot.firstSentence+=4;shot.lastSentence+=4;}
  const prepared=prepareEditorialRepairInput({previousFailures:{proposal:ready.proposal,failedChecks:ready.failedChecks},
    ...ready,promptCatalog,theme:{}});
- assert.equal(prepared.requestAudit.passed,true);assert.deepEqual(prepared.selectionRequest.editableShotIds,['s15']);
+ assert.equal(prepared.requestAudit.passed,true);assert.deepEqual(prepared.selectionRequest.editableShotIds,['s15','s19']);
+ assert.equal(prepared.selectionRequest.batch,undefined);
+ assert.deepEqual(prepared.selectionRequest.failedChecks,ready.failedChecks);
  const result=compileEditorialSelection(response(request),request,args);
  assert.deepEqual(result.shots[1],request.baseProposal.shots[1]);
  assert.deepEqual(result.sentences,request.baseProposal.sentences);

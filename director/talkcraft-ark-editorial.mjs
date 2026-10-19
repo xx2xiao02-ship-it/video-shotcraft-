@@ -417,10 +417,11 @@ export function saveEditorialDerivedArtifact(project,name,content,{replay=false}
 
 // Both the paid path and the free input check use this exact producer. No
 // callback, provider configuration or authorization reservation lives here.
+// The current failure scope is atomic: never silently slice it into paid batches.
 export function prepareEditorialRepairInput({previousFailures,aligned,catalog,personWindows,promptCatalog,theme,projectRoot}){
   const planningContract=buildEditorialPlanningContract({aligned,catalog,personWindows,previousShots:previousFailures?.proposal?.shots||[]});
   const repairInputs=previousFailures?.proposal?{proposal:previousFailures.proposal,failedChecks:previousFailures.failedChecks,
-    aligned,catalog,personWindows,projectRoot,repairBatch:{maxShots:1}}:null;
+    aligned,catalog,personWindows,projectRoot}:null;
   if(repairInputs)planningContract.jointRepair=buildEditorialJointRepairContract(repairInputs);
   const selectionRequest=repairInputs?buildEditorialSelectionRequest(repairInputs):null;
   const selectionModelInput=selectionRequest?editorialSelectionModelInput(selectionRequest,{promptCatalog,theme}):null;
@@ -458,6 +459,7 @@ export function checkEditorialSelectionInput(root,runId,{skillRoot=resolveTalkcr
     writeFileSync(path.join(dir,'prompt.txt'),prepared.prompt,{flag:'wx'});
     const receipt={schema:'talkcraft-editorial-input-preflight-v2',runId,passed:prepared.requestAudit.passed,
       requestId:prepared.selectionRequest.requestId,editableShotIds:prepared.selectionRequest.editableShotIds,
+      scopeMode:'all-current-failures',pendingShotIds:prepared.selectionRequest.editableShotIds,deferredShotIds:[],
       ...(prepared.selectionRequest.batch?{batch:prepared.selectionRequest.batch}:{}),
       externalRequests:0,authorizationConsumed:false,productionAdmitted:false,userAcceptance:false,
       output:path.relative(project,dir)};

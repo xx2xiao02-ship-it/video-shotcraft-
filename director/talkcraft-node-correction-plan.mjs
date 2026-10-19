@@ -7,7 +7,7 @@ const localStages={input:'recover-timing','word-timing':'recover-alignment',sema
 export const CORRECTION_NODE_POLICIES=MANAGED_WORKFLOW_NODES.map(n=>({node:n.id,
   freeStage:localStages[n.id],supportsCorrection:true,automaticApproval:false,
   rule:n.id==='review'?'用户审核决定；不得代批':n.id==='deliver'?'仅导出已审核版本，不自动发布':'本节点先恢复、补全、复检；不能重写程序或绕过原门禁'}));
-export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_RELATION_INVALID|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_(?:CYCLE_REQUIRED|REQUIRED|PLAN_REQUIRED|TEMPLATE_REQUIRED)|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|TEXT_EFFECT_(?:DEPENDENCY_EARLY|INCOMPLETE|TARGET_MISSING)$|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
+export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|ATTENTION_TARGET_BOUNDS|GRAPHIC_RELATION_INVALID|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_(?:CYCLE_REQUIRED|REQUIRED|PLAN_REQUIRED|TEMPLATE_REQUIRED)|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|TEXT_EFFECT_(?:DEPENDENCY_EARLY|INCOMPLETE|TARGET_MISSING)$|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
 
 export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
@@ -74,6 +74,14 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};
   if(creative&&revisionPlanError)return {...base,state:'needs-repair',action:null,reason:'正式发送前合同未通过：'+revisionPlanError};
+  if(creative&&revisionPlan){
+    const editable=new Set(revisionPlan.editableShotIds||[]);
+    const missing=[...new Set((feedback.failedChecks||[]).filter(i=>!['REAL_SOURCE_NOT_BOUND','template_window_reuse'].includes(i.code))
+      .flatMap(i=>[i.shotId,i.displayShotId,...(i.shotIds||[])]).filter(id=>id&&!editable.has(id)))];
+    if(revisionPlan.batch?.deferredShotIds?.length||revisionPlan.deferredShotIds?.length||missing.length)
+      return {...base,state:'needs-code-audit',action:null,reason:'修正方案未覆盖本次完整失败范围，禁止按单镜或子集拆分计费；遗漏镜头：'+missing.join('、')};
+  }
+
   if(creative&&['editorial','candidates','storyboard-review','preflight'].includes(node)&&!used('editorial-repair')){
     const grant=authorization?.schema==='talkcraft-correction-authorization-v1'&&authorization.runId===run.runId&&
       Date.parse(authorization.expiresAt)>now&&authorization.scope?.includes(node)&&
