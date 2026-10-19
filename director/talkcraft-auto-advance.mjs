@@ -21,7 +21,7 @@ export function parallelPreparationAllowed(run){
     run.activeTask?.name==='talkcraft-digital-human'&&run.activeTask.status==='running';
 }
 
-export function createTalkcraftAutoAdvance({readRun, readRecord, writeRecord, queueStage, port,prepareParallel}) {
+export function createTalkcraftAutoAdvance({readRun, readRecord, writeRecord, queueStage, port,prepareParallel,correct}) {
   const runs = new Set(), locks = new Set();
   const save = (runId, record, changes) => {
     const next = {...record, ...changes};
@@ -45,6 +45,12 @@ export function createTalkcraftAutoAdvance({readRun, readRecord, writeRecord, qu
       record = readRecord(runId);
       if (!record?.enabled || record.port !== port) return;
       const run = await readRun(runId);
+      if(correct&&!run.activeTask&&(run.lastFailure||run.failureReport)){
+        const correction=await correct(runId,run);
+        save(runId,record,{state:correction.decision?.state||'needs-repair',waitingFor:correction.decision?.reason||run.waitingFor,
+          correction:correction.decision,error:correction.decision?.state==='needs-repair'?correction.decision.reason:null});
+        return;
+      }
       if(prepareParallel&&parallelPreparationAllowed(run)){
         save(runId,record,{state:'running',waitingFor:'RunningHub 与本地准备并行执行'});
         await prepareParallel(runId);

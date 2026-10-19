@@ -334,3 +334,16 @@ test('重叠句子错误给出具体镜头及真实句序，禁止自动改写�
   assert.throws(()=>validateEditorial(value,semantics,aligned,vocab),/s02.*应从第 2 句开始.*第 1–2 句/u);
   assert.deepEqual(value,before);
 });
+
+
+test('04提案在保存前检查全片文字比例；不依赖06且不改模型内容',()=>{
+ const catalog=loadTalkcraftGovernedCatalog(JSON.parse(readFileSync('_audit/video-talkcraft/references/cards-index.json','utf8')));
+ const rows=Array.from({length:7},(_,i)=>({i,text:'原句',sem:['强调'],need:['强调'],weight:'main',entities:[]}));
+ const value={sentences:rows,shots:rows.map((_,i)=>({id:`s${String(i+1).padStart(2,'0')}`,firstSentence:i,lastSentence:i,shotCard:'per-character-rise',templateParams:{cardProps:{text:'原句'}},nativePresentation:{holdAtNativeFrame:60,holdReason:'主体仍可见',textFields:[{key:'text',visibility:'visible'}],wordEvents:[{field:'text',text:'原句',sentenceIndex:i,anchor:'原句',role:'spoken'}]}}))};
+ const before=structuredClone(value),options={semantics:{sentences:rows},aligned:rows.map((_,i)=>({start:i*3,end:(i+1)*3})),vocab,catalog,projectRoot:process.cwd()};
+ const report=auditEditorialProposal(value,options);
+ assert.equal(report.expression.passed,false);assert.equal(report.expression.count,4);
+ assert.deepEqual(report.expression.textShotIds,['s04','s05','s06','s07']);
+ assert.ok(report.issues.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&i.shotIds.length===4));
+ assert.deepEqual(value,before);assert.equal(report.productionAdmitted,false);
+});

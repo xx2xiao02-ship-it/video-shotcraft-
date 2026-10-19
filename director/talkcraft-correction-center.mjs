@@ -1,0 +1,79 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
+import {currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
+
+const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).digest('hex'):null;
+const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
+const identity=p=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3'].map(n=>[n,sha(path.join(p,n))]));
+const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true});fs.writeFileSync(path.join(p,n)+'.tmp',JSON.stringify(r,null,2));fs.renameSync(path.join(p,n)+'.tmp',path.join(p,n));return r;};
+// A centre approves actions, never creative values or an invalid artifact.
+// Model authorization is scoped to this run, provider, voice and expiry.
+export function authorizeCorrectionCenter(project,runId,{approval,expiresAt,now=Date.now()}={}){
+  const expiry=Date.parse(expiresAt),provider=editorialProviderBinding(runId);
+  if(typeof approval!=='string'||approval.trim().length<8||!Number.isFinite(expiry)||expiry<=now||expiry-now>86400000)
+    throw Error('治理中心须有明确用户授权及不超过24小时的有效期');
+  if(provider?.provider!=='acctoken'||provider.model!=='deepseek-v4.1-flash')throw Error('治理授权只允许已配置的DeepSeek，不自动换模型');
+  const inputs=identity(project);if(Object.values(inputs).some(v=>!v))throw Error('治理授权缺少本次原稿、字级时间或原配音');
+  return save(project,'qa/correction-authorization.json',{schema:'talkcraft-correction-authorization-v1',runId,approval,
+    approvedAt:new Date(now).toISOString(),expiresAt:new Date(expiry).toISOString(),inputs,provider,
+    scope:['editorial','candidates','storyboard-review','preflight'],allowTts:false,allowRunningHub:false,stopAt:'review'});
+}
+export function correctionCenterSnapshot(project){return read(path.join(project,'qa/correction-center.json'));}
+
+export {CORRECTION_NODE_POLICIES} from './talkcraft-node-correction-plan.mjs';
+import {proposeNodeCorrection,CORRECTION_NODE_POLICIES,correctionNode,creativeCode} from './talkcraft-node-correction-plan.mjs';
+
+// Approval binds the node's concrete plan, all current issues and its input
+// fingerprint. It never changes business content or marks a gate as passed.
+export function approveNodeCorrection(plan,context){
+  const {run,fingerprint}=context;
+  const policy=CORRECTION_NODE_POLICIES.find(p=>p.node===plan.node);
+  const deny=reason=>({...plan,approved:false,action:null,state:'needs-repair',reason});
+  if(plan.runId!==run.runId||plan.fingerprint!==fingerprint)return deny('方案不属于本次任务和输入，拒绝跨任务执行');
+  if(!plan.action)return {...plan,approved:false};
+  if(digest(plan)!==digest(proposeNodeCorrection(context)))return deny('方案与节点当前问题或费用授权不一致，拒绝执行');
+  if(!policy||run.activeTask||!run.provenance?.verified)return deny('节点或运行身份不匹配，不能批准执行');
+  if(['review','deliver'].includes(plan.node)||['approve-final','deliver'].includes(run.nextStage))return deny('14人工审核不能自动批准');
+  const body=plan.body||{};
+  const legal=plan.action==='local-recheck'?body.stage===policy.freeStage&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='recover-response'?body.stage==='planning-repair'&&body.recoverProviderResponse===true&&Object.keys(body).every(k=>['stage','recoverProviderResponse'].includes(k)):
+    plan.action==='editorial-repair'?body.stage==='editorial-revision'&&body.approveModelCost===true&&Object.keys(body).every(k=>['stage','approveModelCost','authorizationNote'].includes(k)):false;
+  if(!legal)return deny('方案超出节点修正执行合同，拒绝修改业务值或绕过门禁');
+  return {...plan,approved:true,approval:{planSha256:digest(plan),fingerprint,scope:plan.node,stopAt:'review'}};
+}
+export function planNodeCorrection(context){
+  const proposal=proposeNodeCorrection(context);
+  return {...approveNodeCorrection(proposal,context),proposal};
+}
+
+export async function dispatchNodeCorrection({project,run,queueStage,now=Date.now()}){
+  const previous=correctionCenterSnapshot(project),attempts=previous?.runId===run.runId?previous.attempts||[]:[];
+  const feedback=currentEditorialRepairFeedback(project);
+  const inputs=identity(project);
+  const rules=Object.fromEntries(['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
+    'talkcraft-editorial-constraints.mjs','talkcraft-editorial-material-contract.mjs','talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs','talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs']
+    .map(n=>[n,sha(new URL(n,import.meta.url))]));
+  // Exclude timestamps/task IDs: re-reporting the same failure is not progress.
+  const fingerprint=digest({inputs,rules,node:correctionNode(run),
+    feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
+    shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
+  const authorization=read(path.join(project,'qa/correction-authorization.json'));
+  const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
+    !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code));
+  const provider=pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
+  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,inputs,provider,now,authorization});
+  const record={...decision,attempts,updatedAt:new Date(now).toISOString()};
+  if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
+  // Reserve before dispatch, including uncertainty: never duplicate a paid action
+  // after process death or an unknown provider result.
+  const attempt={action:decision.action,fingerprint,startedAt:new Date(now).toISOString(),status:'dispatching'};
+  record.attempts=[...attempts,attempt];record.state='correcting';save(project,'qa/correction-center.json',record);
+  try{const task=await queueStage({runId:run.runId,...decision.body});attempt.status='queued';attempt.taskId=task.id;
+    save(project,'qa/correction-center.json',record);return {handled:true,decision,task};
+  }catch(error){attempt.status='dispatch-failed';attempt.error=String(error.message||error);record.state='needs-repair';record.reason=attempt.error;
+    save(project,'qa/correction-center.json',record);return {handled:true,decision:{...decision,state:record.state,reason:record.reason}};}
+}

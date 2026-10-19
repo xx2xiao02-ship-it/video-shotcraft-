@@ -88,7 +88,7 @@ export function authorizeEditorialRevision(root,runId,{approval}={}){
     // the SAME user instruction to that verified new result, never an older
     // snapshot or an edited instruction. This records ancestry, not content.
     const prior=fs.existsSync(authFile(project))?read(authFile(project)):null;
-    const current=currentRejectedEditorialFeedback(project);
+    const current=currentRejectedEditorialFeedback(project)||currentEditorialRepairFeedback(project);
     if(!request.request||!current||prior?.schema!=='talkcraft-editorial-revision-authorization-v1'||
       prior.runId!==runId||!prior.startedAt||prior.inputs?.['qa/storyboard-adjustment-request.json']!==sha(requestFile)||
       ['input.txt','aligned-sentences.json','audio/full.mp3'].some(n=>prior.inputs?.[n]!==sha(path.join(project,n))))

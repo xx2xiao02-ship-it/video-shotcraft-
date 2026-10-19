@@ -389,9 +389,9 @@ function saveStageRepairFeedback(project,readiness,stage){
   const read=name=>JSON.parse(fs.readFileSync(path.join(project,name),'utf8'));
   const shots=read('remotion/shots.json');
   const responseFile=path.join(project,'qa/ark-editorial-response.json');
-  const response=['planning-check','preflight'].includes(stage)&&fs.existsSync(responseFile)?read('qa/ark-editorial-response.json'):null;
+  const response=fs.existsSync(responseFile)?read('qa/ark-editorial-response.json'):null;
   if(response)for(const shot of shots){
-    const native=response.shots?.find(s=>s.id===shot.id)?.nativePresentation;
+    const native=response.shots?.find(s=>s.id===shot.id&&s.shotCard===shot.shotCard&&s.firstSentence===shot.firstSentence&&s.lastSentence===shot.lastSentence)?.nativePresentation;
     if(native)shot.nativePresentation=structuredClone(native);
   }
   const failedChecks=readiness.materialIssues||[];

@@ -8,6 +8,7 @@ import {authorizeDigitalHumanAutomation} from './director/talkcraft-digital-huma
 import {authorizeTalkcraftContinuation,approveDelegatedTalkcraftStoryboard} from './director/talkcraft-continuation-policy.mjs';
 import {recoverNodePublication} from './director/talkcraft-node-repair.mjs';
 import {createTalkcraftAutoAdvance} from './director/talkcraft-auto-advance.mjs';
+import {dispatchNodeCorrection,correctionCenterSnapshot,authorizeCorrectionCenter} from './director/talkcraft-correction-center.mjs';
 import {createSampleReviewGate} from './director/talkcraft-sample-review.mjs';
 import {prepareTalkcraftParallel} from './director/talkcraft-parallel-preparation.mjs';
 import {readTalkcraftExecutions,talkcraftExecutionView} from './director/talkcraft-execution.mjs';
@@ -470,7 +471,7 @@ function withTalkcraftWorkbench(run) {
       actions:['已有成果保留；核对本次本地执行记录和具体校验错误，不自动重复付费调用。']} : null;
   const activeFailure = currentFailure(run, localFailure || failureReport);
   const control = talkcraftControlState(run, activeFailure, taskExecution);
-  const status={...run, automation:readTalkcraftAutoRecord(run.runId), workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
+  const status={...run, correctionCenter:correctionCenterSnapshot(project), automation:readTalkcraftAutoRecord(run.runId), workbenchUrl:readTalkcraftWorkbench(ROOT, run.runId)?.url || null,
     operationLog:[...[...tasks.values()].filter(t=>t.runId===run.runId).map(t=>({id:t.id,name:t.name,
       cmd:t.cmd || null,cwd:t.cwd || null,status:t.status,exitCode:t.exitCode ?? null,startedAt:t.startedAt,finishedAt:t.finishedAt || null})),
       ...executions.map(item=>({id:'execution:'+item.executionId,name:item.name,status:item.status,
@@ -499,13 +500,14 @@ async function createModeCRun(fields, avatars) {
 }
 
 const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
-for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','editorial-revision','approve-storyboard'])TALKCRAFT_STAGE_NAMES.add(stage);
+for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','semantic-check','editorial-revision','approve-storyboard'])TALKCRAFT_STAGE_NAMES.add(stage);
 
 function readTalkcraftAutoRecord(runId) {
   try { return JSON.parse(fs.readFileSync(path.join(talkcraftProject(ROOT, runId), 'workflow-automation.json'), 'utf8')); }
   catch { return null; }
 }
 const talkcraftAuto = createTalkcraftAutoAdvance({port:PORT,
+  correct:(runId,run)=>dispatchNodeCorrection({project:talkcraftProject(ROOT,runId),run,queueStage:queueTalkcraftStage}),
   prepareParallel:runId=>prepareTalkcraftParallel(ROOT,runId),
   readRecord:readTalkcraftAutoRecord,
   writeRecord:(runId, record) => {
@@ -1039,6 +1041,13 @@ const apis = {
       await talkcraftAuto.advance(runId);
       return sendJson(res, {ok:true, ...approval});
     } catch (error) { return sendJson(res, {ok:false, error:String(error.message || error)}); }
+  },
+  "POST /api/talkcraft/correction-authorization": async (req,res)=>{
+    try{const {runId,approval,expiresAt}=await readBody(req);const project=talkcraftProject(ROOT,runId);
+      assertPipelineProvenance(project);const authorization=authorizeCorrectionCenter(project,runId,{approval,expiresAt});
+      talkcraftAuto.enable(runId);await talkcraftAuto.advance(runId);
+      return sendJson(res,{ok:true,runId,expiresAt:authorization.expiresAt,stopAt:authorization.stopAt});
+    }catch(error){return sendJson(res,{ok:false,error:String(error.message||error)});}
   },
   "POST /api/talkcraft/storyboard-adjustment": async (req, res) => {
     try {

@@ -80,3 +80,11 @@ test('真实异步子进程结束后自动启动下一本地阶段并停在费�
   assert.deepEqual(stages,['candidates','planning-check']);
   assert.equal(record.state,'waiting');
 });
+
+test('正式自动推进把失败交给统一修正中心，保留校验结果而不是只停在blocked',async()=>{
+ let record={enabled:true,port:18866},called=0,queued=0;
+ const auto=createTalkcraftAutoAdvance({port:18866,readRecord:()=>record,writeRecord:(_id,r)=>record=r,
+  readRun:()=>({...ready('candidates'),lastFailure:{code:'MATERIAL_FAILED'}}),
+  queueStage:()=>{queued++;},correct:async()=>{called++;return {handled:true,decision:{state:'correcting',reason:'当前节点补全'}};}});
+ auto.restore('current');await auto.tick();assert.equal(called,1);assert.equal(queued,0);assert.equal(record.state,'correcting');
+});

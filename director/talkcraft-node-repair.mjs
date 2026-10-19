@@ -13,6 +13,7 @@ const derivedFailureReport=n=>n==='qa/audit-feedback.json'||n.startsWith('qa/fai
 // The actual request, raw response and authorization remain fingerprinted.
 const inputPreflightReport=n=>n==='qa/editorial-input-preflight'||n.startsWith('qa/editorial-input-preflight/');
 const excluded=n=>n==='workflow-automation.json'||n==='qa/node-repairs'||n==='qa/node-repair.json'||n==='qa/auto-advance.json'||n==='qa/executions'||n==='qa/storyboard-revisions'||
+  n==='qa/correction-center.json'||n==='qa/correction-center.json.tmp'||n==='qa/correction-authorization.json'||
   inputPreflightReport(n)||/(^|\/)(node_modules|out|\.cache)(\/|$)/u.test(n)||/\.lock$/u.test(n);
 function files(project){
   const result=[];

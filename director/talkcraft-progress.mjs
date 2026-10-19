@@ -35,7 +35,7 @@ const phaseRows=(node,run)=>{
   })[id]===true})).map(phase=>({...phase,status:phase.done?'done':'pending',stateLabel:phase.done?'已完成':'待处理'}));
 };
 
-const states={done:'已完成',pending:'未开始',running:'执行中',stopping:'停止中',blocked:'已阻断',waiting:'待处理',skipped:'无需执行',stale:'需重验'};
+const states={done:'已完成',pending:'未开始',running:'执行中',stopping:'停止中',blocked:'待修正',waiting:'待处理',skipped:'无需执行',stale:'需重验'};
 
 export function talkcraftWorkflowProgress(run) {
   const managed=run.digitalHumanGenerationPlanned===true;
@@ -89,6 +89,13 @@ export function talkcraftWorkflowProgress(run) {
     current.stateLabel=states[current.status];
   }
   for(const node of nodes)node.stateLabel=states[node.status];
+  const correction=run.correctionCenter;
+  if(current&&correction?.node===current.id){
+    current.correction={state:correction.state,reason:correction.reason,action:correction.action};
+    if(active&&correction.state==='correcting')current.stateLabel='修正中';
+    else if(!active&&['needs-repair','ready-to-correct'].includes(correction.state))current.stateLabel='待修正';
+    else if(!active&&correction.state==='waiting-authorization')current.stateLabel='待授权修正';
+  }
   return {schema:TALKCRAFT_WORKFLOW_SCHEMA,runId:run.runId,workflowPath:run.workflowPath,
     workflowLabel:run.workflowPath==='recorded-host'?'真人视频 · 原声与 GitHub 原版流程':managed?'数字人 · 分镜审核后生成口型':'既有任务流程',
     currentNode:current?.id||null,completed:nodes.filter(n=>n.status==='done').length,total:nodes.length,

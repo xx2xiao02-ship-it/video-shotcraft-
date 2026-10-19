@@ -132,3 +132,13 @@ test('服务旧代码保存的未消费范围可在同输入同授权下重新�
  assert.equal(updated.reboundUnsubmittedAuthorization,true);assert.equal(updated.maxTasks,1);assert.equal(updated.repairScopeSha256,old.repairScopeSha256);
  assert.throws(()=>authorizeEditorialRevision(f.root,id,{approval}),/未消费/);
 });
+
+test('06完整反馈保留同镜同卡原生计划，换卡记录不借旧卡锚点',t=>{
+ const f=fixture(t);const native={holdAtNativeFrame:60,holdReason:'原卡内容可见',wordEvents:[]};
+ f.write('qa/ark-editorial-response.json',{shots:[{id:'s07',shotCard:'source-converge',nativePresentation:native}]});
+ let feedback=saveCandidateMaterialRepairFeedback(f.p,{passed:false,materialIssues:[{shotId:'s07',code:'FILM_TEXT_DOMINANCE'}]});
+ assert.deepEqual(feedback.proposal.shots[0].nativePresentation,native);
+ f.write('qa/ark-editorial-response.json',{shots:[{id:'s07',shotCard:'other-card',nativePresentation:native}]});
+ feedback=saveCandidateMaterialRepairFeedback(f.p,{passed:false,materialIssues:[{shotId:'s07',code:'FILM_TEXT_DOMINANCE'}]});
+ assert.equal(feedback.proposal.shots[0].nativePresentation,undefined);
+});

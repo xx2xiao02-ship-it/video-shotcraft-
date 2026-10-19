@@ -13,7 +13,7 @@ import {applySemanticDecisions,validateSemanticDecisions} from './talkcraft-sema
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {isOpeningTemplateEligible, OPENING_MAX_TEMPLATE_SEC, OPENING_MAX_SHOT_SEC, OPENING_TARGET_SHOT_SEC} from './talkcraft-template-governance.mjs';
 import {loadTalkcraftGovernedCatalog, talkcraftEditorialContract, validateTalkcraftDesignProps} from './talkcraft-governed-contract.mjs';
-import {graphicCandidateIds} from './talkcraft-visual-content-contract.mjs';
+import {graphicCandidateIds,auditFilmExpression} from './talkcraft-visual-content-contract.mjs';
 import {nativeEditorialTimeline,prepareEditorialNativePlans,assertEditorialTextPlan,EDITORIAL_NATIVE_RULES,EDITORIAL_MATERIAL_RULES,EDITORIAL_SELECTION_NATIVE_RULES,EDITORIAL_SELECTION_MATERIAL_RULES} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {auditTalkcraftTemplateGovernance} from './talkcraft-template-governance.mjs';
@@ -74,13 +74,15 @@ export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,p
   // Reuse the production validator, including the existing 30-shot window.
   const templates=auditTalkcraftTemplateGovernance(shots,{projectRoot});
   issues.push(...templates.issues);
+  const expression=auditFilmExpression(shots,catalog);
+  issues.push(...expression.issues);
   const reuseFile=path.join(projectRoot,'qa/rebuild-inputs.json');
   if(existsSync(reuseFile))issues.push(...auditEditorialReuse(result?.shots,aligned,reusedEditorialWindows(projectRoot,aligned)));
   const materials=auditEditorialMaterialContract({shots,sentences:result?.sentences,
     researchPlan:result?.materialResearch,catalog,projectRoot});
   issues.push(...materials.issues);
   return {schema:'talkcraft-editorial-proposal-audit-v1',passed:issues.length===0,issues,checks,
-    materials,pending:[...templates.pending,...materials.pending],productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
+    materials,expression,pending:[...templates.pending,...materials.pending],productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
 }
 export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=resolveTalkcraftSkillRoot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'))}={}) {
   const admitted=new Set(catalog.cards.map(c=>c.cardId));
@@ -190,6 +192,9 @@ function checkEditorialInternal(root,runId,{stage=runTalkcraftStage,skillRoot=re
   }
   normalizeSavedEditorialParams(project,catalog);
   const shots = json(path.join(project,'remotion/shots.json'));
+  const expression=auditFilmExpression(shots,catalog);
+  writeFileSync(path.join(project,'qa/editorial-film-expression.json'),JSON.stringify(expression,null,2));
+  if(!expression.passed)throw Object.assign(Error('04全片文字比例未通过，须在编导节点修订后复检'),{issues:expression.issues});
   assertTemplateOnlyEditorialProposal({shots},{skillRoot});
   const semanticDocument=json(path.join(project,'semantics.json'));
   const semanticAudit=assertEditorialShotDeviationSemantics(shots,semanticDocument.sentences);
@@ -258,6 +263,8 @@ export function validateEditorial(result, semantics, aligned, vocab, {requireDig
   }
   if (catalog) {
     if (!projectRoot) throw new Error('治理契约校验缺少本片目录');
+    const expression=auditFilmExpression(shots,catalog);
+    if(!expression.passed)throw Object.assign(Error('04全片文字比例未通过，须比较图形或真实资料模板重排'),{issues:expression.issues});
     const check = validateTalkcraftDesignProps(shots, {catalog,projectRoot});
     if (onTemplateValidation) onTemplateValidation(check);
     if (!check.passed) throw new Error(`火山模板参数不符合治理契约：\n${check.errors.map(issue=>`${issue.shotId || '分镜'} [${issue.code}] ${issue.at} ${issue.message}`).join('\n')}`);
@@ -435,7 +442,8 @@ export function checkEditorialSelectionInput(root,runId,{skillRoot=resolveTalkcr
   try{
     const rejected=currentRejectedEditorialFeedback(project);
     const retained=rejected?null:currentEditorialRepairFeedback(project);
-    const previousFailures=rejected||(retained?.retainedTransaction||retained?.schema==='talkcraft-editorial-repair-feedback-v1'?retained:null);
+    const previousFailures=rejected||(retained?.retainedTransaction||retained?.schema==='talkcraft-editorial-repair-feedback-v1'||
+      retained?.schema==='talkcraft-candidate-editorial-repair-v1'&&retained.passed===false&&retained.failedChecks?.length?retained:null);
     if(!previousFailures)throw Error('没有与当前输入、原始返回及提案完全对应的拒绝记录，不回退到旧工作记录');
     const aligned=json(path.join(project,'aligned-sentences.json')),index=json(path.join(skillRoot,'references/cards-index.json'));
     const catalog=loadTalkcraftGovernedCatalog(index),reviewed=loadReviewedTemplates({skillRoot});
