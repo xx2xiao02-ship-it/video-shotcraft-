@@ -28,6 +28,9 @@ export function visualContentContract(card){
   contract.placeholder=true;
   contract.reason='原卡绘制固定车身轮廓，公开参数只能改标签和笔具；不能把车身演示图充当经济机制或真实资料';
  }
+ if(id==='behind-text-title')contract.adaptiveText={field:'title',maxCharacters:10,maxLines:2,reason:'安全内容宽864，保留原文及动效时钟，最多两行；不能用默认235像素塞任意长度标题'};
+ if(id==='source-converge')contract.adaptiveText={field:'caption',maxCharacters:54,maxLines:3,reason:'原卡说明行沿x700至480移动，按最小边距最多18字三行，保留字级锚点'};
+ if(id==='line-by-line-slide')contract.adaptiveText={field:'lines',maxCharactersPerLine:18,maxLines:4,reason:'有人物时保留右侧独立人物区，正文在510像素安全宽内适配且字号不少于28'};
  if(id==='numbered-step-stack')contract.meaningfulItems={field:'stepsDsl',minimum:2};
  if(['rack-focus-pair','info-card-assemble','still-layout-relay'].includes(id)){
   const dep=card.implementation.dependencies?.find(d=>d.file.replaceAll('\\','/').endsWith(`/template/cards/${id}.tsx`));
@@ -59,6 +62,12 @@ export function auditVisualContent(shots,{catalog}){
   if(contract.meaningfulItems&&String(props[contract.meaningfulItems.field]||'').split('\n').filter(s=>s.trim()).length<contract.meaningfulItems.minimum)
    issues.push({shotId:shot.id,code:'STRUCTURE_ITEMS_REQUIRED',field:contract.meaningfulItems.field,message:'步骤结构须有至少两个有实际内容的项目；单条文字不算步骤关系，不用空行凑数'});
   if(shot.subject==='person'&&contract.hostConflict)issues.push({shotId:shot.id,code:'HOST_CONTENT_REGION_CONFLICT',message:contract.hostConflict});
+  if(contract.adaptiveText){const spec=contract.adaptiveText,value=String(props[spec.field]??card.fields.find(f=>f.key===spec.field)?.default??'');
+   if(spec.maxCharacters&&[...value].length>spec.maxCharacters||spec.maxCharactersPerLine&&value.split('\n').some(line=>[...line].length>spec.maxCharactersPerLine)||spec.maxCharactersPerLine&&value.split('\n').length>spec.maxLines)
+    issues.push({shotId:shot.id,field:spec.field,code:'TEXT_LAYOUT_CAPACITY',message:spec.reason});
+  }
+  if(shot.subject==='person'&&shot.shotCard==='map-route-pin'&&String(props.pinsDsl||'').split('\n').some(line=>Number(line.split('|')[0])<150))
+   issues.push({shotId:shot.id,field:'pinsDsl',code:'HOST_CONTENT_REGION_CONFLICT',message:'地图左侧独立人物安全区内存在图钉，须重排或重新选卡'});
   const slot=contract.singleLine;if(!slot)continue;
   const text=String(props[slot.field]??''),font=props[slot.fontField]??card.fields.find(f=>f.key===slot.fontField)?.default;
   // A lower bound proves impossibility; it is not a substitute for rendered

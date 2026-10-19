@@ -1,3 +1,4 @@
+import {installPresentationCorrections} from './talkcraft-presentation-correction.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -130,5 +131,6 @@ export function installPresentationSkin(project){
       fs.writeFileSync(main,code);
     }
   }
+  installPresentationCorrections(upstream,src);
   installCaptionEmphasis(project);
 }

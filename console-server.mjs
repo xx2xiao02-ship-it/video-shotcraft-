@@ -499,7 +499,7 @@ async function createModeCRun(fields, avatars) {
   return {created, id};
 }
 
-const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
+const TALKCRAFT_STAGE_NAMES = new Set(['recover-timing','recover-alignment','word-timing','editorial','editorial-check','candidates','preflight','word-reveal','word-reveal-qa','text-contrast','background-visibility','presentation-repair','scaffold','digital-human','sample','sample-2m','render-all','render-sfx-solo','qa','deliver']);
 for(const stage of ['planning-check','planning-repair','preflight-repair','media-preflight','host-preflight','editorial-recover','semantic-check','editorial-revision','approve-storyboard','approve-sample','material-research','institution-source-repair'])TALKCRAFT_STAGE_NAMES.add(stage);
 
 function readTalkcraftAutoRecord(runId) {

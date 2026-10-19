@@ -37,7 +37,7 @@ const aliases = Object.freeze({
   'media-preflight':'generation-input','material-research':'candidates','institution-source-repair':'candidates',candidates:'candidates','planning-check':'storyboard-review','approve-storyboard':'storyboard-review',
   'planning-repair':'storyboard-review','preflight-repair':'preflight',
   'digital-human':'digital-human','host-preflight':'digital-human',preflight:'preflight',
-  scaffold:'scaffold','workbench-contract':'scaffold','visual-card-calls':'scaffold',
+  'presentation-repair':'scaffold',scaffold:'scaffold','workbench-contract':'scaffold','visual-card-calls':'scaffold',
   sample:'sample','sample-2m':'sample','sample-qa':'sample','approve-sample':'sample',
   'render-all':'render-all',qa:'qa','render-qa':'qa','word-reveal-qa':'qa','text-contrast':'qa',
   'approve-final':'review',deliver:'deliver',

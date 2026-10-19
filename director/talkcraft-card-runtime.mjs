@@ -1,3 +1,4 @@
+import {installPresentationCorrections} from './talkcraft-presentation-correction.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -47,4 +48,5 @@ for (const def of PARAMETERIZED_BINDINGS) CARD_REGISTRY[def.id] = def.component;
     code+=`\n${imports.join('\n')}\nconst FULL_PARAMETERIZED_BINDINGS_V2=[${generated.map((_,i)=>`FullCard${i}`).concat(cores.map((_,i)=>`FullCore${i}`)).join(',')}];\nfor(const def of FULL_PARAMETERIZED_BINDINGS_V2) CARD_REGISTRY[def.id]=def.component;\n`;
     fs.writeFileSync(index,code);
   }
+  installPresentationCorrections(skillRoot,src);
 }

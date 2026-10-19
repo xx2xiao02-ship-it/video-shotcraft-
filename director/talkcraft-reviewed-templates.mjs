@@ -1,3 +1,4 @@
+import {repairPresentationSource} from './talkcraft-presentation-correction.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -270,6 +271,7 @@ export function assertReviewedRuntimeSources(project,{skillRoot,...options}={}) 
       if(relative==='workbench/src/cards/shared.tsx'&&fs.existsSync(dest)&&fileHash(dest)!==registry.sources[relative])
         source=source.replace(/export const FONT_STACK\s*=\s*[^;]+;/gu,
           `export const FONT_STACK = 'var(--sc-font-family, "Microsoft YaHei", sans-serif)';`);
+      if(relative.endsWith('.tsx'))source=repairPresentationSource(source,relative.replace(/^workbench\/src\/cards\//u,'').replace(/^template\/cards\//u,''));
       if(!fs.existsSync(dest)||fileHash(dest)!==digest(source))throw Error('运行模板被改写或缺失，不能继承历史审查：'+dest);
     }
   }

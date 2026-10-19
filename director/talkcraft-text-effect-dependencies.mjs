@@ -1,3 +1,6 @@
+import {fileURLToPath} from 'node:url';
+import {repairPresentationSource} from './talkcraft-presentation-correction.mjs';
+import {resolveTalkcraftSkillRoot} from './talkcraft-skill-root.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -282,7 +285,19 @@ export function recordTextEffectDependencies(project,shots,presentation,reveals,
    const file=path.join(project,'remotion/src',relative),actual=fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null;
    report.binding[relative]=actual;
    if(actual===null){report.sourceVerified=false;if(!requireSources)continue;}
-   if(actual!==expected){report.sourceVerified=false;report.issues.push({code:'TEXT_EFFECT_SOURCE_CHANGED',shotId:shot.id,message:`${shot.id} 时序契约对应源码已变化：${relative}，须重新核对，不能套旧时间表。`});}
+   let compatible=expected;
+   if(actual!==expected){
+    const key=relative.replace(/^parameterized-cards\//u,'').replace(/^cards\//u,'');
+    if(key.startsWith('gen/')||relative.startsWith('cards/')){
+     const skillRoot=resolveTalkcraftSkillRoot(fileURLToPath(new URL('..',import.meta.url)));
+     const canonical=path.join(skillRoot,key.startsWith('gen/')?'workbench/src/cards':'template/cards',key);
+     if(fs.existsSync(canonical)){
+      let base=fs.readFileSync(canonical,'utf8');if(key.startsWith('gen/'))base=base.replace(/(["'])@tpl\//gu,'$1../../cards/');
+      if(createHash('sha256').update(base).digest('hex')===expected)compatible=createHash('sha256').update(repairPresentationSource(base,key)).digest('hex');
+     }
+    }
+   }
+   if(actual!==compatible){report.sourceVerified=false;report.issues.push({code:'TEXT_EFFECT_SOURCE_CHANGED',shotId:shot.id,message:`${shot.id} 时序契约对应源码已变化：${relative}，须重新核对，不能套旧时间表。`});}
   }
  }
  report.passed=report.issues.length===0;

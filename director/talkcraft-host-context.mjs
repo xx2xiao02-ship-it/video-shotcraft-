@@ -27,6 +27,13 @@ export function auditHostContext(shots,{requireAssets=false,assetExists=()=>fals
 }
 // Independent real host track only; never alter the original card geometry.
 export function hostStageStyle(cardId) {
+  // The source image starts at x=80 and annotations at x=712. Keep the
+  // independent host inside x=0..67.2, outside both content regions.
+  if(cardId==='scanline-annotate')return {position:'absolute',left:0,bottom:'14%',width:'7%',height:'68%',overflow:'hidden'};
+  // Source-converge nodes stay at x>=136; its title ends above y=97.
+  // Keep the independently timed host entirely inside the audited left gutter.
+  if(['source-converge','map-route-pin'].includes(cardId))return {position:'absolute',left:0,bottom:'14%',width:'13%',height:'68%',overflow:'hidden'};
+  if(cardId==='gallery-wall-dolly')return {position:'absolute',right:0,bottom:'14%',width:'15%',height:'68%',overflow:'hidden'};
   const placement=hostContextForCard(cardId)?.placement;
   return {position:'absolute',...(placement==='left'?{left:'6%',bottom:'18%',width:'40%',height:'72%'}:
     placement==='center'?{left:'29%',bottom:'27%',width:'42%',height:'65%'}:

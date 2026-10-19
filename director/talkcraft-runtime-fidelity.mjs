@@ -1,3 +1,4 @@
+import {repairPresentationSource} from './talkcraft-presentation-correction.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -66,6 +67,10 @@ export function assertTalkcraftRuntimeFidelity(project, {skillRoot, cardIds} = {
       if(workbenchRel==='shared.tsx' && hash(source(destination))!==sourceSha256){
         translated=Buffer.from(skinTalkcraftSharedFont(bytes.toString('utf8')));
         transform='shared_font_skin_v1';
+      }
+      if(relative.endsWith('.tsx')){
+        const repaired=repairPresentationSource(translated.toString('utf8'),workbenchRel?.startsWith('gen'+path.sep)?workbenchRel.replaceAll('\\','/'):relative.replaceAll('\\','/'));
+        if(repaired!==translated.toString('utf8')){translated=Buffer.from(repaired);transform+=';presentation_repair_v1';}
       }
       const expectedSha256=hash(translated),runtimeSha256=hash(source(destination));
       if(runtimeSha256!==expectedSha256)throw Error(`模板 ${id} 的运行时源码或依赖被改写：${destination}`);

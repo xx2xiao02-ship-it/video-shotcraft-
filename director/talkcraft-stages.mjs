@@ -1,3 +1,4 @@
+import {installPresentationCorrections} from './talkcraft-presentation-correction.mjs';
 import {syncShotbookMaterials} from './talkcraft-shotbook-materials.mjs';
 import {ACCEPTANCE_POLICY,assertMachineTextRules,bindMachineVideo,assertMachineVideo,inspectTechnicalMedia,queueHumanVisualReview,humanVisualApprovalCurrent} from './talkcraft-acceptance-policy.mjs';
 import {auditReviewedTemplates,enforceReviewedTemplateStage,prepareReviewedCandidates,recordReviewedCandidates,assertReviewedSelection,recordCandidateComparison} from './talkcraft-reviewed-templates.mjs';
@@ -679,6 +680,13 @@ function runTalkcraftStageInternal(stage, runId) {
       ...factReview.issues.map(message=>({code:'FACT_REVIEW_REQUIRED',message}))]});
     recordResult(ROOT, runId, {passed, issues, adjustments});
     return {project, status:'automatic_adjustment_complete', passed, issues, adjustments, bindings:binding.bindings};
+  }
+  if (stage === 'presentation-repair') {
+    assertPipelineProvenance(project);
+    const correction=installPresentationCorrections(SKILL,path.join(project,'remotion/src'));
+    installHostContextRuntime(project);
+    const rebuilt=runTalkcraftStage('scaffold',runId);
+    return {project,status:'presentation_corrected',correction,rebuilt,externalRequests:0,userAcceptance:false};
   }
   if (stage === 'background-visibility') {
     return {project,status:'background_visibility_prepared',...installBackgroundVisibility(project),
