@@ -541,6 +541,15 @@ function runTalkcraftStageInternal(stage, runId) {
     return applySemanticDecisions(project, SKILL);
   }
   if(stage==='institution-source-repair')return executeInstitutionSourceRepair(project);
+  if(stage==='material-completion'){
+    const approvedCorrection=JSON.parse(readFileSync(path.join(project,'qa/correction-center.json'),'utf8'));
+    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-completion.mjs'),project,path.join(SKILL,'references/cards-index.json')],project);
+    // Acquiring a file never marks 06/07/09 passed by itself.
+    const result=runTalkcraftStage('candidates',runId);
+    if(approvedCorrection.node==='storyboard-review')return runTalkcraftStage('planning-check',runId);
+    if(approvedCorrection.node==='preflight')return runTalkcraftStage('preflight',runId);
+    return result;
+  }
   if(stage==='material-research'){
     run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-research.mjs'),project,path.join(SKILL,'references/cards-index.json'),'--search'],project);
     return {project,artifact:'qa/material-search-results.json',audit:'qa/material-research-audit.json',status:'awaiting_material_binding',paidCalls:0};
