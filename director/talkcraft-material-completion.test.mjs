@@ -61,7 +61,9 @@ test('素材处理器由中心按完整逐镜方案调度，不被旧选卡无�
   governance:{caseSha256:'case',mapSha256:'map'},sourcePlan:{needs:[{shotId:'s04',field:'@background'},{shotId:'s07',field:'src2'}],planId:'complete'},revisionPlanError:'旧选卡范围无解'};
  const p=planNodeCorrection(f);assert.equal(p.action,'material-completion');assert.equal(p.approved,true);assert.equal(p.materialCompletionPlan.needs.length,2);
  const bad=structuredClone(p.proposal);bad.materialCompletionPlan.needs.pop();assert.equal(approveNodeCorrection(bad,f).approved,false);
- f.attempts.push({fingerprint:'current',action:'material-completion'});assert.notEqual(planNodeCorrection(f).action,'material-completion');
+ f.attempts.push({fingerprint:'current',action:'material-completion'});
+ const exhausted=planNodeCorrection(f);assert.equal(exhausted.action,null);assert.equal(exhausted.state,'needs-source-verification');
+ assert.equal(exhausted.materialCompletionPlan.needs.length,2);
 });
 test('真实视频采集、绑定、重复继续复用缓存；不改文案和音频、不直接标节点通过',async t=>{
  const {p}=fixture(t),source=path.join(p,'source.webm');

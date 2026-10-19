@@ -43,6 +43,10 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(sourcePlan?.needs?.length&&governance&&['candidates','storyboard-review','preflight'].includes(node)&&!used('material-completion'))
     return {...base,state:'ready-to-correct',action:'material-completion',body:{stage:'material-completion'},materialCompletionPlan:sourcePlan,
       reason:'中心核对逐镜模板、素材槽与完整缺项后，调度正式采集绑定处理器；保留原稿和已有素材，补齐后继续原门禁复检，不以付费换卡代替采集'};
+  if(sourcePlan?.needs?.length&&governance&&used('material-completion')&&feedback?.failedChecks?.every(i=>
+    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND'].includes(i.code)))
+    return {...base,state:'needs-source-verification',action:null,materialCompletionPlan:sourcePlan,
+      reason:`正式素材处理器已完成本轮采集与复检，仍有${sourcePlan.needs.length}个真实资料槽需要可用来源或内容核验。候选和下载缓存保留，不将来源缺项误送创作修订，不重复检索或收费。详见qa/material-completion.json。`};
   const reuseOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>i.code==='template_window_reuse');
   if(reuseOnly&&!authorization)
     return {...base,state:'needs-repair',action:null,

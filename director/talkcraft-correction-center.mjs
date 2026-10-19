@@ -109,7 +109,9 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
   const progressKey=correctionProgressKey({inputs,rules,node:correctionNode(run),checks:feedback?.failedChecks||[]});
-  const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
+  const materialOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>
+    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND'].includes(i.code));
+  const pendingModel=!materialOnly&&attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
     !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code)||i.code==='template_window_reuse');
   const provider=rulesVersionVerified&&pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
   const unsubmitted=read(path.join(project,'qa/editorial-revision-authorization.json'));
