@@ -1,3 +1,6 @@
+import {titlePalette} from './talkcraft-title-presentation.mjs';
+import {THEME} from './theme';
+import {useFilmBackground} from './film-background';
 import React,{createContext,useContext} from 'react';
 import {Img,staticFile} from 'remotion';
 import plan from '../presentation-integrity.json';
@@ -28,3 +31,11 @@ export const ContinuityText:React.FC<{text:string;cut:number;t:number;fontSize:n
   <div style={{fontSize,fontWeight:800,letterSpacing:3,color:readableInk(ink,background),maxWidth:'88%',textAlign:'center',overflowWrap:'anywhere'}}>{text}</div>
  </div>;
 };
+
+// Palette and hierarchy are shared by every task, while the field/word clocks
+// remain those of the original card and word-reveal contract.
+export function useTitlePresentation(){
+ const {row}=usePresentationRuntime(),background=useFilmBackground();
+ const palette=titlePalette(THEME,background);
+ return {...palette,promote:row?.titleFocus?.primaryField==='sub'};
+}

@@ -1,3 +1,4 @@
+import {titleFocus} from './talkcraft-title-presentation.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -14,7 +15,7 @@ const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const clean=s=>String(s||'').replace(/[\s\p{P}]/gu,'');
 const protectedInputs=['source-run.json','input.txt','aligned-sentences.json','audio/full.mp3','remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json','material-research-plan.json'];
-const rulesSha=()=>hash(['talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-color-contrast.mjs'].map(n=>fs.readFileSync(new URL(n,import.meta.url))).reduce((a,b)=>Buffer.concat([a,b]),Buffer.alloc(0)));
+const rulesSha=()=>hash(['talkcraft-presentation-integrity.mjs','talkcraft-presentation-upgrade-source.mjs','talkcraft-presentation-runtime.tsx','talkcraft-presentation-approval.mjs','talkcraft-host-context.mjs','talkcraft-color-contrast.mjs','talkcraft-title-presentation.mjs'].map(n=>fs.readFileSync(new URL(n,import.meta.url))).reduce((a,b)=>Buffer.concat([a,b]),Buffer.alloc(0)));
 export function integrityInputs(project){return Object.fromEntries(protectedInputs.map(n=>[n,hash(fs.readFileSync(path.join(project,n)))]));}
 export function insidePublic(project,name){
  if(typeof name!=='string'||/^(?:[a-z]+:|[/\\])/iu.test(name))throw Error('素材必须是当前工程内相对路径');
@@ -53,6 +54,11 @@ export function auditIntegrityPlan(plan,{project=null}={}){
  if(project&&(JSON.stringify(plan.inputs)!==JSON.stringify(integrityInputs(project))||plan.rulesSha256!==rulesSha()))issues.push({code:'PRESENTATION_INTEGRITY_STALE'});
  if(project){const shots=read(path.join(project,'remotion/shots.json'));if(shots.length!==plan.shots.length||shots.some(s=>plan.shots.filter(r=>r.shotId===s.id&&r.cardId===s.shotCard).length!==1))issues.push({code:'PRESENTATION_SHOT_COVERAGE'});}
  for(const row of plan.shots){
+  if(project&&row.cardId==='behind-text-title'){
+   const shot=read(path.join(project,'remotion/shots.json')).find(s=>s.id===row.shotId);
+   const expected=titleFocus(shot,read(path.join(project,'aligned-sentences.json')));
+   if(JSON.stringify(row.titleFocus)!==JSON.stringify(expected))issues.push({shotId:row.shotId,code:'TITLE_HIERARCHY_UNPROVEN'});
+  }
   if(row.mediaRequired&&(!row.media||!row.media.sourceVerified||!row.media.licenseVerified||!row.media.license||!row.media.licenseUrl))issues.push({shotId:row.shotId,code:'PRESENTATION_REAL_MEDIA_REQUIRED'});
   if(project&&row.media)try{if(hash(fs.readFileSync(insidePublic(project,row.media.localPath)))!==row.media.sha256)throw Error('hash');}catch{issues.push({shotId:row.shotId,code:'PRESENTATION_MEDIA_CHANGED'});}
   if(row.attention){
@@ -79,6 +85,7 @@ export async function buildIntegrityPlan(project,{fetchImpl=fetch,discover=disco
  const cacheFile=path.join(project,'qa/presentation-source-search-cache.json'),cache=fs.existsSync(cacheFile)?read(cacheFile):{};
  for(const shot of shots){
   const p=shot.templateParams?.cardProps||{},row={shotId:shot.id,cardId:shot.shotCard};
+  if(shot.shotCard==='behind-text-title')row.titleFocus=titleFocus(shot,read(path.join(project,'aligned-sentences.json')));
   if(shot.subject==='person')row.host=hostPresentationDecision(shot.shotCard);
   if(TWO_PHASE_CARDS.includes(shot.shotCard)){
    row.continuity=transitionContinuity(shot,events);

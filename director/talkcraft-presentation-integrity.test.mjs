@@ -1,3 +1,5 @@
+import {titleFocus,titlePalette} from './talkcraft-title-presentation.mjs';
+import {minimumContrast} from './talkcraft-color-contrast.mjs';
 import {installHostContextRuntime} from './talkcraft-host-context-install.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -111,4 +113,25 @@ test('恢复旧正式工程同步人物挂载规则且幂等，自定义实现�
  fs.writeFileSync(file,"import {hostStageStyle} from './talkcraft-host-context.mjs';\n{shot.subject === 'person' && <div style={hostStageStyle(shot.shotCard) as React.CSSProperties}><OffthreadVideo /></div>}");
  installHostContextRuntime(dir);const code=fs.readFileSync(file,'utf8');assert.match(code,/shouldRenderHost\(shot\) &&/);installHostContextRuntime(dir);assert.equal(fs.readFileSync(file,'utf8'),code);
  fs.writeFileSync(file,'CUSTOM');assert.throws(()=>installHostContextRuntime(dir),/拒绝覆盖/);assert.equal(fs.readFileSync(file,'utf8'),'CUSTOM');
+});
+test('新任务按本镜原文辨认否定铺垫和肯定结论，不改字段或跨镜挪用理由',()=>{
+ const shot={id:'unrelated-new-run-shot',shotCard:'behind-text-title',firstSentence:1,lastSentence:2,templateParams:{cardProps:{title:'增长不是数字',sub:'人的生活才是目标'}}};
+ const before=structuredClone(shot),sentences=[{text:'旧任务内容'},{text:'增长不是数字'},{text:'人的生活才是目标'}];
+ assert.equal(titleFocus(shot,sentences).primaryField,'sub');assert.deepEqual(shot,before);
+ assert.equal(titleFocus({...shot,firstSentence:0,lastSentence:1},sentences).primaryField,'title');
+ assert.equal(titleFocus({...shot,templateParams:{cardProps:{title:'增长不是数字',sub:'新编造的才是目标'}}},sentences).primaryField,'title');
+});
+test('真实背景类别决定字面色；未知图片用明确局部底衬，不把阴影当对比度',()=>{
+ const theme={text:'#1a1a1a',accentPrimary:'#cccccc',background:'#f7f5f0'};
+ for(const bg of [{kind:'paper'},{kind:'solid',color:'#071d38'},{kind:'image'}]){
+  const p=titlePalette(theme,bg);assert.ok(minimumContrast(p.face,p.backgrounds)>=4.5);assert.ok(minimumContrast(p.secondary,p.backgrounds)>=4.5);
+  if(bg.kind==='image')assert.equal(p.plate,'#ffffff');
+ }
+});
+test('字级包裹不再丢失标题字面；原title/sub及动效时钟保留，旧源码可恢复',()=>{
+ const original=fs.readFileSync(path.join(resolveTalkcraftSkillRoot(process.cwd()),'workbench/src/cards/gen/behind-text-title.tsx'),'utf8');
+ const fixed=repairPresentationSource(original,'gen/behind-text-title.tsx'),old=repairPresentationSource(original,'gen/behind-text-title.tsx',{legacyV3:true});
+ assert.match(fixed,/WebkitTextFillColor: "currentcolor"/);assert.ok(!fixed.includes('backgroundImage: faceGradient'));
+ assert.match(fixed,/useTitlePresentation/);assert.match(fixed,/display.promote \? 48 : 24/);assert.match(fixed,/\{sub\}/);assert.match(fixed,/\{title\}/);
+ assert.ok(old.includes('backgroundImage: faceGradient'));
 });

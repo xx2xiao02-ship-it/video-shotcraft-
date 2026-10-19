@@ -36,6 +36,9 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(node==='storyboard-review'&&run.nextStage==='candidates'&&run.candidatesReady===false&&
     run.candidateIssues?.some(i=>/^候选依据已变化/u.test(String(i)))&&!used('candidate-recheck'))
     return {...base,state:'ready-to-correct',action:'candidate-recheck',body:{stage:'candidates'},reason:'07补全使候选依据变化；免费调用原06候选生成与全部校验，刷新依赖后继续07，不重签旧候选或调用模型'};
+  if(node==='render-all'&&run.nextStage==='sample'&&run.sample===false&&run.sampleApproved===false&&run.scenesReady===true&&
+    run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
+    return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
   const sourceNeeded=node==='candidates'&&feedback?.failedChecks?.some(i=>i.code==='REAL_SOURCE_NOT_BOUND');
   if(sourceNeeded){

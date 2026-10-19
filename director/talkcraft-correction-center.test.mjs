@@ -177,3 +177,14 @@ test('当前目标重复历史已付费问题时拒绝循环，仍允许先免�
  f.run.nodeRepair={providerSubmitted:true,status:'blocked',node:'storyboard-review'};
  assert.equal(planNodeCorrection(f).action,'recover-response');
 });
+
+
+test('展示源码变更使样片失效时恢复样片依赖，不原样重试整片或伪造审批',()=>{
+ const run={runId:'new-task',provenance:{verified:true},nextStage:'sample',sample:false,sampleApproved:false,scenesImplemented:24,scenesReady:true,
+ lastFailure:{task:{name:'talkcraft-render-all'},cause:'The first-shot sample must be approved before full rendering'}};
+ const context={run,fingerprint:'new-sources',rulesVersionVerified:true,attempts:[{fingerprint:'new-sources',action:'local-recheck'}]};
+ const plan=planNodeCorrection(context);assert.equal(plan.approved,true);assert.equal(plan.action,'rebuild-sample');assert.deepEqual(plan.body,{stage:'sample'});
+ assert.equal(plan.userAcceptance,false);assert.equal(run.sampleApproved,false);
+ assert.notEqual(planNodeCorrection({...context,attempts:[...context.attempts,{fingerprint:'new-sources',action:'rebuild-sample'}]}).action,'rebuild-sample');
+ assert.notEqual(planNodeCorrection({...context,run:{...run,lastFailure:{...run.lastFailure,cause:'Other render error'}}}).action,'rebuild-sample');
+});

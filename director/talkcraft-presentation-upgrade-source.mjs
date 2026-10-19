@@ -1,5 +1,5 @@
 const once=(s,a,b)=>{if(s.split(a).length!==2)throw Error('展示升级源码合同不匹配：'+a.slice(0,75));return s.replace(a,b);};
-export function upgradePresentationSource(source,relative,{legacyCrossfade=false}={}){
+export function upgradePresentationSource(source,relative,{legacyCrossfade=false,legacyTypography=false}={}){
  let s=source;
  const imported=names=>{
   const from=relative.startsWith('gen/')?'../../':'../';
@@ -16,6 +16,19 @@ export function upgradePresentationSource(source,relative,{legacyCrossfade=false
   const marker=relative.includes('particle')?'      {/* 粒子层：':'      {/* 转场重音层：';
   s=once(s,marker,`      <ContinuityText text={textA} cut={cut} t={t} fontSize={fontSize} ink={labelColor} background={${blended?'visibleBg':'bgB'}} />\n${marker}`);
   s=once(s,'left: 24, top: 20, fontSize: 17, color: "#8a8a8a",',`left: 24, top: 20, fontSize: 17, color: readableInk("#8a8a8a",${blended?'visibleBg':'t < cut ? bgA : bgB'}),`);
+ }
+ if(relative==='gen/behind-text-title.tsx'&&!legacyTypography){
+  imported('useTitlePresentation');
+  s=once(s,'const hasHost=usePresentationHost();','const hasHost=usePresentationHost();\n  const display=useTitlePresentation();');
+  s=once(s,'top: "5.5%",','top: display.promote ? "42%" : "5.5%",');
+  s=once(s,'textAlign: "center", fontSize: 16, letterSpacing: 10, color: subColor,','textAlign: "center", fontSize: display.promote ? 48 : 24, letterSpacing: display.promote ? 1 : 2, lineHeight: 1.3, paddingInline: 48, boxSizing: "border-box", overflowWrap: "anywhere", color: display.promote ? display.face : display.secondary, background: display.plate,');
+  s=once(s,'top: `${titleTop}%`,','top: display.promote ? "18%" : `${titleTop}%`,');
+  s=once(s,'fontSize: safeTitleSize,','fontSize: display.promote ? Math.min(safeTitleSize,42) : safeTitleSize,');
+  s=once(s,'color: "#b9b9bf", textShadow: EXTRUDE_SHADOW,','color: display.promote ? display.secondary : display.face, background: display.plate, textShadow: display.promote ? "none" : EXTRUDE_SHADOW,');
+  // A transparent gradient face is lost when word wrappers own the glyphs.
+  // Use an opaque, contrast-checked face in BOTH copies; preserve geometry/time.
+  s=once(s,'backgroundImage: faceGradient,','backgroundImage: "none",');
+  s=once(s,'color: "transparent", WebkitTextFillColor: "transparent",','color: display.promote ? display.secondary : display.face, WebkitTextFillColor: "currentcolor",');
  }
  if(relative==='gen/cursor-actor-demo.tsx'){
   imported('PresentationMedia');
