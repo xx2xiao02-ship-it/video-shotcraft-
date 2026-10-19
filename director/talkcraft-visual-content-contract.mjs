@@ -18,6 +18,12 @@ export function visualContentContract(card){
   contract.reason='原卡Shot1灰条及Shot2固定柱高为不可替换演示主体，没有真实图片或视频输入槽';
   contract.hostConflict='独立居中人物覆盖原卡左标题及右素材区域';
  }
+ if(id==='logo-enter'){
+  if(!source.includes('viewBox="0 0 100 100"'))throw Error('品牌登场占位标契约已变化，须重新审计');
+  contract.placeholder=true;
+  contract.reason='品牌登场原卡包含固定三角、方、圆演示标志，公开参数没有真实标志槽；不能把品牌文字和占位标当图形解释';
+ }
+ if(id==='numbered-step-stack')contract.meaningfulItems={field:'stepsDsl',minimum:2};
  if(['rack-focus-pair','info-card-assemble','still-layout-relay'].includes(id)){
   const dep=card.implementation.dependencies?.find(d=>d.file.replaceAll('\\','/').endsWith(`/template/cards/${id}.tsx`));
   if(!dep)throw Error(`${id} 缺少原卡空间布局依赖证据`);
@@ -44,6 +50,8 @@ export function auditVisualContent(shots,{catalog}){
   const contract=visualContentContract(card),props=shot.templateParams?.cardProps||{};
   rows.push({shotId:shot.id,cardId:shot.shotCard,contract});
   if(contract.placeholder)issues.push({shotId:shot.id,code:'DEMO_VISUAL_NOT_REPLACEABLE',message:contract.reason});
+  if(contract.meaningfulItems&&String(props[contract.meaningfulItems.field]||'').split('\n').filter(s=>s.trim()).length<contract.meaningfulItems.minimum)
+   issues.push({shotId:shot.id,code:'STRUCTURE_ITEMS_REQUIRED',field:contract.meaningfulItems.field,message:'步骤结构须有至少两个有实际内容的项目；单条文字不算步骤关系，不用空行凑数'});
   if(shot.subject==='person'&&contract.hostConflict)issues.push({shotId:shot.id,code:'HOST_CONTENT_REGION_CONFLICT',message:contract.hostConflict});
   const slot=contract.singleLine;if(!slot)continue;
   const text=String(props[slot.field]??''),font=props[slot.fontField]??card.fields.find(f=>f.key===slot.fontField)?.default;
@@ -63,6 +71,8 @@ export function graphicCandidateIds(index){
  return index.cards.filter(c=>structured.has(c.slug)||c.category==='素材呈现'||c.category==='数据信息图'&&!isTextDominant({shotCard:c.slug},index)).map(c=>c.slug);
 }
 export function isTextDominant(shot,index){
+ if(shot.shotCard==='logo-enter')return true;
+ if(shot.shotCard==='numbered-step-stack'&&shot.templateParams?.cardProps&&String(shot.templateParams.cardProps.stepsDsl||'').split('\n').filter(s=>s.trim()).length<2)return true;
  if(structured.has(shot.shotCard))return false;
  const category=index.cards.find(c=>(c.slug||c.cardId)===shot.shotCard)?.category;
  if(textCategories.has(category))return true;

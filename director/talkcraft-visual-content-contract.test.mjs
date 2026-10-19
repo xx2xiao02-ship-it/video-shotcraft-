@@ -66,3 +66,14 @@ test('图形分类在原卡目录、治理目录和紧凑目录之间保持一�
  }
  const bad=structuredClone(index);delete bad.cards[0].category;assert.throws(()=>loadTalkcraftGovernedCatalog(bad),/类别/);
 });
+
+test('品牌文字和固定演示标志、单条步骤不能冒充有效图形结构',()=>{
+ const logo=shot('s04','logo-enter',{brand:'诺贝尔经济学奖',tag:'解释'});
+ assert.equal(isTextDominant(logo,index),true);
+ assert.ok(auditVisualContent([logo],{catalog}).issues.some(i=>i.code==='DEMO_VISUAL_NOT_REPLACEABLE'));
+ const single=shot('s05','numbered-step-stack',{stepsDsl:'钱|期待'});
+ assert.equal(isTextDominant(single,index),true);
+ assert.ok(auditVisualContent([single],{catalog}).issues.some(i=>i.code==='STRUCTURE_ITEMS_REQUIRED'));
+ single.templateParams.cardProps.stepsDsl='收入|变化\n选择|消费';
+ assert.equal(isTextDominant(single,index),false);assert.equal(auditVisualContent([single],{catalog}).passed,true);
+});

@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {talkcraftProject,prepareTalkcraftStoryboardRevision,requestTalkcraftStoryboardAdjustment} from './talkcraft-status.mjs';
 import {currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
-import {generateEditorial,checkEditorial,recoverProviderEditorial} from './talkcraft-ark-editorial.mjs';
+import {generateEditorial,checkEditorial,recoverProviderEditorial,checkEditorialSelectionInput} from './talkcraft-ark-editorial.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
 import {executeNodeRepair} from './talkcraft-node-repair.mjs';
 import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
@@ -37,21 +37,27 @@ export function recoverUnsubmittedEditorialRevision(root,runId){
     if(JSON.stringify(record.recoveredInputs)!==JSON.stringify(inputs(project)))throw Error('恢复后输入变化，不能重复继续');
     return record;
   }
-  const feedback=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:true});
+  const feedback=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:record.node!=='editorial'});
   if(!feedback?.snapshot||editorialRepairScopeSha256(feedback)!==record.repairScopeSha256)
     throw Error('当前节点快照与本次授权范围不一致');
   const snapshot=path.resolve(project,feedback.snapshot),base=path.join(project,'qa/storyboard-revisions'),rel=path.relative(base,snapshot);
   if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw Error('恢复快照不属于本次任务');
   // The old submission is unchanged: failure happened before reservation. An
   // unknown or already submitted new request must never be re-authorized here.
-  for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3','qa/editorial-single-submission.json','qa/storyboard-adjustment-request.json'])
+  const submission=read(path.join(project,'qa/editorial-single-submission.json'));
+  const liveSubmissionHash=sha(path.join(project,'qa/editorial-single-submission.json'));
+  const unchangedSubmission=sha(path.join(project,'qa/editorial-single-submission.json'))===record.inputs['qa/editorial-single-submission.json'];
+  if(!unchangedSubmission&&(submission.submittedAt||submission.attempts?.length||submission.approvedAt!==record.approvedAt||submission.maxTasks!==1))
+    throw Error('供应商请求已提交或结果未知，禁止恢复未提交授权');
+  for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3','qa/storyboard-adjustment-request.json'])
     if(!fs.existsSync(path.join(project,n))||sha(path.join(project,n))!==record.inputs[n])throw Error('原始输入或供应商提交记录变化，禁止恢复付费授权：'+n);
   const entries=[];
   for(const n of names){
     if(!record.inputs[n]||n==='qa/candidate-editorial-revision-feedback.json')continue;
     const live=path.join(project,n),saved=path.join(snapshot,n);
     if(fs.existsSync(live)&&sha(live)===record.inputs[n])continue;
-    const seed=n==='semantics.json'&&fs.existsSync(live)&&sha(live)===record.inputs['qa/semantics-before-ark.json'];
+    const seed=n==='semantics.json'&&fs.existsSync(live)&&sha(live)===record.inputs['qa/semantics-before-ark.json']||
+      n==='qa/editorial-single-submission.json'&&!unchangedSubmission;
     if(fs.existsSync(live)&&!seed)throw Error('当前输入与原修订基稿不一致，拒绝覆盖：'+n);
     if(!fs.existsSync(saved)||sha(saved)!==record.inputs[n])throw Error('原修订基稿不能完整恢复：'+n);
     entries.push(n);
@@ -62,12 +68,12 @@ export function recoverUnsubmittedEditorialRevision(root,runId){
   }
   const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
   try{
-    if(sha(path.join(project,'qa/editorial-single-submission.json'))!==record.inputs['qa/editorial-single-submission.json'])throw Error('提交记录变化');
+    if(sha(path.join(project,'qa/editorial-single-submission.json'))!==liveSubmissionHash)throw Error('提交记录变化');
     for(const n of entries){fs.mkdirSync(path.dirname(path.join(project,n)),{recursive:true});fs.copyFileSync(path.join(snapshot,n),path.join(project,n));}
     const current=currentEditorialRepairFeedback(project);
     if(editorialRepairScopeSha256(current)!==record.repairScopeSha256)throw Error('恢复后的节点范围不一致，未调用模型');
     const recovered={...record,recoveredAt:new Date().toISOString(),recoveredInputs:inputs(project),recoveredSnapshot:feedback.snapshot,
-      node:feedback.stage==='preflight'?'preflight':'storyboard-review',providerSubmitted:false};
+      node:record.node,providerSubmitted:false};
     fs.writeFileSync(file,JSON.stringify(recovered,null,2));return recovered;
   }finally{fs.closeSync(fd);fs.unlinkSync(lock);}
 }
@@ -150,6 +156,9 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
   const feedback=currentEditorialRepairFeedback(project);
   const scope=editorialRepairScopeSha256(feedback);
   if(record.repairScopeSha256!==scope)throw Error('修订授权与当前失败范围不一致，未调用模型');
+  // Validate choices before archiving/removing the installed result. A
+  // source/input error must leave the current working artifacts recoverable.
+  if(generate===generateEditorial)checkEditorialSelectionInput(root,runId);
   const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
   try{
     fs.writeFileSync(file,JSON.stringify({...record,startedAt:record.startedAt||new Date().toISOString(),...(record.recoveredAt?{resumedAt:new Date().toISOString()}: {})},null,2));

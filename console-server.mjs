@@ -597,6 +597,11 @@ async function queueTalkcraftStage(body) {
     return {ok:true,id,runId,stage,billable:true};
   }
   if(stage==='editorial-recover'){
+    if(body.restoreUnsubmitted===true){
+      if(body.approveModelCost||status.editorialResponseSaved)throw Error('未提交恢复只允许恢复本次发送前失败且缺少原响应的记录，不接受费用授权');
+      const id=startTask('talkcraft-editorial-recover',`node director/talkcraft-editorial-revision.mjs ${runId} --restore-unsubmitted-only`,ROOT);
+      tasks.get(id).runId=runId;return {ok:true,id,runId,stage,billable:false};
+    }
     if(!status.editorialResponseSaved||status.shotbook)throw Error('本地恢复只处理尚未落地的已保存分镜');
     const id=startTask('talkcraft-editorial-recover',`node director/talkcraft-ark-editorial.mjs ${runId} --recover-existing`,ROOT);
     tasks.get(id).runId=runId;

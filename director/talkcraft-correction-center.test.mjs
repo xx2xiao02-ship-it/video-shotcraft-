@@ -71,3 +71,17 @@ test('真实调度器落盘审批和预留；进程恢复重复继续不能重�
  const second=await dispatchNodeCorrection({project,run:current,queueStage});assert.equal(calls,1);assert.equal(second.decision.state,'waiting-authorization');
  const record=JSON.parse(fs.readFileSync(path.join(project,'qa/correction-center.json')));assert.equal(record.attempts[0].taskId,77);
 });
+
+test('发送前失败缺少当前响应时先提案免费恢复本次快照，不再次申请模型',()=>{
+ const f=fixture();f.run.editorialChecked=false;f.run.nextStage='editorial';f.run.editorialResponseSaved=false;
+ f.feedback.snapshot='qa/storyboard-revisions/current';f.unsubmitted={schema:'talkcraft-editorial-revision-authorization-v1',runId:'current',startedAt:'now'};
+ const d=planNodeCorrection(f);assert.equal(d.action,'restore-unsubmitted');assert.equal(d.body.stage,'editorial-recover');assert.equal(d.approved,true);
+ assert.equal(d.body.approveModelCost,undefined);
+});
+
+test('返回形式变化但失败范围未收敛时拒绝重复计费，真实范围收敛才允许新方案',()=>{
+ const f=fixture();f.progressKey='same-failed-scope';f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'},{fingerprint:'old-raw-shape',progressKey:f.progressKey,action:'editorial-repair'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['candidates'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'用户原授权'};
+ assert.equal(planNodeCorrection(f).action,null);assert.match(planNodeCorrection(f).reason,/没有收敛/);
+ f.progressKey='fewer-failures';assert.equal(planNodeCorrection(f).action,'editorial-repair');
+});

@@ -40,6 +40,7 @@ export function approveNodeCorrection(plan,context){
   if(['review','deliver'].includes(plan.node)||['approve-final','deliver'].includes(run.nextStage))return deny('14人工审核不能自动批准');
   const body=plan.body||{};
   const legal=plan.action==='local-recheck'?body.stage===policy.freeStage&&Object.keys(body).every(k=>k==='stage'):
+    plan.action==='restore-unsubmitted'?body.stage==='editorial-recover'&&body.restoreUnsubmitted===true&&Object.keys(body).every(k=>['stage','restoreUnsubmitted'].includes(k)):
     plan.action==='recover-response'?body.stage==='planning-repair'&&body.recoverProviderResponse===true&&Object.keys(body).every(k=>['stage','recoverProviderResponse'].includes(k)):
     plan.action==='editorial-repair'?body.stage==='editorial-revision'&&body.approveModelCost===true&&Object.keys(body).every(k=>['stage','approveModelCost','authorizationNote'].includes(k)):false;
   if(!legal)return deny('方案超出节点修正执行合同，拒绝修改业务值或绕过门禁');
@@ -62,15 +63,18 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
     shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
+  const progressKey=digest({inputs,rules,node:correctionNode(run),checks:(feedback?.failedChecks||[])
+    .map(i=>({code:i.code,shotId:i.shotId,field:i.field,shotIds:i.shotIds})).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))});
   const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
     !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code));
   const provider=pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;
-  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,inputs,provider,now,authorization});
+  const unsubmitted=read(path.join(project,'qa/editorial-revision-authorization.json'));
+  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted});
   const record={...decision,attempts,updatedAt:new Date(now).toISOString()};
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action
   // after process death or an unknown provider result.
-  const attempt={action:decision.action,fingerprint,startedAt:new Date(now).toISOString(),status:'dispatching'};
+  const attempt={action:decision.action,fingerprint,progressKey,startedAt:new Date(now).toISOString(),status:'dispatching'};
   record.attempts=[...attempts,attempt];record.state='correcting';save(project,'qa/correction-center.json',record);
   try{const task=await queueStage({runId:run.runId,...decision.body});attempt.status='queued';attempt.taskId=task.id;
     save(project,'qa/correction-center.json',record);return {handled:true,decision,task};

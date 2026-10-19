@@ -34,6 +34,19 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
     if(!ids.has(issue.shotId)&&!ids.has(issue.previousShotId)&&issue.shotId)ids.add(issue.shotId);
   if(!ids.size)shots.forEach(s=>ids.add(s.id));
   const pending=shots.filter(s=>ids.has(s.id));
+  // A film-wide quota does not require EVERY text shot to become graphics.
+  // Prefer ranges that actually have a graphic duration domain; short text
+  // ranges must not deadlock all other feasible film-wide improvements.
+  const graphicDomains=new Map();
+  const graphicDomain=shot=>{
+   if(graphicDomains.has(shot.id))return graphicDomains.get(shot.id);
+   const possible=editorialRangeFeasibility({...shot,aligned,catalog,personWindows}).cards.some(c=>{
+    const card=catalog.cards.find(k=>k.cardId===c.slug);
+    return card&&!isTextDominant({shotCard:card.cardId},catalog)&&!visualContentContract(card).placeholder;
+   });graphicDomains.set(shot.id,possible);return possible;
+  };
+  if(failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'))pending.sort((a,b)=>Number(graphicDomain(b))-Number(graphicDomain(a))||
+    (aligned[b.lastSentence].end-aligned[b.firstSentence].start)-(aligned[a.lastSentence].end-aligned[a.firstSentence].start));
   if(repairBatch&&(!Number.isInteger(repairBatch.maxShots)||repairBatch.maxShots<1||repairBatch.maxShots>2))
     throw Error('局部修订批量必须是1或2镜');
   const targets=repairBatch?pending.slice(0,repairBatch.maxShots):pending;
@@ -59,7 +72,7 @@ export function buildEditorialJointRepairContract({proposal,failedChecks=[],alig
       sourceUrl:b.sourceUrl||b.url,identityReason:b.identityReason||b.reason||b.matchReason,
       matchReason:b.matchReason,contentLanguage:b.contentLanguage}));
     const requiresSource=!!(obligations.length||missingKinds.length||corePeople.length||retainedInternalSlots.length);
-    const requireGraphicReplacement=failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&
+    const requireGraphicReplacement=graphicDomain(shot)&&failedChecks.some(i=>i.code==='FILM_TEXT_DOMINANCE'&&
       (i.shotId===shot.id||i.shotIds?.includes(shot.id)));
     const rejected={},candidates=[];
     const reject=(code,slug)=>(rejected[code]??=[]).push(slug);
