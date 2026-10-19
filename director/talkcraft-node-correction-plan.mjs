@@ -13,7 +13,7 @@ export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
   return workflowNodeForTask(run.lastFailure?.task?.name||run.nextStage);
 }
-export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,now=Date.now()}){
+export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,now=Date.now()}){
   const node=correctionNode(run),policy=CORRECTION_NODE_POLICIES.find(p=>p.node===node);
   const base={schema:'talkcraft-correction-decision-v1',runId:run.runId,node,issues:feedback?.failedChecks||[],
     globalRules:['graphic-first','real-media-slots','word-time','text-capacity','host-content-separation','caption-outline'],
@@ -51,6 +51,7 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   }
   if(feedback?.failedChecks?.some(i=>['TEXT_EFFECT_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CHANGED'].includes(i.code)))
     return {...base,state:'needs-code-audit',action:null,reason:'模板时序源码契约缺失或指纹变化；先完成代码审计并免费复检，不交模型创作或消耗费用授权'};
+  if(repeatedPaidScope)return {...base,state:'needs-repair',action:null,repeatedPaidScope,reason:'本次目标镜头的相同问题已提交过模型，识别到跨事务修订循环；先治理输入或恢复代码，不因切换问题类别或更新规则再次计费'};
   const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};

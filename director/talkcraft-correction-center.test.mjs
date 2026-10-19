@@ -168,3 +168,12 @@ test('同镜同类失败数量减少不冒充范围收敛，避免换动效编�
  assert.equal(correctionProgressKey({...base,checks:[a,b]}),correctionProgressKey({...base,checks:[{...a,effectId:'carrier-1'}]}));
  assert.notEqual(correctionProgressKey({...base,checks:[a,{code:a.code,shotId:'s08'}]}),correctionProgressKey({...base,checks:[a]}));
 });
+
+
+test('当前目标重复历史已付费问题时拒绝循环，仍允许先免费恢复',()=>{
+ const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.repeatedPaidScope={requestId:'prior-paid',shotIds:['s08']};
+ assert.equal(planNodeCorrection(f).action,null);assert.match(planNodeCorrection(f).reason,/跨事务修订循环/);
+ f.run.nodeRepair={providerSubmitted:true,status:'blocked',node:'storyboard-review'};
+ assert.equal(planNodeCorrection(f).action,'recover-response');
+});

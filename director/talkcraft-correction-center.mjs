@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {repeatedPaidRepairScope} from './talkcraft-paid-scope-history.mjs';
 import {workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
 import {currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
@@ -11,7 +12,7 @@ const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).di
 const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
 const identity=p=>Object.fromEntries(['input.txt','aligned-sentences.json','audio/full.mp3'].map(n=>[n,sha(path.join(p,n))]));
 const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true});fs.writeFileSync(path.join(p,n)+'.tmp',JSON.stringify(r,null,2));fs.renameSync(path.join(p,n)+'.tmp',path.join(p,n));return r;};
-const RULE_FILES=['talkcraft-template-material-resolver.mjs','talkcraft-node-repair.mjs','talkcraft-editorial-planning-contract.mjs','talkcraft-native-governance.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json','talkcraft-stages.mjs','talkcraft-auto-advance.mjs','talkcraft-native-preparation.mjs','talkcraft-editorial-selection-replay.mjs','talkcraft-editorial-source-slot-repair.mjs','talkcraft-editorial-bound-slots.mjs','talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
+const RULE_FILES=['talkcraft-paid-scope-history.mjs','talkcraft-template-material-resolver.mjs','talkcraft-node-repair.mjs','talkcraft-editorial-planning-contract.mjs','talkcraft-native-governance.mjs','talkcraft-text-effect-dependencies.mjs','talkcraft-text-effect-sources.json','talkcraft-stages.mjs','talkcraft-auto-advance.mjs','talkcraft-native-preparation.mjs','talkcraft-editorial-selection-replay.mjs','talkcraft-editorial-source-slot-repair.mjs','talkcraft-editorial-bound-slots.mjs','talkcraft-editorial-revision.mjs','talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
  'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs','../console-server.mjs'];
@@ -106,7 +107,8 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
       revisionPlan=checkEditorialSelectionInput(path.resolve(project,'../../../..'),run.runId);
     }catch(error){revisionPlanError=error.message;}
   }
-  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError});
+  const repeatedPaidScope=repeatedPaidRepairScope(project,feedback,revisionPlan);
+  const decision=planNodeCorrection({run,feedback,attempts,fingerprint,progressKey,inputs,provider,now,authorization,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope});
   const record={...decision,attempts,updatedAt:new Date(now).toISOString()};
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action
