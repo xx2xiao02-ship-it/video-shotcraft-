@@ -32,10 +32,10 @@ const publicFile=(project,name)=>{
 const vocabulary=[
  [/诺贝尔|nobel/iu,['Nobel ceremony','Nobel lecture'],/nobel/iu],
  [/颁奖|award stage/iu,['award ceremony'],/award|ceremony/iu],
- [/学术|academic/iu,['academic lecture'],/academic|lecture|university/iu],
- [/钱|货币|资金|money/iu,['intitle:banknote','money counting','banknotes','coin counter','wallet cash payment'],/banknote|money|currency|coin|wallet|cash payment|现金|钞票|硬币|钱包/iu],
+ [/学术|academic/iu,['economics professor','university economics','academic lecture'],/academic|lecture|university|professor/iu],
+ [/钱|货币|资金|money/iu,['wallet cash payment','money counting','intitle:cash','intitle:wallet','intitle:banknote','banknotes','coin counter'],/banknote|money|currency|coin|wallet|cash payment|现金|钞票|硬币|钱包/iu],
  [/收入|工资|存款|存钱|储蓄/iu,['intitle:ATM','bank ATM','banknotes'],/bank|atm|banknote|savings|银行/iu],
- [/市场|消费|物价|购物/iu,['street market','shopping market'],/street market|marketplace|shopping|retail|市场|购物/iu],
+ [/市场|消费|物价|购物/iu,['China supermarket shopping','Chinese grocery shoppers','street market','shopping market'],/street market|marketplace|shopping|shoppers|supermarket|grocery|retail|市场|购物|超市|消费/iu],
  [/城市|街景|日常|普通人生活/iu,['city street people'],/city|street|pedestrian|城市|街/iu],
  [/央行|中央银行|中国人民银行/iu,['central bank',"People's Bank of China monetary policy"],/central bank|people.s bank of china|人民银行/iu],
  [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram','monetary transmission diagram','interest rate channel diagram'],/flow of fund(?:s|ing)|money flow|monetary.*transmission|interest rate channel|资金流/iu],
@@ -243,6 +243,12 @@ export function auditCompletionBindings(project){
    if(!b.sourceEvidence?.startsWith('qa/source-discovery/')||!b.field)continue;
    const query=shot.templateParams?.templateMaterialQueries?.[b.field];
    if(!query)continue;
+   const bound=shot.templateParams?.cardProps?.[b.field];
+   if(typeof bound!=='string'||!bound.startsWith('remotion/public/'))continue;
+   try{if(sha(fs.readFileSync(publicFile(project,bound.slice('remotion/public/'.length))))!==b.sha256)continue;}catch{continue;}
+   if(!b.contentLanguage||b.contentLanguage==='und'||! /^(zh(?:-[a-z]+)*|zxx)$/iu.test(b.contentLanguage)&&!b.languageReason){
+    invalid.push({shotId:row.shotId,field:b.field,sha256:b.sha256,reason:'自动绑定丢失实际语言核验证据；撤回该槽后从本任务缓存重新核验绑定',binding:b});continue;
+   }
    try{
     const evidence=read(path.join(project,b.sourceEvidence));
     if(evidence.scope==='current-task-same-shot-reviewed-document'&&!/页面|截图|公告|报告/u.test(query))invalid.push({shotId:row.shotId,field:b.field,sha256:b.sha256,reason:'文字原件不能代替本槽要求的实景或示意图',binding:b});
@@ -361,20 +367,20 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
      if(!fs.existsSync(target))execFileSync('ffmpeg',['-v','error','-ss',String(Math.min(1,meta.durationSeconds/2)),'-i',path.join(project,'remotion/public',downloaded.localPath),'-frames:v','1','-q:v','2',target],{windowsHide:true,timeout:30000});
      meta=probeMedia(target);
     }
-    operation={...need,source:{...downloaded,localPath,sha256:meta.sha256,meta},
-     matchReason:'本镜已声明检索：'+need.query+'；来源标题：'+candidate.title+'；元数据匹配：'+candidate.matchedConcepts.join('、')+'。仅作语境素材，不替代身份、数据或事实证据。'};
     // Downloaded metadata does not establish the visible language of an image.
     // Preserve the candidate and cache, but do not create an invalid binding
     // which the existing source-language gate would have to remove later.
-    if(need.kind==='image'&&!downloaded.contentLanguage){
+    if(need.kind==='image'&&(!downloaded.contentLanguage||downloaded.contentLanguage==='und')){
      const reviewed=contentReviewer(project,{...downloaded,localPath,sha256:meta.sha256});
      if(reviewed)Object.assign(downloaded,reviewed);
     }
-    if(need.kind==='image'&&!downloaded.contentLanguage){
+    if(need.kind==='image'&&(!downloaded.contentLanguage||downloaded.contentLanguage==='und')){
      discovery.errors.push({sourceId:candidate.sourceId,code:'SOURCE_CONTENT_REVIEW_REQUIRED',
       localPath,sha256:meta.sha256,message:'真实图片已保存；需核验实际内容与语言后才能绑定，不依据网页元数据推定无文字'});
      operation=undefined;continue;
     }
+    operation={...need,source:{...downloaded,localPath,sha256:meta.sha256,meta},
+     matchReason:'本镜已声明检索：'+need.query+'；来源标题：'+candidate.title+'；元数据匹配：'+candidate.matchedConcepts.join('、')+'。仅作语境素材，不替代身份、数据或事实证据。'};
     used.add(candidate.sourceId);hashes.add(meta.sha256);break;
    }catch(e){discovery.errors.push({sourceId:candidate.sourceId,message:e.message});}
   }

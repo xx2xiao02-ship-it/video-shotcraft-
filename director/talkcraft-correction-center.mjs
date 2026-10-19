@@ -114,7 +114,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
   const progressKey=correctionProgressKey({inputs,rules,node:correctionNode(run),checks:feedback?.failedChecks||[]});
   const materialOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>
-    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND'].includes(i.code));
+    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND','REVIEWED_SOURCE_BINDING_REJECTED'].includes(i.code));
   const pendingModel=!materialOnly&&attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
     !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code)||i.code==='template_window_reuse');
   const provider=rulesVersionVerified&&pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;

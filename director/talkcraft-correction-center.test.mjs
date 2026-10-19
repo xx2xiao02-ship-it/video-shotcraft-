@@ -222,3 +222,14 @@ test('中心按完整失败范围审批，单镜或延后子集不消耗授权�
  assert.equal(planNodeCorrection(f).action,'editorial-repair');
  f.attempts.push({fingerprint:f.fingerprint,action:'editorial-repair'});assert.equal(planNodeCorrection(f).action,null);
 });
+
+test('资料绑定证据拒绝由素材处理器免费修正，不转为编导费用授权',()=>{
+ const f=fixture();f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.feedback.failedChecks=[{code:'REVIEWED_SOURCE_BINDING_REJECTED',shotId:'s07'},{code:'TEXT_VIDEO_REQUIRED',shotId:'s04'}];
+ f.governance={caseSha256:'case',mapSha256:'map'};
+ f.sourcePlan={planId:'repair-language',needs:[{shotId:'s07',field:'src4'},{shotId:'s04',field:'@background'}],invalidBindings:[{shotId:'s07',field:'src4'}]};
+ const proposed=planNodeCorrection(f);assert.equal(proposed.action,'material-completion');assert.equal(proposed.approved,true);
+ f.attempts.push({fingerprint:f.fingerprint,action:'material-completion'});
+ const exhausted=planNodeCorrection(f);assert.equal(exhausted.action,null);assert.equal(exhausted.state,'needs-source-verification');
+ assert.equal(exhausted.materialCompletionPlan.needs.length,2);assert.equal(exhausted.productionAdmitted,false);
+});

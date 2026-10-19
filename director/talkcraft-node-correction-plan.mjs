@@ -58,7 +58,7 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     return {...base,state:'waiting-source-retry',action:null,retryAt:sourceRetry.notBefore,materialCompletionPlan:sourcePlan,
       reason:'来源服务限流，已保留本次候选与成功绑定；到退避时间后正式节点自动恢复，最多三次限流事件，不调用付费模型或原样空转。'};
   if(sourcePlan?.needs?.length&&governance&&used('material-completion')&&feedback?.failedChecks?.every(i=>
-    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND'].includes(i.code)))
+    ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND','REVIEWED_SOURCE_BINDING_REJECTED'].includes(i.code)))
     return {...base,state:'needs-source-verification',action:null,materialCompletionPlan:sourcePlan,
       reason:`正式素材处理器已完成本轮采集与复检，仍有${sourcePlan.needs.length}个真实资料槽需要可用来源或内容核验。候选和下载缓存保留，不将来源缺项误送创作修订，不重复检索或收费。详见qa/material-completion.json。`};
   const reuseOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>i.code==='template_window_reuse');

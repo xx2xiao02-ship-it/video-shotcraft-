@@ -160,9 +160,18 @@ test('补全方案包含有界替代策略，钱币和传导图同义检索不�
  assert.equal(money.matches('Ronald Reagan Centennial National Football Coin Toss'),false);
  assert.equal(money.matches('Congress candidate speaks about money and cash'),false);
  assert.equal(money.matches('Public Money Public Code software'),false);
+ const shopping=sourceSearchContract('普通人 消费 刺激 经济 新闻 图片');
+ assert.ok(shopping.queries.includes('China supermarket shopping'));
+ assert.equal(shopping.matches('Chinese grocery shoppers buying vegetables'),true);
+ assert.equal(shopping.matches('Stock market chart in a crisis'),false);
  const diagram=sourceSearchContract('央行 降息 放水 市场 资金 流动 示意图');
  assert.equal(diagram.matches('Monetary transmission mechanism diagram'),true);
  assert.equal(diagram.matches('central bank building photograph'),false);
+ const academic=sourceSearchContract('诺贝尔经济学奖 颁奖典礼',['academic audience'],[{kind:'declared-academic-context',query:'经济学 学术现场 讲座 视频',concepts:['economics lecture','academic audience'],basis:'颁奖或学术现场',contextOnly:true}]);
+ assert.ok(academic.queries.includes('economics professor'));
+ assert.equal(academic.matches('University economics professor explains banking'),true);
+ assert.equal(academic.matches('University physics professor explains optics'),false);
+ assert.equal(academic.matches('Nobel chemistry professor ceremony'),false);
 });
 
 test('来源限流按中心批准方案退避恢复；到期只预留一次，达到上限不循环',()=>{
@@ -242,4 +251,32 @@ test('SVG资金流图仅恢复来源API提供的PNG，保留原件和许可，�
  fs.writeFileSync(path.join(p,'qa/source-discovery/commons-provider-state.json'),JSON.stringify({retryAt:new Date(Date.now()+60000).toISOString(),failures:1}));
  const cached=await discoverCompletionSources(p,need,{fetchImpl:async()=>{throw Error('缓存恢复不得请求网络');}});
  assert.equal(cached.candidates.length,1);assert.equal(rasterCalls,1);
+});
+
+test('语言核验先于事务复制；丢失的自动绑定经中心精确撤回和缓存复检恢复',async t=>{
+ const {p,write}=fixture(t),source=path.join(p,'source.png');
+ execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=white:s=1280x720','-frames:v','1',source],{windowsHide:true,timeout:30000});
+ write('remotion/shots.json',[{id:'s07',shotCard:'stack-fan-out',templateParams:{cardProps:{},templateMaterialQueries:{src1:'城市街景'}}}]);
+ write('material-research-plan.json',{shots:[{shotId:'s07',backgroundDecision:'omit'}]});
+ const originalAudio=fs.readFileSync(path.join(p,'audio/full.mp3'));
+ const image=page('File:City street.png');image.imageinfo[0].url=image.imageinfo[0].url.replace('.webm','.png');
+ let downloads=0,reviews=0;
+ const fetchImpl=async url=>String(url).includes('/w/api.php')?new Response(JSON.stringify({query:{pages:{1:image}}})):(downloads++,new Response(fs.readFileSync(source)));
+ const contentReviewer=(_project,s)=>{reviews++;return {contentLanguage:'en',languageReason:'保留经实际核验的英文原件',contentReview:{method:'test-offline-review',mediaSha256:s.sha256,evidence:'qa/review.json',sha256:'f'.repeat(64)}};};
+ const apply=async plan=>executeMaterialCompletion(p,catalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false},fetchImpl,contentReviewer});
+ const first=await apply(materialCompletionPlan(p,catalog));assert.equal(first.operations.length,1);
+ const research=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))),b=research.shots[0].materialBindings[0];
+ assert.equal(b.contentLanguage,'en');assert.equal(b.languageReason,'保留经实际核验的英文原件');
+ assert.equal(b.contentReview.mediaSha256,b.sha256);assert.equal(first.operations[0].source.contentReview.mediaSha256,b.sha256);
+ assert.equal(materialCompletionPlan(p,catalog).needs.length,0);
+ // Reproduce the old copy-order failure in the fixture, never in production data.
+ b.contentLanguage='und';delete b.languageReason;delete b.contentReview;write('material-research-plan.json',research);
+ const recovery=materialCompletionPlan(p,catalog);assert.equal(recovery.invalidBindings.length,1);assert.equal(recovery.needs.length,1);
+ const restored=await apply(recovery);assert.equal(restored.operations.length,1);assert.equal(downloads,1);assert.equal(reviews,2);
+ const final=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json'))).shots[0].materialBindings[0];
+ assert.equal(final.contentLanguage,'en');assert.equal(final.contentReview.mediaSha256,b.sha256);
+ assert.equal(materialCompletionPlan(p,catalog).needs.length,0);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(p,'qa/material-quarantine/'+recovery.planId+'.json'))).invalidBindings[0].binding.contentLanguage,'und');
+ await apply(materialCompletionPlan(p,catalog));assert.equal(downloads,1);assert.equal(reviews,2);
+ assert.deepEqual(fs.readFileSync(path.join(p,'audio/full.mp3')),originalAudio);assert.equal(restored.paidCalls,0);
 });
