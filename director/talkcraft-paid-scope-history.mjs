@@ -4,16 +4,17 @@ import {createHash} from 'node:crypto';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const sha=f=>fs.existsSync(f)?createHash('sha256').update(fs.readFileSync(f)).digest('hex'):null;
 const read=f=>{try{return JSON.parse(fs.readFileSync(f));}catch{return null;}};
-export function paidRepairScope(checks,shotIds){
+export function paidRepairScope(checks,shotIds,proposal){
  const ids=new Set(shotIds);
- return [...new Set(checks.filter(i=>ids.has(i.shotId)).map(i=>JSON.stringify({code:i.code,shotId:i.shotId,field:i.field})))].sort();
+ return [...new Set(checks.filter(i=>ids.has(i.shotId)).map(i=>JSON.stringify({code:i.code,shotId:i.shotId,shotCard:proposal?.shots?.find(s=>s.id===i.shotId)?.shotCard,field:i.field})))].sort();
 }
 // Refusal evidence only: never authorizes a request, restores content, or marks
 // a gate passed. A submitted request with uncertain outcome is also not retried.
 export function repeatedPaidRepairScope(project,feedback,revisionPlan){
  const ids=revisionPlan?.editableShotIds;
  if(!ids?.length)return null;
- const current=paidRepairScope(feedback?.failedChecks||[],ids);if(!current.length)return null;
+ if(ids.some(id=>typeof feedback?.proposal?.shots?.find(s=>s.id===id)?.shotCard!=='string'))return null;
+ const current=paidRepairScope(feedback?.failedChecks||[],ids,feedback.proposal);if(!current.length)return null;
  const base=path.join(project,'qa/node-repairs');if(!fs.existsSync(base))return null;
  const identity=['input.txt','aligned-sentences.json','audio/full.mp3'];
  for(const entry of fs.readdirSync(base,{withFileTypes:true})){
@@ -29,8 +30,8 @@ export function repeatedPaidRepairScope(project,feedback,revisionPlan){
   const {requestId,...contract}=request;
   if(request.schema!=='talkcraft-editorial-selection-request-v2'||!requestId||requestId!==digest(contract)||
     JSON.stringify([...request.editableShotIds||[]].sort())!==JSON.stringify([...ids].sort())||
-    !Array.isArray(request.failedChecks))continue;
-  const prior=new Set(paidRepairScope(request.failedChecks,ids)),repeated=current.filter(i=>prior.has(i));
+    !Array.isArray(request.failedChecks)||ids.some(id=>typeof request.baseProposal?.shots?.find(s=>s.id===id)?.shotCard!=='string'))continue;
+  const prior=new Set(paidRepairScope(request.failedChecks,ids,request.baseProposal)),repeated=current.filter(i=>prior.has(i));
   if(repeated.length)
     return {requestId,directory:path.relative(project,work).replaceAll('\\','/'),shotIds:ids,scope:repeated};
  }
