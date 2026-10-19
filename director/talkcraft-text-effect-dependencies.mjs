@@ -37,7 +37,7 @@ export function textEffectContract(card,p={},nativeFrames=1){
    const parts=line.split('|');text('rows',i*2);text('rows',i*2+1);
    if(parts[2]?.trim()!=='on')return;
    const press=at+(j===0?.52:.34)+.22,highlight=press-.22-.08;
-   for(let k=0;k<2;k++)effect('row-highlight-'+i+'-'+k,'rows',i*2+k,highlight,press+.18+.1);
+   for(let k=0;k<2;k++)effect('row-highlight-'+i+'-'+k,'rows',i*2+k,highlight,press+.18+.1+.2);
    at=press+.18;j++;
   });break;}
  case 'map-route-pin':{

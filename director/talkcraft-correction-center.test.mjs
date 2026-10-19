@@ -143,3 +143,28 @@ test('07发现候选依据过期可提出免费重建依赖方案，不能直接
  f.attempts=[{fingerprint:f.fingerprint,action:d.action}];assert.notEqual(planNodeCorrection(f).action,'candidate-recheck');
  f.run.candidateIssues=['其他未核验问题'];f.attempts=[];assert.notEqual(planNodeCorrection(f).action,'candidate-recheck');
 });
+
+
+test('纯动效时序不兼容由节点提出修订，源码契约缺失不消耗创作授权',()=>{
+ const f=fixture();f.run.lastFailure={task:{name:'talkcraft-planning-check'}};f.run.nextStage='planning-check';
+ f.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ f.authorization={schema:'talkcraft-correction-authorization-v1',runId:'current',scope:['storyboard-review'],inputs:f.inputs,provider:f.provider,expiresAt:new Date(2000).toISOString(),approval:'原用户授权'};
+ for(const code of ['TEXT_EFFECT_DEPENDENCY_EARLY','TEXT_EFFECT_INCOMPLETE','TEXT_EFFECT_TARGET_MISSING']){
+  f.feedback.failedChecks=[{code,shotId:'s05'}];
+  const d=planNodeCorrection(f);assert.equal(d.action,'editorial-repair');assert.equal(d.approved,true);assert.equal(d.productionAdmitted,false);
+ }
+ for(const code of ['TEXT_EFFECT_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CHANGED']){
+  f.feedback.failedChecks=[{code,shotId:'s05'},{code:'TEXT_EFFECT_DEPENDENCY_EARLY',shotId:'s08'}];
+  const d=planNodeCorrection(f);assert.equal(d.action,null);assert.equal(d.state,'needs-code-audit');assert.equal(d.approved,false);
+ }
+});
+
+
+import {correctionProgressKey} from './talkcraft-correction-center.mjs';
+test('同镜同类失败数量减少不冒充范围收敛，避免换动效编号后重复计费',()=>{
+ const base={inputs:{voice:'current'},rules:{contract:'same'},node:'storyboard-review'};
+ const a={code:'TEXT_EFFECT_DEPENDENCY_EARLY',shotId:'s05',effectId:'arrow-0'};
+ const b={...a,effectId:'arrow-1'};
+ assert.equal(correctionProgressKey({...base,checks:[a,b]}),correctionProgressKey({...base,checks:[{...a,effectId:'carrier-1'}]}));
+ assert.notEqual(correctionProgressKey({...base,checks:[a,{code:a.code,shotId:'s08'}]}),correctionProgressKey({...base,checks:[a]}));
+});

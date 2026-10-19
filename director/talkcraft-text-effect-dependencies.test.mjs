@@ -117,3 +117,11 @@ test('新增图形卡保留源码文字入退场和装饰依赖，不以登记�
  assert.ok(check(shot('source-converge',{sources:'甲'}),[{field:'sources',text:'甲',localFrame:95}],198).issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
  assert.ok(check(shot('converging-arrows',{focusText:'重点'}),[{field:'focusText',text:'重点',localFrame:70}],89).issues.some(i=>i.code==='TEXT_EFFECT_DEPENDENCY_EARLY'));
 });
+
+
+test('光标行高亮包括源码0.2秒淡出，不能截在淡出起点即称完整',()=>{
+ const c=textEffectContract('cursor-actor-demo',{rows:'甲|乙|on',startDelay:.45},135);
+ assert.equal(c.effects[0].end,Math.ceil((.45+.52+.22+.18+.1+.2)*30));
+ const r=check(shot('cursor-actor-demo',{rows:'甲|乙|on',startDelay:4}),[{field:'rows',localFrame:0},{field:'rows',localFrame:0}],155);
+ assert.ok(r.issues.some(i=>i.code==='TEXT_EFFECT_INCOMPLETE'));
+});

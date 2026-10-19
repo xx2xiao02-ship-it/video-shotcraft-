@@ -78,6 +78,11 @@ export function planNodeCorrection(context){
   return {...approveNodeCorrection(proposal,context),proposal};
 }
 
+export function correctionProgressKey({inputs,rules,node,checks=[]}){
+  const scope=[...new Set(checks.map(i=>JSON.stringify({code:i.code,shotId:i.shotId,field:i.field,shotIds:i.shotIds})))].sort();
+  return digest({inputs,rules,node,checks:scope});
+}
+
 export async function dispatchNodeCorrection({project,run,queueStage,now=Date.now()}){
   const previous=correctionCenterSnapshot(project),attempts=previous?.runId===run.runId?previous.attempts||[]:[];
   const feedback=currentEditorialRepairFeedback(project);
@@ -88,8 +93,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
     feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
     shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
-  const progressKey=digest({inputs,rules,node:correctionNode(run),checks:(feedback?.failedChecks||[])
-    .map(i=>({code:i.code,shotId:i.shotId,field:i.field,shotIds:i.shotIds})).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))});
+  const progressKey=correctionProgressKey({inputs,rules,node:correctionNode(run),checks:feedback?.failedChecks||[]});
   const pendingModel=attempts.some(a=>a.fingerprint===fingerprint&&a.action==='local-recheck')&&
     !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='editorial-repair')&&feedback?.failedChecks?.some(i=>creativeCode(i.code));
   const provider=rulesVersionVerified&&pendingModel&&Date.parse(authorization?.expiresAt)>now?editorialProviderBinding(run.runId):null;

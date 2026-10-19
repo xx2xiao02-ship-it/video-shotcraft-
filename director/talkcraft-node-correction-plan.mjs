@@ -7,7 +7,7 @@ const localStages={input:'recover-timing','word-timing':'recover-alignment',sema
 export const CORRECTION_NODE_POLICIES=MANAGED_WORKFLOW_NODES.map(n=>({node:n.id,
   freeStage:localStages[n.id],supportsCorrection:true,automaticApproval:false,
   rule:n.id==='review'?'用户审核决定；不得代批':n.id==='deliver'?'仅导出已审核版本，不自动发布':'本节点先恢复、补全、复检；不能重写程序或绕过原门禁'}));
-export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_CYCLE_REQUIRED|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
+export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_CYCLE_REQUIRED|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|TEXT_EFFECT_(?:DEPENDENCY_EARLY|INCOMPLETE|TARGET_MISSING)$|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_BOUND_FIELD_MISMATCH|MATERIAL_PERSON_LABEL_PLAN_INVALID|local_material_unmatched|reviewed_source_binding_required|REAL_SOURCE_NOT_BOUND)/u.test(c||'');
 
 export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
@@ -49,6 +49,8 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     if(feedback.failedChecks.every(i=>i.code==='REAL_SOURCE_NOT_BOUND'))return {...base,state:'needs-source-verification',action:null,
       reason:'06已执行免费检索和绑定复检，仍缺可核验来源；保留真实缺项，不重复检索或付费换卡，不推断许可'};
   }
+  if(feedback?.failedChecks?.some(i=>['TEXT_EFFECT_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CONTRACT_REQUIRED','TEXT_EFFECT_SOURCE_CHANGED'].includes(i.code)))
+    return {...base,state:'needs-code-audit',action:null,reason:'模板时序源码契约缺失或指纹变化；先完成代码审计并免费复检，不交模型创作或消耗费用授权'};
   const creative=feedback?.failedChecks?.some(i=>creativeCode(i.code));
   if(progressKey&&attempts.some(a=>a.action==='editorial-repair'&&a.progressKey===progressKey))
     return {...base,state:'needs-repair',action:null,reason:'本次失败范围没有收敛，不因模型改写返回形式再次付费；先治理约束或恢复代码'};
