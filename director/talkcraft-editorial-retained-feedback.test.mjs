@@ -116,5 +116,19 @@ test('本次未编译拒绝保留成功基稿和最新错误，不退回旧清�
  const f=currentEditorialRepairFeedback(p);assert.deepEqual(f.proposal,base);assert.deepEqual(f.failedChecks,issues);
  assert.equal(f.stage,'planning-check');assert.equal(f.sourceGate,'selection-compile');
  assert.deepEqual(fs.readFileSync(path.join(p,'remotion/shots.json')),before);
+ const journal=JSON.parse(fs.readFileSync(path.join(p,'qa/node-repair.json')));
+ write(p,'qa/node-repair.json',{...journal,error:'明确字段错误'});
+ assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
+ const replay={schema:'talkcraft-editorial-free-selection-replay-v1',runId:'current',requestId:request.requestId,
+  passed:false,externalRequests:0,productionAdmitted:false,rawResponse,issues};
+ write(w,'qa/editorial-free-selection-replay.json',replay);
+ assert.deepEqual(currentEditorialRepairFeedback(p).failedChecks,issues);
+ write(w,'qa/editorial-free-selection-replay.json',{...replay,rawResponse:rawResponse.replaceAll('/','\\')});
+ assert.deepEqual(currentEditorialRepairFeedback(p).failedChecks,issues);
+ for(const change of [{runId:'other'},{requestId:'other'},{externalRequests:1},{issues:[]},{rawResponse:'other'}]){
+  write(w,'qa/editorial-free-selection-replay.json',{...replay,...change});
+  assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
+ }
+ write(w,'qa/editorial-free-selection-replay.json',replay);
  write(w,rawResponse,{...raw,requestId:'other'});assert.throws(()=>currentEditorialRepairFeedback(p),/不一致/);
 });

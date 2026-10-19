@@ -147,8 +147,15 @@ function retainedRejectedNodeFeedback(project,work,j,a){
   const request=read('qa/editorial-selection-request.json'),cache=read('qa/ark-editorial-response.json');
   const {editorialSelectionRejection,...base}=cache,verified=verifiedEditorialFeedback(work);
   const expected='分镜提案预检未通过：'+(a.issues||[]).map(i=>`[${i.code}] ${i.message}`).join('；');
+  const replayFile=path.join(work,'qa/editorial-free-selection-replay.json');
+  const replay=fs.existsSync(replayFile)?read('qa/editorial-free-selection-replay.json'):null;
+  const replayFailure=replay?.schema==='talkcraft-editorial-free-selection-replay-v1'&&replay.runId===j.runId&&
+    replay.requestId===request.requestId&&replay.passed===false&&replay.externalRequests===0&&replay.productionAdmitted===false&&
+    typeof replay.rawResponse==='string'&&typeof a.rawResponse==='string'&&
+    replay.rawResponse.replaceAll('\\','/')===a.rawResponse.replaceAll('\\','/')&&isDeepStrictEqual(replay.issues,a.issues)&&
+    j.error===(a.issues||[]).map(i=>i.message).join('；');
   if(!verified||a.requestId!==request.requestId||!isDeepStrictEqual(editorialSelectionRejection,a)||
-    !isDeepStrictEqual(base,request.baseProposal)||!isDeepStrictEqual(verified.failedChecks,a.issues)||j.error!==expected||
+    !isDeepStrictEqual(base,request.baseProposal)||!isDeepStrictEqual(verified.failedChecks,a.issues)||!(j.error===expected||replayFailure)||
     !a.issues?.length||a.issues.some(i=>!i.shotId||!base.shots?.some(s=>s.id===i.shotId)))
     throw Error('本次未编译补全失败证据与请求不一致');
   for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3','semantics.json','remotion/shots.json','material-research-plan.json','material-binding-plan.json','qa/ark-editorial-response.json'])

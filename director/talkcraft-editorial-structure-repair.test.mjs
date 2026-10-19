@@ -1,8 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {repairEditorialStructure} from './talkcraft-editorial-structure-repair.mjs';
+import {buildEditorialAnchorScope,editorialAnchorModelScope,compileEditorialAnchorEvents} from './talkcraft-editorial-anchor-scope.mjs';
 const request={requestId:'this-request',editableShotIds:['s03','s08']};
 const raw=()=>({requestId:request.requestId,repairs:[{shotId:'s03',templateParams:{cardProps:{text:'真实内容'}},templateMaterialQueries:{src:'官方照片'},semanticDeviations:{解释:'真实理由'}}]});
+
+test('仅精确本句末尾标点可恢复锚点，保留展示原文和原始响应，严格编译且幂等',()=>{
+ const scope=buildEditorialAnchorScope({shotId:'s03',firstSentence:0,lastSentence:0,
+  sentences:[{text:'有时候效果不如预期？'}],inputSha256:'current',includeTiming:false});
+ const ref=editorialAnchorModelScope(scope,'s03').sentences[0].sentenceRef;
+ const contract={...request,windows:[{shotId:'s03',anchorScope:scope}]};
+ const value=raw();value.repairs[0].nativePresentation={wordEvents:[
+  {field:'title',text:'不如预期？',sentenceRef:ref,fromOffset:5,throughOffset:9,role:'spoken'}]};
+ const before=structuredClone(value),fixed=repairEditorialStructure(value,contract);
+ assert.deepEqual(value,before);assert.equal(fixed.report.passed,true);
+ const event=fixed.response.repairs[0].nativePresentation.wordEvents[0];
+ assert.equal(event.throughOffset,8);assert.equal(event.text,'不如预期？');
+ assert.equal(compileEditorialAnchorEvents([event],scope,'s03')[0].anchor,'不如预期');
+ assert.ok(fixed.report.changes.some(c=>c.operation==='source-terminal-punctuation-anchor'));
+ assert.deepEqual(repairEditorialStructure(fixed.response,contract).report.changes,[]);
+ for(const change of [{sentenceRef:ref.replace('s03','s07')},{throughOffset:10},
+  {text:'不是原句？'},{fromOffset:9},{fromOffset:-1},{throughOffset:8.5}]){
+   const bad=structuredClone(before);Object.assign(bad.repairs[0].nativePresentation.wordEvents[0],change);
+   const repaired=repairEditorialStructure(bad,contract),event=repaired.response.repairs[0].nativePresentation.wordEvents[0];
+   assert.deepEqual(event,bad.repairs[0].nativePresentation.wordEvents[0]);
+ }
+});
 
 test('本次文字字段的field别名可无损转key，字级事件和原文不变且重复执行幂等',()=>{
  const original=raw();delete original.repairs[0].templateMaterialQueries;delete original.repairs[0].semanticDeviations;

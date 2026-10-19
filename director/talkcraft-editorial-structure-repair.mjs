@@ -1,5 +1,6 @@
 import {isDeepStrictEqual} from 'node:util';
 import {createHash} from 'node:crypto';
+import {editorialAnchorModelScope} from './talkcraft-editorial-anchor-scope.mjs';
 
 const object=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -30,6 +31,23 @@ export function repairEditorialStructure(raw,request){
   if(raw?.requestId!==request?.requestId)throw Error('结构修复请求指纹不匹配');
   for(const row of response.repairs||[]){
     if(!object(row)||!request.editableShotIds.includes(row.shotId))continue;
+    const scope=request.windows?.find(w=>w.shotId===row.shotId)?.anchorScope;
+    const projected=scope&&editorialAnchorModelScope(scope,row.shotId);
+    for(const [i,event]of (Array.isArray(row.nativePresentation?.wordEvents)?row.nativePresentation.wordEvents:[]).entries()){
+      const sentence=projected?.sentences.find(s=>s.sentenceRef===event?.sentenceRef);
+      if(!sentence||!Number.isInteger(event.fromOffset)||!Number.isInteger(event.throughOffset))continue;
+      const chars=[...sentence.text],last=sentence.characters.at(-1)?.offset;
+      // Only an exact source suffix ending in punctuation can be normalized.
+      // Never clamp arbitrary indices, infer words, or cross a sentence boundary.
+      if(!Number.isInteger(last)||event.throughOffset<=last||event.throughOffset!==chars.length-1||
+        !sentence.characters.some(c=>c.offset===event.fromOffset)||event.fromOffset>last||
+        !/^[\p{P}]+$/u.test(chars.slice(last+1).join(''))||
+        event.text!==chars.slice(event.fromOffset).join(''))continue;
+      const sourceValue=structuredClone(event);
+      event.throughOffset=last;
+      changes.push({shotId:row.shotId,operation:'source-terminal-punctuation-anchor',
+        from:`nativePresentation.wordEvents[${i}].throughOffset`,to:`nativePresentation.wordEvents[${i}].throughOffset`,sourceValue});
+    }
     const fields=row.nativePresentation?.textFields;
     if(Array.isArray(fields)&&fields.some(f=>object(f)&&Object.hasOwn(f,'field'))){
       for(const [i,f]of fields.entries()){
