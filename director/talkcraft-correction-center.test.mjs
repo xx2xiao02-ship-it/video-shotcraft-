@@ -91,6 +91,17 @@ test('04门禁因新规则失效时优先本节点复检，不被历史06失败�
  const d=approveNodeCorrection(p,f);assert.equal(d.approved,true);
 });
 
+test('06已恢复后由07免费复检，不沿用历史素材失败重复06或请求付费',()=>{
+ const f=fixture();f.run.nextStage='planning-check';f.run.candidatesReady=true;
+ f.run.lastFailure={task:{name:'talkcraft-material-completion'}};
+ f.feedback.failedChecks=[{code:'NATIVE_WORD_COVERAGE',shotId:'s16'}];
+ f.attempts=[{fingerprint:'old-rules',action:'local-recheck'}];
+ const d=planNodeCorrection(f);assert.equal(d.node,'storyboard-review');
+ assert.equal(d.action,'local-recheck');assert.equal(d.body.stage,'planning-check');assert.equal(d.approved,true);
+ const incomplete=structuredClone(f);incomplete.run.candidatesReady=false;
+ assert.equal(proposeNodeCorrection(incomplete).node,'candidates');
+});
+
 
 import fs from 'node:fs';
 import path from 'node:path';

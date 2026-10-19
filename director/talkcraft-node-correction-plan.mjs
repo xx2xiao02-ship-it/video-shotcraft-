@@ -15,6 +15,10 @@ export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|ATTENTION_TARGET_BOUNDS|GR
 
 export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
+  // A successful 06 repair leaves its failed task in history. Once current
+  // candidate artifacts pass, 07 owns the next check; replaying 06 cannot
+  // refresh the native planning report and must not trigger paid repair.
+  if(run.nextStage==='planning-check'&&run.candidatesReady===true)return 'storyboard-review';
   return workflowNodeForTask(run.lastFailure?.task?.name||run.nextStage);
 }
 export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,progressKey,authorization,inputs,provider,unsubmitted,rulesVersionVerified,institutionRepair,revisionPlan,revisionPlanError,repeatedPaidScope,governance,sourcePlan,now=Date.now()}){

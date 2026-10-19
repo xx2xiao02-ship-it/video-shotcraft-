@@ -68,7 +68,11 @@ export function sourceSearchContract(query,concepts=[],alternatives=[]){
    (!diagram||/diagram|schematic|chart|示意|流程图/iu.test(value)&&/flow|transmission|interest rate|资金|传导|利率/iu.test(value))&&
    (!document||/announcement|monetary policy|货币政策|公告/iu.test(value))&&
    (!institution||/people.s bank of china|中国人民银行/iu.test(value));
- const matchesAlternative=value=>/economic|经济/iu.test(value)&&! /nobel|诺贝尔|chemistry|medicine|physics|化学|医学|物理/iu.test(value)&&approvedAlternatives.some(a=>a.matches(value));
+ // An article mentioning an economics professor is not automatically an
+ // academic scene. Require an actual lecture/discussion/presentation context.
+ const matchesAlternative=value=>/economic|经济/iu.test(value)&&
+   /academic|lecture|seminar|conference|tells|explain|talks|discuss|speaks|presentation|classroom|学术|讲座|课堂|研讨|讲述/iu.test(value)&&
+   ! /nobel|诺贝尔|chemistry|medicine|physics|化学|医学|物理/iu.test(value)&&approvedAlternatives.some(a=>a.matches(value));
  return {queries:[...new Set([query,...approvedAlternatives.flatMap(a=>a.queries),...(economics?['Nobel economics ceremony','Nobel economics lecture']:[]),...required.flatMap(([,q])=>q),...groups.flatMap(([,q])=>q),...concepts.filter(c=>/^[a-z\s-]+$/iu.test(c))])].filter(Boolean).slice(0,12),
   matches:value=>matchesPrimary(value)||matchesAlternative(value),
   matched:value=>matchesPrimary(value)?required.filter(([,q,r])=>r.test(value)).flatMap(([,q])=>q):approvedAlternatives.flatMap(a=>a.matches(value)?a.matched(value):[])};

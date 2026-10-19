@@ -16,7 +16,9 @@ export const governedVisibleText=(card,key,value)=>{
   // Read only the text columns used by the locked source parser. Numeric
   // geometry and toggle state are not rendered prose. Unknown DSLs still use
   // strict whole-value coverage rather than silently dropping columns.
-  const columns=syntax==='anchored-words'?[0]:syntax==='toggle-rows'?[0,1]:syntax==='pins'?[2]:null;
+  // Chapter numbers are structural list markers (the reviewed evidence
+  // compiler also uses column 1); bubbles use column 0 as their text.
+  const columns=syntax==='anchored-words'||syntax==='bubbles'?[0]:syntax==='chapter'?[1]:syntax==='toggle-rows'?[0,1]:syntax==='pins'?[2]:null;
   if(columns)return clean(String(value??'').split(/\r?\n/u).filter(line=>line.trim())
     .map(line=>{const parts=line.split('|');return columns.map(i=>(parts[i]??'').trim()).join('');}).join(''));
   return clean(value);

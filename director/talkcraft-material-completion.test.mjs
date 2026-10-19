@@ -170,6 +170,8 @@ test('补全方案包含有界替代策略，钱币和传导图同义检索不�
  const academic=sourceSearchContract('诺贝尔经济学奖 颁奖典礼',['academic audience'],[{kind:'declared-academic-context',query:'经济学 学术现场 讲座 视频',concepts:['economics lecture','academic audience'],basis:'颁奖或学术现场',contextOnly:true}]);
  assert.ok(academic.queries.includes('economics professor'));
  assert.equal(academic.matches('University economics professor explains banking'),true);
+ assert.equal(academic.matches('Economics professor found commuters cannot travel to work'),false);
+ assert.equal(academic.matches('University economist tells the education project why economics needs data'),true);
  assert.equal(academic.matches('University physics professor explains optics'),false);
  assert.equal(academic.matches('Nobel chemistry professor ceremony'),false);
 });

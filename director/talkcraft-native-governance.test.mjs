@@ -64,7 +64,9 @@ test('正式字级编译入口未显式传目录时也使用同一已审DSL规�
 test('界面开关和图钉DSL只要求完整且按序覆盖实际文字列',t=>{
  for(const [syntax,key,value,text] of [
   ['toggle-rows','rows','为什么刺激政策|有时候效果不如预期|on','为什么刺激政策有时候效果不如预期'],
-  ['pins','pinsDsl','200|400|微小选择\n760|300|汇聚|480|350','微小选择汇聚']]){
+  ['pins','pinsDsl','200|400|微小选择\n760|300|汇聚|480|350','微小选择汇聚'],
+  ['chapter','rows','1|物价稳定\n2|收入稳定\n3|经济才会稳步复苏|current','物价稳定收入稳定经济才会稳步复苏'],
+  ['bubbles','bubbles','看似个人小事|180,160|灰中\n却共同构成经济大潮|300,320|强调','看似个人小事却共同构成经济大潮']]){
   const f=fixture(t),card={cardId:'card',duration:{frames:90},fields:[{key,role:'content',type:'textarea'}],policy:{dsl:{[key]:{syntax}}}};
   f.put('remotion/shots.json',[{id:'s01',start:0,end:5,shotCard:'card',templateParams:{cardProps:{[key]:value}}}]);
   f.put('remotion/native-presentation.json',{schema:'talkcraft-native-presentation-v1',fps:30,shots:[{...f.row,textFields:[{key,visibility:'visible'}]}]});
@@ -88,4 +90,10 @@ test('DSL文字投影对应已审源码解析器，不能凭字段名猜测',()=
  assert.match(mapSource,/label: p\[2\]/u);
  assert.equal(governedVisibleText(cursor,'rows','甲|乙|on\n丙|丁'),'甲乙丙丁');
  assert.equal(governedVisibleText(map,'pinsDsl','200|400|甲\n760|300|乙|480|350'),'甲乙');
+ const chapter=catalog.cards.find(c=>c.cardId==='chapter-progress-list'),bubbles=catalog.cards.find(c=>c.cardId==='danmu-bubble-praise');
+ assert.equal(chapter.policy.dsl.rows.syntax,'chapter');assert.equal(bubbles.policy.dsl.bubbles.syntax,'bubbles');
+ assert.match(fs.readFileSync(chapter.implementation.file,'utf8'),/name: parts\[1\]/u);
+ assert.match(fs.readFileSync(bubbles.implementation.file,'utf8'),/text: \(parts\[0\]/u);
+ assert.equal(governedVisibleText(chapter,'rows','1|物价稳定\n2|收入稳定|current'),'物价稳定收入稳定');
+ assert.equal(governedVisibleText(bubbles,'bubbles','个人小事|180,160|灰中\n经济大潮|300,320|强调'),'个人小事经济大潮');
 });
