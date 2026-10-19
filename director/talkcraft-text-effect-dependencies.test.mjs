@@ -99,3 +99,21 @@ test('裂升短标题首秒容量不足须重选或缩减公开文案，不能�
  const good=check({...shot('split-text-stagger',{text:'补贴',sub:'风险'}),subject:'other'},[{field:'text',localFrame:0,text:'补贴'},{field:'sub',localFrame:0,text:'风险'}],156);
  assert.equal(good.passed,true);
 });
+
+
+test('新增图形卡保留源码文字入退场和装饰依赖，不以登记代替通过',()=>{
+ const a=textEffectContract('converging-arrows',{startDelay:1},89);
+ assert.equal(a.effects[0].begin,31);assert.ok(a.effects.every(e=>e.field==='focusText'));
+ const host=textEffectContract('host-shrink-to-chip',{lead:.8,yearLabels:'甲 乙'},114);
+ assert.equal(host.texts[0].begin,29);assert.equal(host.texts.filter(w=>w.field==='yearLabels').length,2);
+ const source=textEffectContract('source-converge',{sources:'甲\n乙'},198);
+ assert.equal(source.texts.find(w=>w.field==='sources').end,89);assert.equal(source.texts.find(w=>w.field==='caption').begin,106);
+ const ui=textEffectContract('cursor-actor-demo',{rows:'甲|乙|on\n丙|丁',startDelay:.45},135);
+ assert.equal(ui.effects.length,2);assert.equal(ui.effects[0].begin,27);assert.equal(ui.texts.filter(w=>w.field==='rows').length,4);
+ const map=textEffectContract('map-route-pin',{pinsDsl:'200|400|甲\n760|300|乙|480|350',routeGrow:1.1},155);
+ assert.deepEqual(map.texts.map(w=>w.begin),[13,67]);assert.equal(map.effects[0].leadFrames,8);
+ const tilt=textEffectContract('tilt-3d-page',{featsDsl:'甲\n乙'},162);assert.equal(tilt.texts.filter(w=>w.field==='featsDsl').length,2);assert.equal(tilt.effects.length,0);
+ const title=textEffectContract('behind-text-title',{lead:.4},132);assert.deepEqual(title.texts.map(w=>w.begin),[13,23]);
+ assert.ok(check(shot('source-converge',{sources:'甲'}),[{field:'sources',text:'甲',localFrame:95}],198).issues.some(i=>i.code==='NATIVE_TEXT_WINDOW_MISMATCH'));
+ assert.ok(check(shot('converging-arrows',{focusText:'重点'}),[{field:'focusText',text:'重点',localFrame:70}],89).issues.some(i=>i.code==='TEXT_EFFECT_DEPENDENCY_EARLY'));
+});

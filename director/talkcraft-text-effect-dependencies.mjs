@@ -15,6 +15,42 @@ export function textEffectContract(card,p={},nativeFrames=1){
  const group=(field,n,at=()=>0,end=()=>last)=>{for(let i=0;i<n;i++)text(field,i,frames(at(i)),end(i));};
  const all=(fields,at=0,end=last)=>fields.forEach(f=>text(f,0,at,end));
  switch(card){
+ case 'converging-arrows':{
+  all(['leadText','preText','focusText','postText']);texts.forEach(w=>w.wholeField=true);
+  const at=num(p,'startDelay',.42);
+  for(let i=0;i<2;i++)effect('focus-arrow-'+i,'focusText',0,at+i*.06,at+i*.06+.26+.11);
+  effect('focus-color','focusText',0,at+.06+.26+.11,at+.06+.26+.11+.1);break;}
+ case 'host-shrink-to-chip':{
+  const at=frames(num(p,'lead',.8)+.15);
+  all(['gfxHead','gfxBig','gfxNote'],at);texts.forEach(w=>w.wholeField=true);
+  group('yearLabels',String(p.yearLabels||'').trim().split(/\s+/u).filter(Boolean).length,()=>num(p,'lead',.8)+.15);break;}
+ case 'source-converge':{
+  const end=Math.ceil(6.2*30)-1;
+  text('title',0,frames(.1),end);group('sources',lines(p.sources).length,i=>.3+i*.08,()=>Math.ceil(3*30)-1);
+  text('hub',0,frames(.8),end);text('caption',0,frames(3.5),end);texts.filter(w=>w.field!=='sources').forEach(w=>w.wholeField=true);
+  lines(p.sources).forEach((_,i)=>effect('source-carrier-'+i,'sources',i,.3+i*.08,.6+i*.08,1));
+  effect('hub-carrier','hub',0,.8,1.2,1);break;}
+ case 'cursor-actor-demo':{
+  all(['winTitle','secLabel','trayLabel','composerPh']);texts.forEach(w=>w.wholeField=true);
+  let at=num(p,'startDelay',.45),j=0;
+  lines(p.rows).forEach((line,i)=>{
+   const parts=line.split('|');text('rows',i*2);text('rows',i*2+1);
+   if(parts[2]?.trim()!=='on')return;
+   const press=at+(j===0?.52:.34)+.22,highlight=press-.22-.08;
+   for(let k=0;k<2;k++)effect('row-highlight-'+i+'-'+k,'rows',i*2+k,highlight,press+.18+.1);
+   at=press+.18;j++;
+  });break;}
+ case 'map-route-pin':{
+  let at=num(p,'startDelay',.15);
+  lines(p.pinsDsl).forEach((_,i)=>{
+   if(i)at+= (i===1?.7:.6+num(p,'legPause',.4))+num(p,'routeGrow',1.1);
+   text('pinsDsl',i,frames(at+.25+.06-.05));
+   effect('pin-carrier-'+i,'pinsDsl',i,at,at+.25+.06+.28,8);
+  });break;}
+ case 'tilt-3d-page':
+  all(['tag','title','desc','priceValue','priceNote']);texts.forEach(w=>w.wholeField=true);group('featsDsl',lines(p.featsDsl).length);break;
+ case 'behind-text-title':
+  text('title',0,frames(num(p,'lead',.4)));text('sub',0,frames(num(p,'lead',.4)+.35));texts.forEach(w=>w.wholeField=true);break;
  case 'line-carry-transition':{
   // A starts at x=80; a full label is clipped as soon as camera c exceeds 80.
   const lastA=Math.floor((1.2+2*Math.cbrt(80/(4*960)))*30);
