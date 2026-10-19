@@ -52,6 +52,11 @@ test('06仅缺来源时先免费采集再绑定复检，不因费用授权转成
  d=planNodeCorrection(f);assert.equal(d.action,'source-recheck');assert.equal(d.approved,true);assert.deepEqual(d.body,{stage:'candidates'});
  f.attempts.push({fingerprint:f.fingerprint,action:d.action});
  d=planNodeCorrection(f);assert.equal(d.action,null);assert.equal(d.state,'needs-source-verification');assert.equal(d.productionAdmitted,false);
+ const mixed=structuredClone(f);mixed.attempts=[{fingerprint:f.fingerprint,action:'local-recheck'}];
+ mixed.feedback.failedChecks.push({code:'local_material_unmatched',shotId:'s14'});
+ assert.equal(planNodeCorrection(mixed).action,'source-discovery');
+ mixed.attempts.push({fingerprint:f.fingerprint,action:'source-discovery'},{fingerprint:f.fingerprint,action:'source-recheck'});
+ assert.equal(planNodeCorrection(mixed).action,'editorial-repair');
  const forged={...proposeNodeCorrection({...f,attempts:[]}),action:'source-discovery',body:{stage:'material-research',approveModelCost:true}};
  assert.equal(approveNodeCorrection(forged,{...f,attempts:[]}).approved,false);
 });
