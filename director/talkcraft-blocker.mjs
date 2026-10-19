@@ -13,8 +13,14 @@ export function talkcraftBlocker(run) {
   if(!failure&&!node&&!provenance&&!invalidPreflight&&!stopped&&
     run.blockers.every(code=>['INDEPENDENT_REVIEW_REQUIRED','HUMAN_VISUAL_REVIEW_REQUIRED','EDITORIAL_AUTHORIZATION_USED'].includes(code)))return null;
   const stage=node?.id || String(failure?.task?.name||run.nextStage||'').replace(/^talkcraft-/u,'');
+  const center=run.correctionCenter;
+  const centerIssues=center?.issues||[];
+  const centerCurrent=center&&typeof run.runId==='string'&&center.runId===run.runId&&center.node==='editorial'&&
+    /editorial/u.test(stage)&&run.editorialChecked===false&&center.state==='needs-repair'&&centerIssues.length>0&&
+    run.blockers?.length===centerIssues.length&&centerIssues.every((i,index)=>
+      run.blockers[index]===`${i.shotId||'全局'}：[${i.code}] ${i.message}`);
   const code=failure?.code || (provenance?'PIPELINE_PROVENANCE_INVALID':invalidPreflight?'TALKCRAFT_PREFLIGHT_FAILED':run.blockers?.[0]) || 'WORKFLOW_BLOCKED';
-  const reason=failure?.cause||node?.detail||(provenance?run.provenance.issues?.join('；'):null)||
+  const reason=(centerCurrent?center.reason:null)||failure?.cause||node?.detail||(provenance?run.provenance.issues?.join('；'):null)||
     (invalidPreflight?run.preflightIssues?.join('；'):null)||run.automation?.error||run.waitingFor||'后端检查未通过，等待核对当前证据。';
   let owner='后端编导与运行维护',method,criteria;
   if(provenance){
@@ -52,8 +58,8 @@ export function talkcraftBlocker(run) {
   }
   return {schema:'talkcraft-blocker-v1',runId:run.runId,code,stage,
     title:node?`${String(node.number).padStart(2,'0')} · ${node.label}`:failure?.title||run.waitingFor||'工作流检查',
-    reason,owner,method,criteria,failedChecks:run.failureReport?.failedChecks||run.preflightIssues||[],
+    reason,owner,method,criteria,failedChecks:centerCurrent?centerIssues:run.failureReport?.failedChecks||run.preflightIssues||[],
     recoveryAction:run.nextStage==='editorial-recover'?{label:failure?.task?.name==='talkcraft-editorial-recover'?'修改后重新校验（不调用模型）':'恢复已保存分镜（不调用模型）'}:null,
     baseline:{label:'video-talkcraft 上游规则与已确认的 B 模式治理约束',url:'https://github.com/Vincentwei1021/video-talkcraft/blob/main/SKILL.md'},
-    preservation:'已有配音、模型结果和成功素材保留；治理方案尚未执行，不代表问题已解决。'};
+    preservation:centerCurrent?'已有配音、模型结果和成功素材保留；已执行免费恢复与复检，剩余问题按当前清单治理，不代表节点已通过。':'已有配音、模型结果和成功素材保留；治理方案尚未执行，不代表问题已解决。'};
 }
