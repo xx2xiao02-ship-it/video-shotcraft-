@@ -13,7 +13,7 @@ const save=(p,n,r)=>{fs.mkdirSync(path.dirname(path.join(p,n)),{recursive:true})
 const RULE_FILES=['talkcraft-visual-content-contract.mjs','talkcraft-governed-contract.mjs','talkcraft-editorial-selection.mjs',
  'talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
- 'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs'];
+ 'talkcraft-node-correction-plan.mjs','talkcraft-ark-editorial.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
