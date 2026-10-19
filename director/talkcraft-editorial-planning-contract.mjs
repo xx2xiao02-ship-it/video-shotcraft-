@@ -3,7 +3,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {recoverBoundEditorialSelectionResponse,inspectBoundEditorialResponse} from './talkcraft-editorial-response.mjs';
-import {VISUAL_CONTENT_RULES} from './talkcraft-visual-content-contract.mjs';
+import {VISUAL_CONTENT_RULES,requiresHostVideo} from './talkcraft-visual-content-contract.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {assertNativeMediaClock} from './talkcraft-native-time-map.mjs';
 import {NATIVE_MIN_RATE,NATIVE_MAX_RATE} from './talkcraft-native-time-map.mjs';
@@ -29,7 +29,7 @@ export function editorialRangeFeasibility({firstSentence,lastSentence,aligned,ca
   const opening=start<OPENING_WINDOW_SEC;
   const cards=catalog.cards.flatMap(card=>{
     if(opening&&(end-start>OPENING_MAX_SHOT_SEC+1e-9||card.duration.originalFrames/card.duration.fps>OPENING_MAX_TEMPLATE_SEC||person&&end-start<MIN_DIGITAL_HUMAN_SEC))return [];
-    if(!person&&hostContextForCard(card.cardId))return [];
+    if(!person&&(hostContextForCard(card.cardId)||requiresHostVideo(card)))return [];
     // Try the default first, then the already-approved slowest motion rate.
     // These are feasibility examples, never changes to the proposed shot.
     for(const requestedPlaybackRate of [undefined,NATIVE_MIN_RATE])try{

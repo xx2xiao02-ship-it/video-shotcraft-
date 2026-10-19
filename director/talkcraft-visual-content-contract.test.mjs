@@ -77,3 +77,9 @@ test('品牌文字和固定演示标志、单条步骤不能冒充有效图形�
  single.templateParams.cardProps.stepsDsl='收入|变化\n选择|消费';
  assert.equal(isTextDominant(single,index),false);assert.equal(auditVisualContent([single],{catalog}).passed,true);
 });
+
+test('必填人物槽必须在选卡阶段核验人物窗口，不留到06索取不存在的人物',()=>{
+ const s=shot('s06','parallel-items-with-host',{item1:'过去',item2:'政策',item3:'变化'});
+ assert.ok(auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_SUBJECT_REQUIRED'));
+ s.subject='person';assert.ok(!auditVisualContent([s],{catalog}).issues.some(i=>i.code==='HOST_SUBJECT_REQUIRED'));
+});

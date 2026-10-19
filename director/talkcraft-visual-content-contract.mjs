@@ -7,7 +7,7 @@ export const VISUAL_CONTENT_RULES='正式选卡必须表达本镜内容，固定
 // original audited catalog remains complete and available for comparison.
 export function visualContentContract(card){
  const id=card?.cardId||card?.slug;
- const contract={version:'visual-content-v1',cardId:id,placeholder:false,singleLine:null};
+ const contract={version:'visual-content-v1',cardId:id,placeholder:false,singleLine:null,requiresPerson:requiresHostVideo(card)};
  if(!card?.implementation?.file)return card?.capabilities?.visualContent||contract;
  const bytes=fs.readFileSync(card.implementation.file);
  if(createHash('sha256').update(bytes).digest('hex')!==card.implementation.sha256)throw Error(`${id} 展示容量契约源码指纹不一致`);
@@ -49,6 +49,7 @@ export function auditVisualContent(shots,{catalog}){
   const card=catalog.cards.find(c=>c.cardId===shot.shotCard);if(!card)continue;
   const contract=visualContentContract(card),props=shot.templateParams?.cardProps||{};
   rows.push({shotId:shot.id,cardId:shot.shotCard,contract});
+  if(contract.requiresPerson&&shot.subject!=='person')issues.push({shotId:shot.id,code:'HOST_SUBJECT_REQUIRED',message:'原卡必填人物视频槽没有非人物替代入口；本镜不在原口型窗口内，必须重选卡，不能虚构人物或留空素材'});
   if(contract.placeholder)issues.push({shotId:shot.id,code:'DEMO_VISUAL_NOT_REPLACEABLE',message:contract.reason});
   if(contract.meaningfulItems&&String(props[contract.meaningfulItems.field]||'').split('\n').filter(s=>s.trim()).length<contract.meaningfulItems.minimum)
    issues.push({shotId:shot.id,code:'STRUCTURE_ITEMS_REQUIRED',field:contract.meaningfulItems.field,message:'步骤结构须有至少两个有实际内容的项目；单条文字不算步骤关系，不用空行凑数'});
@@ -66,6 +67,10 @@ export function auditVisualContent(shots,{catalog}){
 }
 
 const textCategories=new Set(['字幕花字','强调标注','转场结构']);
+export function requiresHostVideo(card){
+ return (card.policy?.required||[]).includes('hostSrc')&&Object.hasOwn(card.policy?.media||{},'hostSrc')&&
+  !(card.policy?.mediaAlternatives||[]).some(group=>group.includes('hostSrc')&&group.some(key=>key!=='hostSrc'));
+}
 const structured=new Set(['step-timeline-vertical','numbered-step-stack','source-converge','map-route-pin','chip-grid-single-select','parallel-items-with-host','chat-message-flow','ui-flow-theater']);
 export function graphicCandidateIds(index){
  return index.cards.filter(c=>structured.has(c.slug)||c.category==='素材呈现'||c.category==='数据信息图'&&!isTextDominant({shotCard:c.slug},index)).map(c=>c.slug);

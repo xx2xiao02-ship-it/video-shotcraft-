@@ -7,7 +7,7 @@ const localStages={input:'recover-timing','word-timing':'recover-alignment',sema
 export const CORRECTION_NODE_POLICIES=MANAGED_WORKFLOW_NODES.map(n=>({node:n.id,
   freeStage:localStages[n.id],supportsCorrection:true,automaticApproval:false,
   rule:n.id==='review'?'用户审核决定；不得代批':n.id==='deliver'?'仅导出已审核版本，不自动发布':'本节点先恢复、补全、复检；不能重写程序或绕过原门禁'}));
-export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_CYCLE_REQUIRED|HOST_CONTENT_REGION_CONFLICT|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_PERSON_LABEL_PLAN_INVALID)/u.test(c||'');
+export const creativeCode=c=>/^(?:FILM_TEXT_DOMINANCE|GRAPHIC_COMPARISON_REQUIRED|TEXT_VIDEO_CYCLE_REQUIRED|HOST_CONTENT_REGION_CONFLICT|HOST_SUBJECT_REQUIRED|TEXT_LAYOUT_CAPACITY|DEMO_VISUAL_NOT_REPLACEABLE|STRUCTURE_ITEMS_REQUIRED|NATIVE_|EDITORIAL_|DATA_FORMAT|PROP_|REQUIRED_PROP|MATERIAL_DISPLAY_|MATERIAL_PERSON_LABEL_PLAN_INVALID)/u.test(c||'');
 
 export function correctionNode(run){
   if(run.editorialChecked===false&&['editorial-check','editorial'].includes(run.nextStage))return 'editorial';
