@@ -28,7 +28,8 @@ function fits(meta,kind,requiredSec){
 
 // Populate only media fields declared by the same locked B contract used by
 // the director and renderer. Never use a background file as a missing slot.
-export function resolveTalkcraftTemplateMaterials(project,{root=path.resolve(project,'../../../..'),catalog=null,deferGeneratedHost=false}={}){
+export function templateMaterialLibraryRoot({root=ROOT}={}){return path.resolve(root);}
+export function resolveTalkcraftTemplateMaterials(project,{root=templateMaterialLibraryRoot(),catalog=null,deferGeneratedHost=false}={}){
   catalog ??= loadTalkcraftGovernedCatalog(read(path.join(resolveTalkcraftSkillRoot(ROOT),'references/cards-index.json')));
   const shotsFile=path.join(project,'remotion/shots.json'),shots=read(shotsFile);
   const researchFile=path.join(project,'material-research-plan.json');
