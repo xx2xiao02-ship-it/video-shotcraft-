@@ -40,9 +40,15 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
   if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
-  if(sourcePlan?.needs?.length&&governance&&['candidates','storyboard-review','preflight'].includes(node)&&!used('material-completion'))
+  const sourceRetry=sourcePlan?.transportRetry;
+  const recoverTransport=sourceRetry&&sourceRetry.failures<sourceRetry.maxFailures&&Date.parse(sourceRetry.notBefore)<=now&&
+    !attempts.some(a=>a.fingerprint===fingerprint&&a.action==='material-completion'&&a.materialPlanId===sourcePlan.planId);
+  if(sourcePlan?.needs?.length&&governance&&['candidates','storyboard-review','preflight'].includes(node)&&(!used('material-completion')||recoverTransport))
     return {...base,state:'ready-to-correct',action:'material-completion',body:{stage:'material-completion'},materialCompletionPlan:sourcePlan,
       reason:'中心核对逐镜模板、素材槽与完整缺项后，调度正式采集绑定处理器；保留原稿和已有素材，补齐后继续原门禁复检，不以付费换卡代替采集'};
+  if(sourcePlan?.needs?.length&&governance&&used('material-completion')&&sourceRetry&&sourceRetry.failures<sourceRetry.maxFailures&&Date.parse(sourceRetry.notBefore)>now)
+    return {...base,state:'waiting-source-retry',action:null,retryAt:sourceRetry.notBefore,materialCompletionPlan:sourcePlan,
+      reason:'来源服务限流，已保留本次候选与成功绑定；到退避时间后正式节点自动恢复，最多三次限流事件，不调用付费模型或原样空转。'};
   if(sourcePlan?.needs?.length&&governance&&used('material-completion')&&feedback?.failedChecks?.every(i=>
     ['BACKGROUND_NOT_BOUND','TEXT_VIDEO_REQUIRED','local_material_unmatched','REAL_SOURCE_NOT_BOUND'].includes(i.code)))
     return {...base,state:'needs-source-verification',action:null,materialCompletionPlan:sourcePlan,

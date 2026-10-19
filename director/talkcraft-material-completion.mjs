@@ -7,6 +7,8 @@ import {loadTalkcraftGovernedCatalog} from './talkcraft-governed-contract.mjs';
 import {withMaterialBindingTransaction} from './talkcraft-material-binding-transaction.mjs';
 import {TEXT_VIDEO_CARDS,darkBackgroundContrast,hasVideoBackground} from './talkcraft-text-video.mjs';
 import {loadLibraryContract,resolveLibrarySource,libraryContractSnapshot} from './talkcraft-library-contract.mjs';
+import {inspectSourceContent} from './talkcraft-source-content.mjs';
+import {discoverArchiveSources} from './talkcraft-source-archive.mjs';
 import {probeMedia} from '../docs/audits/b-talkcraft-target3/validation.mjs';
 
 const LIBRARY_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -31,53 +33,66 @@ const vocabulary=[
  [/诺贝尔|nobel/iu,['Nobel ceremony','Nobel lecture'],/nobel/iu],
  [/颁奖|award stage/iu,['award ceremony'],/award|ceremony/iu],
  [/学术|academic/iu,['academic lecture'],/academic|lecture|university/iu],
- [/钱|货币|资金|money/iu,['intitle:banknote','money counting','banknotes'],/banknote|money|currency|现金|钞票/iu],
+ [/钱|货币|资金|money/iu,['intitle:banknote','money counting','banknotes','coin counter','wallet cash payment'],/banknote|money|currency|coin|wallet|cash payment|现金|钞票|硬币|钱包/iu],
  [/收入|工资|存款|存钱|储蓄/iu,['intitle:ATM','bank ATM','banknotes'],/bank|atm|banknote|savings|银行/iu],
  [/市场|消费|物价|购物/iu,['street market','shopping market'],/street market|marketplace|shopping|retail|市场|购物/iu],
  [/城市|街景|日常|普通人生活/iu,['city street people'],/city|street|pedestrian|城市|街/iu],
  [/央行|中央银行|中国人民银行/iu,['central bank',"People's Bank of China monetary policy"],/central bank|people.s bank of china|人民银行/iu],
- [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram'],/flow of funds|money flow|资金流/iu],
+ [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram','monetary transmission diagram','interest rate channel diagram'],/flow of funds|money flow|monetary.*transmission|interest rate channel|资金流/iu],
 ];
-export function sourceSearchContract(query,concepts=[]){
+export function sourceSearchContract(query,concepts=[],alternatives=[]){
  const text=[query,...concepts].join(' '),groups=vocabulary.filter(([r])=>r.test(text));
  // Named awards/institutions cannot be replaced by generic money footage.
- const special=groups.filter(([r])=>r.source.startsWith('诺贝尔')||r.source.startsWith('央行'));
- const required=special.length?special:
+ const diagram=/示意图|diagram/iu.test(query);
+ const special=groups.filter(([r])=>r.source.startsWith('诺贝尔')||r.source.startsWith('央行')&&!diagram);
+ const flow=diagram?groups.filter(([r])=>r.source.startsWith('资金')):[];
+ const required=special.length?special:flow.length?flow:
   /收入|工资|存款|存钱|储蓄/u.test(query)&&!/城市|街景/u.test(query)?groups.filter(([r])=>r.source.startsWith('收入')):
   /钱包|口袋|钱/u.test(query)?groups.filter(([r])=>r.source.startsWith('钱')):groups;
  const ceremony=/颁奖|ceremony|award stage/iu.test(text);
  const institution=/中国.*(?:央行|人民银行)|人民银行/u.test(text);
  const economics=/经济学奖|经济学.*诺贝尔|nobel.*economic/iu.test(text);
- const diagram=/示意图|diagram/iu.test(query);
  const document=/公告.*页面|页面.*截图/u.test(query);
- const incompatible=/(?:burn(?:ing|t)?|fire|subprime|mortgage|crisis|protest|war|military|恐怖|焚烧|火灾|危机)/iu;
+ const incompatible=/(?:burn(?:ing|t)?|fire|subprime|mortgage|crisis|protest|war|military|congress|election|candidate for|politician|public money.{0,8}public code|software|programming|恐怖|焚烧|火灾|危机)/iu;
  const differentAward=/chemistry|medicine|physiology|literature|peace prize|化学|医学|生理|文学|和平奖/iu;
- return {queries:[...new Set([query,...(economics?['Nobel economics ceremony','Nobel economics lecture']:[]),...groups.flatMap(([,q])=>q),...concepts.filter(c=>/^[a-z\s-]+$/iu.test(c))])].filter(Boolean).slice(0,7),
-  matches:value=>required.length>0&&required.some(([,q,r])=>r.test(value))&&
+ const approvedAlternatives=alternatives.filter(a=>a.kind==='declared-academic-context'&&a.query==='经济学 学术现场 讲座 视频'&&a.basis&&a.contextOnly===true).map(a=>sourceSearchContract(a.query,a.concepts));
+ const matchesPrimary=value=>required.length>0&&required.some(([,q,r])=>r.test(value))&&
+   (!required.some(([r])=>r.source.startsWith('钱'))||/banknote|wallet|cash|currency|coin counter|coins? counting|counting coins?|钞票|纸币|硬币.*(?:消费|支付|计数)|钱包|付款|支付/iu.test(value))&&
    (!incompatible.test(value)||incompatible.test(text))&&
    (!ceremony||/ceremony|presentation|颁奖/iu.test(value))&&
    (!economics||/economic|经济学/iu.test(value))&&
    (!/诺贝尔|nobel/iu.test(text)||! /\big nobel\b/iu.test(value))&&
    (!/诺贝尔|nobel/iu.test(text)||!differentAward.test(value)||differentAward.test(text))&&
-   (!diagram||/diagram|schematic|示意|流程图/iu.test(value))&&
+   (!diagram||/diagram|schematic|示意|流程图/iu.test(value)&&/flow|transmission|interest rate|资金|传导|利率/iu.test(value))&&
    (!document||/announcement|monetary policy|货币政策|公告/iu.test(value))&&
-   (!institution||/people.s bank of china|中国人民银行/iu.test(value)),
-  matched:value=>required.filter(([,q,r])=>r.test(value)).flatMap(([,q])=>q)};
+   (!institution||/people.s bank of china|中国人民银行/iu.test(value));
+ const matchesAlternative=value=>/economic|经济/iu.test(value)&&! /nobel|诺贝尔|chemistry|medicine|physics|化学|医学|物理/iu.test(value)&&approvedAlternatives.some(a=>a.matches(value));
+ return {queries:[...new Set([query,...approvedAlternatives.flatMap(a=>a.queries),...(economics?['Nobel economics ceremony','Nobel economics lecture']:[]),...required.flatMap(([,q])=>q),...groups.flatMap(([,q])=>q),...concepts.filter(c=>/^[a-z\s-]+$/iu.test(c))])].filter(Boolean).slice(0,12),
+  matches:value=>matchesPrimary(value)||matchesAlternative(value),
+  matched:value=>matchesPrimary(value)?required.filter(([,q,r])=>r.test(value)).flatMap(([,q])=>q):approvedAlternatives.flatMap(a=>a.matches(value)?a.matched(value):[])};
+}
+export function declaredBackgroundAlternatives(row){
+ // Existing director intent is the authority, not a new topic invented by the
+ // resolver. Generic academic footage never replaces identity/evidence slots.
+ if(!/颁奖或学术|诺奖\/学术/u.test(row.backgroundReason||'')||
+  !(row.backgroundConcepts||[]).some(c=>/学术|academic/iu.test(c)))return [];
+ return [{kind:'declared-academic-context',query:'经济学 学术现场 讲座 视频',concepts:['economics lecture','academic audience'],
+  basis:row.backgroundReason,contextOnly:true}];
 }
 export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
  const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
  const originalText=fs.readFileSync(path.join(project,'input.txt'),'utf8');
  const economicsAward=/诺贝尔经济学奖/u.test(originalText)&&!/诺贝尔(?:物理|化学|生理|医学|文学|和平)/u.test(originalText);
- const needs=[];
+ const needs=[],invalidBindings=auditCompletionBindings(project);
  for(const shot of shots){
   const row=research.shots.find(r=>r.shotId===shot.id),card=catalog.cards.find(c=>c.cardId===shot.shotCard);
   if(!row||!card)continue;
-  if(row.backgroundDecision==='use'&&!hasVideoBackground(shot))needs.push({shotId:shot.id,cardId:shot.shotCard,
+  if(row.backgroundDecision==='use'&&(!hasVideoBackground(shot)||invalidBindings.some(b=>b.shotId===shot.id&&b.field==='@background')))needs.push({shotId:shot.id,cardId:shot.shotCard,
    field:'@background',kind:'video',query:row.backgroundQuery,
    concepts:[...row.backgroundConcepts||[],...(economicsAward&&/诺贝尔|nobel/iu.test(row.backgroundQuery)?['Nobel economics']:[])],reason:row.backgroundReason,
-   durationSeconds:Number(shot.end)-Number(shot.start)});
+   durationSeconds:Number(shot.end)-Number(shot.start),alternatives:declaredBackgroundAlternatives(row)});
   for(const [field,kind]of Object.entries(card.policy.media)){
-   if(/host/iu.test(field)||shot.templateParams?.cardProps?.[field])continue;
+   if(/host/iu.test(field)||shot.templateParams?.cardProps?.[field]&&!invalidBindings.some(b=>b.shotId===shot.id&&b.field===field))continue;
    const query=shot.templateParams?.templateMaterialQueries?.[field];
    if(!query||!['image','image-or-video'].includes(kind))continue;
    const protectedNeed=research.shots.some(r=>(r.research||[]).some(n=>(n.displayShotId||r.shotId)===shot.id&&n.displayField===field));
@@ -85,8 +100,10 @@ export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
    needs.push({shotId:shot.id,cardId:shot.shotCard,field,kind:'image',query,concepts:[],durationSeconds:0});
   }
  }
- const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,
-  policy:'commons-explicit-free-license-v1',librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
+ let providerState;try{providerState=read(path.join(project,'qa/source-discovery/commons-provider-state.json'));}catch{}
+ const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,invalidBindings,
+  ...(providerState?{transportRetry:{token:digest(providerState),notBefore:providerState.retryAt,failures:providerState.failures||1,maxFailures:3}}:{}),
+  policy:'commons-adaptive-source-v2',strategy:{maxQueriesPerNeed:12,maxCandidates:24,steps:['current-reviewed-source','online-exact','online-keywords','independent-library','local-content-review','transactional-bind','original-gates'],negativeCacheVersion:2},librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
  return {...plan,planId:digest(plan)};
 }
 const plain=x=>String(x||'').replace(/<[^>]*>/gu,' ').replace(/&(?:nbsp|amp|quot);/gu,' ').replace(/\s+/gu,' ').trim();
@@ -99,7 +116,7 @@ export function commonsCandidate(page,{kind,query,match}){
    !/^https?:\/\/(?:creativecommons\.org|commons\.wikimedia\.org)\//u.test(licenseUrl||'')||
    /non.?commercial|no.?derivatives|non.?free/iu.test(plain(e.UsageTerms?.value)))return null;
  const author=plain(e.Artist?.value),description=plain(e.ImageDescription?.value);
- const text=plain(page.title)+' '+description;
+ const text=plain(page.title)+' '+description.slice(0,600);
  if(!author||!match.matches(text))return null;
  const mediaPath=new URL(i.url).pathname;
  const video=/\.(?:webm|ogv)$/iu.test(mediaPath),image=/\.(?:png|jpe?g|webp)$/iu.test(mediaPath);
@@ -111,16 +128,27 @@ export function commonsCandidate(page,{kind,query,match}){
   attribution:[page.title,author,license,i.descriptionurl].join(' | ')};
 }
 export async function discoverCompletionSources(project,need,{fetchImpl=fetch}={}){
- const match=sourceSearchContract(need.query,need.concepts),rows=[],errors=[];
+ const match=sourceSearchContract(need.query,need.concepts,need.alternatives),rows=[],errors=[];
+ const stateFile='qa/source-discovery/commons-provider-state.json';
+ let providerState;try{providerState=read(path.join(project,stateFile));}catch{}
  for(const query of match.queries){
-  const key=digest({query,kind:need.kind,policy:'commons-explicit-free-license-v1'}),file='qa/source-discovery/'+key+'.json';
+  const key=digest({query,kind:need.kind,policy:'commons-adaptive-source-v2'}),file='qa/source-discovery/'+key+'.json';
   let record;
   if(fs.existsSync(path.join(project,file)))record=read(path.join(project,file));
   else{
+   // Raw successful legacy responses are evidence, not an obsolete verdict.
+   // Re-evaluate them with today's contract before making another request.
+   const legacy='qa/source-discovery/'+digest({query,kind:need.kind,policy:'commons-explicit-free-license-v1'})+'.json';
+   if(fs.existsSync(path.join(project,legacy))&&read(path.join(project,legacy)).pages?.length){record=read(path.join(project,legacy));save(project,file,{...record,recoveredFrom:legacy});}
+  }
+  if(!record){
+   if(Date.parse(providerState?.retryAt)>Date.now()){errors.push({query,code:'SOURCE_PROVIDER_COOLDOWN',retryAt:providerState.retryAt,message:'来源服务限流；先恢复已存候选，不连续重发'});continue;}
    const u=new URL('https://commons.wikimedia.org/w/api.php');u.search=new URLSearchParams({action:'query',format:'json',
-    generator:'search',gsrnamespace:'6',gsrsearch:query+(need.kind==='video'?' filetype:video':''),gsrlimit:'8',
+    generator:'search',gsrnamespace:'6',gsrsearch:query+(need.kind==='video'?' filetype:video':''),gsrlimit:'24',
     prop:'imageinfo',iiprop:'url|size|extmetadata'});
-   try{const r=await fetchImpl(u,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('HTTP_'+r.status);
+   try{const r=await fetchImpl(u,{headers:{'User-Agent':'VideoShotCraft/1.0 (editorial material research)'},signal:AbortSignal.timeout(15000)});
+    if(r.status===429||r.status===503){const delay=Number(r.headers?.get?.('retry-after')),failures=(providerState?.failures||0)+1,retryAt=new Date(Date.now()+(Number.isFinite(delay)&&delay>0?Math.min(delay,3600):120*failures)*1000).toISOString();providerState={status:r.status,retryAt,failures};save(project,stateFile,providerState);errors.push({query,code:'SOURCE_PROVIDER_COOLDOWN',retryAt,message:'HTTP_'+r.status});continue;}
+    if(!r.ok)throw Error('HTTP_'+r.status);
     const data=await r.json();if(data.error)throw Error('COMMONS_'+data.error.code);
     record={query,apiUrl:u.href,pages:Object.values(data.query?.pages||{}),checkedAt:new Date().toISOString()};save(project,file,record);
    }catch(e){errors.push({query,message:e.message});continue;}
@@ -128,12 +156,13 @@ export async function discoverCompletionSources(project,need,{fetchImpl=fetch}={
   for(const p of record.pages){const c=commonsCandidate(p,{...need,query,match});if(c&&!rows.some(x=>x.sourceId===c.sourceId))rows.push({...c,evidence:file,evidenceSha256:sha(fs.readFileSync(path.join(project,file)))});}
   // Search is bounded and whole-node. Multiple candidates allow exclusivity;
   // one discovered URL is never taken as a completed material binding.
-  if(rows.length>=5)break;
+  if(rows.length>=24)break;
  }
+ if(need.kind==='video'&&!rows.length){const secondary=await discoverArchiveSources(project,need,match,{fetchImpl});rows.push(...secondary.candidates);errors.push(...secondary.errors);}
  return {candidates:rows,errors};
 }
 export function discoverLocalCompletionSources(root,need){
- const contract=loadLibraryContract(root),match=sourceSearchContract(need.query,need.concepts),candidates=[],rejected=[];
+ const contract=loadLibraryContract(root),match=sourceSearchContract(need.query,need.concepts,need.alternatives),candidates=[],rejected=[];
  for(const item of contract.items){
   if(!match.matches([item.path,item.category,...item.tags].join(' ')))continue;
   try{
@@ -156,13 +185,75 @@ export function discoverLocalCompletionSources(root,need){
  return {candidates,rejected,library:{connected:contract.items.length>0,indexed:contract.items.length,
   ...contract.snapshot,matching:candidates.length+rejected.length,rightsVerified:candidates.length}};
 }
+// Only reuse current-task, same-shot, already verified documents. The actual
+// captured text must satisfy the new slot; a query label is never evidence.
+export function discoverReviewedCompletionSources(project,need){
+ if(need.kind!=='image'||!/页面|截图|公告|报告/u.test(need.query))return [];
+ const research=read(path.join(project,'material-research-plan.json'));
+ const row=research.shots.find(r=>r.shotId===need.shotId),match=sourceSearchContract(need.query,need.concepts);
+ const root=fs.realpathSync(path.join(project,'remotion/public')),rows=[];
+ const safe=name=>{if(typeof name!=='string'||path.isAbsolute(name))throw Error('来源路径无效');const f=fs.realpathSync(path.join(root,name)),rel=path.relative(root,f);if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw Error('来源越界');return f;};
+ for(const b of row?.bindings||[]){
+  if((b.displayShotId||row.shotId)!==need.shotId||b.sourceVerified!==true||b.licenseVerified!==true||!b.license||!b.licenseUrl||!b.sourceCoordinates||!b.contentLanguage||b.contentLanguage==='und')continue;
+  try{
+   const file=safe(b.localPath),coordinates=safe(b.sourceCoordinates),data=read(coordinates);
+   if(sha(fs.readFileSync(file))!==b.sha256||data.url!==b.sourceUrl||!match.matches(data.title+' '+data.text))continue;
+   const meta=probeMedia(file);if(meta.kind!=='image')continue;
+   if(rows.some(r=>r.sha256===meta.sha256))continue;
+   const evidence='qa/source-discovery/reuse-'+digest({need,b,coordinatesSha256:sha(fs.readFileSync(coordinates))})+'.json';
+   save(project,evidence,{need,source:b,coordinatesSha256:sha(fs.readFileSync(coordinates)),scope:'current-task-same-shot-reviewed-document'});
+   rows.push({...b,sourceId:b.sourceUrl,currentProjectSource:true,localPath:b.localPath,meta,
+    evidence,evidenceSha256:sha(fs.readFileSync(path.join(project,evidence))),title:data.title,
+    matchedConcepts:match.matched(data.title+' '+data.text),attribution:[data.title,b.sourceUrl,b.license].join(' | ')});
+  }catch{ /* A stale or out-of-scope source cannot be repaired by inference. */ }
+ }
+ return rows;
+}
+export function auditCompletionBindings(project){
+ const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json')),invalid=[];
+ for(const row of research.shots){
+  const shot=shots.find(s=>s.id===row.shotId);if(!shot)continue;
+  const b=row.backgroundBinding;
+  if(b?.evidence?.startsWith('qa/source-discovery/')&&b.title&&b.sha256===shot.templateParams?.materialSha256){
+   const match=sourceSearchContract(row.backgroundQuery,row.backgroundConcepts,declaredBackgroundAlternatives(row));
+   if(!match.matches(b.title+' '+String(b.description||'').slice(0,600)))invalid.push({shotId:row.shotId,field:'@background',sha256:b.sha256,sourceId:b.sourceId,reason:'来源主体与本镜语境不匹配',binding:b});
+  }
+  for(const b of row.materialBindings||[]){
+   if(!b.sourceEvidence?.startsWith('qa/source-discovery/')||!b.field)continue;
+   const query=shot.templateParams?.templateMaterialQueries?.[b.field];
+   if(!query)continue;
+   try{
+    const evidence=read(path.join(project,b.sourceEvidence));
+    if(evidence.scope==='current-task-same-shot-reviewed-document'&&!/页面|截图|公告|报告/u.test(query))invalid.push({shotId:row.shotId,field:b.field,sha256:b.sha256,reason:'文字原件不能代替本槽要求的实景或示意图',binding:b});
+   }catch{}
+  }
+ }
+ return invalid;
+}
 async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
- if(!/^https:\/\/upload\.wikimedia\.org\//u.test(candidate.mediaUrl))throw Error('素材下载站点不在来源合同内');
+ const allowed=value=>{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&(u.hostname==='upload.wikimedia.org'||u.hostname==='archive.org'||u.hostname.endsWith('.archive.org'));};
+ if(!allowed(candidate.mediaUrl))throw Error('素材下载站点不在来源合同内');
  const key=digest({url:candidate.mediaUrl,evidence:candidate.evidenceSha256}),manifest='qa/source-downloads/'+key+'.json';
  if(fs.existsSync(path.join(project,manifest))){const r=read(path.join(project,manifest)),f=publicFile(project,r.localPath);
   if(r.mediaUrl!==candidate.mediaUrl||r.evidenceSha256!==candidate.evidenceSha256||sha(fs.readFileSync(f))!==r.sha256)throw Error('已下载来源文件变化，停止恢复');return r;}
- const r=await fetchImpl(candidate.mediaUrl,{signal:AbortSignal.timeout(120000),redirect:'error'});
- if(!r.ok||Number(r.headers.get('content-length'))>100*1024*1024)throw Error('素材不可下载或超出100MB预算');
+ const commons=new URL(candidate.mediaUrl).hostname==='upload.wikimedia.org',stateFile='qa/source-discovery/commons-provider-state.json';
+ let state;try{state=read(path.join(project,stateFile));}catch{}
+ if(commons&&Date.parse(state?.retryAt)>Date.now())throw Error('SOURCE_PROVIDER_COOLDOWN: '+state.retryAt);
+ let targetUrl=candidate.mediaUrl,r;
+ for(let redirects=0;redirects<4;redirects++){
+  r=await fetchImpl(targetUrl,{signal:AbortSignal.timeout(120000),redirect:'manual'});
+  if(![301,302,303,307,308].includes(r.status))break;
+  const next=new URL(r.headers.get('location'),targetUrl).href;
+  if(!allowed(next)||new URL(next).username||new URL(next).password)throw Error('素材跳转越出来源合同');
+  targetUrl=next;
+ }
+ if(commons&&[429,503].includes(r.status)){
+  const failures=(state?.failures||0)+1,delay=Number(r.headers.get('retry-after'));
+  const retryAt=new Date(Date.now()+(Number.isFinite(delay)&&delay>0?Math.min(delay,3600):120*failures)*1000).toISOString();
+  save(project,stateFile,{status:r.status,failures,retryAt});throw Error('SOURCE_PROVIDER_COOLDOWN: HTTP_'+r.status+' '+retryAt);
+ }
+ if(!r.ok)throw Error('SOURCE_DOWNLOAD_HTTP_'+r.status);
+ if(Number(r.headers.get('content-length'))>100*1024*1024)throw Error('素材超出100MB预算');
  const parts=[];let bytes=0;
  try{for await(const chunk of r.body){bytes+=chunk.length;if(bytes>100*1024*1024)throw Error('素材超出100MB预算');parts.push(chunk);}}
  catch(e){await r.body?.cancel?.().catch(()=>{});throw e;}
@@ -177,27 +268,59 @@ async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
  const meta=probeMedia(path.join(project,'remotion/public',localPath));
  const result={...candidate,originalSha256:hash,localPath,sha256:meta.sha256,meta};save(project,manifest,result);return result;
 }
-export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch,root=LIBRARY_ROOT,plan=materialCompletionPlan(project,catalog,{root}),approval}={}){
+export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch,root=LIBRARY_ROOT,plan=materialCompletionPlan(project,catalog,{root}),approval,contentReviewer=inspectSourceContent}={}){
  if(!approval||approval.planId!==plan.planId||approval.inputSha256!==digest(plan.inputs)||approval.productionAdmitted!==false)
   throw Error('素材补全必须由中心批准当前具体方案');
  if(digest(materialCompletionPlan(project,catalog,{root}))!==digest(plan))throw Error('素材补全方案与当前输入不同');
  const report={schema:'talkcraft-material-completion-v1',planId:plan.planId,inputs:plan.inputs,approval,
-  operations:[],unresolved:[],paidCalls:0,productionAdmitted:false,userAcceptance:false};
+  operations:[],unresolved:[],slotExecutions:[],paidCalls:0,productionAdmitted:false,userAcceptance:false};
  const saveReport=()=>save(project,'qa/material-completion.json',report);
+ if(plan.invalidBindings?.length){
+  // Preserve the full rejected objects before removing only the exact
+  // automatically bound fields approved in this plan. No files are deleted.
+  save(project,'qa/material-quarantine/'+plan.planId+'.json',{invalidBindings:plan.invalidBindings,inputs:plan.inputs});
+  withMaterialBindingTransaction(project,tx=>{
+   const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
+   for(const bad of plan.invalidBindings){
+    const shot=shots.find(s=>s.id===bad.shotId),row=research.shots.find(r=>r.shotId===bad.shotId),p=shot.templateParams;
+    if(bad.field==='@background'){
+     if(p.materialSha256!==bad.sha256)throw Error('待撤回背景发生变化');
+     for(const key of ['materialRole','materialSrc','materialSha256','materialSourceId','materialMatchReason','materialDurationSec','materialPlaybackRate','materialFit','backgroundPresentation'])delete p[key];
+     delete row.backgroundBinding;
+    }else{
+     if(row.materialBindings.find(b=>b.field===bad.field)?.sha256!==bad.sha256)throw Error('待撤回资料发生变化');
+     delete p.cardProps[bad.field];row.materialBindings=row.materialBindings.filter(b=>b.field!==bad.field);
+    }
+   }
+   tx.commit({'remotion/shots.json':shots,'material-research-plan.json':research});
+  });
+ }
+ const executionInputs=inputs(project);report.executionInputs=executionInputs;
  const original=read(path.join(project,'remotion/shots.json'));
  const used=new Set(original.map(s=>s.templateParams?.materialSourceId).filter(Boolean));
  const hashes=new Set(original.map(s=>s.templateParams?.materialSha256).filter(Boolean));
  for(const need of plan.needs){
-  const discovery=await discoverCompletionSources(project,need,{fetchImpl});let operation;
-  // Exhaust eligible online sources before consulting the independent library.
-  let candidates=discovery.candidates,local;
-  for(let pass=0;pass<2&&!operation;pass++){
-  if(pass===1){local=discoverLocalCompletionSources(root,need);candidates=local.candidates;}
+  let discovery={candidates:[],errors:[]},operation,local,candidates;
+  const execution={shotId:need.shotId,field:need.field,steps:[],status:'running'};report.slotExecutions.push(execution);saveReport();
+  // Recover this task first, then exhaust online sources before the library.
+  for(let pass=0;pass<3&&!operation;pass++){
+  if(pass===0){candidates=discoverReviewedCompletionSources(project,need);execution.steps.push({handler:'current-reviewed-source',candidates:candidates.length});}
+  if(pass===1){discovery=await discoverCompletionSources(project,need,{fetchImpl});candidates=discovery.candidates;execution.steps.push({handler:'online-adaptive-search',candidates:candidates.length});}
+  if(pass===2){local=discoverLocalCompletionSources(root,need);candidates=local.candidates;execution.steps.push({handler:'independent-library',candidates:candidates.length});}
+  saveReport();
   for(const candidate of candidates){
    if(used.has(candidate.sourceId))continue;
    try{
     let downloaded;
-    if(candidate.sourceFile){
+    if(candidate.currentProjectSource){
+     const verified=discoverReviewedCompletionSources(project,need).find(r=>r.sha256===candidate.sha256&&r.sourceUrl===candidate.sourceUrl);
+     if(!verified||verified.evidenceSha256!==candidate.evidenceSha256)throw Error('已有资料在执行前变化');
+     const response=await fetchImpl(candidate.sourceUrl,{signal:AbortSignal.timeout(15000)});
+     if(!response.ok||new URL(response.url||candidate.sourceUrl).hostname!==new URL(candidate.sourceUrl).hostname)throw Error('已有官方原件当前不可访问');
+     const localPath='verified-sources/'+verified.sha256+path.extname(verified.localPath).toLowerCase(),target=path.join(project,'remotion/public',localPath);
+     fs.mkdirSync(path.dirname(target),{recursive:true});if(!fs.existsSync(target))fs.writeFileSync(target,fs.readFileSync(path.join(project,'remotion/public',verified.localPath)),{flag:'wx'});
+     downloaded={...verified,localPath};
+    }else if(candidate.sourceFile){
      const currentLibrary=loadLibraryContract(root),item=currentLibrary.items.find(i=>i.path===candidate.libraryPath);
      if(!item)throw Error('本次素材索引项已变化');
      const verified=resolveLibrarySource(currentLibrary,item,{probeMedia});
@@ -210,7 +333,7 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
      downloaded={...candidate,localPath,evidence,evidenceSha256:sha(fs.readFileSync(path.join(project,evidence)))};
     }else downloaded=await downloadSource(project,candidate,{fetchImpl});
     if(hashes.has(downloaded.sha256))continue;
-    if(need.kind==='video'&&(downloaded.meta.kind!=='video'||downloaded.meta.durationSeconds+1/30<need.durationSeconds))continue;
+    if(need.kind==='video'&&(downloaded.meta.kind!=='video'||downloaded.meta.width<1280||downloaded.meta.height<720||downloaded.meta.durationSeconds+1/30<need.durationSeconds))continue;
     let localPath=downloaded.localPath,meta=downloaded.meta;
     if(need.kind==='image'&&meta.kind==='video'){
      localPath='verified-sources/'+downloaded.sha256+'-frame.jpg';const target=path.join(project,'remotion/public',localPath);
@@ -223,6 +346,10 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
     // Preserve the candidate and cache, but do not create an invalid binding
     // which the existing source-language gate would have to remove later.
     if(need.kind==='image'&&!downloaded.contentLanguage){
+     const reviewed=contentReviewer(project,{...downloaded,localPath,sha256:meta.sha256});
+     if(reviewed)Object.assign(downloaded,reviewed);
+    }
+    if(need.kind==='image'&&!downloaded.contentLanguage){
      discovery.errors.push({sourceId:candidate.sourceId,code:'SOURCE_CONTENT_REVIEW_REQUIRED',
       localPath,sha256:meta.sha256,message:'真实图片已保存；需核验实际内容与语言后才能绑定，不依据网页元数据推定无文字'});
      operation=undefined;continue;
@@ -231,13 +358,14 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
    }catch(e){discovery.errors.push({sourceId:candidate.sourceId,message:e.message});}
   }
   }
+  execution.status=operation?'verified-awaiting-transaction':'alternatives-exhausted';
   if(operation)report.operations.push(operation);
   else report.unresolved.push({...need,code:'SOURCE_COMPLETION_REQUIRED',candidates:discovery.candidates.length,errors:discovery.errors,
     localSearch:{candidates:local?.candidates.length||0,rejected:local?.rejected||[],library:local?.library||null}});
   saveReport();
  }
  if(digest(libraryContractSnapshot(root))!==digest(plan.librarySnapshot))throw Error('素材库索引或来源档案已变化，须重新审批完整方案');
- if(digest(inputs(project))!==digest(plan.inputs))throw Error('素材采集期间输入变化，不应用旧方案');
+ if(digest(inputs(project))!==digest(executionInputs))throw Error('素材采集期间输入变化，不应用旧方案');
  withMaterialBindingTransaction(project,tx=>{
   const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
   for(const op of report.operations){
@@ -261,7 +389,7 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
     p.cardProps[op.field]='remotion/public/'+source.localPath;
     row.materialBindings??=[];row.materialBindings.push({field:op.field,localPath:source.localPath,sha256:source.sha256,
      sourceUrl:source.sourceUrl,sourceVerified:true,licenseVerified:true,license:source.license,licenseUrl:source.licenseUrl,
-     identityReason:op.matchReason,contentLanguage:source.contentLanguage||'und',languageReviewRequired:!source.contentLanguage,attribution:source.attribution,sourceEvidence:source.evidence});
+     identityReason:op.matchReason,contentLanguage:source.contentLanguage||'und',languageReason:source.languageReason,contentReview:source.contentReview,languageReviewRequired:!source.contentLanguage,attribution:source.attribution,sourceEvidence:source.evidence});
    }
   }
   tx.commit({'remotion/shots.json':shots,'material-research-plan.json':research});

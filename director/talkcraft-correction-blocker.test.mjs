@@ -27,5 +27,7 @@ test('06已执行素材补全后不再误报尚未执行；跨任务中心记录
   correctionCenter:{runId:'current',node:'candidates',state:'needs-source-verification',reason:'仍缺真实素材',fingerprint:'now',
    materialCompletionPlan:{needs:[{shotId:'s12',field:'@background'}]},attempts:[{fingerprint:'now',action:'material-completion',status:'queued'}]}};
  const result=talkcraftBlocker(run);assert.equal(result.reason,'仍缺真实素材');assert.match(result.preservation,/已执行免费恢复与复检/);
+ run.correctionCenter.state='waiting-source-retry';run.correctionCenter.reason='等待来源限流退避后自动恢复';
+ assert.equal(talkcraftBlocker(run).reason,'等待来源限流退避后自动恢复');
  run.correctionCenter.runId='old';assert.equal(talkcraftBlocker(run).reason,'具体素材缺项');
 });

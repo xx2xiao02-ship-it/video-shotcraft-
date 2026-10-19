@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired} from './talkcraft-material-completion.mjs';
+import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired,discoverReviewedCompletionSources,discoverCompletionSources} from './talkcraft-material-completion.mjs';
 import {planNodeCorrection,approveNodeCorrection} from './talkcraft-correction-center.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 test('素材指纹复检读取正式原始状态，不能依赖仅HTTP控制层存在的nextStage',()=>{
@@ -131,4 +131,77 @@ test('正式补全优先联网，随后复用旧库与独立许可档案；变�
  assert.equal(fs.readFileSync(path.join(root,'materials/_index.json'),'utf8'),originalIndex);
  const shot=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0];
  assert.equal(shot.templateParams.materialSha256,records.records[0].sha256);
+});
+
+test('当前任务已核验资料按真实正文恢复；不把相似检索标签或其他镜资料当证据',t=>{
+ const {p,write}=fixture(t);fs.mkdirSync(path.join(p,'remotion/public/pages'),{recursive:true});
+ const image=path.join(p,'remotion/public/pages/policy.png');
+ execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=white:s=1280x720','-frames:v','1',image],{windowsHide:true,timeout:30000});
+ const hash=x=>createHash('sha256').update(x).digest('hex');
+ write('remotion/public/pages/targets.json',{url:'https://www.pbc.gov.cn/policy',title:'中国人民银行货币政策公告',text:'中国人民银行公布货币政策利率信息'});
+ const binding={localPath:'pages/policy.png',sha256:hash(fs.readFileSync(image)),sourceCoordinates:'pages/targets.json',
+  sourceUrl:'https://www.pbc.gov.cn/policy',sourceVerified:true,licenseVerified:true,license:'existing scoped permission',licenseUrl:'https://www.pbc.gov.cn/terms',contentLanguage:'zh-CN'};
+ write('material-research-plan.json',{shots:[{shotId:'s07',bindings:[binding]}]});
+ const need={shotId:'s07',field:'src3',kind:'image',query:'中国人民银行 货币政策 利率 公告 页面 截图'};
+ assert.equal(discoverReviewedCompletionSources(p,need).length,1);
+ assert.equal(discoverReviewedCompletionSources(p,{...need,shotId:'s08'}).length,0);
+ assert.equal(discoverReviewedCompletionSources(p,{...need,query:'央行 资金流动 示意图'}).length,0);
+ write('remotion/public/pages/targets.json',{url:binding.sourceUrl,title:'unrelated',text:'unrelated'});
+ assert.equal(discoverReviewedCompletionSources(p,need).length,0);
+});
+
+test('补全方案包含有界替代策略，钱币和传导图同义检索不放行无关画面',t=>{
+ const {p}=fixture(t),plan=materialCompletionPlan(p,catalog);
+ assert.equal(plan.strategy.maxQueriesPerNeed,12);
+ const money=sourceSearchContract('钱包 钱 消费 经济 生活 实景视频');
+ assert.ok(money.queries.includes('coin counter'));
+ assert.equal(money.matches('Coin counter working'),true);
+ assert.equal(money.matches('Ronald Reagan Centennial National Football Coin Toss'),false);
+ assert.equal(money.matches('Congress candidate speaks about money and cash'),false);
+ assert.equal(money.matches('Public Money Public Code software'),false);
+ const diagram=sourceSearchContract('央行 降息 放水 市场 资金 流动 示意图');
+ assert.equal(diagram.matches('Monetary transmission mechanism diagram'),true);
+ assert.equal(diagram.matches('central bank building photograph'),false);
+});
+
+test('来源限流按中心批准方案退避恢复；到期只预留一次，达到上限不循环',()=>{
+ const f={now:10000,run:{runId:'run',provenance:{verified:true},nextStage:'candidates',lastFailure:{task:{name:'talkcraft-candidates'}}},
+  fingerprint:'current',attempts:[{fingerprint:'current',action:'local-recheck'},{fingerprint:'current',action:'material-completion',materialPlanId:'old'}],
+  feedback:{failedChecks:[{shotId:'s04',code:'TEXT_VIDEO_REQUIRED'}]},governance:{caseSha256:'case',mapSha256:'map'},
+  sourcePlan:{needs:[{shotId:'s04',field:'@background'}],planId:'retry',transportRetry:{notBefore:new Date(20000).toISOString(),failures:1,maxFailures:3}}};
+ assert.equal(planNodeCorrection(f).state,'waiting-source-retry');
+ f.now=21000;assert.equal(planNodeCorrection(f).action,'material-completion');
+ f.attempts.push({fingerprint:'current',action:'material-completion',materialPlanId:'retry'});assert.equal(planNodeCorrection(f).action,null);
+ f.sourcePlan.transportRetry.failures=3;f.sourcePlan.planId='third';assert.equal(planNodeCorrection(f).action,null);
+});
+
+test('错误自动绑定由中心具体方案撤回并保留证据，不能靠缺槽数量下降冒充成功',async t=>{
+ const {p,write}=fixture(t);
+ const shots=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json'))),research=JSON.parse(fs.readFileSync(path.join(p,'material-research-plan.json')));
+ research.shots[0].backgroundQuery='钱包 钱 消费 生活视频';
+ const b={title:'Alexander Hernandez candidate for Congress interview',description:'The candidate speaks about money and cash',
+  sha256:'a'.repeat(64),sourceId:'commons:politics',evidence:'qa/source-discovery/old.json'};
+ research.shots[0].backgroundBinding=b;
+ Object.assign(shots[0].templateParams,{materialSrc:'verified-sources/'+b.sha256+'.mp4',materialSha256:b.sha256,materialSourceId:b.sourceId,materialRole:'background'});
+ write('remotion/shots.json',shots);write('material-research-plan.json',research);
+ const plan=materialCompletionPlan(p,catalog);assert.equal(plan.invalidBindings.length,1);assert.equal(plan.needs.length,1);
+ const originalText=fs.readFileSync(path.join(p,'input.txt'));
+ const fetchImpl=async()=>new Response(JSON.stringify({query:{pages:{}},response:{docs:[]}}));
+ const result=await executeMaterialCompletion(p,catalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false},fetchImpl});
+ assert.equal(result.unresolved.length,1);assert.equal(result.operations.length,0);assert.equal(result.paidCalls,0);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0].templateParams.materialSrc,undefined);
+ assert.deepEqual(fs.readFileSync(path.join(p,'input.txt')),originalText);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(p,'qa/material-quarantine/'+plan.planId+'.json'))).invalidBindings[0].binding.title,b.title);
+});
+
+test('限流后逐槽共享退避状态，优先免费恢复旧响应，不逐查询连续请求',async t=>{
+ const {p}=fixture(t);let calls=0;
+ const fetchImpl=async()=>{calls++;return new Response('',{status:429,headers:{'retry-after':'120'}});};
+ const need={kind:'image',query:'城市街景',concepts:[]};
+ const first=await discoverCompletionSources(p,need,{fetchImpl});assert.equal(calls,1);assert.ok(first.errors.some(e=>e.code==='SOURCE_PROVIDER_COOLDOWN'));
+ await discoverCompletionSources(p,need,{fetchImpl});assert.equal(calls,1);
+ const query='城市街景',key=digest({query,kind:'image',policy:'commons-explicit-free-license-v1'}),legacy='qa/source-discovery/'+key+'.json';
+ const cached=page('File:City street.png');cached.imageinfo[0].url=cached.imageinfo[0].url.replace('.webm','.png');
+ fs.writeFileSync(path.join(p,legacy),JSON.stringify({query,pages:[cached]}));
+ const recovered=await discoverCompletionSources(p,need,{fetchImpl});assert.equal(recovered.candidates.length,1);assert.equal(calls,1);
 });

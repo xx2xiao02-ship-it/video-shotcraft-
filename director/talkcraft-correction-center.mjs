@@ -25,7 +25,7 @@ const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-template
  'talkcraft-control-state.mjs','talkcraft-editorial-structure-repair.mjs','talkcraft-editorial-punctuation-correction.mjs','talkcraft-editorial-reuse-correction.mjs','talkcraft-editorial-anchor-scope.mjs','talkcraft-editorial-constraints.mjs','talkcraft-editorial-joint-repair.mjs','talkcraft-editorial-material-contract.mjs',
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs',
- 'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','../console-server.mjs'];
+ 'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','talkcraft-source-content.mjs','talkcraft-source-ocr.ps1','talkcraft-source-archive.mjs','../console-server.mjs'];
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
@@ -143,7 +143,7 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   if(!decision.action){save(project,'qa/correction-center.json',record);return {handled:false,decision};}
   // Reserve before dispatch, including uncertainty: never duplicate a paid action
   // after process death or an unknown provider result.
-  const attempt={action:decision.action,fingerprint,progressKey,...(decision.action==='editorial-repair'?{authorizationSha256:digest(authorization)}:{}),startedAt:new Date(now).toISOString(),status:'dispatching'};
+  const attempt={action:decision.action,fingerprint,progressKey,...(decision.action==='material-completion'?{materialPlanId:decision.materialCompletionPlan.planId}:{}),...(decision.action==='editorial-repair'?{authorizationSha256:digest(authorization)}:{}),startedAt:new Date(now).toISOString(),status:'dispatching'};
   record.attempts=[...attempts,attempt];record.state='correcting';save(project,'qa/correction-center.json',record);
   try{const task=await queueStage({runId:run.runId,...decision.body});attempt.status='queued';attempt.taskId=task.id;
     save(project,'qa/correction-center.json',record);return {handled:true,decision,task};

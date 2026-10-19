@@ -20,7 +20,7 @@ export function talkcraftBlocker(run) {
     run.blockers?.length===centerIssues.length&&centerIssues.every((i,index)=>
       run.blockers[index]===`${i.shotId||'全局'}：[${i.code}] ${i.message}`);
   const materialCurrent=center&&center.runId===run.runId&&center.node==='candidates'&&stage==='candidates'&&
-    run.nextStage==='candidates'&&center.state==='needs-source-verification'&&center.materialCompletionPlan?.needs?.length>0&&
+    run.nextStage==='candidates'&&['needs-source-verification','waiting-source-retry'].includes(center.state)&&center.materialCompletionPlan?.needs?.length>0&&
     center.attempts?.some(a=>a.fingerprint===center.fingerprint&&a.action==='material-completion'&&a.status==='queued');
   const code=failure?.code || (provenance?'PIPELINE_PROVENANCE_INVALID':invalidPreflight?'TALKCRAFT_PREFLIGHT_FAILED':run.blockers?.[0]) || 'WORKFLOW_BLOCKED';
   const reason=(centerCurrent||materialCurrent?center.reason:null)||failure?.cause||node?.detail||(provenance?run.provenance.issues?.join('；'):null)||
