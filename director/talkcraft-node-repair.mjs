@@ -12,6 +12,15 @@ const derivedFailureReport=n=>n==='qa/audit-feedback.json'||n.startsWith('qa/fai
 // Sender preflight is an immutable diagnostic, not a production contract.
 // The actual request, raw response and authorization remain fingerprinted.
 const inputPreflightReport=n=>n==='qa/editorial-input-preflight'||n.startsWith('qa/editorial-input-preflight/');
+// These are deterministic recheck outputs, never authored storyboard, anchors,
+// bindings or provider evidence. A free recheck may refresh them while a paid
+// response is retained. Rebase only these outputs before rerunning all gates.
+const recheckOutputs=new Set(['qa/content-onset-check.json','qa/editorial-completion.json',
+ 'qa/material-research-editorial.json','qa/native-governance.json','qa/native-word-window-check.json',
+ 'qa/planning-editorial-repair.json','qa/planning-result.json','qa/semantic-passed.json',
+ 'qa/storyboard-review-completion.json','qa/text-effect-dependencies.json','qa/word-reveal-plan-check.json',
+ 'remotion/reveal-units.json','remotion/word-reveals.json']);
+
 const excluded=n=>n==='workflow-automation.json'||n==='qa/node-repairs'||n==='qa/node-repair.json'||n==='qa/auto-advance.json'||n==='qa/executions'||n==='qa/storyboard-revisions'||
   n==='qa/correction-center.json'||n==='qa/correction-center.json.tmp'||n==='qa/correction-authorization.json'||
   inputPreflightReport(n)||/(^|\/)(node_modules|out|\.cache)(\/|$)/u.test(n)||/\.lock$/u.test(n);
@@ -46,11 +55,11 @@ export async function executeNodeRepair({root,runId,project,node,operation,resum
   if(prior){
     if(fs.realpathSync(directory)!==directory||fs.realpathSync(work)!==work)throw Error('响应恢复目录不能是链接');
     const changed=Object.keys({...prior.initial,...Object.fromEntries(files(project).map(n=>[n,true]))})
-      .filter(n=>n!=='qa/editorial-single-submission.json'&&!derivedFailureReport(n)&&!inputPreflightReport(n)&&hash(path.join(project,n))!==(prior.initial[n]??null));
+      .filter(n=>n!=='qa/editorial-single-submission.json'&&!derivedFailureReport(n)&&!inputPreflightReport(n)&&!recheckOutputs.has(n)&&hash(path.join(project,n))!==(prior.initial[n]??null));
     if(changed.length)throw Error('正式输入已变化，拒绝恢复旧请求：'+changed.join('、'));
     if(hash(path.join(project,'qa/editorial-single-submission.json'))!==hash(path.join(work,'qa/editorial-single-submission.json')))throw Error('当前与恢复工作区不是同一次提交');
     files(work); // reject links before entering the retained working directory
-    for(const n of files(project).filter(derivedFailureReport))put(work,n,fs.readFileSync(path.join(project,n)));
+    for(const n of files(project).filter(n=>derivedFailureReport(n)||recheckOutputs.has(n)))put(work,n,fs.readFileSync(path.join(project,n)));
   }else fs.mkdirSync(work,{recursive:true});
   const initial=Object.fromEntries(files(project).map(n=>[n,hash(path.join(project,n))]));
   if(!prior)for(const n of Object.keys(initial)){
