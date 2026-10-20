@@ -43,10 +43,12 @@ const publishedBytes=(work,project,n)=>{
 
 // Only the provider reservation/result journal is published on failure. The
 // accepted production data remains byte-for-byte intact until validation ends.
-export async function executeNodeRepair({root,runId,project,node,operation,resumeProviderResponse=false}){
+export async function executeNodeRepair({root,runId,project,node,operation,resumeProviderResponse=false,retainedProviderResponse=false}){
   if(!['storyboard-review','preflight'].includes(node))throw Error('补全只能属于07或09');
   recoverNodePublication(project);
   const journalFile=path.join(project,'qa/node-repair.json');
+  const retained=retainedProviderResponse?read(journalFile):null;
+  if(retained&&(retained.runId!==runId||retained.node!==node||retained.status!=='completed'||!retained.providerSubmitted||!read(path.join(project,'qa/editorial-single-submission.json')).submittedAt))throw Error('免费重编译必须绑定本任务已发布响应');
   const prior=resumeProviderResponse?read(journalFile):null;
   if(prior&&(prior.schema!=='talkcraft-node-repair-v1'||prior.runId!==runId||prior.node!==node||prior.status!=='blocked'||!prior.providerSubmitted))throw Error('只能免费恢复本次已提交且阻断的节点请求');
   const directory=prior?path.resolve(project,prior.directory):path.join(project,'qa/node-repairs',randomUUID());
@@ -73,7 +75,7 @@ export async function executeNodeRepair({root,runId,project,node,operation,resum
     fs.cpSync(path.dirname(path.join(project,snapshot)),path.dirname(path.join(work,snapshot)),{recursive:true});
   }
   const journal={schema:'talkcraft-node-repair-v1',runId,node,directory:path.relative(project,directory),
-    status:'running',pid:process.pid,startedAt:prior?.startedAt||new Date().toISOString(),initial,providerSubmitted:!!prior,
+    status:'running',pid:process.pid,startedAt:prior?.startedAt||new Date().toISOString(),initial,providerSubmitted:!!prior||!!retained,
     ...(prior?{recoveryStartedAt:new Date().toISOString(),previousError:prior.error}: {})};
   const save=()=>fs.writeFileSync(journalFile,JSON.stringify(journal,null,2));save();
   try{

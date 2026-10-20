@@ -79,3 +79,11 @@ test('信息卡高亮字段按源解析器填写行号，不再静默吞掉整�
  s.templateParams.cardProps.highlightLines='1，2';
  assert.ok(!validate([s]).errors.some(e=>e.code==='INDEX_LIST_FORMAT'));
 });
+
+
+test('章节空编号依据源码在素材采集前接纳，仍记录绑定义务且拒绝空正文',()=>{
+ const s=shot('chapter-progress-list');s.templateParams.cardProps.rows='|所有人相信物价稳定|current';s.templateParams.cardProps.bg='#ffffff00';
+ const result=validate([s]);assert.equal(result.passed,true,JSON.stringify(result.errors));assert.ok(result.pending.some(x=>x.code==='BACKGROUND_BINDING_REQUIRED'));assert.equal(result.productionAdmitted,false);
+ s.templateParams.cardProps.bg='#ffffff';assert.equal(validate([s]).passed,false);
+ s.templateParams.cardProps.bg='#ffffff00';s.templateParams.cardProps.rows='||current';assert.equal(validate([s]).passed,false);
+});

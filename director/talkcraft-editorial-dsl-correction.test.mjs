@@ -12,7 +12,7 @@ test('任意新任务镜号：仅同句原文证明的误拆DSL可无损归位�
  const before=structuredClone(raw),plan=proposeEditorialDslCorrection(raw,request,catalog);
  assert.equal(plan.changes.length,1);const approval=approveEditorialDslCorrection(plan,raw,request,catalog);
  const fixed=executeEditorialDslCorrection(plan,approval,raw,request,catalog);
- assert.equal(fixed.repairs[0].templateParams.cardProps.rows,'01|所有人相信物价稳定|current');
+ assert.equal(fixed.repairs[0].templateParams.cardProps.rows,'|所有人相信物价稳定|current');
  assert.deepEqual(raw,before);assert.deepEqual(fixed.repairs[0].nativePresentation,raw.repairs[0].nativePresentation);
  assert.equal(proposeEditorialDslCorrection(fixed,request,catalog).changes.length,0);
  for(const mutate of [r=>r.repairs[0].choiceId='foreign',r=>r.repairs[0].shotId='other-shot',

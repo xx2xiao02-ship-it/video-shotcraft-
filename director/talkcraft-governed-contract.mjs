@@ -106,7 +106,7 @@ export function validateTalkcraftDesignProps(shots,{catalog,projectRoot}) {
     // Correct only these two verified source capabilities, not arbitrary colors/DSL.
     if(verifiedChapterBackgroundParameter(issue,shots[index],card)){
       sourceCapabilities.push({...issue,shotId:shots[index].id,implementationSha256:card.implementation.sha256,reason:'原卡公开CSS底色与空编号DSL能力已按源码核对'});
-      if(issue.code==='PROP_COLOR'&&!shots[index].templateParams?.materialSrc)
+      if(!shots[index].templateParams?.materialSrc)
         pending.push({shotId:shots[index].id,code:'BACKGROUND_BINDING_REQUIRED',message:'透明底参数由锁定源码证明支持；真实背景仍须由素材节点采集、绑定并通过全部校验'});
       continue;
     }
@@ -126,8 +126,9 @@ export function verifiedChapterBackgroundParameter(issue,shot,card){
   const field=issue.at?.match(/\.props\.([^.]+)$/u)?.[1];
   const transparentColor=issue.code==='PROP_COLOR'&&field==='bg'&&props.bg==='#ffffff00';
   // CSS color support is a source capability, available before 06 acquisition.
-  // Empty numbering remains gated by the existing bound-background contract.
-  if(!transparentColor&&(p.backgroundPresentation!=='theme-wash-v1'||p.materialRole!=='background'||!p.materialSrc))return false;
+  // Both are verified source capabilities before acquisition. Unbound media
+  // remains an explicit pending obligation and cannot pass material admission.
+  if(!transparentColor&&props.bg!=='#ffffff00'&&(p.backgroundPresentation!=='theme-wash-v1'||p.materialRole!=='background'||!p.materialSrc))return false;
   if(!(issue.code==='PROP_COLOR'&&field==='bg'&&props.bg==='#ffffff00')&&
      !(issue.code==='DATA_FORMAT'&&field==='rows'&&typeof props.rows==='string'&&props.rows.split('\n').every(s=>/^\|[^|\n]+(?:\|current)?$/u.test(s))))return false;
   if(!card?.implementation?.file||!card?.original?.file)return false;

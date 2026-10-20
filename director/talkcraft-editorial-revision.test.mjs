@@ -142,3 +142,15 @@ test('06完整反馈保留同镜同卡原生计划，换卡记录不借旧卡锚
  feedback=saveCandidateMaterialRepairFeedback(f.p,{passed:false,materialIssues:[{shotId:'s07',code:'FILM_TEXT_DOMINANCE'}]});
  assert.equal(feedback.proposal.shots[0].nativePresentation,undefined);
 });
+
+
+test('已发布响应免费重编译建立新隔离事务，不修改原始提交或消费授权',async t=>{
+ const f=fixture(t);await executeNodeRepair({root:f.root,runId:id,project:f.p,node:'storyboard-review',operation:()=>({passed:true})});
+ const previous=f.read('qa/node-repair.json');f.write('qa/node-repair.json',{...previous,providerSubmitted:true});const submission=fs.readFileSync(path.join(f.p,'qa/editorial-single-submission.json'));
+ let target;await recoverNodeEditorialResponse(f.root,id,{recover:()=>{target=talkcraftProject(f.root,id);return {passed:true};},stage:()=>({passed:true})});
+ assert.equal(f.read('qa/node-repair.json').providerSubmitted,true);assert.notEqual(target,f.p);assert.notEqual(target,path.join(f.p,previous.directory,'work'));assert.deepEqual(fs.readFileSync(path.join(f.p,'qa/editorial-single-submission.json')),submission);
+});
+
+test('未提交响应拒绝免费恢复且不遗留锁',async t=>{
+ const f=fixture(t);f.write('qa/node-repair.json',{status:'completed',providerSubmitted:false});await assert.rejects(()=>recoverNodeEditorialResponse(f.root,id),/没有本次/);assert.equal(fs.existsSync(path.join(f.p,'editorial-revision.lock')),false);
+});

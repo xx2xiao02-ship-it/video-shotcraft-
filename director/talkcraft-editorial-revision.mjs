@@ -214,8 +214,9 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
 // a provider. Every original compiler/content/planning check still applies.
 export async function recoverNodeEditorialResponse(root,runId,{stage=runTalkcraftStage,recover=recoverProviderEditorial}={}){
   const project=talkcraftProject(root,runId),journal=read(path.join(project,'qa/node-repair.json'));
+  if(!journal.providerSubmitted||!['blocked','completed'].includes(journal.status))throw Error('没有本次已提交响应可免费重编译');
   const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
-  try{return await executeNodeRepair({root,runId,project,node:journal.node,resumeProviderResponse:true,operation:async target=>{
+  try{return await executeNodeRepair({root,runId,project,node:journal.node,resumeProviderResponse:journal.status==='blocked',retainedProviderResponse:journal.status==='completed',operation:async target=>{
     const baseFile=path.join(target,'qa/candidate-editorial-revision-feedback.json');
     if(fs.existsSync(baseFile))preserveRetainedEditorialExecutionBase(target,project,read(baseFile));
     const result=await recover(root,runId);

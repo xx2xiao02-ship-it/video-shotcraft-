@@ -4,8 +4,7 @@ import {compileEditorialAnchorEvents} from './talkcraft-editorial-anchor-scope.m
 const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 // The chapter parser renders an optional marker separately from its label.
 // A source-proven word accidentally split into that marker can be moved back
-// while restoring only its structural ordinal, never a factual number,
-// label, event, or source offset.
+// without inventing a number, label, event, or source offset.
 export function proposeEditorialDslCorrection(raw,request,catalog){
  const changes=[];
  if(raw?.requestId!==request?.requestId)throw Error('DSL修正不属于当前请求');
@@ -21,17 +20,14 @@ export function proposeEditorialDslCorrection(raw,request,catalog){
    const events=row.nativePresentation?.wordEvents?.filter(e=>e.field===field)||[];
    try{compileEditorialAnchorEvents(events,window.anchorScope,row.shotId);}catch{continue;}
    const lines=before.split('\n');let changed=false;
-   const after=lines.map((line,index)=>{
+   const after=lines.map(line=>{
     const parts=line.split('|').map(s=>s.trim());
     if(![2,3].includes(parts.length)||parts.length===3&&parts[2]!=='current'||
      !parts[0]||!parts[1]||!/^\p{Script=Han}+$/u.test(parts[0]))return line;
     const text=parts[0]+parts[1];
     if(events.filter(e=>e.role==='spoken'&&e.text===text).length!==1||
       events.some(e=>e.text===parts[0]||e.text===parts[1]))return line;
-    // Keep numbering deterministic and disallow collisions with other rows.
-    const ordinal=String(index+1).padStart(2,'0');
-    if(lines.some((other,i)=>i!==index&&Number(other.split('|')[0].trim())===index+1))return line;
-    changed=true;return [ordinal,text,...parts.slice(2)].join('|');
+    changed=true;return ['',text,...parts.slice(2)].join('|');
    }).join('\n');
    if(changed)changes.push({shotId:row.shotId,field,before,after,cardId:card.cardId,
     evidence:'exact-same-sentence-event-rejoins-marker-and-label'});
