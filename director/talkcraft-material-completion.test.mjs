@@ -37,6 +37,10 @@ test('检索合同保留中文优先；奖项与机构不被泛化配图冒充',
  assert.equal(sourceSearchContract('个人收入 工资 存款 未来规划 实景视频').matches('The flames of burning paper money in the field'),false);
  assert.equal(sourceSearchContract('钱包 钱 消费 经济 生活 实景视频').matches('Market Street San Francisco'),false);
  assert.equal(sourceSearchContract('央行 资金 流动 示意图').matches('Central bank subprime crisis diagram'),false);
+ const explicitScene=sourceSearchContract('物价稳定 收入稳定 经济复苏 商场实拍 视频',['stable prices market','people shopping']);
+ assert.equal(explicitScene.matches('客户谈判握手房地产银行办公开会视频'),false);
+ assert.equal(explicitScene.matches('Shoppers in a supermarket'),true);
+ assert.equal(explicitScene.matches('商场购物消费实拍'),true);
 });
 test('公开站点候选须逐文件有自由许可、作者和语义；不接受模型或URL充当许可',()=>{
  const args={kind:'video',query:'城市街景',match:sourceSearchContract('城市街景')};
@@ -75,6 +79,24 @@ test('素材处理器由中心按完整逐镜方案调度，不被旧选卡无�
  const exhausted=planNodeCorrection(f);assert.equal(exhausted.action,null);assert.equal(exhausted.state,'needs-source-verification');
  assert.equal(exhausted.materialCompletionPlan.needs.length,2);
 });
+
+test('待发布事务的素材方案绑定独立输入和请求身份；混合创作缺项也先免费补素材',t=>{
+ const {p}=fixture(t),target={directory:'qa/node-repairs/current',requestId:'current-response'};
+ const original=materialCompletionPlan(p,catalog),retained=materialCompletionPlan(p,catalog,{target});
+ assert.notEqual(original.planId,retained.planId);assert.deepEqual(retained.target,target);
+ const other=materialCompletionPlan(p,catalog,{target:{...target,requestId:'old-response'}});
+ assert.notEqual(other.planId,retained.planId);
+ const f={run:{runId:'run',provenance:{verified:true},nextStage:'planning-check',lastFailure:{task:{name:'talkcraft-planning-repair'}}},
+  fingerprint:'retained',attempts:[{fingerprint:'retained',action:'local-recheck'}],
+  feedback:{failedChecks:[{shotId:'s04',code:'TEXT_VIDEO_REQUIRED'},{shotId:'s04',code:'GRAPHIC_COMPARISON_REQUIRED'}]},
+  governance:{caseSha256:'case',mapSha256:'map'},sourcePlan:retained};
+ const decision=planNodeCorrection(f);assert.equal(decision.action,'material-completion');assert.equal(decision.approved,true);
+ f.attempts=[];f.run.nodeRepair={providerSubmitted:true,status:'blocked',node:'storyboard-review'};
+ assert.equal(planNodeCorrection(f).action,'material-completion');
+ assert.deepEqual(decision.materialCompletionPlan.target,target);assert.equal(decision.materialCompletionPlan.paidCalls,0);
+ const tampered=structuredClone(decision.proposal);tampered.materialCompletionPlan.target.requestId='old-response';
+ assert.equal(approveNodeCorrection(tampered,f).approved,false);
+});
 test('真实视频采集、绑定、重复继续复用缓存；不改文案和音频、不直接标节点通过',async t=>{
  const {p}=fixture(t),source=path.join(p,'source.webm');
  execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=blue:s=1280x720:r=30:d=2','-an','-c:v','libvpx-vp9','-b:v','100k',source],{windowsHide:true,timeout:30000});
@@ -89,6 +111,24 @@ test('真实视频采集、绑定、重复继续复用缓存；不改文案和�
  const next=materialCompletionPlan(p,catalog);assert.equal(next.needs.length,0);
  await executeMaterialCompletion(p,catalog,{plan:next,approval:{planId:next.planId,inputSha256:digest(next.inputs),productionAdmitted:false},fetchImpl});assert.equal(downloads,1);
  await assert.rejects(executeApprovedMaterialCompletion(p,catalog));
+});
+
+test('章节视频底板的透明公开参数进入审批方案，处理器执行后原文字与配音不变',async t=>{
+ const {p,write}=fixture(t),source=path.join(p,'source.webm');
+ execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=blue:s=1280x720:r=30:d=2','-an','-c:v','libvpx-vp9',source],{windowsHide:true,timeout:30000});
+ const chapterCatalog={cards:[{cardId:'chapter-progress-list',policy:{media:{}}}]};
+ write('remotion/shots.json',[{id:'any-new-shot',shotCard:'chapter-progress-list',start:0,end:1,
+  templateParams:{cardProps:{rows:'01|保留原文',headText:'原标题',bg:'#ffffff',accent:'#171717',dim:'#171717'}}}]);
+ write('material-research-plan.json',{shots:[{shotId:'any-new-shot',backgroundDecision:'use',backgroundQuery:'城市街景',backgroundConcepts:['city street'],backgroundReason:'本镜语境'}]});
+ const plan=materialCompletionPlan(p,chapterCatalog),digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+ assert.deepEqual(plan.needs[0].presentation,{kind:'theme-wash-v1',cardProps:{bg:'#ffffff00'}});
+ const fetchImpl=async url=>String(url).includes('/w/api.php')?new Response(JSON.stringify({query:{pages:{1:page()}}})):new Response(fs.readFileSync(source));
+ const result=await executeMaterialCompletion(p,chapterCatalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),productionAdmitted:false},fetchImpl});
+ assert.equal(result.operations.length,1);
+ const shot=JSON.parse(fs.readFileSync(path.join(p,'remotion/shots.json')))[0];
+ assert.equal(shot.templateParams.cardProps.bg,'#ffffff00');assert.equal(shot.templateParams.backgroundPresentation,'theme-wash-v1');
+ assert.equal(shot.templateParams.cardProps.rows,'01|保留原文');assert.equal(shot.templateParams.cardProps.headText,'原标题');
+ assert.equal(fs.readFileSync(path.join(p,'audio/full.mp3'),'utf8'),'[]');
 });
 
 test('下载许可合规图片后仍要求真实内容核验；不把未知语言写成已绑定素材',async t=>{

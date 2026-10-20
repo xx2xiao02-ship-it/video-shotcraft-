@@ -34,12 +34,16 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
     return {...base,state:'waiting-review',action:null,reason:'停在14等待用户，不代替人工审核'};
   if(!run.lastFailure&&!run.failureReport)return {...base,state:'ready',action:null,reason:'无当前失败，由正式主线继续'};
   const used=action=>attempts.some(a=>a.fingerprint===fingerprint&&a.action===action);
+  // This draft already has receipt-bound compiler and failed-gate evidence.
+  // Repair its material inputs directly; replaying again or checking the old
+  // installed storyboard cannot fill a slot in the retained working copy.
+  const retainedMaterialRepair=!!sourcePlan?.target&&sourcePlan.needs?.length>0;
   if(!run.editorialResponseSaved&&feedback?.snapshot&&unsubmitted?.schema==='talkcraft-editorial-revision-authorization-v1'&&
     unsubmitted.runId===run.runId&&unsubmitted.startedAt&&!unsubmitted.completedAt&&!unsubmitted.recoveredInputs&&!used('restore-unsubmitted'))
     return {...base,state:'ready-to-correct',approved:false,action:'restore-unsubmitted',body:{stage:'editorial-recover',restoreUnsubmitted:true},reason:'先免费恢复本次发送前失败的原分镜快照；不重新调用模型'};
   if(node==='editorial'&&run.editorialResponseSaved&&!run.shotbook&&feedback?.proposal?.editorialSelectionRejection&&!used('recover-editorial-response'))
     return {...base,state:'ready-to-correct',action:'recover-editorial-response',body:{stage:'editorial-recover'},reason:'免费重编译本次已保存原始返回；保留原请求与全部校验，不追加模型调用'};
-  if(run.nodeRepair?.providerSubmitted&&run.nodeRepair.status==='blocked'&&run.nodeRepair.node==='storyboard-review'&&!used('recover-response'))
+  if(run.nodeRepair?.providerSubmitted&&run.nodeRepair.status==='blocked'&&run.nodeRepair.node==='storyboard-review'&&!used('recover-response')&&!retainedMaterialRepair)
     return {...base,state:'ready-to-correct',approved:false,action:'recover-response',body:{stage:'planning-repair',recoverProviderResponse:true},reason:'优先免费恢复本次已保存响应'};
   if(node==='storyboard-review'&&run.nextStage==='candidates'&&run.candidatesReady===false&&
     run.candidateIssues?.some(i=>/^候选依据已变化/u.test(String(i)))&&!used('candidate-recheck'))
@@ -47,7 +51,7 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   if(node==='render-all'&&run.nextStage==='sample'&&run.sample===false&&run.sampleApproved===false&&run.scenesReady===true&&
     run.lastFailure?.cause==='The first-shot sample must be approved before full rendering'&&!used('rebuild-sample'))
     return {...base,state:'ready-to-correct',action:'rebuild-sample',body:{stage:'sample'},reason:'工程源码更新使样片失效；正式重建当前样片并重新走审核，不重试整片或沿用过期批准'};
-  if(policy?.freeStage&&!used('local-recheck'))return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
+  if(policy?.freeStage&&!used('local-recheck')&&!retainedMaterialRepair)return {...base,state:'ready-to-correct',approved:false,action:'local-recheck',body:{stage:policy.freeStage},reason:'先在当前节点恢复已有绑定并执行原检查'};
   if(timingPlanError)return {...base,state:'needs-code-audit',action:null,reason:'免费时序方案编译失败，不能误转付费创作：'+timingPlanError};
   if(node==='storyboard-review'&&governance&&timingPlan?.operations?.length&&!used('timing-completion'))
     return {...base,state:'ready-to-correct',action:'timing-completion',body:{stage:'planning-check'},timingCompletionPlan:timingPlan,

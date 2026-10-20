@@ -545,7 +545,10 @@ function runTalkcraftStageInternal(stage, runId) {
   if(stage==='institution-source-repair')return executeInstitutionSourceRepair(project);
   if(stage==='material-completion'){
     const approvedCorrection=JSON.parse(readFileSync(path.join(project,'qa/correction-center.json'),'utf8'));
-    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-completion.mjs'),project,path.join(SKILL,'references/cards-index.json')],project);
+    run(process.execPath,['--use-env-proxy',path.join(ROOT,'director/talkcraft-material-completion-run.mjs'),project,path.join(SKILL,'references/cards-index.json')],project);
+    // Retained revisions run all gates inside executeNodeRepair and publish
+    // atomically. Never recheck the unchanged production copy as the new draft.
+    if(approvedCorrection.materialCompletionPlan?.target)return {project,passed:true,paidCalls:0,artifact:'qa/material-completion.json'};
     // A binding transaction changes the input fingerprint. Revalidate the
     // original input gate rather than leaving UI at an obsolete 05 receipt.
     if(materialInputRecheckRequired(readTalkcraftStatus(ROOT,runId)))runTalkcraftStage('media-preflight',runId);

@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {repeatedPaidRepairScope} from './talkcraft-paid-scope-history.mjs';
 import {workflowNodeForTask} from './talkcraft-workflow-contract.mjs';
-import {currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {currentEditorialRepairFeedback,editorialMaterialTarget} from './talkcraft-editorial-planning-contract.mjs';
 import {editorialProviderBinding} from './talkcraft-editorial-provider.mjs';
 import {proposeInstitutionSourceRepair} from './talkcraft-institution-source-repair.mjs';
 import {buildGovernanceMap,buildGovernanceCase,GOVERNANCE_HANDLERS} from './talkcraft-governance-map.mjs';
@@ -28,6 +28,7 @@ const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-template
  'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs',
  'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','talkcraft-source-content.mjs','talkcraft-source-ocr.ps1','talkcraft-source-archive.mjs','talkcraft-timing-completion.mjs','talkcraft-dependency-timeline.mjs','../console-server.mjs'];
 RULE_FILES.push('talkcraft-editorial-timing-contract.mjs','talkcraft-editorial-native-plan.mjs','talkcraft-editorial-request-audit.mjs','talkcraft-word-reveal.mjs');
+RULE_FILES.push('talkcraft-material-completion-run.mjs');
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.
@@ -51,9 +52,11 @@ export function currentApprovedEditorialCorrection(project,runId,approval,now=Da
     r.proposal.action!=='editorial-repair'||r.proposal.node!==r.node||digest(r.body)!==digest(r.proposal.body)||r.proposal.body?.authorizationNote!==approval||!r.revisionPlan?.requestId||
     digest(r.revisionPlan)!==digest(r.proposal.revisionPlan))return null;
   const feedback=currentEditorialRepairFeedback(project),inputs=identity(project),rules=ruleSnapshot();
+  const materialTarget=editorialMaterialTarget(project,feedback);
   const fingerprint=digest({inputs,rules,node:r.node,
     library:['candidates','storyboard-review','preflight'].includes(r.node)?libraryContractSnapshot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')):null,feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
-    shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
+    shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json')),
+    ...(materialTarget.target?{retainedMaterials:{...materialTarget.target,shots:sha(path.join(materialTarget.project,'remotion/shots.json')),research:sha(path.join(materialTarget.project,'material-research-plan.json'))}}:{})});
   if(a?.schema!=='talkcraft-correction-authorization-v1'||a.provider?.provider!=='acctoken'||a.provider?.model!=='deepseek-v4.1-flash'||fingerprint!==r.fingerprint||digest(rules)!==digest(loadedRules)||a?.runId!==runId||
     a.approval!==approval||Date.parse(a.expiresAt)<=now||!a.scope?.includes(r.node)||
     digest(a.inputs)!==digest(inputs)||digest(a.provider)!==digest(editorialProviderBinding(runId)))return null;
@@ -108,13 +111,15 @@ export function correctionProgressKey({inputs,rules,node,checks=[]}){
 export async function dispatchNodeCorrection({project,run,queueStage,now=Date.now()}){
   const previous=correctionCenterSnapshot(project),attempts=previous?.runId===run.runId?previous.attempts||[]:[];
   const feedback=currentEditorialRepairFeedback(project);
+  const materialTarget=editorialMaterialTarget(project,feedback);
   const inputs=identity(project);
   const rules=ruleSnapshot(),rulesVersionVerified=digest(rules)===digest(loadedRules);
   // Exclude timestamps/task IDs: re-reporting the same failure is not progress.
   const fingerprint=digest({inputs,rules,node:correctionNode(run),
     library:['candidates','storyboard-review','preflight'].includes(correctionNode(run))?libraryContractSnapshot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..')):null,
     feedback:feedback?{proposal:feedback.proposal,failedChecks:feedback.failedChecks}:null,
-    shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json'))});
+    shots:sha(path.join(project,'remotion/shots.json')),research:sha(path.join(project,'material-research-plan.json')),
+    ...(materialTarget.target?{retainedMaterials:{...materialTarget.target,shots:sha(path.join(materialTarget.project,'remotion/shots.json')),research:sha(path.join(materialTarget.project,'material-research-plan.json'))}}:{})});
   const authorization=read(path.join(project,'qa/correction-authorization.json'));
   const progressKey=correctionProgressKey({inputs,rules,node:correctionNode(run),checks:feedback?.failedChecks||[]});
   const materialOnly=feedback?.failedChecks?.length&&feedback.failedChecks.every(i=>
@@ -125,7 +130,9 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   const unsubmitted=read(path.join(project,'qa/editorial-revision-authorization.json'));
   const institutionRepair=rulesVersionVerified?proposeInstitutionSourceRepair(project):null;
   let revisionPlan=null,revisionPlanError=null;
-  if(provider){
+  const modelBudgetUsed=authorization?.maxModelTasks===1&&attempts.some(a=>
+    a.action==='editorial-repair'&&a.authorizationSha256===digest(authorization));
+  if(provider&&!modelBudgetUsed){
     try{
       const {checkEditorialSelectionInput}=await import('./talkcraft-ark-editorial.mjs');
       revisionPlan=checkEditorialSelectionInput(path.resolve(project,'../../../..'),run.runId);
@@ -136,11 +143,12 @@ export async function dispatchNodeCorrection({project,run,queueStage,now=Date.no
   if(rulesVersionVerified&&fs.existsSync(path.join(project,'remotion/shots.json'))){
     const root=path.resolve(project,'../../../..'),index=read(path.join(resolveTalkcraftSkillRoot(root),'references/cards-index.json'));
     const catalog=loadTalkcraftGovernedCatalog(index),map=buildGovernanceMap(root,{index,catalog});
-    const review=buildGovernanceCase(project,{run,feedback,rules,map,catalog});
+    const targetHasShots=fs.existsSync(path.join(materialTarget.project,'remotion/shots.json'));
+    const review=buildGovernanceCase(targetHasShots?materialTarget.project:project,{run,feedback,rules,map,catalog});
     save(project,'qa/governance-template-map.json',map);save(project,'qa/governance-case.json',review);
     governance={mapSha256:digest(map),caseSha256:digest(review),shotIds:review.shotPlans.map(s=>s.shotId)};
-    if(['candidates','storyboard-review','preflight'].includes(correctionNode(run))&&fs.existsSync(path.join(project,'material-research-plan.json')))
-      sourcePlan=materialCompletionPlan(project,catalog);
+    if(targetHasShots&&['candidates','storyboard-review','preflight'].includes(correctionNode(run))&&fs.existsSync(path.join(materialTarget.project,'material-research-plan.json')))
+      sourcePlan=materialCompletionPlan(materialTarget.project,catalog,{target:materialTarget.target});
     if(correctionNode(run)==='storyboard-review'&&feedback?.failedChecks?.some(i=>/^(?:TEXT_EFFECT_|NATIVE_TEXT_WINDOW)/u.test(i.code)))
       try{timingPlan=timingCompletionPlan(project);}catch(error){timingPlanError=error.message;}
   }

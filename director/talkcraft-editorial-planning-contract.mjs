@@ -291,6 +291,18 @@ function retainedNodeEditorialFeedback(project){
     inputs:candidateFeedbackHashes(project,'planning-check'),proposal,failedChecks:checks,
     retainedTransaction:j.directory,requestId:request.requestId,paidCalls:0,userAcceptance:false};
 }
+// Resolve only the retained transaction already verified against the current
+// production inputs and provider receipt. Never search historical workspaces.
+export function editorialMaterialTarget(project,feedback){
+  if(!feedback?.retainedTransaction)return {project,target:null};
+  const current=retainedNodeEditorialFeedback(project);
+  if(!current||current.requestId!==feedback.requestId||current.retainedTransaction!==feedback.retainedTransaction||
+    !isDeepStrictEqual(current.proposal,feedback.proposal)||!isDeepStrictEqual(current.failedChecks,feedback.failedChecks))
+    throw Error('素材治理目标不是当前已核验的待发布事务');
+  const work=path.resolve(project,current.retainedTransaction,'work');
+  if(fs.realpathSync(work)!==work)throw Error('素材治理事务不能是链接');
+  return {project:work,target:{directory:current.retainedTransaction,requestId:current.requestId}};
+}
 export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=false}={}) {
   const retained=retainedNodeEditorialFeedback(project);if(retained)return retained;
   if(!candidateSnapshotOnly){

@@ -11,6 +11,8 @@ import {loadLibraryContract,resolveLibrarySource,libraryContractSnapshot} from '
 import {inspectSourceContent} from './talkcraft-source-content.mjs';
 import {discoverArchiveSources} from './talkcraft-source-archive.mjs';
 import {probeMedia} from '../docs/audits/b-talkcraft-target3/validation.mjs';
+import {currentEditorialRepairFeedback,editorialMaterialTarget} from './talkcraft-editorial-planning-contract.mjs';
+import {executeNodeRepair} from './talkcraft-node-repair.mjs';
 
 const LIBRARY_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const sha=x=>createHash('sha256').update(x).digest('hex');
@@ -37,7 +39,7 @@ const vocabulary=[
  [/学术|academic/iu,['economics professor','university economics','academic lecture'],/academic|lecture|university|professor/iu],
  [/钱|货币|资金|money/iu,['wallet cash payment','money counting','intitle:cash','intitle:wallet','intitle:banknote','banknotes','coin counter'],/banknote|money|currency|coin|wallet|cash payment|现金|钞票|硬币|钱包/iu],
  [/收入|工资|存款|存钱|储蓄/iu,['intitle:ATM','bank ATM','banknotes'],/bank|atm|banknote|savings|银行/iu],
- [/市场|消费|物价|购物/iu,['China supermarket shopping','Chinese grocery shoppers','street market','shopping market'],/street market|marketplace|shopping|shoppers|supermarket|grocery|retail|市场|购物|超市|消费/iu],
+ [/市场|消费|物价|购物|商场|超市|shopping|supermarket|grocery|mall/iu,['China supermarket shopping','Chinese grocery shoppers','street market','shopping market'],/street market|marketplace|shopping|shoppers|supermarket|grocery|retail|\bmall\b|市场|购物|商场|超市|消费/iu],
  [/城市|街景|日常|普通人生活/iu,['city street people'],/city|street|pedestrian|城市|街/iu],
  [/央行|中央银行|中国人民银行/iu,['central bank',"People's Bank of China monetary policy"],/central bank|people.s bank of china|人民银行/iu],
  [/资金.*流动.*示意|money flow|flow of funds/iu,['flow of funds diagram','money flow diagram','monetary transmission diagram','interest rate channel diagram'],/flow of fund(?:s|ing)|money flow|monetary.*transmission|interest rate channel|资金流/iu],
@@ -49,6 +51,7 @@ export function sourceSearchContract(query,concepts=[],alternatives=[]){
  const special=groups.filter(([r])=>r.source.startsWith('诺贝尔')||r.source.startsWith('央行')&&!diagram);
  const flow=diagram?groups.filter(([r])=>r.source.startsWith('资金')):[];
  const required=special.length?special:flow.length?flow:
+  /商场|超市|购物|shopping|supermarket|grocery|\bmall\b/iu.test(query)?groups.filter(([r])=>r.source.startsWith('市场')):
   /收入|工资|存款|存钱|储蓄/u.test(query)&&!/城市|街景/u.test(query)?groups.filter(([r])=>r.source.startsWith('收入')):
   /钱包|口袋|钱/u.test(query)?groups.filter(([r])=>r.source.startsWith('钱')):groups;
  const ceremony=/颁奖|ceremony|award stage/iu.test(text);
@@ -85,7 +88,7 @@ export function declaredBackgroundAlternatives(row){
  return [{kind:'declared-academic-context',query:'经济学 学术现场 讲座 视频',concepts:['economics lecture','academic audience'],
   basis:row.backgroundReason,contextOnly:true}];
 }
-export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
+export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT,target=null}={}){
  const shots=read(path.join(project,'remotion/shots.json')),research=read(path.join(project,'material-research-plan.json'));
  const originalText=fs.readFileSync(path.join(project,'input.txt'),'utf8');
  const economicsAward=/诺贝尔经济学奖/u.test(originalText)&&!/诺贝尔(?:物理|化学|生理|医学|文学|和平)/u.test(originalText);
@@ -96,7 +99,8 @@ export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
   if(row.backgroundDecision==='use'&&(!hasVideoBackground(shot)||invalidBindings.some(b=>b.shotId===shot.id&&b.field==='@background')))needs.push({shotId:shot.id,cardId:shot.shotCard,
    field:'@background',kind:'video',query:row.backgroundQuery,
    concepts:[...row.backgroundConcepts||[],...(economicsAward&&/诺贝尔|nobel/iu.test(row.backgroundQuery)?['Nobel economics']:[])],reason:row.backgroundReason,
-   durationSeconds:Number(shot.end)-Number(shot.start),alternatives:declaredBackgroundAlternatives(row)});
+   durationSeconds:Number(shot.end)-Number(shot.start),alternatives:declaredBackgroundAlternatives(row),
+   ...(shot.shotCard==='chapter-progress-list'?{presentation:{kind:'theme-wash-v1',cardProps:{bg:'#ffffff00'}}}:{})});
   for(const [field,kind]of Object.entries(card.policy.media)){
    if(/host/iu.test(field)||shot.templateParams?.cardProps?.[field]&&!invalidBindings.some(b=>b.shotId===shot.id&&b.field===field))continue;
    const query=shot.templateParams?.templateMaterialQueries?.[field];
@@ -107,7 +111,7 @@ export function materialCompletionPlan(project,catalog,{root=LIBRARY_ROOT}={}){
   }
  }
  let providerState;try{providerState=read(path.join(project,'qa/source-discovery/commons-provider-state.json'));}catch{}
- const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,invalidBindings,
+ const plan={schema:'talkcraft-material-completion-plan-v1',inputs:inputs(project),needs,invalidBindings,...(target?{target}:{}),
   ...([429,503].includes(providerState?.status)?{transportRetry:{token:digest(providerState),notBefore:providerState.retryAt,failures:providerState.failures||1,maxFailures:3}}:{}),
   policy:'commons-adaptive-source-v2',strategy:{maxQueriesPerNeed:12,maxCandidates:24,downloadBudget:SOURCE_DOWNLOAD_BUDGET,steps:['current-reviewed-source','online-exact','online-keywords','independent-library','local-content-review','transactional-bind','original-gates'],negativeCacheVersion:2},librarySnapshot:libraryContractSnapshot(root),paidCalls:0,productionAdmitted:false};
  return {...plan,planId:digest(plan)};
@@ -324,7 +328,7 @@ async function downloadSource(project,candidate,{fetchImpl=fetch}={}){
 export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch,root=LIBRARY_ROOT,plan=materialCompletionPlan(project,catalog,{root}),approval,contentReviewer=inspectSourceContent}={}){
  if(!approval||approval.planId!==plan.planId||approval.inputSha256!==digest(plan.inputs)||approval.productionAdmitted!==false)
   throw Error('素材补全必须由中心批准当前具体方案');
- if(digest(materialCompletionPlan(project,catalog,{root}))!==digest(plan))throw Error('素材补全方案与当前输入不同');
+ if(digest(materialCompletionPlan(project,catalog,{root,target:plan.target}))!==digest(plan))throw Error('素材补全方案与当前输入不同');
  const report={schema:'talkcraft-material-completion-v1',planId:plan.planId,inputs:plan.inputs,approval,
   operations:[],unresolved:[],slotExecutions:[],paidCalls:0,productionAdmitted:false,userAcceptance:false};
  const saveReport=()=>save(project,'qa/material-completion.json',report);
@@ -434,7 +438,12 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
      materialMatchReason:op.matchReason,materialDurationSec:source.meta.durationSeconds,materialPlaybackRate:1,materialFit:'cover',
      backgroundPresentation:chapter?'theme-wash-v1':'text-video-v1'});
     const colors=chapter?['accent','dim']:Object.keys(TEXT_VIDEO_CARDS[shot.shotCard].colors);
-    if(chapter&&p.cardProps.bg!=='#ffffff00')throw Error('章节卡未使用已核验透明底参数');
+    if(chapter){
+     const need=plan.needs.find(n=>n.shotId===op.shotId&&n.field===op.field);
+     if(digest(need?.presentation??null)!==digest({kind:'theme-wash-v1',cardProps:{bg:'#ffffff00'}}))
+      throw Error('章节卡视频底板修正未包含在中心批准的方案中');
+     p.cardProps.bg=need.presentation.cardProps.bg;
+    }
     for(const key of colors)if((darkBackgroundContrast(p.cardProps[key])??0)<4.5)p.cardProps[key]='#ffffff';
     row.backgroundBinding={...source,matchReason:op.matchReason,contentLanguage:'und',languageReviewRequired:true,contextOnly:true};
    }else{
@@ -454,7 +463,7 @@ export async function executeMaterialCompletion(project,catalog,{fetchImpl=fetch
   ...(r.materialBindings||[]).filter(b=>b.attribution).map(b=>({shotId:r.shotId,field:b.field,attribution:b.attribution}))]));
  return report;
 }
-export async function executeApprovedMaterialCompletion(project,catalog){
+export async function executeApprovedMaterialCompletion(project,catalog,{stage,root=LIBRARY_ROOT}={}){
  const record=read(path.join(project,'qa/correction-center.json')),proposal=record.proposal,plan=record.materialCompletionPlan;
  if(record.approved!==true||record.action!=='material-completion'||!proposal||
   record.approval?.planSha256!==digest(proposal)||digest(plan)!==digest(proposal.materialCompletionPlan)||
@@ -463,11 +472,34 @@ export async function executeApprovedMaterialCompletion(project,catalog){
   throw Error('素材补全没有当前中心终审方案，不能执行');
  const source=read(path.join(project,'source-run.json'));
  if(source.runId&&source.runId!==record.runId)throw Error('素材修正任务身份不一致');
- return executeMaterialCompletion(project,catalog,{plan,approval:{planId:plan.planId,inputSha256:digest(plan.inputs),
-  centerPlanSha256:record.approval.planSha256,caseSha256:record.governance.caseSha256,productionAdmitted:false}});
+ const approval={planId:plan.planId,inputSha256:digest(plan.inputs),
+  centerPlanSha256:record.approval.planSha256,caseSha256:record.governance.caseSha256,productionAdmitted:false};
+ if(!plan.target)return executeMaterialCompletion(project,catalog,{plan,approval,root});
+ const resolved=editorialMaterialTarget(project,currentEditorialRepairFeedback(project));
+ if(digest(resolved.target)!==digest(plan.target)||record.node!=='storyboard-review'||typeof stage!=='function')
+  throw Error('待发布素材方案与当前事务或复检处理器不一致');
+ // The centre approves the exact working-copy inputs before entering it. A
+ // failed original gate retains bindings here but never publishes the design.
+ if(digest(materialCompletionPlan(resolved.project,catalog,{root,target:resolved.target}))!==digest(plan))
+  throw Error('待发布素材方案已过期');
+ const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
+ try{return await executeNodeRepair({root,runId:record.runId,project,node:record.node,resumeProviderResponse:true,operation:async work=>{
+  if(work!==resolved.project)throw Error('素材处理器切换了待发布事务');
+  let result,materialFailure;
+  try{result=await executeMaterialCompletion(work,catalog,{plan,approval,root});}
+  catch(error){
+   materialFailure=error;
+   save(work,'qa/material-completion-failure.json',{schema:'talkcraft-material-completion-failure-v1',
+    planId:plan.planId,target:plan.target,error:error.message,paidCalls:0,productionAdmitted:false});
+   console.error('正式素材处理器失败，继续保存原门禁反馈：'+error.message);
+  }
+  await stage('candidates',record.runId);
+  const checked=await stage('planning-check',record.runId);
+  if(checked?.passed===false)throw Error('恢复结果未通过本节点规划复检，不发布');
+  if(materialFailure)throw materialFailure;
+  return result;
+ }});}finally{fs.closeSync(fd);fs.unlinkSync(lock);}
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const project=path.resolve(process.argv[2]),index=read(path.resolve(process.argv[3]));
- const result=await executeApprovedMaterialCompletion(project,loadTalkcraftGovernedCatalog(index));
- console.log(JSON.stringify({planId:result.planId,applied:result.operations.length,unresolved:result.unresolved.map(n=>({shotId:n.shotId,field:n.field,code:n.code})),paidCalls:0,productionAdmitted:false}));
+ execFileSync(process.execPath,[fileURLToPath(new URL('./talkcraft-material-completion-run.mjs',import.meta.url)),...process.argv.slice(2)],{stdio:'inherit',windowsHide:true});
 }
