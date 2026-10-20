@@ -139,8 +139,11 @@ test('联合修订保留已执行的免费时间修正，仍按原规则复检�
  const changedContract={baseProposal:changed,editableShotIds:[]};
  assert.equal(auditEditorialTiming(changed,{...options,selectionRequest:{...changedContract,
   requestId:createHash('sha256').update(JSON.stringify(changedContract)).digest('hex')}}).passed,false);
- // Return to live evidence for the original anchor-tampering assertion.
+ // Intermediate regenerated artifacts must not replace the immutable base
+ // on repeated free continuation. They undergo their own downstream gates.
  for(const file of ['remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json'])fs.copyFileSync(path.join(archive,file),path.join(f.project,file));
  words[0].anchor='关联';write('remotion/word-reveal-plan.json',{scope:'native-shots',fps:30,events:words});
+ assert.equal(auditEditorialTiming(feedback.proposal,options).passed,true);
+ fs.unlinkSync(path.join(f.project,'qa/candidate-editorial-revision-feedback.json'));
  assert.equal(auditEditorialTiming(f.result,{...f.options,aligned,selectionRequest}).passed,false);
 });

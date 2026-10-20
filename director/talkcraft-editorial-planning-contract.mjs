@@ -349,14 +349,8 @@ export function currentEditorialRepairFeedback(project,{candidateSnapshotOnly=fa
   // its verified snapshot only before a new storyboard has been installed.
   const revisionFile=path.join(project,'qa/candidate-editorial-revision-feedback.json');
   if(!fs.existsSync(path.join(project,'remotion/shots.json'))&&fs.existsSync(revisionFile)){
-    const record=JSON.parse(fs.readFileSync(revisionFile,'utf8'));
-    const base=path.resolve(project,'qa/storyboard-revisions');
-    const snapshot=path.resolve(project,record.snapshot||'.'),relative=path.relative(base,snapshot);
-    if(relative&&!relative.startsWith('..')&&!path.isAbsolute(relative)&&
-      record.schema==='talkcraft-candidate-editorial-repair-v1'&&
-      ['input.txt','aligned-sentences.json','audio/full.mp3'].every(name=>record.inputs?.[name]===candidateFeedbackHashes(project)[name])&&
-      JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot,record.stage)))
-      return record.passed?null:record;
+    const record=verifiedCandidateRevisionFeedback(project);
+    if(record)return record;
   }
   if(candidateSnapshotOnly)return null;
   // A changed 06 plan must never regress to the stale 04 list for the same text.
@@ -377,6 +371,19 @@ const candidateFeedbackHashes=(project,stage)=>Object.fromEntries([...candidateF
   const file=path.join(project,name);
   return [name,fs.existsSync(file)?createHash('sha256').update(fs.readFileSync(file)).digest('hex'):null];
 }));
+// An explicitly named archive remains the immutable base after a free replay
+// has produced intermediate shots. It is never selected by a history scan.
+export function verifiedCandidateRevisionFeedback(project){
+ const file=path.join(project,'qa/candidate-editorial-revision-feedback.json');
+ if(!fs.existsSync(file))return null;
+ const record=JSON.parse(fs.readFileSync(file,'utf8'));
+ const base=path.resolve(project,'qa/storyboard-revisions'),snapshot=path.resolve(project,record.snapshot||'.'),relative=path.relative(base,snapshot);
+ if(relative&&!relative.startsWith('..')&&!path.isAbsolute(relative)&&
+  record.schema==='talkcraft-candidate-editorial-repair-v1'&&record.passed===false&&
+  ['input.txt','aligned-sentences.json','audio/full.mp3'].every(n=>record.inputs?.[n]===candidateFeedbackHashes(project)[n])&&
+  JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot,record.stage)))return record;
+ return null;
+}
 export function preserveCandidateMaterialRepairFeedback(project,revision){
   const current=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:true});
   if(current?.schema!=='talkcraft-candidate-editorial-repair-v1')return null;

@@ -7,7 +7,7 @@ import {assertNativeMediaClock,NATIVE_MAX_RATE} from './talkcraft-native-time-ma
 import {resolveReveal,wordRenderTimingFile} from './talkcraft-word-reveal.mjs';
 import {preservedEditorialSelectionShots} from './talkcraft-editorial-selection.mjs';
 import {checkNativeGovernance} from './talkcraft-native-governance.mjs';
-import {currentEditorialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {verifiedCandidateRevisionFeedback} from './talkcraft-editorial-planning-contract.mjs';
 
 // Source-derived design input, not another hand-maintained template map. Text
 // defaults are never sent as creative content. Array counts/default parameters
@@ -40,17 +40,16 @@ export function auditEditorialTiming(result,{aligned,catalog,projectRoot,selecti
   retained=preservedEditorialSelectionShots(result,selectionRequest);
   if(retained.size){
    let evidenceRoot=projectRoot;
-   if(!fs.existsSync(path.join(projectRoot,'remotion/shots.json'))){
+   const feedback=verifiedCandidateRevisionFeedback(projectRoot);
+   if(feedback&&isDeepStrictEqual(feedback.proposal,selectionRequest.baseProposal)){
     // Preparation deliberately removes active storyboard artifacts. Only the
     // current hash-verified revision, never a directory scan, owns their base.
-    const feedback=currentEditorialRepairFeedback(projectRoot,{candidateSnapshotOnly:true});
-    if(!feedback?.snapshot||!isDeepStrictEqual(feedback.proposal,selectionRequest.baseProposal))
-     throw Error('缺少与本次锁定基稿完全一致的已核验修订快照');
     evidenceRoot=path.resolve(projectRoot,feedback.snapshot);
     if(fs.realpathSync(evidenceRoot)!==evidenceRoot)throw Error('锁定时序快照不能是链接');
     for(const file of ['remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json'])
      if(fs.lstatSync(path.join(evidenceRoot,file)).isSymbolicLink())throw Error('锁定时序证据不能是链接');
-   }
+   }else if(!fs.existsSync(path.join(projectRoot,'remotion/shots.json')))
+    throw Error('缺少与本次锁定基稿完全一致的已核验修订快照');
    const gate=checkNativeGovernance(evidenceRoot,{catalog,requireNative:true});
    if(!gate.passed)throw Error('已保留分镜的正式原生门禁未通过');
    savedRows=JSON.parse(fs.readFileSync(path.join(evidenceRoot,'remotion/native-presentation.json'),'utf8')).shots;
