@@ -93,6 +93,11 @@ test('待发布事务的素材方案绑定独立输入和请求身份；混合�
  const decision=planNodeCorrection(f);assert.equal(decision.action,'material-completion');assert.equal(decision.approved,true);
  f.attempts=[];f.run.nodeRepair={providerSubmitted:true,status:'blocked',node:'storyboard-review'};
  assert.equal(planNodeCorrection(f).action,'material-completion');
+ // Once bindings are valid, a remaining creative issue must not replay the
+ // original response and erase this exact working copy's successful bindings.
+ const completed=structuredClone(f);completed.sourcePlan.needs=[];
+ completed.feedback={sourceGate:'candidates',failedChecks:[{shotId:'s04',code:'GRAPHIC_COMPARISON_REQUIRED'}]};
+ assert.equal(planNodeCorrection(completed).action,null);
  assert.deepEqual(decision.materialCompletionPlan.target,target);assert.equal(decision.materialCompletionPlan.paidCalls,0);
  const tampered=structuredClone(decision.proposal);tampered.materialCompletionPlan.target.requestId='old-response';
  assert.equal(approveNodeCorrection(tampered,f).approved,false);

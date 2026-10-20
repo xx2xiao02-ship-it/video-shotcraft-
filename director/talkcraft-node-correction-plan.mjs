@@ -37,7 +37,8 @@ export function proposeNodeCorrection({run,feedback,attempts=[],fingerprint,prog
   // This draft already has receipt-bound compiler and failed-gate evidence.
   // Repair its material inputs directly; replaying again or checking the old
   // installed storyboard cannot fill a slot in the retained working copy.
-  const retainedMaterialRepair=!!sourcePlan?.target&&sourcePlan.needs?.length>0;
+  const retainedMaterialRepair=!!sourcePlan?.target&&
+    (sourcePlan.needs?.length>0||feedback?.sourceGate==='candidates');
   if(!run.editorialResponseSaved&&feedback?.snapshot&&unsubmitted?.schema==='talkcraft-editorial-revision-authorization-v1'&&
     unsubmitted.runId===run.runId&&unsubmitted.startedAt&&!unsubmitted.completedAt&&!unsubmitted.recoveredInputs&&!used('restore-unsubmitted'))
     return {...base,state:'ready-to-correct',approved:false,action:'restore-unsubmitted',body:{stage:'editorial-recover',restoreUnsubmitted:true},reason:'先免费恢复本次发送前失败的原分镜快照；不重新调用模型'};
