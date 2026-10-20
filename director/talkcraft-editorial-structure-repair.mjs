@@ -1,6 +1,7 @@
 import {isDeepStrictEqual} from 'node:util';
 import {createHash} from 'node:crypto';
 import {editorialAnchorModelScope} from './talkcraft-editorial-anchor-scope.mjs';
+import {proposeEditorialDslCorrection,approveEditorialDslCorrection,executeEditorialDslCorrection} from './talkcraft-editorial-dsl-correction.mjs';
 import {proposeEditorialPunctuationCorrection,approveEditorialPunctuationCorrection,executeEditorialPunctuationCorrection} from './talkcraft-editorial-punctuation-correction.mjs';
 
 const object=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
@@ -27,7 +28,7 @@ function normalizeQueries(value,shotId,location,changes,issues){
 
 // Lossless protocol adaptation only. Content, identities and clocks are never
 // inferred. The caller still runs the original full selection compiler.
-export function repairEditorialStructure(raw,request){
+export function repairEditorialStructure(raw,request,catalog){
   let response=structuredClone(raw);const changes=[],issues=[];
   if(raw?.requestId!==request?.requestId)throw Error('结构修复请求指纹不匹配');
   for(const row of response.repairs||[]){
@@ -84,7 +85,7 @@ export function repairEditorialStructure(raw,request){
       changes.push({shotId:row.shotId,operation:duplicate?'deduplicate-identical':'relocate',from:key,to:`templateParams.${key}`});
     }
   }
-  let punctuationCorrection=null;
+  let punctuationCorrection=null,dslCorrection=null;
   if(!issues.length){
     const proposal=proposeEditorialPunctuationCorrection(response,request);
     const approval=approveEditorialPunctuationCorrection(proposal,response,request);
@@ -92,9 +93,14 @@ export function repairEditorialStructure(raw,request){
     punctuationCorrection={proposal,approval};
     changes.push(...proposal.changes.map(c=>({...c,operation:c.evidence.kind,
       from:`nativePresentation.wordEvents[${c.eventIndex}]`,to:`nativePresentation.wordEvents[${c.eventIndex}]`} )));
+    const dslPlan=proposeEditorialDslCorrection(response,request,catalog);
+    const dslApproval=approveEditorialDslCorrection(dslPlan,response,request,catalog);
+    response=executeEditorialDslCorrection(dslPlan,dslApproval,response,request,catalog);
+    dslCorrection={proposal:dslPlan,approval:dslApproval};
+    changes.push(...dslPlan.changes.map(c=>({...c,operation:'source-proven-dsl-label',from:c.field,to:c.field})));
   }
   return {response:issues.length?structuredClone(raw):response,report:{schema:'talkcraft-editorial-structure-repair-v1',
-    punctuationCorrection,
+    punctuationCorrection,dslCorrection,
     requestId:request.requestId,passed:!issues.length,changes:issues.length?[]:changes,issues,
     rawSha256:hash(raw),normalizedSha256:hash(issues.length?raw:response),externalRequests:0,productionAdmitted:false}};
 }

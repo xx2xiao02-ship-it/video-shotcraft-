@@ -13,6 +13,11 @@ const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const sha=file=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 export const governedVisibleText=(card,key,value)=>{
   const syntax=card?.policy?.dsl?.[key]?.syntax;
+  // parseSteps renders the label after the first separator. The preceding
+  // column is a structural step badge, just like chapter numbering. Without
+  // a separator the entire line is the label and numbering is automatic.
+  if(syntax==='steps')return clean(String(value??'').split(/\r?\n/u).map(s=>s.trim()).filter(Boolean)
+    .map(line=>{const i=line.indexOf('|');return i<0?line:line.slice(i+1).trim();}).join(''));
   // Read only the text columns used by the locked source parser. Numeric
   // geometry and toggle state are not rendered prose. Unknown DSLs still use
   // strict whole-value coverage rather than silently dropping columns.

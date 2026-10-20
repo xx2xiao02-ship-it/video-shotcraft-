@@ -8,6 +8,8 @@ import {resolveReveal,wordRenderTimingFile} from './talkcraft-word-reveal.mjs';
 import {preservedEditorialSelectionShots} from './talkcraft-editorial-selection.mjs';
 import {checkNativeGovernance} from './talkcraft-native-governance.mjs';
 import {verifiedCandidateRevisionFeedback} from './talkcraft-editorial-planning-contract.mjs';
+import {proposeEditorialTimingCorrection,executeEditorialTimingCorrection} from './talkcraft-editorial-timing-correction.mjs';
+import {approveEditorialTimingCorrection} from './talkcraft-correction-center.mjs';
 
 // Source-derived design input, not another hand-maintained template map. Text
 // defaults are never sent as creative content. Array counts/default parameters
@@ -86,6 +88,13 @@ export function auditEditorialTiming(result,{aligned,catalog,projectRoot,selecti
    rows.push(row);shots.push(shot);events.push(...resolved);
   }catch(error){add(shot.id,'EDITORIAL_TIMING_INVALID',`${shot.id}生成时序编译失败：${error.message}`);}
  }
- if(shots.length){const report=checkTextEffectDependencies(shots,{shots:rows},{events});issues.push(...report.issues);checks.push(...report.checks);}
- return {schema:'talkcraft-editorial-timing-audit-v1',passed:issues.length===0,issues,checks,externalRequests:0,productionAdmitted:false};
+ let correction=null,presentation={shots:rows};
+ if(shots.length){
+  const plan=proposeEditorialTimingCorrection(shots,presentation,{events});
+  const approval=approveEditorialTimingCorrection(plan,shots,presentation,{events});
+  if(plan.operations.length){presentation=executeEditorialTimingCorrection(plan,approval,shots,presentation,{events});correction={plan,approval};}
+  const report=checkTextEffectDependencies(shots,presentation,{events});issues.push(...report.issues);checks.push(...report.checks);
+ }
+ return {schema:'talkcraft-editorial-timing-audit-v1',passed:issues.length===0,issues,checks,correction,
+  executionRows:presentation.shots,externalRequests:0,productionAdmitted:false};
 }

@@ -4,7 +4,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {talkcraftProject,prepareTalkcraftStoryboardRevision,requestTalkcraftStoryboardAdjustment} from './talkcraft-status.mjs';
-import {currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRepairScopeSha256} from './talkcraft-editorial-planning-contract.mjs';
+import {currentEditorialRepairFeedback,currentRejectedEditorialFeedback,editorialRepairScopeSha256,preserveRetainedEditorialExecutionBase} from './talkcraft-editorial-planning-contract.mjs';
 import {runTalkcraftStage} from './talkcraft-stages.mjs';
 import {generateEditorial,checkEditorial,recoverProviderEditorial,checkEditorialSelectionInput} from './talkcraft-ark-editorial.mjs';
 import {trackTalkcraftExecution} from './talkcraft-execution.mjs';
@@ -180,6 +180,7 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
       // transaction before archiving; otherwise it would rediscover old 5-shot
       // failures from the installed, unchanged production storyboard.
       fs.writeFileSync(path.join(target,'qa/planning-editorial-repair.json'),JSON.stringify(feedback,null,2));
+      preserveRetainedEditorialExecutionBase(target,project,feedback);
     }
     const {revision}=prepareTalkcraftStoryboardRevision(root,runId);
     const checked=await stage('semantic-check',runId);
@@ -214,7 +215,9 @@ export async function executeEditorialRevision(root,runId,{stage=runTalkcraftSta
 export async function recoverNodeEditorialResponse(root,runId,{stage=runTalkcraftStage,recover=recoverProviderEditorial}={}){
   const project=talkcraftProject(root,runId),journal=read(path.join(project,'qa/node-repair.json'));
   const lock=path.join(project,'editorial-revision.lock'),fd=fs.openSync(lock,'wx');
-  try{return await executeNodeRepair({root,runId,project,node:journal.node,resumeProviderResponse:true,operation:async()=>{
+  try{return await executeNodeRepair({root,runId,project,node:journal.node,resumeProviderResponse:true,operation:async target=>{
+    const baseFile=path.join(target,'qa/candidate-editorial-revision-feedback.json');
+    if(fs.existsSync(baseFile))preserveRetainedEditorialExecutionBase(target,project,read(baseFile));
     const result=await recover(root,runId);
     if(result?.passed===false)throw Error('恢复结果未通过正式校验');
     await stage('candidates',runId);

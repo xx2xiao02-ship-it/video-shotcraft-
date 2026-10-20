@@ -11,7 +11,7 @@ import {loadLibraryContract,resolveLibrarySource,libraryContractSnapshot} from '
 import {inspectSourceContent} from './talkcraft-source-content.mjs';
 import {discoverArchiveSources} from './talkcraft-source-archive.mjs';
 import {probeMedia} from '../docs/audits/b-talkcraft-target3/validation.mjs';
-import {currentEditorialRepairFeedback,editorialMaterialTarget} from './talkcraft-editorial-planning-contract.mjs';
+import {currentEditorialRepairFeedback,editorialMaterialTarget,verifiedCandidateRevisionFeedback} from './talkcraft-editorial-planning-contract.mjs';
 import {executeNodeRepair} from './talkcraft-node-repair.mjs';
 
 const LIBRARY_ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -51,7 +51,7 @@ export function sourceSearchContract(query,concepts=[],alternatives=[]){
  const special=groups.filter(([r])=>r.source.startsWith('诺贝尔')||r.source.startsWith('央行')&&!diagram);
  const flow=diagram?groups.filter(([r])=>r.source.startsWith('资金')):[];
  const required=special.length?special:flow.length?flow:
-  /商场|超市|购物|shopping|supermarket|grocery|\bmall\b/iu.test(query)?groups.filter(([r])=>r.source.startsWith('市场')):
+  /商场|超市|购物|shopping|supermarket|grocery|\bmall\b|物价.{0,20}市场|市场.{0,20}物价/iu.test(query)?groups.filter(([r])=>r.source.startsWith('市场')):
   /收入|工资|存款|存钱|储蓄/u.test(query)&&!/城市|街景/u.test(query)?groups.filter(([r])=>r.source.startsWith('收入')):
   /钱包|口袋|钱/u.test(query)?groups.filter(([r])=>r.source.startsWith('钱')):groups;
  const ceremony=/颁奖|ceremony|award stage/iu.test(text);
@@ -219,6 +219,24 @@ export function discoverLocalCompletionSources(root,need){
 // Only reuse current-task, same-shot, already verified documents. The actual
 // captured text must satisfy the new slot; a query label is never evidence.
 export function discoverReviewedCompletionSources(project,need){
+ if(need.kind==='video'&&need.field==='@background'){
+  const feedback=verifiedCandidateRevisionFeedback(project);if(!feedback?.snapshot)return [];
+  const snapshot=path.resolve(project,feedback.snapshot),old=read(path.join(snapshot,'material-research-plan.json'));
+  const before=read(path.join(snapshot,'remotion/shots.json')).find(s=>s.id===need.shotId);
+  const current=read(path.join(project,'remotion/shots.json')).find(s=>s.id===need.shotId);
+  const b=old.shots?.find(r=>r.shotId===need.shotId)?.backgroundBinding;
+  if(!b||!before||!current||before.firstSentence!==current.firstSentence||before.lastSentence!==current.lastSentence||
+   before.shotCard!==current.shotCard||b.sourceVerified!==true||b.licenseVerified!==true||!b.license||!b.licenseUrl||
+   !/^https:\/\//u.test(b.sourceUrl||'')||!/^qa\/source-discovery\/[a-zA-Z0-9.-]+\.json$/u.test(b.evidence||''))return [];
+  try{
+   const match=sourceSearchContract(need.query,need.concepts,need.alternatives);
+   if(!match.matches(b.title+' '+String(b.description||'').slice(0,600)))return [];
+   const file=publicFile(project,b.localPath),evidence=path.resolve(project,b.evidence);
+   if(fs.realpathSync(evidence)!==evidence||sha(fs.readFileSync(evidence))!==b.evidenceSha256||sha(fs.readFileSync(file))!==b.sha256)return [];
+   const meta=probeMedia(file);if(meta.kind!=='video')return [];
+   return [{...b,currentProjectSource:true,meta,matchedConcepts:match.matched(b.title+' '+String(b.description||'').slice(0,600))}];
+  }catch{return [];}
+ }
  if(need.kind!=='image'||!/页面|截图|公告|报告/u.test(need.query))return [];
  const research=read(path.join(project,'material-research-plan.json'));
  const row=research.shots.find(r=>r.shotId===need.shotId),match=sourceSearchContract(need.query,need.concepts);

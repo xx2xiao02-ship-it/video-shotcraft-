@@ -8,6 +8,7 @@ import {execFileSync} from 'node:child_process';
 import {sourceSearchContract,commonsCandidate,materialCompletionPlan,executeMaterialCompletion,executeApprovedMaterialCompletion,materialInputRecheckRequired,discoverReviewedCompletionSources,discoverCompletionSources,SOURCE_DOWNLOAD_BUDGET} from './talkcraft-material-completion.mjs';
 import {planNodeCorrection,approveNodeCorrection} from './talkcraft-correction-center.mjs';
 import {dueSourceRetryToken} from './talkcraft-node-correction-plan.mjs';
+import {savePlanningEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 test('素材指纹复检读取正式原始状态，不能依赖仅HTTP控制层存在的nextStage',()=>{
  assert.equal(materialInputRecheckRequired({digitalHumanGenerationPlanned:true,mediaPreparationPassed:false}),true);
@@ -41,6 +42,10 @@ test('检索合同保留中文优先；奖项与机构不被泛化配图冒充',
  assert.equal(explicitScene.matches('客户谈判握手房地产银行办公开会视频'),false);
  assert.equal(explicitScene.matches('Shoppers in a supermarket'),true);
  assert.equal(explicitScene.matches('商场购物消费实拍'),true);
+ const priceScene=sourceSearchContract('物价稳定 收入稳定 市场 生活 实景 视频');
+ assert.equal(priceScene.matches('客户谈判握手房地产银行办公开会视频'),false);
+ assert.equal(priceScene.matches('Shopping square with shoppers'),true);
+ assert.equal(priceScene.matches('Shoppers in a supermarket'),true);
 });
 test('公开站点候选须逐文件有自由许可、作者和语义；不接受模型或URL充当许可',()=>{
  const args={kind:'video',query:'城市街景',match:sourceSearchContract('城市街景')};
@@ -116,6 +121,16 @@ test('真实视频采集、绑定、重复继续复用缓存；不改文案和�
  const next=materialCompletionPlan(p,catalog);assert.equal(next.needs.length,0);
  await executeMaterialCompletion(p,catalog,{plan:next,approval:{planId:next.planId,inputSha256:digest(next.inputs),productionAdmitted:false},fetchImpl});assert.equal(downloads,1);
  await assert.rejects(executeApprovedMaterialCompletion(p,catalog));
+ // A subsequent partial revision owns one explicit, hash-bound execution
+ // snapshot. Its video can be offered again only for the same slot/context.
+ savePlanningEditorialRepairFeedback(p,{passed:false,issues:[{shotId:shot.id,code:'GRAPHIC_COMPARISON_REQUIRED'}]});
+ preserveCandidateMaterialRepairFeedback(p,path.join(p,'qa/storyboard-revisions/exact-parent'));
+ const need={kind:'video',field:'@background',shotId:shot.id,query:'城市街景',concepts:['city street']};
+ assert.equal(discoverReviewedCompletionSources(p,need).length,1);
+ assert.equal(discoverReviewedCompletionSources(p,{...need,query:'商场购物',concepts:[]}).length,0);
+ assert.equal(discoverReviewedCompletionSources(p,{...need,shotId:'other-shot'}).length,0);
+ fs.appendFileSync(path.join(p,'remotion/public',report.operations[0].source.localPath),'changed');
+ assert.equal(discoverReviewedCompletionSources(p,need).length,0);
 });
 
 test('章节视频底板的透明公开参数进入审批方案，处理器执行后原文字与配音不变',async t=>{

@@ -114,7 +114,24 @@ export async function executeNodeRepair({root,runId,project,node,operation,resum
 // exact rollback set, retaining all work/provider evidence for free inspection.
 export function recoverNodePublication(project){
   const file=path.join(project,'qa/node-repair.json');if(!fs.existsSync(file))return false;
-  const r=read(file);if(r.schema!=='talkcraft-node-repair-v1'||r.status!=='publishing')return false;
+  const r=read(file);if(r.schema!=='talkcraft-node-repair-v1')return false;
+  if(r.status==='running'){
+    if(!Number.isSafeInteger(r.pid)||r.pid<=0||r.pid===process.pid)return false;
+    try{process.kill(r.pid,0);return false;}catch(error){if(error.code!=='ESRCH')return false;}
+    const base=path.join(project,'qa/node-repairs'),dir=path.resolve(project,r.directory),rel=path.relative(base,dir),work=path.join(dir,'work');
+    if(!rel||rel.startsWith('..')||path.isAbsolute(rel)||fs.realpathSync(dir)!==dir||fs.realpathSync(work)!==work)throw Error('中断事务目录不合法');
+    if(read(path.join(project,'source-run.json')).runId!==r.runId||read(path.join(work,'source-run.json')).runId!==r.runId||
+      !r.providerSubmitted||hash(path.join(project,'qa/editorial-single-submission.json'))!==hash(path.join(work,'qa/editorial-single-submission.json')))
+      throw Error('中断事务缺少本次同源提交证据，不能恢复');
+    const lock=path.join(project,'editorial-revision.lock');
+    if(fs.existsSync(lock)){
+      if(fs.lstatSync(lock).isSymbolicLink()||fs.statSync(lock).size!==0)throw Error('中断锁不属于已知空锁协议');
+      fs.renameSync(lock,path.join(dir,`interrupted-lock-${randomUUID()}`));
+    }
+    fs.writeFileSync(file,JSON.stringify({...r,status:'blocked',error:'节点进程中断，保留本次已提交响应供免费恢复',interruptedAt:new Date().toISOString()},null,2));
+    return true;
+  }
+  if(r.status!=='publishing')return false;
   if(r.pid&&r.pid!==process.pid){let alive=false;try{process.kill(r.pid,0);alive=true;}catch(error){if(error.code!=='ESRCH')alive=true;}if(alive)throw Error('节点发布进程仍在运行，不得并发恢复');}
   const base=path.join(project,'qa/node-repairs'),dir=path.resolve(project,r.directory),rel=path.relative(base,dir);
   if(!rel||rel.startsWith('..')||path.isAbsolute(rel))throw Error('节点恢复目录不属于当前任务');

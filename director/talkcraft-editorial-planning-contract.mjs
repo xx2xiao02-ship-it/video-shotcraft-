@@ -396,6 +396,64 @@ export function verifiedCandidateRevisionFeedback(project){
   JSON.stringify(record.inputs)===JSON.stringify(candidateFeedbackHashes(snapshot,record.stage)))return record;
  return null;
 }
+// A retained design and its executed timing must travel together into the next
+// transaction. The installed production storyboard is deliberately unchanged.
+// Resolve one explicitly named parent; never scan previous attempts or runs.
+export function preserveRetainedEditorialExecutionBase(project,production,feedback){
+ if(!feedback?.retainedTransaction)return null;
+ const base=path.resolve(production,'qa/node-repairs'),parent=path.resolve(production,feedback.retainedTransaction),rel=path.relative(base,parent);
+ if(!rel||rel.startsWith('..')||path.isAbsolute(rel)||rel.split(path.sep).length!==1)
+  throw Error('继承基稿事务不属于当前任务');
+ const source=path.join(parent,'work');
+ if(path.resolve(source)===path.resolve(project)||fs.realpathSync(source)!==source)throw Error('继承基稿事务不能自引用或使用链接');
+ const read=n=>JSON.parse(fs.readFileSync(path.join(source,n),'utf8'));
+ const runId=JSON.parse(fs.readFileSync(path.join(production,'source-run.json'),'utf8')).runId;
+ if(!runId||read('source-run.json').runId!==runId||JSON.parse(fs.readFileSync(path.join(project,'source-run.json'),'utf8')).runId!==runId)
+  throw Error('继承基稿任务标识不同');
+ const request=read('qa/editorial-selection-request.json'),audit=read('qa/editorial-selection-audit.json'),proposal=read('qa/ark-editorial-response.json');
+ if(request.requestId!==feedback.requestId||audit.requestId!==request.requestId||audit.compiled!==true||audit.passed!==true||
+  audit.compiledSha256!==createHash('sha256').update(JSON.stringify(proposal)).digest('hex')||!isDeepStrictEqual(proposal,feedback.proposal))
+  throw Error('继承基稿与本次明确指定的编译结果不一致');
+ // Bind the parent to its real provider receipt, not merely a saved JSON file.
+ const raw=recoverBoundEditorialSelectionResponse(source,{runId,request});
+ const replayFile=path.join(source,'qa/editorial-free-selection-replay.json');
+ const replay=fs.existsSync(replayFile)?JSON.parse(fs.readFileSync(replayFile,'utf8')):null;
+ const rawFile=audit.rawResponse||(replay?.requestId===request.requestId?replay.rawResponse:null);
+ if(!/^qa\/editorial-provider-responses\/[\dTZ-]+\.json$/u.test(String(rawFile||'').replaceAll('\\','/'))||
+  !isDeepStrictEqual(raw,read(rawFile)))throw Error('继承基稿原始响应不一致');
+ const report=read(feedback.sourceGate==='candidates'?'qa/candidate-editorial-repair.json':'qa/planning-editorial-repair.json');
+ if(!isDeepStrictEqual(report.inputs,candidateFeedbackHashes(source,report.stage)))throw Error('继承基稿执行反馈已变化');
+ for(const n of ['input.txt','aligned-sentences.json','audio/full.mp3'])
+  if(fileHash(source,n)!==fileHash(project,n)||fileHash(source,n)!==fileHash(production,n))throw Error('继承基稿原稿、配音或时间轴不同');
+ const inputs=candidateFeedbackHashes(source,'planning-check');
+ // Carry only hash-verified files named by this parent's actual bindings.
+ // A new transaction must not rediscover or pay for already acquired media.
+ const research=read('material-research-plan.json');
+ for(const row of research.shots||[])for(const b of [row.backgroundBinding,...(row.bindings||[])].filter(Boolean)){
+  for(const [name,expected] of [[b.localPath&&'remotion/public/'+b.localPath,b.sha256],[b.evidence,b.evidenceSha256]]){
+   if(!name||!expected)continue;
+   const from=path.resolve(source,name),relative=path.relative(source,from);
+   if(!relative||relative.startsWith('..')||path.isAbsolute(relative)||fs.realpathSync(from)!==from||fileHash(source,name)!==expected)
+    throw Error('继承素材路径或来源哈希不一致');
+   const to=path.join(project,name);fs.mkdirSync(path.dirname(to),{recursive:true});
+   if(fs.existsSync(to)){if(fileHash(project,name)!==expected)throw Error('继承素材与当前文件冲突');}
+   else fs.copyFileSync(from,to);
+  }
+ }
+ const key=createHash('sha256').update(JSON.stringify({requestId:request.requestId,inputs})).digest('hex');
+ const snapshot=path.join(project,'qa/storyboard-revisions','retained-'+key);
+ for(const n of Object.keys(inputs)){
+  if(!inputs[n])continue;
+  const from=path.join(source,n),to=path.join(snapshot,n);
+  if(fs.lstatSync(from).isSymbolicLink())throw Error('继承基稿文件不能是链接');
+  fs.mkdirSync(path.dirname(to),{recursive:true});
+  if(fs.existsSync(to)){if(fileHash(snapshot,n)!==inputs[n])throw Error('继承基稿快照被修改');}
+  else fs.copyFileSync(from,to);
+ }
+ const record={...feedback,stage:'planning-check',inputs,snapshot:path.relative(project,snapshot)};
+ fs.writeFileSync(path.join(project,'qa/candidate-editorial-revision-feedback.json'),JSON.stringify(record,null,2));
+ return record;
+}
 export function preserveCandidateMaterialRepairFeedback(project,revision){
   const current=currentEditorialRepairFeedback(project,{candidateSnapshotOnly:true});
   if(current?.schema!=='talkcraft-candidate-editorial-repair-v1')return null;

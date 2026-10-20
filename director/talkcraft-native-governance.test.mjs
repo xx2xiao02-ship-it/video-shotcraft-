@@ -46,6 +46,14 @@ test('锚点词 DSL 只按可见文案校验，不要求时间与样式列出现
  assert.equal(governedVisibleText(card,'stepsDsl','经济冷了|1.2|#fff\n央行降息|2.4|#000'),'经济冷了央行降息');
 });
 
+test('步骤DSL按源码首个分隔符提取正文，支持自动编号，不把结构编号要求为口播',()=>{
+ const card={policy:{dsl:{stepsDsl:{syntax:'steps'}}}};
+ assert.equal(governedVisibleText(card,'stepsDsl','01|实际行动\n02|复检结果'),'实际行动复检结果');
+ assert.equal(governedVisibleText(card,'stepsDsl','实际行动\n复检|结果'),'实际行动结果');
+ assert.equal(governedVisibleText(card,'stepsDsl','1|实际|行动'),'实际行动');
+ assert.notEqual(governedVisibleText(card,'stepsDsl','1|不同的正文'),'实际行动');
+});
+
 test('正式字级编译入口未显式传目录时也使用同一已审DSL规则',t=>{
  const f=fixture(t),words='很多|0.00\n国际|0.72\n大奖|1.02|serif\n听着|1.36\n宏大|1.52|color';
  f.put('source-run.json',{runId:f.id,pipeline:'video-talkcraft'});

@@ -3,6 +3,21 @@ import {executeNodeRepair,recoverNodePublication} from './talkcraft-node-repair.
 import {createHash} from 'node:crypto';
 import {talkcraftProject} from './talkcraft-status.mjs';
 const id='aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+test('已提交事务中断仅在进程确已退出且同任务回执一致时恢复，保留锁证据且幂等',t=>{
+ const f=fixture(t),dir=path.join(f.project,'qa/node-repairs/current'),work=path.join(dir,'work');fs.mkdirSync(path.join(work,'qa'),{recursive:true});
+ for(const p of [f.project,work]){
+  fs.writeFileSync(path.join(p,'source-run.json'),JSON.stringify({runId:id}));
+  fs.writeFileSync(path.join(p,'qa/editorial-single-submission.json'),JSON.stringify({submittedAt:'this-request',outcome:'response-saved'}));
+ }
+ const file=path.join(f.project,'qa/node-repair.json'),record={schema:'talkcraft-node-repair-v1',runId:id,node:'storyboard-review',status:'running',pid:2147483647,directory:'qa/node-repairs/current',providerSubmitted:true};
+ fs.writeFileSync(file,JSON.stringify({...record,pid:process.pid}));assert.equal(recoverNodePublication(f.project),false);
+ fs.writeFileSync(file,JSON.stringify(record));fs.writeFileSync(path.join(f.project,'editorial-revision.lock'),'');
+ assert.equal(recoverNodePublication(f.project),true);assert.equal(recoverNodePublication(f.project),false);
+ assert.equal(JSON.parse(fs.readFileSync(file)).status,'blocked');assert.equal(fs.existsSync(path.join(f.project,'editorial-revision.lock')),false);
+ assert.ok(fs.readdirSync(dir).some(n=>n.startsWith('interrupted-lock-')));
+ fs.writeFileSync(file,JSON.stringify(record));fs.writeFileSync(path.join(work,'source-run.json'),JSON.stringify({runId:'other-run'}));
+ assert.throws(()=>recoverNodePublication(f.project),/同源/);
+});
 function fixture(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'node-repair-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
  const project=path.join(root,'director/b-mode-runs',id,'talkcraft');fs.mkdirSync(path.join(project,'qa'),{recursive:true});
  for(const [n,v] of Object.entries({'source-run.json':'{}','SHOTBOOK.md':'accepted','qa/editorial-single-submission.json':'{"submittedAt":"old"}'}))fs.writeFileSync(path.join(project,n),v);

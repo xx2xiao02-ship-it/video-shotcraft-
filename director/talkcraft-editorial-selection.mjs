@@ -313,7 +313,7 @@ export function compileEditorialSelection(response,request,inputs){
     return card?[...auditEditorialRequiredProps(card,repair.templateParams?.cardProps,repair.shotId).issues,
       ...(object(repair.templateParams?.cardProps)?auditEditorialParameterBudget(card,repair.templateParams.cardProps,repair.shotId).issues:[])]:[];
   });
-  const structure=repairEditorialStructure(response,request);
+  const structure=repairEditorialStructure(response,request,inputs.catalog);
   if(inputs.projectRoot&&fs.existsSync(path.join(inputs.projectRoot,'qa/editorial-selection-request.json')))
     fs.writeFileSync(path.join(inputs.projectRoot,'qa/editorial-structure-repair.json'),JSON.stringify(structure.report,null,2));
   if(!structure.report.passed)throw Object.assign(Error('局部修订结构冲突，不能自动修复'),{issues:[...structure.report.issues,...parameterIssues]});
