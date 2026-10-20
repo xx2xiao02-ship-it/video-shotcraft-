@@ -969,7 +969,7 @@ function runTalkcraftStageInternal(stage, runId) {
       writeTalkcraftTemplateUsage(project,SKILL,path.join(remotion,'out/final.mp4'));
       recordOfficialRender(project,SKILL);
       writeFileSync(path.join(project,'qa/audio-level-repair.json'),JSON.stringify({schema:'talkcraft-audio-level-repair-v1',
-        changes:levelRepair.changes,archive,videoReencoded:false,paidCalls:0,finalSha256:sha256(path.join(remotion,'out/final.mp4'))},null,2));
+        changes:levelRepair.changes,measurement:levelRepair.measurement,runtimeSha256:levelRepair.runtimeSha256,archive,videoReencoded:false,paidCalls:0,finalSha256:sha256(path.join(remotion,'out/final.mp4'))},null,2));
     }
     writeTalkcraftQaManifests(ROOT, runId);
     requireFiles(project, ['remotion/out/final.mp4', 'remotion/cues.json', 'remotion/cards-used.json', 'remotion/anchors.json']);
