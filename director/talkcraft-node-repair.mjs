@@ -16,6 +16,7 @@ const inputPreflightReport=n=>n==='qa/editorial-input-preflight'||n.startsWith('
 // bindings or provider evidence. A free recheck may refresh them while a paid
 // response is retained. Rebase only these outputs before rerunning all gates.
 const recheckOutputs=new Set(['qa/content-onset-check.json','qa/editorial-completion.json',
+ 'qa/governance-case.json','qa/governance-template-map.json',
  'qa/material-research-editorial.json','qa/native-governance.json','qa/native-word-window-check.json',
  'qa/planning-editorial-repair.json','qa/planning-result.json','qa/semantic-passed.json',
  'qa/storyboard-review-completion.json','qa/text-effect-dependencies.json','qa/word-reveal-plan-check.json',

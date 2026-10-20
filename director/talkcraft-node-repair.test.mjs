@@ -117,17 +117,22 @@ test('发送前报告排除不豁免真实时间轴、素材绑定、请求和�
 
 test('免费恢复允许正式复检更新派生产物，但不发布旧诊断且保留业务输入保护',async t=>{
  const f=fixture(t),report=path.join(f.project,'qa/planning-result.json');fs.writeFileSync(report,'before-recheck');
+ const derived=['qa/governance-case.json','qa/governance-template-map.json'];
+ for(const n of derived)fs.writeFileSync(path.join(f.project,n),'old-centre-diagnostic');
  await assert.rejects(()=>executeNodeRepair({...f,operation:work=>{
   fs.writeFileSync(path.join(work,'qa/editorial-single-submission.json'),'{"submittedAt":"new"}');
   fs.writeFileSync(path.join(work,'SHOTBOOK.md'),'retained proposal');
   throw Error('retained failure');
  }}),/retained failure/);
  fs.writeFileSync(report,'latest-check');
+ for(const n of derived)fs.writeFileSync(path.join(f.project,n),'current-centre-diagnostic');
  await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:work=>{
   assert.equal(fs.readFileSync(path.join(work,'qa/planning-result.json'),'utf8'),'latest-check');
+  for(const n of derived)assert.equal(fs.readFileSync(path.join(work,n),'utf8'),'current-centre-diagnostic');
   fs.writeFileSync(path.join(work,'qa/planning-result.json'),'new-transaction-check');throw Error('still invalid');
  }}),/still invalid/);
  assert.equal(fs.readFileSync(report,'utf8'),'latest-check');
+ for(const n of derived)assert.equal(fs.readFileSync(path.join(f.project,n),'utf8'),'current-centre-diagnostic');
  fs.writeFileSync(path.join(f.project,'SHOTBOOK.md'),'user-edited');
  await assert.rejects(()=>executeNodeRepair({...f,resumeProviderResponse:true,operation:()=>assert.fail()}),/正式输入已变化/);
 });

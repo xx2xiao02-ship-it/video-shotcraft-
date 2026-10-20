@@ -70,8 +70,10 @@ export function validateNativeTimeline(row,durationFrames,nativeFrames) {
   if(lastNative!==nativeFrames-1)problems.push('原卡动作未完整播放');
   return [...new Set(problems)];
 }
-export function checkNativeGovernance(project,{catalog,write=false}={}) {
-  if(!isNativePresentation(project))return {required:false,passed:true,issues:[]};
+export function checkNativeGovernance(project,{catalog,write=false,requireNative=false}={}) {
+  // An exact revision archive has no renderer entrypoint, but its retained
+  // native artifacts still require every original structural check.
+  if(!requireNative&&!isNativePresentation(project))return {required:false,passed:true,issues:[]};
   // The word compiler also calls this without a catalog. Production must use
   // the same DSL visibility rules as the preceding planning check.
   if(!catalog&&fs.existsSync(path.join(project,'source-run.json'))&&read(path.join(project,'source-run.json')).pipeline==='video-talkcraft'){

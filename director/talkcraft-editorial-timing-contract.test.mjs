@@ -9,6 +9,7 @@ import {proposeDependencyTimeline} from './talkcraft-dependency-timeline.mjs';
 import {nativeEditorialTimeline} from './talkcraft-editorial-native-plan.mjs';
 import {resolveReveal} from './talkcraft-word-reveal.mjs';
 import {createHash} from 'node:crypto';
+import {savePlanningEditorialRepairFeedback,preserveCandidateMaterialRepairFeedback} from './talkcraft-editorial-planning-contract.mjs';
 const catalog=loadTalkcraftGovernedCatalog(JSON.parse(fs.readFileSync('_audit/video-talkcraft/references/cards-index.json')));
 const cases=[
  ['chip-grid-single-select',{question:'消费选择',options:'消费\n储蓄',selected:2,equation:'储蓄'},'options','消费'],
@@ -117,6 +118,29 @@ test('联合修订保留已执行的免费时间修正，仍按原规则复检�
  const selectionRequest={...contract,requestId:createHash('sha256').update(JSON.stringify(contract)).digest('hex')};
  assert.equal(auditEditorialTiming(f.result,{...f.options,aligned}).passed,false);
  assert.equal(auditEditorialTiming(f.result,{...f.options,aligned,selectionRequest}).passed,true);
+ // Exercise the real revision boundary: preparation archives the accepted
+ // base and removes its active shot artifacts before the provider returns.
+ write('input.txt','当前任务原稿');write('aligned-sentences.json',aligned);
+ write('semantics.json',{sentences:f.result.sentences});write('qa/ark-editorial-response.json',f.result);
+ const feedback=savePlanningEditorialRepairFeedback(f.project,{passed:false,issues:[{code:'TEXT_EFFECT_DEPENDENCY_EARLY',shotId:shot.id}]});
+ const archive=path.join(f.project,'qa/storyboard-revisions/new-task-revision');
+ preserveCandidateMaterialRepairFeedback(f.project,archive);
+ for(const file of ['remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json'])fs.unlinkSync(path.join(f.project,file));
+ const archivedContract={baseProposal:feedback.proposal,editableShotIds:[]};
+ const archivedRequest={...archivedContract,requestId:createHash('sha256').update(JSON.stringify(archivedContract)).digest('hex')};
+ const options={...f.options,aligned,selectionRequest:archivedRequest};
+ assert.equal(auditEditorialTiming(feedback.proposal,options).passed,true);
+ assert.equal(fs.existsSync(path.join(f.project,'remotion/shots.json')),false,'audit never reinstalls archived business artifacts');
+ const prior=fs.readFileSync(path.join(archive,'remotion/word-reveal-plan.json'));
+ fs.writeFileSync(path.join(archive,'remotion/word-reveal-plan.json'),'{}');
+ assert.equal(auditEditorialTiming(feedback.proposal,options).passed,false,'hash mismatch cannot borrow another snapshot');
+ fs.writeFileSync(path.join(archive,'remotion/word-reveal-plan.json'),prior);
+ const changed=structuredClone(feedback.proposal);changed.shots[0].intent='different base';
+ const changedContract={baseProposal:changed,editableShotIds:[]};
+ assert.equal(auditEditorialTiming(changed,{...options,selectionRequest:{...changedContract,
+  requestId:createHash('sha256').update(JSON.stringify(changedContract)).digest('hex')}}).passed,false);
+ // Return to live evidence for the original anchor-tampering assertion.
+ for(const file of ['remotion/shots.json','remotion/native-presentation.json','remotion/word-reveal-plan.json'])fs.copyFileSync(path.join(archive,file),path.join(f.project,file));
  words[0].anchor='关联';write('remotion/word-reveal-plan.json',{scope:'native-shots',fps:30,events:words});
  assert.equal(auditEditorialTiming(f.result,{...f.options,aligned,selectionRequest}).passed,false);
 });
