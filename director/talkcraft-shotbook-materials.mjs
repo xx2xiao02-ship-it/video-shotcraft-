@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+import {hasVideoBackground} from './talkcraft-text-video.mjs';
+import {auditTextVideoFiles} from './talkcraft-text-video-audit.mjs';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const read=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 
@@ -26,11 +29,34 @@ export function syncShotbookMaterials(project){
     if(/[\s()（）,，、]/u.test(row.path))throw Error('素材路径不能被上游SHOTBOOK路径语法无损表达');
     media.get(row.shotId).push(`${row.kind==='image'?'图':'V'}(${row.path})`);
   }
+  const backgrounds=shots.filter(hasVideoBackground),framing=new Map();
+  if(backgrounds.length){
+    const source=fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)),'talkcraft-scene-shared.tsx'),'utf8');
+    if(!source.includes('p.materialRole === \'background\' && <ThemeFrame kind="hairline"')||!source.includes('background:backdrop.overlay'))throw Error('背景ThemeFrame实现缺失，不能生成呈现声明');
+    const checked=auditTextVideoFiles(project,backgrounds);
+    if(!checked.passed)throw Error('背景呈现声明缺少真实视频证明：'+checked.issues.map(i=>i.message).join('；'));
+    for(const shot of backgrounds)framing.set(shot.id,{line:'- 背景呈现：ThemeFrame hairline 主题边框承接真实视频，72%黑色压暗；保留前景原卡。',
+      sourceSha256:hash(Buffer.from(source)),video:checked.files.find(f=>f.shotId===shot.id)});
+  }
   const original=fs.readFileSync(bookFile,'utf8'),changes=[];
+  const framed=new Set();let section=null;
+  for(const line of original.split(/\r?\n/u)){
+    const heading=/^#{1,6}\s+([^\s]+)/u.exec(line);if(heading)section=heading[1];
+    if(framing.has(section)&&line.startsWith('- 背景呈现：')){
+      if(line!==framing.get(section).line)throw Error('SHOTBOOK已有不同背景呈现声明，不能覆盖：'+section);
+      framed.add(section);
+    }
+  }
   let id=null;
   const result=original.split(/\r?\n/u).map(line=>{
     const heading=/^(#{1,6})\s+([^\s]+)/u.exec(line);
-    if(heading)id=/^s\d+[a-z0-9_']*$/iu.test(heading[2])?heading[2]:null;
+    if(heading){
+      id=/^s\d+[a-z0-9_']*$/iu.test(heading[2])?heading[2]:null;
+      if(framing.has(id)&&!framed.has(id)){
+        const target=framing.get(id).line;changes.push({shotId:id,before:null,after:target});
+        return line+'\n'+target;
+      }
+    }
     if(!id||!media.has(id)||!/^\s*[-*]?\s*\**素材\**\s*[:：]/u.test(line))return line;
     const values=[...new Set(media.get(id))];
     if(!values.length)return line;
@@ -49,6 +75,6 @@ export function syncShotbookMaterials(project){
   fs.writeFileSync(bookFile,result);
   fs.writeFileSync(path.join(project,'qa/shotbook-material-sync.json'),JSON.stringify({
     schema:'talkcraft-shotbook-material-sync-v1',beforeSha256,afterSha256:hash(Buffer.from(result)),
-    bindingsSha256:hash(fs.readFileSync(reportFile)),changes,externalRequests:0,productionAdmitted:false},null,2));
+    bindingsSha256:hash(fs.readFileSync(reportFile)),backgroundFraming:[...framing].map(([shotId,proof])=>({shotId,...proof})),changes,externalRequests:0,productionAdmitted:false},null,2));
   return {changed:true,adjustments:changes.map(c=>`${c.shotId}：按当前已核验模板槽位同步SHOTBOOK素材声明`)};
 }
