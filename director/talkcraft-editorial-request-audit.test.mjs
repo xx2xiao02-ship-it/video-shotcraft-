@@ -33,6 +33,8 @@ test('模型输入漏用途、空值政策、容量或伪造时长时，自检�
   ,a=>{delete a.promptCatalog.dslValidator;}
   ,a=>{delete a.promptCatalog.textEffectTiming;}
   ,a=>{a.promptCatalog.textEffectTiming.evaluator='return null';}
+  ,a=>{delete a.promptCatalog.contracts[0].timingDesign;}
+  ,a=>{a.promptCatalog.contracts.find(c=>c.slug==='quote-bracket-pull').timingDesign.reference.effects[0].leadFrames=99;}
   ,a=>{a.promptCatalog.crossFieldChecks='function crossFieldChecks(){return [];}';}
   ,a=>{a.planningContract.timingDomains[0].maxHoldAtNativeFrame++;}
   ,a=>{a.planningContract.timingDomains[0].maxExtraHoldFrames++;}

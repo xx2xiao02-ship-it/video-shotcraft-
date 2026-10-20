@@ -277,6 +277,7 @@ export function checkTextEffectDependencies(shots,presentation,reveals){
   const lowerBounds=constraints.map(c=>({...c,minimumTotalFrames:c.notBeforeFrame+Math.ceil(Math.max(0,row.nativeFrames-1-c.nativeFrame)/1.15)+1}));
   const impossible=lowerBounds.filter(c=>c.minimumTotalFrames>duration);
   checks.push({shotId:shot.id,card:shot.shotCard,coverage:'audited',texts:resolved,effects:effectChecks,
+    constraints,
     feasibility:{durationFrames:duration,minimumTotalFrames:Math.max(duration,...lowerBounds.map(c=>c.minimumTotalFrames)),
       requiresReplanning:impossible.length>0,impossibleConstraints:impossible}});
  }

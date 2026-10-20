@@ -10,6 +10,7 @@ import {auditEditorialJointRepairContract} from './talkcraft-editorial-joint-rep
 import {auditEditorialSelectionRequest,editorialSelectionModelInput} from './talkcraft-editorial-selection.mjs';
 import {auditEditorialConstraintInput} from './talkcraft-editorial-constraints.mjs';
 import {editorialTextEffectInput} from './talkcraft-text-effect-dependencies.mjs';
+import {editorialTimingDesignContract} from './talkcraft-editorial-timing-contract.mjs';
 
 // Verify the actual serialized request data, not a second prose-only rule list.
 export function auditEditorialRequestContract({promptCatalog,catalog,planningContract,repairInputs=null,selectionRequest=null,selectionModelInput=null,theme}){
@@ -38,6 +39,7 @@ export function auditEditorialRequestContract({promptCatalog,catalog,planningCon
      domain.maxExtraHoldFraction!==(mediaLocked?0:0.5))issues.push(`${card.cardId} 驻留边界或冻结预算缺失/不一致`);
   const sent=promptCatalog.contracts.find(c=>c.slug===card.cardId);
   if(!sent){issues.push(`${card.cardId} 缺少模型契约`);continue;}
+  if(!same(sent.timingDesign,editorialTimingDesignContract(card)))issues.push(`${card.cardId}逐字段时序生成合同与正式源码不一致`);
   if(!same(sent.sourceDisplayFields,editorialSourceDisplayFields(card)))issues.push(`${card.cardId} 真实资料展示槽与后端不一致`);
   if(!same(sent.required,card.policy.required)||!same(sent.media,card.policy.media)||
      !same(sent.mediaAlternatives,card.policy.mediaAlternatives)||sent.fps!==card.duration.fps||

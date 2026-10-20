@@ -27,6 +27,7 @@ const RULE_FILES=['talkcraft-visual-preference.mjs','talkcraft-reviewed-template
  'talkcraft-research-binding.mjs','talkcraft-template-material-resolver.mjs','talkcraft-correction-center.mjs',
  'talkcraft-node-correction-plan.mjs','talkcraft-editorial-joint-selection.mjs','talkcraft-ark-editorial.mjs','talkcraft-institution-source-repair.mjs',
  'talkcraft-governance-map.mjs','talkcraft-library-contract.mjs','talkcraft-library-rights.mjs','talkcraft-material-completion.mjs','talkcraft-source-content.mjs','talkcraft-source-ocr.ps1','talkcraft-source-archive.mjs','talkcraft-timing-completion.mjs','talkcraft-dependency-timeline.mjs','../console-server.mjs'];
+RULE_FILES.push('talkcraft-editorial-timing-contract.mjs','talkcraft-editorial-native-plan.mjs','talkcraft-editorial-request-audit.mjs','talkcraft-word-reveal.mjs');
 const ruleSnapshot=()=>Object.fromEntries(RULE_FILES.map(n=>[n,sha(new URL(n,import.meta.url))]));
 const loadedRules=ruleSnapshot();
 // A centre approves actions, never creative values or an invalid artifact.

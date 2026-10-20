@@ -36,10 +36,11 @@ import {buildEditorialJointRepairContract} from './talkcraft-editorial-joint-rep
 import {buildEditorialSelectionRequest,editorialSelectionPrompt,editorialSelectionModelInput,compileEditorialSelection,preservedEditorialSelectionShots,auditEditorialSelectionContent} from './talkcraft-editorial-selection.mjs';
 import {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
 import {editorialTextEffectInput} from './talkcraft-text-effect-dependencies.mjs';
+import {editorialTimingDesignContract,auditEditorialTiming} from './talkcraft-editorial-timing-contract.mjs';
 export {editorialShotSemantics} from './talkcraft-editorial-shot-semantics.mjs';
 
 const json = file => JSON.parse(readFileSync(file, 'utf8'));
-export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot}) {
+export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot,selectionRequest}) {
   const issues=[],checks=[],rows=result?.sentences;
   const add=(code,message,extra={})=>issues.push({code,message,...extra});
   const needs=new Set(['证据','身份','量化','对比','结构','强调','无']);
@@ -81,8 +82,10 @@ export function auditEditorialProposal(result,{semantics,aligned,vocab,catalog,p
   const materials=auditEditorialMaterialContract({shots,sentences:result?.sentences,
     researchPlan:result?.materialResearch,catalog,projectRoot});
   issues.push(...materials.issues);
+  const timing=auditEditorialTiming(result,{aligned,catalog,projectRoot,selectionRequest});
+  issues.push(...timing.issues);
   return {schema:'talkcraft-editorial-proposal-audit-v1',passed:issues.length===0,issues,checks,
-    materials,expression,pending:[...templates.pending,...materials.pending],productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
+    materials,expression,timing,pending:[...templates.pending,...materials.pending],productionAdmitted:false,runtimeVerified:false,userAcceptance:false};
 }
 export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=resolveTalkcraftSkillRoot(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'))}={}) {
   const admitted=new Set(catalog.cards.map(c=>c.cardId));
@@ -102,6 +105,7 @@ export function compactTalkcraftEditorialCatalog(index, catalog, {skillRoot=reso
       allowedBusinessKeys:card.fields.filter(f=>f.writable&&f.role!=='media').map(f=>f.key),
       frozenKeys:card.fields.filter(f=>!f.writable).map(f=>f.key),
       replacementBudget:editorialReplacementBudget(catalog.cards.find(c=>c.cardId===card.slug)),
+      timingDesign:editorialTimingDesignContract(sourceCard),
       fields:card.fields.filter(field => required.has(field.key)||field.writable&&field.role!=='media').map(field => ({
         key:field.key, type:field.type,
         ...(editorialNumericGrid(sourceCard.fields.find(f=>f.key===field.key))?{numericGrid:editorialNumericGrid(sourceCard.fields.find(f=>f.key===field.key))}:{}),
@@ -689,7 +693,7 @@ ${adjustment ? `用户对上一版分镜的调整要求（必须逐项落实）�
     }
     updateTalkcraftExecution('正在校验语义、句子覆盖和模板参数');
     if(sourceRun.pipeline==='video-talkcraft'){
-      const proposalAudit=auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot:project});
+      const proposalAudit=auditEditorialProposal(result,{semantics,aligned,vocab,catalog,projectRoot:project,selectionRequest:compiledSelectionRequest});
       writeFileSync(path.join(qa,'ark-proposal-audit.json'),JSON.stringify(proposalAudit,null,2));
       if(!proposalAudit.passed){
         saveEditorialRepairFeedback(project,result,proposalAudit);

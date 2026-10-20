@@ -13,8 +13,9 @@ import {assertNativeMotionRate,assertNativeMediaClock,NATIVE_MIN_RATE,NATIVE_MAX
 import {assertNativeHoldBudget,NATIVE_HOLD_RULES} from './talkcraft-native-time-map.mjs';
 
 const NATIVE_TIMING_RULES='每镜帧数只能由真实配音边界计算：Math.round(end*30)-Math.round(start*30)。仅模板动效允许0.85～1.15倍速，nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。实际速度按原生和输出首尾帧跨度之比记录，整数帧取整后仍不得超限，超限必须重新选卡。内嵌媒体的原生帧与输出帧必须一一对应，不能驻留冻结或偏移。配音、数字人口型、字级输出锚点和真实切镜时间保持原样，不得跟随模板变速；原卡首尾和动作顺序完整保留。开场原卡仍须不超过3秒，禁止靠加速长卡绕过。驻留帧为0基索引，必须满足 0 <= holdAtNativeFrame < nativeFrames-1；nativeFrames是总帧数，不能填作驻留帧。驻留点必须依据原卡源码中主体尚完整可见的阶段，不能简单减一或在退场后驻留。视觉效果由人工审核。'+CONTENT_ONSET_RULES+TEXT_EFFECT_RULES+BACKGROUND_PRESENTATION_RULES+NATIVE_HOLD_RULES;
-export const EDITORIAL_SELECTION_NATIVE_RULES=NATIVE_TIMING_RULES.replace('nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。','局部修订速度只由choiceId的服务端方案编译；模型禁止返回playbackRate（包括null和1）。');
-export const EDITORIAL_NATIVE_RULES=NATIVE_TIMING_RULES+CAPTION_EMPHASIS_RULES;
+const GENERATION_TIMING_RULES='每张目录合同的timingDesign来自正式参数化时序源码：reference只是默认参数预览，不是最终设计。先以最终cardProps重算每个texts展示窗口和effects目标，再与本镜真实字符localFrame比较；同字段多句逐句登记，强调等最后目标文字可读后才开始，载字块只允许各自leadFrames。使用该合同的最晚锚点必要上界排除必定无解方案，再完整编译原生首尾、速率及冻结预算。无法实现时比较其它兼容设计，不沿用默认时序、不挪动真实锚词、不通过改角色绕开规则。正式生成接纳前会用与07相同的字级解析器和时序校验一次检查全部镜头，结构或总时长通过不等于本片时序通过。';
+export const EDITORIAL_SELECTION_NATIVE_RULES=NATIVE_TIMING_RULES.replace('nativePresentation.playbackRate为可选请求速度；省略时默认1倍，原卡略长时可自动在15%内适配。','局部修订速度只由choiceId的服务端方案编译；模型禁止返回playbackRate（包括null和1）。')+GENERATION_TIMING_RULES;
+export const EDITORIAL_NATIVE_RULES=NATIVE_TIMING_RULES+GENERATION_TIMING_RULES+CAPTION_EMPHASIS_RULES;
 
 export const EDITORIAL_MATERIAL_RULES=MATERIAL_RESEARCH_RULES+VISUAL_PREFERENCE_RULES;
 export const EDITORIAL_SELECTION_MATERIAL_RULES=MATERIAL_RESEARCH_SELECTION_RULES+VISUAL_PREFERENCE_RULES;

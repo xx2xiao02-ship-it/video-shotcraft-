@@ -146,13 +146,17 @@ test('提案集中校验复用正式模板规则，一次呈现非法需求、�
   assert.equal(report.issues.filter(i=>i.code==='template_window_reuse').length,1);
 });
 
-test('提案结构通过仍不冒充素材、实帧及用户验收，未知字段继续由正式契约拒绝',()=>{
+test('提案结构通过仍不冒充素材、实帧及用户验收，未知字段继续由正式契约拒绝',t=>{
   const catalog=loadTalkcraftGovernedCatalog(JSON.parse(readFileSync('_audit/video-talkcraft/references/cards-index.json','utf8')));
   const sentence={i:0,text:'原句',sem:['强调'],need:['强调'],weight:'main',entities:[]};
   const value={sentences:[sentence],shots:[{id:'s01',firstSentence:0,lastSentence:0,shotCard:'per-character-rise',
     templateParams:{cardProps:{text:'原句'}},nativePresentation:{holdAtNativeFrame:60,holdReason:'主体仍可见',
       textFields:[{key:'text',visibility:'visible'}],wordEvents:[{field:'text',text:'原句',sentenceIndex:0,anchor:'原句',role:'spoken'}]}}]};
-  const options={semantics:{sentences:[{i:0,text:'原句'}]},aligned:[{start:0,end:3}],vocab,catalog,projectRoot:process.cwd()};
+  const projectRoot=mkdtempSync(path.resolve('.tmp/editorial-proposal-clock-'));
+  t.after(()=>rmSync(projectRoot,{recursive:true,force:true}));
+  mkdirSync(path.join(projectRoot,'remotion'),{recursive:true});
+  writeFileSync(path.join(projectRoot,'remotion/timing.json'),JSON.stringify({scenes:[{id:'s1',text:'原句',chars:[{ch:'原',t:0,e:.1},{ch:'句',t:.1,e:.2}]}]}));
+  const options={semantics:{sentences:[{i:0,text:'原句'}]},aligned:[{start:0,end:3}],vocab,catalog,projectRoot};
   const report=auditEditorialProposal(value,options);
   assert.equal(report.passed,true);assert.equal(report.productionAdmitted,false);
   assert.equal(report.runtimeVerified,false);assert.equal(report.userAcceptance,false);

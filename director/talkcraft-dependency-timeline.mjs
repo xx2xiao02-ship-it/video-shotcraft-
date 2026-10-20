@@ -5,14 +5,12 @@ import {validateNativeTimeline} from './talkcraft-native-governance.mjs';
 export function proposeDependencyTimeline(shot,row,reveals,{holdAt,reason}={}){
  const c=textEffectContract(shot.shotCard,shot.templateParams?.cardProps||{},row.nativeFrames);
  if(!c)throw Error('正式选卡尚未审计时序契约');
- const events=reveals.events.filter(e=>e.beatId===shot.id&&!e.deferredTo),constraints=[];
- for(const w of c.texts){
-  const matched=events.filter(e=>e.field===w.field),targets=w.wholeField?matched:[matched[w.index]].filter(Boolean);
-  for(const e of targets)constraints.push({nativeFrame:w.end-2,notBefore:e.localFrame});
- }
- for(const e of c.effects){const t=events.filter(t=>t.field===e.field)[e.index];
-  if(t)constraints.push({nativeFrame:e.begin,notBefore:t.localFrame-e.leadFrames+(e.leadFrames===0?1:0)});
- }
+ // Use the validator's resolved target set. A whole field may contain several
+ // sentence events; choosing its first event here disagreed with the validator
+ // and could put emphasis before the final words were ready.
+ const reference={...row,endFrame:row.startFrame+row.nativeFrames,timeline:[{kind:'motion',fromFrame:0,toFrame:row.nativeFrames-1,nativeFromFrame:0,nativeToFrame:row.nativeFrames-1,playbackRate:1}]};
+ const constraints=checkTextEffectDependencies([shot],{shots:[reference]},reveals).checks[0].constraints
+  .map(({nativeFrame,notBeforeFrame})=>({nativeFrame,notBefore:notBeforeFrame}));
  const holds=new Map();let delay=0;
  for(const x of constraints.sort((a,b)=>a.nativeFrame-b.nativeFrame)){
   if(x.nativeFrame<1)throw Error('原卡起始帧无法承接该真实锚点，须重选');
